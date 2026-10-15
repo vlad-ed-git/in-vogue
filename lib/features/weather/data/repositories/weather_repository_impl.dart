@@ -16,7 +16,6 @@ class WeatherRepositoryImpl implements WeatherRepository {
     required WeatherRemoteDataSource remoteDataSource,
     required WeatherLocalDataSource localDataSource,
     required LogMessages logMessages,
-    this._clock = const Clock(),
   }) : _remote = remoteDataSource,
        _local = localDataSource,
        _logger = logMessages;
@@ -24,11 +23,10 @@ class WeatherRepositoryImpl implements WeatherRepository {
   final WeatherRemoteDataSource _remote;
   final WeatherLocalDataSource _local;
   final LogMessages _logger;
-  final Clock _clock;
 
   @override
   Future<Either<Failure, Forecast>> forecastFor(UserLocation location) async {
-    final now = _clock.now().toUtc();
+    final now = clock.now().toUtc();
     final key = '${location.latitude},${location.longitude}';
     final kept = await _readKept(key, now);
     if (kept != null &&

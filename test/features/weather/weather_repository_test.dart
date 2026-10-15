@@ -33,8 +33,8 @@ void main() {
     late SqliteCache cache;
     late WeatherLocalDataSourceImpl source;
 
+    setUpAll(sqfliteFfiInit);
     setUp(() async {
-      sqfliteFfiInit();
       cache = await SqliteCache.open(
         factory: databaseFactoryFfi,
         path: inMemoryDatabasePath,
@@ -86,7 +86,6 @@ void main() {
         remoteDataSource: remote,
         localDataSource: local,
         logMessages: logger,
-        clock: Clock.fixed(_now),
       );
       when(
         local.read(key: anyNamed('key'), now: anyNamed('now')),
@@ -115,8 +114,12 @@ void main() {
     Forecast forecastOf(Either<Failure, Forecast> result) =>
         result.getOrElse(() => throw StateError('$result'));
 
+    /// The forecast for the place, at [_now].
+    Future<Either<Failure, Forecast>> forecastNow() =>
+        withClock(Clock.fixed(_now), () => repository.forecastFor(_place));
+
     test('fetches, keeps and returns a forecast for the place', () async {
-      final forecast = forecastOf(await repository.forecastFor(_place));
+      final forecast = forecastOf(await forecastNow());
       expect(forecast.hours, hasLength(48));
       expect(forecast.fetchedAt, _now);
       verify(
@@ -133,7 +136,7 @@ void main() {
 
     test('uses a forecast fetched within the hour without asking', () async {
       saved(age: const Duration(minutes: 59));
-      final forecast = forecastOf(await repository.forecastFor(_place));
+      final forecast = forecastOf(await forecastNow());
       expect(forecast.hours, hasLength(24));
       verifyNever(
         remote.fetchForecast(
@@ -145,7 +148,7 @@ void main() {
 
     test('replaces an older forecast with a new one', () async {
       saved(age: const Duration(hours: 1));
-      final forecast = forecastOf(await repository.forecastFor(_place));
+      final forecast = forecastOf(await forecastNow());
       expect(forecast.hours, hasLength(48));
       expect(forecast.fetchedAt, _now);
     });
@@ -158,7 +161,7 @@ void main() {
           longitude: anyNamed('longitude'),
         ),
       ).thenThrow(NetworkException(Exception('offline'), StackTrace.current));
-      final forecast = forecastOf(await repository.forecastFor(_place));
+      final forecast = forecastOf(await forecastNow());
       expect(forecast.fetchedAt, _now.subtract(const Duration(hours: 5)));
     });
 
@@ -170,7 +173,7 @@ void main() {
         ),
       ).thenThrow(NetworkException(Exception('offline'), StackTrace.current));
       expect(
-        await repository.forecastFor(_place),
+        await forecastNow(),
         const Left<Failure, Forecast>(NetworkFailure()),
       );
       when(
@@ -180,7 +183,7 @@ void main() {
         ),
       ).thenThrow(ServerException(Exception('500'), StackTrace.current));
       expect(
-        await repository.forecastFor(_place),
+        await forecastNow(),
         const Left<Failure, Forecast>(ServerFailure()),
       );
       when(
@@ -190,7 +193,7 @@ void main() {
         ),
       ).thenAnswer((_) async => {'unexpected': true});
       expect(
-        await repository.forecastFor(_place),
+        await forecastNow(),
         const Left<Failure, Forecast>(ServerFailure()),
       );
     });
@@ -206,7 +209,7 @@ void main() {
           fetchedAt: anyNamed('fetchedAt'),
         ),
       ).thenThrow(CacheException(Exception('disk full'), StackTrace.current));
-      final forecast = forecastOf(await repository.forecastFor(_place));
+      final forecast = forecastOf(await forecastNow());
       expect(forecast.hours, hasLength(48));
     });
   });

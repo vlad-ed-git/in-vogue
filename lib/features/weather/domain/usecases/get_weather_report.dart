@@ -26,10 +26,9 @@ class WeatherReportParams extends Equatable {
 }
 
 class GetWeatherReport implements UseCase<WeatherReport, WeatherReportParams> {
-  const GetWeatherReport(this._repository, {this._clock = const Clock()});
+  const GetWeatherReport(this._repository);
 
   final WeatherRepository _repository;
-  final Clock _clock;
 
   @override
   Future<Either<Failure, WeatherReport>> call(
@@ -37,7 +36,7 @@ class GetWeatherReport implements UseCase<WeatherReport, WeatherReportParams> {
   ) async {
     final result = await _repository.forecastFor(params.location);
     return result.flatMap((forecast) {
-      final now = _clock.now();
+      final now = clock.now();
       final local = forecast.localTime(now);
       final day = params.day ?? ForecastDay.shownAt(local);
       final date = day.dateFrom(local);

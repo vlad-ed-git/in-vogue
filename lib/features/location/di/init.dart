@@ -1,5 +1,3 @@
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/features/location/data/data_sources/location_device_data_source.dart';
 import 'package:in_vogue/features/location/data/data_sources/location_local_data_source.dart';
@@ -13,10 +11,7 @@ import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart'
 void init(GetIt locator) {
   locator
     ..registerLazySingleton<LocationDeviceDataSource>(
-      () => LocationDeviceDataSourceImpl(
-        geolocator: GeolocatorPlatform.instance,
-        geocoding: Geocoding(),
-      ),
+      LocationDeviceDataSourceImpl.new,
     )
     ..registerLazySingleton<LocationLocalDataSource>(
       () => LocationLocalDataSourceImpl(locator()),

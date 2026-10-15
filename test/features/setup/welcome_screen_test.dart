@@ -1,56 +1,52 @@
-import 'dart:async';
-
-import 'package:dartz/dartz.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
-import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
-import 'package:in_vogue/features/location/domain/usecases/open_location_settings.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/pump_in_vogue.dart';
-import '../location/location_repository_test.mocks.dart';
 
-const _newYork = UserLocation(latitude: 40.71, longitude: -74.01);
+class _MockLocationBloc extends MockBloc<LocationEvent, LocationState>
+    implements LocationBloc {}
+
+const _located = LocationState(
+  status: LocationStatus.located,
+  location: UserLocation(latitude: 40.71, longitude: -74.01),
+);
+
+LocationState _failed(Failure failure) =>
+    LocationState(status: LocationStatus.failed, failure: failure);
 
 Finder _button(String label) =>
     find.ancestor(of: find.text(label), matching: find.byType(InVogueButton));
 
 void main() {
-  late MockLocationRepository repository;
+  late _MockLocationBloc bloc;
   late int located;
 
   setUp(() {
-    repository = MockLocationRepository();
-    when(repository.openSettings(any)).thenAnswer((_) async {});
+    bloc = _MockLocationBloc();
     located = 0;
   });
 
-  void answerLocate(Either<Failure, UserLocation> result) => when(
-    repository.locate(
-      askPermission: anyNamed('askPermission'),
-      languageCode: anyNamed('languageCode'),
-    ),
-  ).thenAnswer((_) async => result);
-
   Future<void> pumpWelcome(
     WidgetTester tester, {
+    LocationState state = const LocationState(),
+    Stream<LocationState> states = const Stream.empty(),
     Locale locale = const Locale('en'),
     Size size = const Size(390, 844),
     double textScale = 1,
   }) async {
+    whenListen(bloc, states, initialState: state);
     await pumpInVogue(
       tester,
-      BlocProvider(
-        create: (_) => LocationBloc(
-          locateUser: LocateUser(repository),
-          openLocationSettings: OpenLocationSettings(repository),
-        ),
+      BlocProvider<LocationBloc>.value(
+        value: bloc,
         child: WelcomeScreen(onLocated: () => located++),
       ),
       locale: locale,
@@ -91,100 +87,71 @@ void main() {
     expect(button.height, InVogueLayout.controlHeight);
   });
 
-  testWidgets('moves on once the location is found, in the screen language', (
-    tester,
-  ) async {
-    answerLocate(const Right(_newYork));
+  testWidgets('asks for the location in the screen’s language', (tester) async {
     await pumpWelcome(tester, locale: const Locale('es'));
     await tester.tap(_button('Usar mi ubicación'));
-    await tester.pumpAndSettle();
-    expect(located, 1);
-    verify(
-      repository.locate(askPermission: true, languageCode: 'es'),
-    ).called(1);
+    verify(() => bloc.add(const LocationRequested('es'))).called(1);
   });
 
-  testWidgets('cannot be tapped again while the location is found', (
-    tester,
-  ) async {
-    final answer = Completer<Either<Failure, UserLocation>>();
-    when(
-      repository.locate(
-        askPermission: anyNamed('askPermission'),
-        languageCode: anyNamed('languageCode'),
-      ),
-    ).thenAnswer((_) => answer.future);
-    await pumpWelcome(tester);
-    await tester.tap(_button('Use my location'));
-    await tester.pump();
+  testWidgets('cannot be tapped while the location is found', (tester) async {
+    await pumpWelcome(
+      tester,
+      state: const LocationState(status: LocationStatus.locating),
+    );
     expect(
       tester.widget<InVogueButton>(_button('Use my location')).onPressed,
       isNull,
     );
-    answer.complete(const Right(_newYork));
-    await tester.pumpAndSettle();
+  });
+
+  testWidgets('moves on once the location is found', (tester) async {
+    await pumpWelcome(tester, states: Stream.value(_located));
     expect(located, 1);
   });
 
   testWidgets(
     'replaces the button with the location notice when refused, and opens settings',
     (tester) async {
-      answerLocate(const Left(LocationFailure(LocationProblem.deniedForever)));
-      await pumpWelcome(tester);
-      await tester.tap(_button('Use my location'));
-      await tester.pumpAndSettle();
+      await pumpWelcome(
+        tester,
+        state: _failed(const LocationFailure(LocationProblem.deniedForever)),
+      );
       expect(
         find.text('In Vogue needs your location for the weather.'),
         findsOneWidget,
       );
       expect(_button('Use my location'), findsNothing);
       await tester.tap(_button('Open settings'));
-      await tester.pumpAndSettle();
-      verify(repository.openSettings(LocationProblem.deniedForever)).called(1);
+      verify(() => bloc.add(const LocationSettingsRequested())).called(1);
       expect(located, 0);
     },
   );
 
-  testWidgets('checks again without asking on return from settings', (
-    tester,
-  ) async {
-    answerLocate(const Left(LocationFailure(LocationProblem.denied)));
-    await pumpWelcome(tester);
-    await tester.tap(_button('Use my location'));
-    await tester.pumpAndSettle();
-    answerLocate(const Right(_newYork));
+  testWidgets('checks again on return from settings', (tester) async {
+    await pumpWelcome(
+      tester,
+      state: _failed(const LocationFailure(LocationProblem.denied)),
+    );
     tester.binding
       ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
       ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-    await tester.pumpAndSettle();
-    verify(
-      repository.locate(askPermission: false, languageCode: 'en'),
-    ).called(1);
-    expect(located, 1);
+    verify(() => bloc.add(const LocationRechecked('en'))).called(1);
   });
 
   testWidgets('offers to try again when the position cannot be found', (
     tester,
   ) async {
-    answerLocate(const Left(LocationFailure(LocationProblem.unavailable)));
-    await pumpWelcome(tester);
-    await tester.tap(_button('Use my location'));
-    await tester.pumpAndSettle();
+    await pumpWelcome(
+      tester,
+      state: _failed(const LocationFailure(LocationProblem.unavailable)),
+    );
     expect(find.text('We couldn’t find where you are.'), findsOneWidget);
-    answerLocate(const Right(_newYork));
     await tester.tap(_button('Try again'));
-    await tester.pumpAndSettle();
-    expect(located, 1);
-    verify(
-      repository.locate(askPermission: true, languageCode: 'en'),
-    ).called(2);
+    verify(() => bloc.add(const LocationRequested('en'))).called(1);
   });
 
   testWidgets('says when the location could not be saved', (tester) async {
-    answerLocate(const Left(CacheFailure()));
-    await pumpWelcome(tester);
-    await tester.tap(_button('Use my location'));
-    await tester.pumpAndSettle();
+    await pumpWelcome(tester, state: _failed(const CacheFailure()));
     expect(
       find.text('We couldn’t save your changes. Please try again.'),
       findsOneWidget,

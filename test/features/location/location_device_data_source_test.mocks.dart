@@ -4,15 +4,14 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
-import 'dart:async' as _i4;
+import 'dart:async' as _i5;
 import 'dart:ui' as _i8;
 
-import 'package:geocoding/geocoding.dart' as _i6;
-import 'package:geocoding_platform_interface/geocoding_platform_interface.dart'
-    as _i7;
-import 'package:geolocator_platform_interface/src/enums/enums.dart' as _i5;
+import 'package:geocoding_platform_interface/src/geocoding.dart' as _i7;
+import 'package:geocoding_platform_interface/src/types/types.dart' as _i3;
+import 'package:geolocator_platform_interface/src/enums/enums.dart' as _i6;
 import 'package:geolocator_platform_interface/src/geolocator_platform_interface.dart'
-    as _i3;
+    as _i4;
 import 'package:geolocator_platform_interface/src/models/models.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
 
@@ -36,64 +35,70 @@ class _FakePosition_0 extends _i1.SmartFake implements _i2.Position {
     : super(parent, parentInvocation);
 }
 
+class _FakeGeocodingCreationParams_1 extends _i1.SmartFake
+    implements _i3.GeocodingCreationParams {
+  _FakeGeocodingCreationParams_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [GeolocatorPlatform].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockGeolocatorPlatform extends _i1.Mock
-    implements _i3.GeolocatorPlatform {
+    implements _i4.GeolocatorPlatform {
   MockGeolocatorPlatform() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i5.LocationPermission> checkPermission() =>
+  _i5.Future<_i6.LocationPermission> checkPermission() =>
       (super.noSuchMethod(
             Invocation.method(#checkPermission, []),
-            returnValue: _i4.Future<_i5.LocationPermission>.value(
-              _i5.LocationPermission.denied,
+            returnValue: _i5.Future<_i6.LocationPermission>.value(
+              _i6.LocationPermission.denied,
             ),
           )
-          as _i4.Future<_i5.LocationPermission>);
+          as _i5.Future<_i6.LocationPermission>);
 
   @override
-  _i4.Future<_i5.LocationPermission> requestPermission() =>
+  _i5.Future<_i6.LocationPermission> requestPermission() =>
       (super.noSuchMethod(
             Invocation.method(#requestPermission, []),
-            returnValue: _i4.Future<_i5.LocationPermission>.value(
-              _i5.LocationPermission.denied,
+            returnValue: _i5.Future<_i6.LocationPermission>.value(
+              _i6.LocationPermission.denied,
             ),
           )
-          as _i4.Future<_i5.LocationPermission>);
+          as _i5.Future<_i6.LocationPermission>);
 
   @override
-  _i4.Future<bool> isLocationServiceEnabled() =>
+  _i5.Future<bool> isLocationServiceEnabled() =>
       (super.noSuchMethod(
             Invocation.method(#isLocationServiceEnabled, []),
-            returnValue: _i4.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i4.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i4.Future<_i2.Position?> getLastKnownPosition({
+  _i5.Future<_i2.Position?> getLastKnownPosition({
     bool? forceLocationManager = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getLastKnownPosition, [], {
               #forceLocationManager: forceLocationManager,
             }),
-            returnValue: _i4.Future<_i2.Position?>.value(),
+            returnValue: _i5.Future<_i2.Position?>.value(),
           )
-          as _i4.Future<_i2.Position?>);
+          as _i5.Future<_i2.Position?>);
 
   @override
-  _i4.Future<_i2.Position> getCurrentPosition({
+  _i5.Future<_i2.Position> getCurrentPosition({
     _i2.LocationSettings? locationSettings,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getCurrentPosition, [], {
               #locationSettings: locationSettings,
             }),
-            returnValue: _i4.Future<_i2.Position>.value(
+            returnValue: _i5.Future<_i2.Position>.value(
               _FakePosition_0(
                 this,
                 Invocation.method(#getCurrentPosition, [], {
@@ -102,67 +107,67 @@ class MockGeolocatorPlatform extends _i1.Mock
               ),
             ),
           )
-          as _i4.Future<_i2.Position>);
+          as _i5.Future<_i2.Position>);
 
   @override
-  _i4.Stream<_i5.ServiceStatus> getServiceStatusStream() =>
+  _i5.Stream<_i6.ServiceStatus> getServiceStatusStream() =>
       (super.noSuchMethod(
             Invocation.method(#getServiceStatusStream, []),
-            returnValue: _i4.Stream<_i5.ServiceStatus>.empty(),
+            returnValue: _i5.Stream<_i6.ServiceStatus>.empty(),
           )
-          as _i4.Stream<_i5.ServiceStatus>);
+          as _i5.Stream<_i6.ServiceStatus>);
 
   @override
-  _i4.Stream<_i2.Position> getPositionStream({
+  _i5.Stream<_i2.Position> getPositionStream({
     _i2.LocationSettings? locationSettings,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getPositionStream, [], {
               #locationSettings: locationSettings,
             }),
-            returnValue: _i4.Stream<_i2.Position>.empty(),
+            returnValue: _i5.Stream<_i2.Position>.empty(),
           )
-          as _i4.Stream<_i2.Position>);
+          as _i5.Stream<_i2.Position>);
 
   @override
-  _i4.Future<_i5.LocationAccuracyStatus> requestTemporaryFullAccuracy({
+  _i5.Future<_i6.LocationAccuracyStatus> requestTemporaryFullAccuracy({
     required String? purposeKey,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#requestTemporaryFullAccuracy, [], {
               #purposeKey: purposeKey,
             }),
-            returnValue: _i4.Future<_i5.LocationAccuracyStatus>.value(
-              _i5.LocationAccuracyStatus.reduced,
+            returnValue: _i5.Future<_i6.LocationAccuracyStatus>.value(
+              _i6.LocationAccuracyStatus.reduced,
             ),
           )
-          as _i4.Future<_i5.LocationAccuracyStatus>);
+          as _i5.Future<_i6.LocationAccuracyStatus>);
 
   @override
-  _i4.Future<_i5.LocationAccuracyStatus> getLocationAccuracy() =>
+  _i5.Future<_i6.LocationAccuracyStatus> getLocationAccuracy() =>
       (super.noSuchMethod(
             Invocation.method(#getLocationAccuracy, []),
-            returnValue: _i4.Future<_i5.LocationAccuracyStatus>.value(
-              _i5.LocationAccuracyStatus.reduced,
+            returnValue: _i5.Future<_i6.LocationAccuracyStatus>.value(
+              _i6.LocationAccuracyStatus.reduced,
             ),
           )
-          as _i4.Future<_i5.LocationAccuracyStatus>);
+          as _i5.Future<_i6.LocationAccuracyStatus>);
 
   @override
-  _i4.Future<bool> openAppSettings() =>
+  _i5.Future<bool> openAppSettings() =>
       (super.noSuchMethod(
             Invocation.method(#openAppSettings, []),
-            returnValue: _i4.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i4.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i4.Future<bool> openLocationSettings() =>
+  _i5.Future<bool> openLocationSettings() =>
       (super.noSuchMethod(
             Invocation.method(#openLocationSettings, []),
-            returnValue: _i4.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i4.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
   double distanceBetween(
@@ -204,13 +209,24 @@ class MockGeolocatorPlatform extends _i1.Mock
 /// A class which mocks [Geocoding].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockGeocoding extends _i1.Mock implements _i6.Geocoding {
-  MockGeocoding() {
+class MockGeocodingPlatform extends _i1.Mock implements _i7.Geocoding {
+  MockGeocodingPlatform() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<List<_i7.Location>> locationFromAddress(
+  _i3.GeocodingCreationParams get params =>
+      (super.noSuchMethod(
+            Invocation.getter(#params),
+            returnValue: _FakeGeocodingCreationParams_1(
+              this,
+              Invocation.getter(#params),
+            ),
+          )
+          as _i3.GeocodingCreationParams);
+
+  @override
+  _i5.Future<List<_i3.Location>> locationFromAddress(
     String? address, {
     _i8.Locale? locale,
   }) =>
@@ -220,29 +236,20 @@ class MockGeocoding extends _i1.Mock implements _i6.Geocoding {
               [address],
               {#locale: locale},
             ),
-            returnValue: _i4.Future<List<_i7.Location>>.value(<_i7.Location>[]),
+            returnValue: _i5.Future<List<_i3.Location>>.value(<_i3.Location>[]),
           )
-          as _i4.Future<List<_i7.Location>>);
+          as _i5.Future<List<_i3.Location>>);
 
   @override
-  _i4.Future<List<_i7.Placemark>> placemarkFromAddress(
-    String? address, {
-    _i8.Locale? locale,
-  }) =>
+  _i5.Future<bool> isPresent() =>
       (super.noSuchMethod(
-            Invocation.method(
-              #placemarkFromAddress,
-              [address],
-              {#locale: locale},
-            ),
-            returnValue: _i4.Future<List<_i7.Placemark>>.value(
-              <_i7.Placemark>[],
-            ),
+            Invocation.method(#isPresent, []),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i4.Future<List<_i7.Placemark>>);
+          as _i5.Future<bool>);
 
   @override
-  _i4.Future<List<_i7.Placemark>> placemarkFromCoordinates(
+  _i5.Future<List<_i3.Placemark>> placemarkFromCoordinates(
     double? latitude,
     double? longitude, {
     _i8.Locale? locale,
@@ -253,23 +260,26 @@ class MockGeocoding extends _i1.Mock implements _i6.Geocoding {
               [latitude, longitude],
               {#locale: locale},
             ),
-            returnValue: _i4.Future<List<_i7.Placemark>>.value(
-              <_i7.Placemark>[],
+            returnValue: _i5.Future<List<_i3.Placemark>>.value(
+              <_i3.Placemark>[],
             ),
           )
-          as _i4.Future<List<_i7.Placemark>>);
+          as _i5.Future<List<_i3.Placemark>>);
 
   @override
-  _i4.Future<bool> isPresent() =>
+  _i5.Future<List<_i3.Placemark>> placemarkFromAddress(
+    String? address, {
+    _i8.Locale? locale,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#isPresent, []),
-            returnValue: _i4.Future<bool>.value(false),
+            Invocation.method(
+              #placemarkFromAddress,
+              [address],
+              {#locale: locale},
+            ),
+            returnValue: _i5.Future<List<_i3.Placemark>>.value(
+              <_i3.Placemark>[],
+            ),
           )
-          as _i4.Future<bool>);
-
-  @override
-  void setLocaleIdentifier(String? localeIdentifier) => super.noSuchMethod(
-    Invocation.method(#setLocaleIdentifier, [localeIdentifier]),
-    returnValueForMissingStub: null,
-  );
+          as _i5.Future<List<_i3.Placemark>>);
 }

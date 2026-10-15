@@ -33,26 +33,22 @@ abstract interface class LocationDeviceDataSource {
   Future<void> openSettings(LocationProblem problem);
 }
 
+/// Geolocator and the platform geocoder, through their public APIs.
 class LocationDeviceDataSourceImpl implements LocationDeviceDataSource {
-  LocationDeviceDataSourceImpl({
-    required this._geolocator,
-    required this._geocoding,
-  });
-
-  final GeolocatorPlatform _geolocator;
-  final Geocoding _geocoding;
+  /// Made on first use, once the platform has registered its geocoder.
+  late final Geocoding _geocoding = Geocoding();
 
   /// How long to wait for a fresh fix before using the last known one.
   static const fixTimeLimit = Duration(seconds: 15);
 
   @override
   Future<DevicePosition> position({required bool askPermission}) async {
-    if (!await _geolocator.isLocationServiceEnabled()) {
+    if (!await Geolocator.isLocationServiceEnabled()) {
       throw const LocationException(LocationProblem.servicesOff);
     }
-    var permission = await _geolocator.checkPermission();
+    var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied && askPermission) {
-      permission = await _geolocator.requestPermission();
+      permission = await Geolocator.requestPermission();
     }
     switch (permission) {
       case LocationPermission.deniedForever:
@@ -63,7 +59,7 @@ class LocationDeviceDataSourceImpl implements LocationDeviceDataSource {
         break;
     }
     try {
-      final fix = await _geolocator.getCurrentPosition(
+      final fix = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.low,
           timeLimit: fixTimeLimit,
@@ -75,7 +71,7 @@ class LocationDeviceDataSourceImpl implements LocationDeviceDataSource {
     } on PermissionDeniedException {
       throw const LocationException(LocationProblem.denied);
     } on Exception {
-      final last = await _geolocator.getLastKnownPosition();
+      final last = await Geolocator.getLastKnownPosition();
       if (last == null) {
         throw const LocationException(LocationProblem.unavailable);
       }
@@ -119,9 +115,9 @@ class LocationDeviceDataSourceImpl implements LocationDeviceDataSource {
   @override
   Future<void> openSettings(LocationProblem problem) async {
     if (problem == LocationProblem.servicesOff) {
-      await _geolocator.openLocationSettings();
+      await Geolocator.openLocationSettings();
     } else {
-      await _geolocator.openAppSettings();
+      await Geolocator.openAppSettings();
     }
   }
 }

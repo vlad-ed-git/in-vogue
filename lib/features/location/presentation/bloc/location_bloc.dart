@@ -6,8 +6,11 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
 import 'package:in_vogue/features/location/domain/usecases/open_location_settings.dart';
 
-sealed class LocationEvent {
+sealed class LocationEvent extends Equatable {
   const LocationEvent();
+
+  @override
+  List<Object?> get props => [];
 }
 
 /// Reads the location; one at a time.
@@ -16,6 +19,9 @@ sealed class LocationLookup extends LocationEvent {
 
   /// Language of the place name.
   final String languageCode;
+
+  @override
+  List<Object?> get props => [languageCode];
 }
 
 /// The person asked to use their location.

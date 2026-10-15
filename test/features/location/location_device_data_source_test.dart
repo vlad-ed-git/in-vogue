@@ -3,13 +3,33 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geocoding_platform_interface/geocoding_platform_interface.dart'
+    as pi;
 import 'package:geolocator/geolocator.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/location/data/data_sources/location_device_data_source.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'location_device_data_source_test.mocks.dart';
+import 'location_device_data_source_test.mocks.dart' as base;
+
+// The mixin makes the plugins accept the mocks as their platforms.
+class _MockGeolocatorPlatform extends base.MockGeolocatorPlatform
+    with MockPlatformInterfaceMixin {}
+
+class _MockGeocodingPlatform extends base.MockGeocodingPlatform
+    with MockPlatformInterfaceMixin {}
+
+class _MockGeocodingFactory
+    with MockPlatformInterfaceMixin
+    implements GeocodingPlatformFactory {
+  _MockGeocodingFactory(this.geocoding);
+  final pi.Geocoding geocoding;
+
+  @override
+  pi.Geocoding createGeocoding(pi.GeocodingCreationParams params) => geocoding;
+}
 
 Position _position(double latitude, double longitude) => Position(
   latitude: latitude,
@@ -28,19 +48,26 @@ Matcher _problem(LocationProblem problem) => throwsA(
   isA<LocationException>().having((e) => e.problem, 'problem', problem),
 );
 
-@GenerateMocks([GeolocatorPlatform, Geocoding])
+@GenerateMocks(
+  [],
+  customMocks: [
+    MockSpec<GeolocatorPlatform>(),
+    MockSpec<pi.Geocoding>(as: #MockGeocodingPlatform),
+  ],
+)
 void main() {
-  late MockGeolocatorPlatform geolocator;
-  late MockGeocoding geocoding;
+  late _MockGeolocatorPlatform geolocator;
+  late _MockGeocodingPlatform geocoding;
   late LocationDeviceDataSourceImpl source;
 
   setUp(() {
-    geolocator = MockGeolocatorPlatform();
-    geocoding = MockGeocoding();
-    source = LocationDeviceDataSourceImpl(
-      geolocator: geolocator,
-      geocoding: geocoding,
+    final original = GeolocatorPlatform.instance;
+    addTearDown(() => GeolocatorPlatform.instance = original);
+    GeolocatorPlatform.instance = geolocator = _MockGeolocatorPlatform();
+    GeocodingPlatformFactory.instance = _MockGeocodingFactory(
+      geocoding = _MockGeocodingPlatform(),
     );
+    source = LocationDeviceDataSourceImpl();
     when(geolocator.isLocationServiceEnabled()).thenAnswer((_) async => true);
     when(
       geolocator.checkPermission(),
@@ -128,7 +155,9 @@ void main() {
         ),
       ).thenThrow(TimeoutException('no fix'));
       when(
-        geolocator.getLastKnownPosition(),
+        geolocator.getLastKnownPosition(
+          forceLocationManager: anyNamed('forceLocationManager'),
+        ),
       ).thenAnswer((_) async => _position(51.5072, -0.1276));
       final position = await source.position(askPermission: true);
       expect(position.latitude, 51.5072);
@@ -140,7 +169,11 @@ void main() {
           locationSettings: anyNamed('locationSettings'),
         ),
       ).thenThrow(TimeoutException('no fix'));
-      when(geolocator.getLastKnownPosition()).thenAnswer((_) async => null);
+      when(
+        geolocator.getLastKnownPosition(
+          forceLocationManager: anyNamed('forceLocationManager'),
+        ),
+      ).thenAnswer((_) async => null);
       await expectLater(
         source.position(askPermission: true),
         _problem(LocationProblem.unavailable),

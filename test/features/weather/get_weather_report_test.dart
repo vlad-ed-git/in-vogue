@@ -30,12 +30,11 @@ void main() {
     ForecastDay? day,
     Occasion? occasion,
   }) async {
-    final useCase = GetWeatherReport(
-      repository,
-      clock: Clock.fixed(localTime.add(const Duration(hours: 4))),
-    );
-    final result = await useCase(
-      WeatherReportParams(location: _place, day: day, occasion: occasion),
+    final result = await withClock(
+      Clock.fixed(localTime.add(const Duration(hours: 4))),
+      () => GetWeatherReport(repository)(
+        WeatherReportParams(location: _place, day: day, occasion: occasion),
+      ),
     );
     return result.getOrElse(() => throw StateError('$result'));
   }
@@ -75,12 +74,13 @@ void main() {
   });
 
   test('fails when the forecast does not reach the day', () async {
-    final useCase = GetWeatherReport(
-      repository,
-      clock: Clock.fixed(DateTime.utc(2026, 10, 20, 12)),
-    );
     expect(
-      await useCase(const WeatherReportParams(location: _place)),
+      await withClock(
+        Clock.fixed(DateTime.utc(2026, 10, 20, 12)),
+        () => GetWeatherReport(repository)(
+          const WeatherReportParams(location: _place),
+        ),
+      ),
       const Left<Failure, WeatherReport>(ServerFailure()),
     );
   });

@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
-import 'package:in_vogue/core/persistence/key_value_store.dart';
 import 'package:in_vogue/features/location/data/data_sources/location_device_data_source.dart';
 import 'package:in_vogue/features/location/data/data_sources/location_local_data_source.dart';
 import 'package:in_vogue/features/location/data/repositories/location_repository_impl.dart';
@@ -12,22 +11,8 @@ import 'package:in_vogue/features/location/domain/repositories/location_reposito
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/memory_store.dart';
 import 'location_repository_test.mocks.dart';
-
-/// A [KeyValueStore] held in memory.
-class MemoryStore implements KeyValueStore {
-  final values = <String, String>{};
-
-  @override
-  String? readString(String key) => values[key];
-
-  @override
-  Future<void> writeString(String key, String value) async =>
-      values[key] = value;
-
-  @override
-  Future<void> close() async {}
-}
 
 const _newYork = UserLocation(
   latitude: 40.71,
