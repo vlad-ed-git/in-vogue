@@ -25,7 +25,7 @@ Future<void> bootstrap({
         createPreferencesBloc: () =>
             GetIt.I<PreferencesBloc>(param1: startup.language),
         createSetupBloc: () => GetIt.I<SetupBloc>(param1: startup.setupStep),
-        screens: inVogueScreens,
+        screens: inVogueScreens(GetIt.I),
       ),
     );
   } catch (error, stack) {

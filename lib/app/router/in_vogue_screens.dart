@@ -1,20 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:in_vogue/app/router/app_routes.dart';
 import 'package:in_vogue/app/router/app_screens.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/settings/presentation/screens/settings_screen.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
+import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
 
-/// The app's screens.
-const inVogueScreens = AppScreens(setup: _setupScreen, tab: _tabScreen);
-
-Widget _setupScreen(SetupStep step) => _PendingStep(step);
-
-Widget _tabScreen(InVogueTab tab) => switch (tab) {
-  InVogueTab.settings => const SettingsScreen(),
-  InVogueTab.home || InVogueTab.makeup => const SizedBox.shrink(),
-};
+/// The app's screens, with their blocs from [locator].
+AppScreens inVogueScreens(GetIt locator) => AppScreens(
+  setup: (step) => switch (step) {
+    SetupStep.welcome => BlocProvider(
+      create: (_) => locator<LocationBloc>(),
+      child: Builder(
+        builder: (context) => WelcomeScreen(
+          onLocated: () => context.go(AppRoutes.forStep(SetupStep.photo)),
+        ),
+      ),
+    ),
+    _ => _PendingStep(step),
+  },
+  tab: (tab) => switch (tab) {
+    InVogueTab.settings => const SettingsScreen(),
+    InVogueTab.home || InVogueTab.makeup => const SizedBox.shrink(),
+  },
+);
 
 /// A setup step whose screen is still to be built: Back and the folio.
 class _PendingStep extends StatelessWidget {

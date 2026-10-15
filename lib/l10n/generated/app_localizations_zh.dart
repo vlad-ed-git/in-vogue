@@ -12,10 +12,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appName => 'In Vogue';
 
   @override
-  String get tagline => '以时尚穿搭，迎接明天的天气。';
+  String get tagline => '以时尚穿搭，迎接明天的天气';
 
   @override
-  String get welcomeDescription => '穿搭随天气，妆容配风格。';
+  String get welcomeDescription => '看看自己穿上为明天天气挑选的搭配，每件单品都附购买链接。';
+
+  @override
+  String get useMyLocation => '使用我的位置';
 
   @override
   String get language => '语言';
@@ -144,6 +147,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get locationOff => 'In Vogue 需要你的位置来获取天气。';
+
+  @override
+  String get locationUnavailable => '我们找不到你的位置。';
 
   @override
   String get openSettings => '打开设置';

@@ -67,7 +67,7 @@ void main() {
           createPreferencesBloc: () =>
               GetIt.I<PreferencesBloc>(param1: restored.language),
           createSetupBloc: () => GetIt.I<SetupBloc>(param1: restored.setupStep),
-          screens: inVogueScreens,
+          screens: inVogueScreens(GetIt.I),
         ),
       );
       await tester.pumpAndSettle();

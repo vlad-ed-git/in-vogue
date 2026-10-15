@@ -8,5 +8,9 @@ extension FailureMessage on Failure {
     CacheFailure() => context.translated.cacheFailure,
     NetworkFailure() => context.translated.networkFailure,
     ServerFailure() => context.translated.serverFailure,
+    LocationFailure(:final needsSettings) =>
+      needsSettings
+          ? context.translated.locationOff
+          : context.translated.locationUnavailable,
   };
 }

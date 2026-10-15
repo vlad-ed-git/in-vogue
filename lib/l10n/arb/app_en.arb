@@ -1,8 +1,12 @@
 {
   "@@locale": "en",
   "appName": "In Vogue",
-  "tagline": "Meet tomorrow’s weather in style.",
-  "welcomeDescription": "Outfits for your day. Makeup for your look.",
+  "tagline": "Meet tomorrow’s weather in style",
+  "welcomeDescription": "See yourself in an outfit picked for tomorrow’s weather, with a link to buy every piece.",
+  "useMyLocation": "Use my location",
+  "@useMyLocation": {
+    "description": "Welcome's button; asks for the phone's location."
+  },
   "language": "Language",
   "cacheFailure": "We couldn’t save your changes. Please try again.",
   "networkFailure": "You’re offline. Please check your connection.",
@@ -150,6 +154,10 @@
   "gettingOutfitReady": "Getting your outfit ready…",
   "tryOnFailed": "We couldn’t dress you this time. Your photo is fine.",
   "locationOff": "In Vogue needs your location for the weather.",
+  "locationUnavailable": "We couldn’t find where you are.",
+  "@locationUnavailable": {
+    "description": "The phone could not find its position; shown with Try again."
+  },
   "openSettings": "Open settings",
   "offlineSaved": "You’re offline. This is the outfit saved on {savedAt}.",
   "@offlineSaved": {

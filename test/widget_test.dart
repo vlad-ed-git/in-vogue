@@ -1,12 +1,17 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:in_vogue/app/in_vogue_app.dart';
 import 'package:in_vogue/app/router/in_vogue_screens.dart';
 import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/location/domain/entities/user_location.dart';
+import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
+import 'package:in_vogue/features/location/domain/usecases/open_location_settings.dart';
+import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/set_language.dart';
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
@@ -14,6 +19,7 @@ import 'package:in_vogue/features/setup/domain/usecases/save_setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 import 'package:mockito/mockito.dart';
 
+import 'features/location/location_repository_test.mocks.dart';
 import 'features/preferences/preferences_repository_test.mocks.dart';
 import 'features/setup/setup_repository_test.mocks.dart';
 import 'helpers/pump_in_vogue.dart';
@@ -21,10 +27,20 @@ import 'helpers/pump_in_vogue.dart';
 void main() {
   late MockPreferencesRepository preferences;
   late MockSetupRepository setup;
+  late MockLocationRepository location;
+  late GetIt locator;
 
   setUp(() {
     preferences = MockPreferencesRepository();
     setup = MockSetupRepository();
+    location = MockLocationRepository();
+    locator = GetIt.asNewInstance()
+      ..registerFactory<LocationBloc>(
+        () => LocationBloc(
+          locateUser: LocateUser(location),
+          openLocationSettings: OpenLocationSettings(location),
+        ),
+      );
     when(setup.saveStep(any)).thenAnswer(
       (invocation) async =>
           Right(invocation.positionalArguments.first as SetupStep),
@@ -41,7 +57,7 @@ void main() {
     ),
     createSetupBloc: () =>
         SetupBloc(saveSetupStep: SaveSetupStep(setup), initialStep: step),
-    screens: inVogueScreens,
+    screens: inVogueScreens(locator),
   );
 
   /// Opens Settings from its [tab] label and picks [name] in the language
@@ -76,6 +92,27 @@ void main() {
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
     expect(find.byType(InVogueTabBar), findsOneWidget);
+  });
+
+  testWidgets('moves from Welcome to Your photo once located', (tester) async {
+    when(
+      location.locate(
+        askPermission: anyNamed('askPermission'),
+        languageCode: anyNamed('languageCode'),
+      ),
+    ).thenAnswer(
+      (_) async => const Right(UserLocation(latitude: 1, longitude: 2)),
+    );
+    await tester.pumpWidget(app(step: SetupStep.welcome));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Use my location'));
+    await tester.pumpAndSettle();
+    expect(find.text('2 / 6'), findsOneWidget);
+    verify(setup.saveStep(SetupStep.photo)).called(1);
+    await tester.tap(find.text('Back'));
+    await tester.pumpAndSettle();
+    expect(find.text('Use my location'), findsOneWidget);
+    verify(setup.saveStep(SetupStep.welcome)).called(1);
   });
 
   testWidgets('starts in English even when the device language is Spanish', (

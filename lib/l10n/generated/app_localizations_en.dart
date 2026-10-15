@@ -12,11 +12,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'In Vogue';
 
   @override
-  String get tagline => 'Meet tomorrow’s weather in style.';
+  String get tagline => 'Meet tomorrow’s weather in style';
 
   @override
   String get welcomeDescription =>
-      'Outfits for your day. Makeup for your look.';
+      'See yourself in an outfit picked for tomorrow’s weather, with a link to buy every piece.';
+
+  @override
+  String get useMyLocation => 'Use my location';
 
   @override
   String get language => 'Language';
@@ -146,6 +149,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationOff => 'In Vogue needs your location for the weather.';
+
+  @override
+  String get locationUnavailable => 'We couldn’t find where you are.';
 
   @override
   String get openSettings => 'Open settings';

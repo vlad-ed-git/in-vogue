@@ -109,14 +109,20 @@ abstract class AppLocalizations {
   /// No description provided for @tagline.
   ///
   /// In en, this message translates to:
-  /// **'Meet tomorrow’s weather in style.'**
+  /// **'Meet tomorrow’s weather in style'**
   String get tagline;
 
   /// No description provided for @welcomeDescription.
   ///
   /// In en, this message translates to:
-  /// **'Outfits for your day. Makeup for your look.'**
+  /// **'See yourself in an outfit picked for tomorrow’s weather, with a link to buy every piece.'**
   String get welcomeDescription;
+
+  /// Welcome's button; asks for the phone's location.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my location'**
+  String get useMyLocation;
 
   /// No description provided for @language.
   ///
@@ -332,6 +338,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In Vogue needs your location for the weather.'**
   String get locationOff;
+
+  /// The phone could not find its position; shown with Try again.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t find where you are.'**
+  String get locationUnavailable;
 
   /// No description provided for @openSettings.
   ///
