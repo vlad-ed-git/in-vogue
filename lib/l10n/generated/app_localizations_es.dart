@@ -407,4 +407,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String widgetSaved(String when) {
     return 'Guardado $when';
   }
+
+  @override
+  String get signInWithApple => 'Iniciar sesión con Apple';
+
+  @override
+  String get signInWithGoogle => 'Iniciar sesión con Google';
 }

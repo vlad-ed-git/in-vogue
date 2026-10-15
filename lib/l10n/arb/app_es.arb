@@ -102,5 +102,7 @@
   "widgetStepPlus": "Toca +",
   "widgetStepChoose": "Elige In Vogue",
   "widgetGettingReady": "Preparando",
-  "widgetSaved": "Guardado {when}"
+  "widgetSaved": "Guardado {when}",
+  "signInWithApple": "Iniciar sesión con Apple",
+  "signInWithGoogle": "Iniciar sesión con Google"
 }

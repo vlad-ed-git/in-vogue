@@ -102,5 +102,7 @@
   "widgetStepPlus": "轻点 +",
   "widgetStepChoose": "选择 In Vogue",
   "widgetGettingReady": "准备中",
-  "widgetSaved": "保存于 {when}"
+  "widgetSaved": "保存于 {when}",
+  "signInWithApple": "通过 Apple 登录",
+  "signInWithGoogle": "通过 Google 登录"
 }

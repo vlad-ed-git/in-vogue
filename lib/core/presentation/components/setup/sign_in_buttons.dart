@@ -1,29 +1,123 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
+import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
+import 'package:in_vogue/core/presentation/foundations/pressable.dart';
+import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
+import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
+import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// Stacks the platforms' own sign-in buttons, full width and 52 points tall,
-/// 12 apart: Apple first on Apple platforms, Google first elsewhere.
+/// A sign-in provider.
+enum SignInProvider { apple, google }
+
+/// Apple and Google sign-in buttons, 12 apart: Apple first on Apple
+/// platforms, Google first elsewhere.
 class SignInButtons extends StatelessWidget {
-  const SignInButtons({required this.apple, required this.google, super.key});
+  const SignInButtons({
+    required this.onApple,
+    required this.onGoogle,
+    super.key,
+  });
 
-  /// The official Sign in with Apple button.
-  final Widget apple;
-
-  /// The official Sign in with Google button.
-  final Widget google;
+  final VoidCallback? onApple;
+  final VoidCallback? onGoogle;
 
   @override
   Widget build(BuildContext context) {
+    final apple = SignInButton(
+      provider: SignInProvider.apple,
+      onPressed: onApple,
+    );
+    final google = SignInButton(
+      provider: SignInProvider.google,
+      onPressed: onGoogle,
+    );
     final buttons = context.isApplePlatform ? [apple, google] : [google, apple];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(height: InVogueLayout.controlHeight, child: buttons.first),
+        buttons.first,
         const SizedBox(height: InVogueSpace.s3),
-        SizedBox(height: InVogueLayout.controlHeight, child: buttons.last),
+        buttons.last,
       ],
+    );
+  }
+}
+
+/// A full-width sign-in button with the provider's logo and a centred label.
+/// Apple is ink with a paper label; Google is paper with an edge.
+class SignInButton extends StatelessWidget {
+  const SignInButton({
+    required this.provider,
+    required this.onPressed,
+    super.key,
+  });
+
+  final SignInProvider provider;
+
+  /// Null disables the button.
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.translated;
+    final (label, icon) = switch (provider) {
+      SignInProvider.apple => (l10n.signInWithApple, InVogueIcons.appleLogo),
+      SignInProvider.google => (l10n.signInWithGoogle, InVogueIcons.googleLogo),
+    };
+    final apple = provider == SignInProvider.apple;
+    return Pressable(
+      onTap: onPressed,
+      semanticLabel: label,
+      excludeSemantics: true,
+      expandTapTarget: false,
+      builder: (context, state) {
+        final enabled = state.enabled;
+        final fill = !enabled
+            ? InVogueColors.studio
+            : (apple ? InVogueColors.ink : InVogueColors.paper);
+        final foreground = !enabled
+            ? InVogueColors.graphite
+            : (apple ? InVogueColors.paper : InVogueColors.ink);
+        return DecoratedBox(
+          // Inset edge, as the CSS box-shadow draws it.
+          position: DecorationPosition.foreground,
+          decoration: BoxDecoration(
+            border: apple || !enabled
+                ? null
+                : Border.all(color: InVogueColors.line),
+          ),
+          child: ColoredBox(
+            color: fill,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: InVogueLayout.controlHeight,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: InVogueSpace.s4,
+                  vertical: 2,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, size: 20, color: foreground),
+                    const SizedBox(width: InVogueSpace.s2),
+                    Flexible(
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: InVogueType.button.copyWith(color: foreground),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

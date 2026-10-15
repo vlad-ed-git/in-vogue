@@ -268,44 +268,105 @@ void main() {
   });
 
   group('SignInButtons', () {
-    const apple = ColoredBox(color: Color(0xFF000000), child: Text('Apple'));
-    const google = ColoredBox(color: Color(0xFFFFFFFF), child: Text('Google'));
-
-    testWidgets('Apple first on iOS, 52 tall, 12 apart', (tester) async {
+    testWidgets('Apple first on iOS; 52 tall, 12 apart, logo and label', (
+      tester,
+    ) async {
+      final taps = <String>[];
       await pumpInVogue(
         tester,
-        const SignInButtons(apple: apple, google: google),
+        SignInButtons(
+          onApple: () => taps.add('apple'),
+          onGoogle: () => taps.add('google'),
+        ),
         platform: TargetPlatform.iOS,
       );
-      final a = tester.getRect(find.text('Apple'));
-      final g = tester.getRect(find.text('Google'));
-      expect(a.top, lessThan(g.top));
-      final boxes = tester
-          .widgetList<SizedBox>(
-            find.descendant(
-              of: find.byType(SignInButtons),
-              matching: find.byType(SizedBox),
-            ),
-          )
-          .where((b) => b.height == 52);
-      expect(boxes, hasLength(2));
+      final apple = tester.getRect(find.byType(SignInButton).first);
+      final google = tester.getRect(find.byType(SignInButton).last);
       expect(
-        tester.getTopLeft(find.byWidget(google)).dy -
-            tester.getBottomLeft(find.byWidget(apple)).dy,
-        12,
+        tester.widget<SignInButton>(find.byType(SignInButton).first).provider,
+        SignInProvider.apple,
       );
+      expect(apple.size, const Size(350, 52));
+      expect(google.top - apple.bottom, 12);
+      expect(find.byIcon(InVogueIcons.appleLogo), findsOneWidget);
+      expect(find.byIcon(InVogueIcons.googleLogo), findsOneWidget);
+      final logo = tester.getRect(find.byIcon(InVogueIcons.appleLogo));
+      final label = tester.getRect(find.text('Sign in with Apple'));
+      expect(logo.size, const Size.square(20));
+      expect(label.left - logo.right, 8);
+      expect(
+        (logo.left - apple.left) - (apple.right - label.right),
+        closeTo(0, 0.5),
+        reason: 'centred',
+      );
+      await tester.tap(find.text('Sign in with Apple'));
+      await tester.tap(find.text('Sign in with Google'));
+      expect(taps, ['apple', 'google']);
     });
 
     testWidgets('Google first on Android', (tester) async {
       await pumpInVogue(
         tester,
-        const SignInButtons(apple: apple, google: google),
+        SignInButtons(onApple: () {}, onGoogle: () {}),
         platform: TargetPlatform.android,
       );
       expect(
-        tester.getRect(find.text('Google')).top,
-        lessThan(tester.getRect(find.text('Apple')).top),
+        tester.widget<SignInButton>(find.byType(SignInButton).first).provider,
+        SignInProvider.google,
       );
+    });
+
+    testWidgets('Apple is ink on paper text; Google paper with an edge', (
+      tester,
+    ) async {
+      await pumpInVogue(tester, SignInButtons(onApple: () {}, onGoogle: () {}));
+      Color fill(String label) => tester
+          .widget<ColoredBox>(
+            find
+                .ancestor(
+                  of: find.text(label),
+                  matching: find.byType(ColoredBox),
+                )
+                .first,
+          )
+          .color;
+      expect(fill('Sign in with Apple'), InVogueColors.ink);
+      expect(
+        tester.widget<Text>(find.text('Sign in with Apple')).style!.color,
+        InVogueColors.paper,
+      );
+      expect(
+        tester.widget<Text>(find.text('Sign in with Apple')).style!.fontFamily,
+        InVogueType.textFamily,
+      );
+      expect(fill('Sign in with Google'), InVogueColors.paper);
+      final edge = tester.widget<DecoratedBox>(
+        find
+            .ancestor(
+              of: find.text('Sign in with Google'),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+      expect(
+        (edge.decoration as BoxDecoration).border,
+        Border.all(color: InVogueColors.line),
+      );
+    });
+
+    testWidgets('reads as buttons and speaks Spanish', (tester) async {
+      final handle = tester.ensureSemantics();
+      await pumpInVogue(
+        tester,
+        SignInButtons(onApple: () {}, onGoogle: () {}),
+        locale: const Locale('es'),
+      );
+      expect(find.bySemanticsLabel('Iniciar sesión con Apple'), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('Iniciar sesión con Google'),
+        findsOneWidget,
+      );
+      handle.dispose();
     });
   });
 

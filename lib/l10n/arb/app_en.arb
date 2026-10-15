@@ -357,5 +357,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "signInWithApple": "Sign in with Apple",
+  "signInWithGoogle": "Sign in with Google"
 }

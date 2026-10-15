@@ -373,4 +373,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String widgetSaved(String when) {
     return '保存于 $when';
   }
+
+  @override
+  String get signInWithApple => '通过 Apple 登录';
+
+  @override
+  String get signInWithGoogle => '通过 Google 登录';
 }

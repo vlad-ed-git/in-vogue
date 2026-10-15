@@ -722,6 +722,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Saved {when}'**
   String widgetSaved(String when);
+
+  /// No description provided for @signInWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Apple'**
+  String get signInWithApple;
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get signInWithGoogle;
 }
 
 class _AppLocalizationsDelegate
