@@ -315,18 +315,6 @@ abstract class AppLocalizations {
   /// **'{day, select, today{Today is} other{Tomorrow is}}'**
   String dayIs(String day);
 
-  /// Credit under every photo of the user.
-  ///
-  /// In en, this message translates to:
-  /// **'AI preview · Outfits by {brand}'**
-  String aiPreviewCredit(String brand);
-
-  /// Credit under a partner photo.
-  ///
-  /// In en, this message translates to:
-  /// **'Outfits by {brand}'**
-  String outfitsByCredit(String brand);
-
   /// No description provided for @gettingOutfitReady.
   ///
   /// In en, this message translates to:

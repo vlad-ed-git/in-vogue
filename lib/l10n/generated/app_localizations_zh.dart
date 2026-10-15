@@ -137,16 +137,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String aiPreviewCredit(String brand) {
-    return 'AI 预览 · 服装来自 $brand';
-  }
-
-  @override
-  String outfitsByCredit(String brand) {
-    return '服装来自 $brand';
-  }
-
-  @override
   String get gettingOutfitReady => '正在准备你的穿搭…';
 
   @override

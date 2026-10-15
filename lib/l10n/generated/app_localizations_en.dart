@@ -138,16 +138,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String aiPreviewCredit(String brand) {
-    return 'AI preview · Outfits by $brand';
-  }
-
-  @override
-  String outfitsByCredit(String brand) {
-    return 'Outfits by $brand';
-  }
-
-  @override
   String get gettingOutfitReady => 'Getting your outfit ready…';
 
   @override

@@ -109,15 +109,14 @@ class WeatherGlyph extends StatefulWidget {
 
 class _WeatherGlyphState extends State<WeatherGlyph>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  late final AnimationController _loop = AnimationController(
-    vsync: this,
-    duration: widget.type.loop,
-  )..addStatusListener(_onStatus);
+  late final AnimationController _loop;
   bool _canPlay = false;
 
   @override
   void initState() {
     super.initState();
+    _loop = AnimationController(vsync: this, duration: widget.type.loop)
+      ..addStatusListener(_onStatus);
     WidgetsBinding.instance.addObserver(this);
   }
 

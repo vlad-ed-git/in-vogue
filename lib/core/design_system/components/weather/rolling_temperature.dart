@@ -27,12 +27,19 @@ class _RollingTemperatureState extends State<RollingTemperature>
   static const _total = Duration(milliseconds: 280);
 
   // Preserve: the reduced-motion crossfade keeps its full length.
-  late final AnimationController _roll = AnimationController(
-    vsync: this,
-    duration: _total,
-    value: 1,
-    animationBehavior: AnimationBehavior.preserve,
-  );
+  late final AnimationController _roll;
+
+  @override
+  void initState() {
+    super.initState();
+    _roll = AnimationController(
+      vsync: this,
+      duration: _total,
+      value: 1,
+      animationBehavior: AnimationBehavior.preserve,
+    );
+  }
+
   int? _previous;
   bool _crossfade = false;
 

@@ -78,3 +78,8 @@ Color? fillOf(WidgetTester tester, Finder finder) {
 Finder findIcon(InVogueIcons icon) => find.byWidgetPredicate(
   (widget) => widget is InVogueIcon && widget.icon == icon,
 );
+
+/// Finds the [TextLink] labelled [label].
+Finder findLink(String label) => find.byWidgetPredicate(
+  (widget) => widget is TextLink && widget.label == label,
+);

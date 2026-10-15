@@ -147,24 +147,6 @@
       }
     }
   },
-  "aiPreviewCredit": "AI preview · Outfits by {brand}",
-  "@aiPreviewCredit": {
-    "description": "Credit under every photo of the user.",
-    "placeholders": {
-      "brand": {
-        "type": "String"
-      }
-    }
-  },
-  "outfitsByCredit": "Outfits by {brand}",
-  "@outfitsByCredit": {
-    "description": "Credit under a partner photo.",
-    "placeholders": {
-      "brand": {
-        "type": "String"
-      }
-    }
-  },
   "gettingOutfitReady": "Getting your outfit ready…",
   "tryOnFailed": "We couldn’t dress you this time. Your photo is fine.",
   "locationOff": "In Vogue needs your location for the weather.",

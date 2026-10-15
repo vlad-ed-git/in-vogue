@@ -42,29 +42,33 @@ class LoveToggle extends StatefulWidget {
 
 class _LoveToggleState extends State<LoveToggle>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _pop = AnimationController(
-    vsync: this,
-    duration: InVogueMotion.quick,
-  );
+  late final AnimationController _pop;
 
   /// One pop: up to 1.2 at the midpoint and back. As in CSS keyframes, the
   /// standard curve eases each half on its own.
-  late final Animation<double> _scale = TweenSequence<double>([
-    TweenSequenceItem(
-      tween: Tween<double>(
-        begin: 1,
-        end: 1.2,
-      ).chain(CurveTween(curve: InVogueMotion.standard)),
-      weight: 1,
-    ),
-    TweenSequenceItem(
-      tween: Tween<double>(
-        begin: 1.2,
-        end: 1,
-      ).chain(CurveTween(curve: InVogueMotion.standard)),
-      weight: 1,
-    ),
-  ]).animate(_pop);
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _pop = AnimationController(vsync: this, duration: InVogueMotion.quick);
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1,
+          end: 1.2,
+        ).chain(CurveTween(curve: InVogueMotion.standard)),
+        weight: 1,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.2,
+          end: 1,
+        ).chain(CurveTween(curve: InVogueMotion.standard)),
+        weight: 1,
+      ),
+    ]).animate(_pop);
+  }
 
   @override
   void didUpdateWidget(LoveToggle oldWidget) {

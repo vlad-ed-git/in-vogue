@@ -6,10 +6,8 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
+import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
-
-/// Which day a notice speaks about.
-enum NoticeDay { today, tomorrow }
 
 /// A plain message in the flow of the page, with the fix next to it: a flat
 /// Rose band, the icon on the left, ink words and an optional action below.
@@ -74,7 +72,7 @@ class Notice extends StatelessWidget {
   /// Every suitable outfit has been seen; nothing is repeated.
   factory Notice.everyLookSeen({
     required BuildContext context,
-    required NoticeDay day,
+    required ForecastDay day,
     Key? key,
   }) => Notice(
     key: key,

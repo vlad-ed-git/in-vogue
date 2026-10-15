@@ -43,16 +43,20 @@ class DaySwitch extends StatefulWidget {
 
 class _DaySwitchState extends State<DaySwitch>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _slide = AnimationController(
-    vsync: this,
-    duration: InVogueMotion.base,
-    value: 1,
-  );
-  late final CurvedAnimation _progress = CurvedAnimation(
-    parent: _slide,
-    curve: InVogueMotion.standard,
-  );
+  late final AnimationController _slide;
+  late final CurvedAnimation _progress;
   late int _from = widget.selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _slide = AnimationController(
+      vsync: this,
+      duration: InVogueMotion.base,
+      value: 1,
+    );
+    _progress = CurvedAnimation(parent: _slide, curve: InVogueMotion.standard);
+  }
 
   @override
   void didUpdateWidget(DaySwitch oldWidget) {

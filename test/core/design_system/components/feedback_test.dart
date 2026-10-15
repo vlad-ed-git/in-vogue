@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/design_system/design_system.dart';
+import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 
 import '../../../helpers/pump_in_vogue.dart';
 
@@ -120,7 +121,7 @@ void main() {
                 context: context,
                 savedAt: 'Thu 16 Oct at 9:12 pm',
               ),
-              Notice.everyLookSeen(context: context, day: NoticeDay.today),
+              Notice.everyLookSeen(context: context, day: ForecastDay.today),
               Notice.notFullLength(context: context),
             ],
           ),

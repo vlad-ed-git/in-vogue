@@ -35,8 +35,6 @@
   "occasionStayingInKicker": "En casa",
   "change": "Cambiar",
   "dayIs": "{day, select, today{Hoy es} other{Mañana es}}",
-  "aiPreviewCredit": "Vista previa con IA · Conjuntos de {brand}",
-  "outfitsByCredit": "Conjuntos de {brand}",
   "gettingOutfitReady": "Preparando tu conjunto…",
   "tryOnFailed": "Esta vez no pudimos vestirte. Tu foto está bien.",
   "locationOff": "In Vogue necesita tu ubicación para el tiempo.",

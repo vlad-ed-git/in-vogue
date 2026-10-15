@@ -35,8 +35,6 @@
   "occasionStayingInKicker": "宅家",
   "change": "更改",
   "dayIs": "{day, select, today{今天是} other{明天是}}",
-  "aiPreviewCredit": "AI 预览 · 服装来自 {brand}",
-  "outfitsByCredit": "服装来自 {brand}",
   "gettingOutfitReady": "正在准备你的穿搭…",
   "tryOnFailed": "这次没能为你换上穿搭。你的照片没有问题。",
   "locationOff": "In Vogue 需要你的位置来获取天气。",

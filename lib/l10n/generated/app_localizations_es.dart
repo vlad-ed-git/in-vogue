@@ -141,16 +141,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String aiPreviewCredit(String brand) {
-    return 'Vista previa con IA · Conjuntos de $brand';
-  }
-
-  @override
-  String outfitsByCredit(String brand) {
-    return 'Conjuntos de $brand';
-  }
-
-  @override
   String get gettingOutfitReady => 'Preparando tu conjunto…';
 
   @override
