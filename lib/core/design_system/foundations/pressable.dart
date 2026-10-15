@@ -115,8 +115,18 @@ class _PressableState extends State<Pressable> {
   bool _pressed = false;
   bool _focused = false;
   bool _hasFocus = false;
+  FocusNode? _ownNode;
 
   bool get _enabled => widget.onTap != null;
+
+  FocusNode get _node =>
+      widget.focusNode ?? (_ownNode ??= FocusNode(debugLabel: 'Pressable'));
+
+  @override
+  void dispose() {
+    _ownNode?.dispose();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(Pressable oldWidget) {
@@ -161,15 +171,19 @@ class _PressableState extends State<Pressable> {
       selected: widget.selected,
       toggled: widget.toggled,
       inMutuallyExclusiveGroup: widget.inMutuallyExclusiveGroup ? true : null,
+      // One node per control: the focus semantics live here, not in a
+      // second node from the Focus widget below.
       focusable: _enabled ? true : null,
       focused: _enabled ? _hasFocus : null,
+      onFocus: _enabled ? _node.requestFocus : null,
       label: widget.semanticLabel,
       value: widget.semanticValue,
       excludeSemantics: widget.excludeSemantics,
       onTap: _enabled ? _activate : null,
       child: FocusableActionDetector(
         enabled: _enabled,
-        focusNode: widget.focusNode,
+        focusNode: _node,
+        includeFocusSemantics: false,
         autofocus: widget.autofocus,
         mouseCursor: _enabled
             ? SystemMouseCursors.click

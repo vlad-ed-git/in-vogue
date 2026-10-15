@@ -213,6 +213,7 @@ void main() {
           hasEnabledState: true,
           isEnabled: true,
           isFocusable: true,
+          hasFocusAction: true,
         ),
       );
       await tester.tap(find.byType(TextLink));
@@ -329,6 +330,7 @@ void main() {
           isEnabled: true,
           hasTapAction: true,
           isFocusable: true,
+          hasFocusAction: true,
         ),
       );
       handle.dispose();
