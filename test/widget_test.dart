@@ -9,10 +9,13 @@ import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
+import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
 import 'package:in_vogue/features/location/domain/usecases/open_location_settings.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
+import 'package:in_vogue/features/outfits/domain/usecases/try_on_outfit.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
+import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/check_full_length.dart';
 import 'package:in_vogue/features/photos/domain/usecases/choose_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
@@ -22,14 +25,25 @@ import 'package:in_vogue/features/preferences/domain/usecases/set_language.dart'
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/save_setup_step.dart';
+import 'package:in_vogue/features/setup/presentation/bloc/first_outfit_bloc.dart';
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
+import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
 import 'package:mockito/mockito.dart';
 
 import 'features/location/location_repository_test.mocks.dart';
 import 'features/photos/photo_repository_test.mocks.dart';
 import 'features/preferences/preferences_repository_test.mocks.dart';
+import 'features/setup/first_outfit_bloc_test.mocks.dart';
 import 'features/setup/setup_repository_test.mocks.dart';
+import 'features/weather/weather_repository_test.mocks.dart';
 import 'helpers/pump_in_vogue.dart';
+
+const _place = UserLocation(latitude: 1, longitude: 2);
+const _photo = UserPhoto(
+  role: PhotoRole.body,
+  path: '/app/body-1.jpg',
+  revision: 1,
+);
 
 void main() {
   late MockPreferencesRepository preferences;
@@ -42,8 +56,21 @@ void main() {
     setup = MockSetupRepository();
     location = MockLocationRepository();
     final photos = MockPhotoRepository();
-    when(photos.kept(any)).thenAnswer((_) async => const Right(null));
+    when(photos.kept(any)).thenAnswer((_) async => const Right(_photo));
+    when(location.savedLocation()).thenAnswer((_) async => const Right(_place));
+    final weather = MockWeatherRepository();
+    when(
+      weather.forecastFor(any),
+    ).thenAnswer((_) async => const Left(NetworkFailure()));
     locator = GetIt.asNewInstance()
+      ..registerFactory<FirstOutfitBloc>(
+        () => FirstOutfitBloc(
+          getSavedLocation: GetSavedLocation(location),
+          getKeptPhoto: GetKeptPhoto(photos),
+          getWeatherReport: GetWeatherReport(weather),
+          tryOnOutfit: TryOnOutfit(MockTryOnRepository()),
+        ),
+      )
       ..registerFactoryParam<PhotoBloc, PhotoRole, void>(
         (role, _) => PhotoBloc(
           role: role,
@@ -118,9 +145,7 @@ void main() {
         askPermission: anyNamed('askPermission'),
         languageCode: anyNamed('languageCode'),
       ),
-    ).thenAnswer(
-      (_) async => const Right(UserLocation(latitude: 1, longitude: 2)),
-    );
+    ).thenAnswer((_) async => const Right(_place));
     await tester.pumpWidget(app(step: SetupStep.welcome));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Use my location'));
@@ -132,6 +157,16 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Use my location'), findsOneWidget);
     verify(setup.saveStep(SetupStep.welcome)).called(1);
+  });
+
+  testWidgets('continues from Your photo to the first outfit', (tester) async {
+    await tester.pumpWidget(app(step: SetupStep.photo));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Continue'));
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(find.text('3 / 6'), findsOneWidget);
+    verify(setup.saveStep(SetupStep.firstOutfit)).called(1);
   });
 
   testWidgets('starts in English even when the device language is Spanish', (

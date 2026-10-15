@@ -244,6 +244,54 @@ abstract class AppLocalizations {
   /// **'Feels like {temperature}°'**
   String feelsLike(int temperature);
 
+  /// Weather that begins during the day; time is such as 3 pm.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, rain{Rain after {time}} showers{Showers after {time}} drizzle{Drizzle after {time}} snow{Snow after {time}} storm{Storms after {time}} other{Strong wind after {time}}}'**
+  String weatherFrom(String kind, String time);
+
+  /// Weather that stops during the day; time is such as 11 am.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, rain{Rain until {time}} showers{Showers until {time}} drizzle{Drizzle until {time}} snow{Snow until {time}} storm{Storms until {time}} other{Strong wind until {time}}}'**
+  String weatherUntil(String kind, String time);
+
+  /// Weather that lasts the whole day.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, rain{Rain all day} showers{Showers all day} drizzle{Drizzle all day} snow{Snow all day} storm{Storms all day} other{Strong wind all day}}'**
+  String weatherAllDay(String kind);
+
+  /// A dry, calm day's sky.
+  ///
+  /// In en, this message translates to:
+  /// **'{sky, select, clear{Sunny} partlyCloudy{Partly cloudy} cloudy{Cloudy} fog{Foggy} other{Dry all day}}'**
+  String weatherSky(String sky);
+
+  /// Such as Tomorrow, Thu 16 Oct · New York.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {date} · {place}'**
+  String dayDatePlace(String day, String date, String place);
+
+  /// Such as Tomorrow, Thu 16 Oct.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {date}'**
+  String dayDate(String day, String date);
+
+  /// No forecast could be fetched or found; shown with Try again.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t get the weather.'**
+  String get weatherUnavailable;
+
+  /// savedAt is a date and time such as Thu 16 Oct at 9:12 pm.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the forecast saved on {savedAt}.'**
+  String weatherSaved(String savedAt);
+
   /// Screen-reader weather sentence.
   ///
   /// In en, this message translates to:
@@ -602,6 +650,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Proceed'**
   String get proceed;
+
+  /// Moves on from the first outfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
 
   /// No description provided for @done.
   ///

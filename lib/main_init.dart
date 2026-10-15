@@ -13,6 +13,7 @@ import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/core/persistence/hive_key_value_store.dart';
 import 'package:in_vogue/core/persistence/sqlite_cache.dart';
 import 'package:in_vogue/features/location/di/init.dart' as location_di;
+import 'package:in_vogue/features/outfits/di/init.dart' as outfits_di;
 import 'package:in_vogue/features/photos/di/init.dart' as photos_di;
 import 'package:in_vogue/features/preferences/di/init.dart' as preferences_di;
 import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart';
@@ -74,6 +75,7 @@ abstract final class MainInit {
       location_di.init(locator);
       weather_di.init(locator);
       photos_di.init(locator);
+      outfits_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
       final setupStep = await locator<GetSetupStep>()(const NoParams());
       _registerErrorHandlers(locator<LogMessages>());

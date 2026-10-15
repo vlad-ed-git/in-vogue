@@ -89,6 +89,75 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String weatherFrom(String kind, String time) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': '$time后有雨',
+      'showers': '$time后有阵雨',
+      'drizzle': '$time后有毛毛雨',
+      'snow': '$time后有雪',
+      'storm': '$time后有雷雨',
+      'other': '$time后有大风',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherUntil(String kind, String time) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': '雨持续到$time',
+      'showers': '阵雨持续到$time',
+      'drizzle': '毛毛雨持续到$time',
+      'snow': '雪持续到$time',
+      'storm': '雷雨持续到$time',
+      'other': '大风持续到$time',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherAllDay(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': '全天有雨',
+      'showers': '全天有阵雨',
+      'drizzle': '全天有毛毛雨',
+      'snow': '全天有雪',
+      'storm': '全天有雷雨',
+      'other': '全天大风',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherSky(String sky) {
+    String _temp0 = intl.Intl.selectLogic(sky, {
+      'clear': '晴',
+      'partlyCloudy': '多云',
+      'cloudy': '阴',
+      'fog': '有雾',
+      'other': '全天无雨',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dayDatePlace(String day, String date, String place) {
+    return '$day，$date · $place';
+  }
+
+  @override
+  String dayDate(String day, String date) {
+    return '$day，$date';
+  }
+
+  @override
+  String get weatherUnavailable => '无法获取天气。';
+
+  @override
+  String weatherSaved(String savedAt) {
+    return '显示的是$savedAt保存的天气预报。';
+  }
+
+  @override
   String weatherSpoken(int temperature, String condition, int feelsLike) {
     return '$temperature 度，$condition，体感 $feelsLike 度。';
   }
@@ -303,6 +372,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proceed => '继续';
+
+  @override
+  String get next => '下一步';
 
   @override
   String get done => '完成';

@@ -90,6 +90,75 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String weatherFrom(String kind, String time) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': 'Rain after $time',
+      'showers': 'Showers after $time',
+      'drizzle': 'Drizzle after $time',
+      'snow': 'Snow after $time',
+      'storm': 'Storms after $time',
+      'other': 'Strong wind after $time',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherUntil(String kind, String time) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': 'Rain until $time',
+      'showers': 'Showers until $time',
+      'drizzle': 'Drizzle until $time',
+      'snow': 'Snow until $time',
+      'storm': 'Storms until $time',
+      'other': 'Strong wind until $time',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherAllDay(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': 'Rain all day',
+      'showers': 'Showers all day',
+      'drizzle': 'Drizzle all day',
+      'snow': 'Snow all day',
+      'storm': 'Storms all day',
+      'other': 'Strong wind all day',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherSky(String sky) {
+    String _temp0 = intl.Intl.selectLogic(sky, {
+      'clear': 'Sunny',
+      'partlyCloudy': 'Partly cloudy',
+      'cloudy': 'Cloudy',
+      'fog': 'Foggy',
+      'other': 'Dry all day',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dayDatePlace(String day, String date, String place) {
+    return '$day, $date · $place';
+  }
+
+  @override
+  String dayDate(String day, String date) {
+    return '$day, $date';
+  }
+
+  @override
+  String get weatherUnavailable => 'We couldn’t get the weather.';
+
+  @override
+  String weatherSaved(String savedAt) {
+    return 'Showing the forecast saved on $savedAt.';
+  }
+
+  @override
   String weatherSpoken(int temperature, String condition, int feelsLike) {
     return '$temperature degrees, $condition, feels like $feelsLike.';
   }
@@ -338,6 +407,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proceed => 'Proceed';
+
+  @override
+  String get next => 'Next';
 
   @override
   String get done => 'Done';

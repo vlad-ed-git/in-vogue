@@ -93,6 +93,75 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String weatherFrom(String kind, String time) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': 'Lluvia desde las $time',
+      'showers': 'Chubascos desde las $time',
+      'drizzle': 'Llovizna desde las $time',
+      'snow': 'Nieve desde las $time',
+      'storm': 'Tormentas desde las $time',
+      'other': 'Viento fuerte desde las $time',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherUntil(String kind, String time) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': 'Lluvia hasta las $time',
+      'showers': 'Chubascos hasta las $time',
+      'drizzle': 'Llovizna hasta las $time',
+      'snow': 'Nieve hasta las $time',
+      'storm': 'Tormentas hasta las $time',
+      'other': 'Viento fuerte hasta las $time',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherAllDay(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'rain': 'Lluvia todo el día',
+      'showers': 'Chubascos todo el día',
+      'drizzle': 'Llovizna todo el día',
+      'snow': 'Nieve todo el día',
+      'storm': 'Tormentas todo el día',
+      'other': 'Viento fuerte todo el día',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String weatherSky(String sky) {
+    String _temp0 = intl.Intl.selectLogic(sky, {
+      'clear': 'Soleado',
+      'partlyCloudy': 'Parcialmente nublado',
+      'cloudy': 'Nublado',
+      'fog': 'Niebla',
+      'other': 'Seco todo el día',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dayDatePlace(String day, String date, String place) {
+    return '$day, $date · $place';
+  }
+
+  @override
+  String dayDate(String day, String date) {
+    return '$day, $date';
+  }
+
+  @override
+  String get weatherUnavailable => 'No pudimos obtener el tiempo.';
+
+  @override
+  String weatherSaved(String savedAt) {
+    return 'Se muestra el pronóstico guardado el $savedAt.';
+  }
+
+  @override
   String weatherSpoken(int temperature, String condition, int feelsLike) {
     return '$temperature grados, $condition, sensación de $feelsLike.';
   }
@@ -337,6 +406,9 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get proceed => 'Seguir';
+
+  @override
+  String get next => 'Siguiente';
 
   @override
   String get done => 'Listo';

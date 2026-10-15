@@ -10,6 +10,8 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/settings/presentation/screens/settings_screen.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
+import 'package:in_vogue/features/setup/presentation/bloc/first_outfit_bloc.dart';
+import 'package:in_vogue/features/setup/presentation/screens/first_outfit_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/your_photo_screen.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
@@ -32,6 +34,16 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         builder: (context) => YourPhotoScreen(
           onBack: () => context.pop(),
           onDone: () => context.go(AppRoutes.forStep(SetupStep.firstOutfit)),
+        ),
+      ),
+    ),
+    SetupStep.firstOutfit => BlocProvider(
+      create: (_) =>
+          locator<FirstOutfitBloc>()..add(const FirstOutfitStarted()),
+      child: Builder(
+        builder: (context) => FirstOutfitScreen(
+          onBack: () => context.pop(),
+          onNext: () => context.go(AppRoutes.forStep(SetupStep.picks)),
         ),
       ),
     ),

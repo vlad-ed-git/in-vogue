@@ -76,6 +76,88 @@
       }
     }
   },
+  "weatherFrom": "{kind, select, rain{Rain after {time}} showers{Showers after {time}} drizzle{Drizzle after {time}} snow{Snow after {time}} storm{Storms after {time}} other{Strong wind after {time}}}",
+  "@weatherFrom": {
+    "description": "Weather that begins during the day; time is such as 3 pm.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherUntil": "{kind, select, rain{Rain until {time}} showers{Showers until {time}} drizzle{Drizzle until {time}} snow{Snow until {time}} storm{Storms until {time}} other{Strong wind until {time}}}",
+  "@weatherUntil": {
+    "description": "Weather that stops during the day; time is such as 11 am.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherAllDay": "{kind, select, rain{Rain all day} showers{Showers all day} drizzle{Drizzle all day} snow{Snow all day} storm{Storms all day} other{Strong wind all day}}",
+  "@weatherAllDay": {
+    "description": "Weather that lasts the whole day.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherSky": "{sky, select, clear{Sunny} partlyCloudy{Partly cloudy} cloudy{Cloudy} fog{Foggy} other{Dry all day}}",
+  "@weatherSky": {
+    "description": "A dry, calm day's sky.",
+    "placeholders": {
+      "sky": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDatePlace": "{day}, {date} · {place}",
+  "@dayDatePlace": {
+    "description": "Such as Tomorrow, Thu 16 Oct · New York.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "dayDate": "{day}, {date}",
+  "@dayDate": {
+    "description": "Such as Tomorrow, Thu 16 Oct.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "weatherUnavailable": "We couldn’t get the weather.",
+  "@weatherUnavailable": {
+    "description": "No forecast could be fetched or found; shown with Try again."
+  },
+  "weatherSaved": "Showing the forecast saved on {savedAt}.",
+  "@weatherSaved": {
+    "description": "savedAt is a date and time such as Thu 16 Oct at 9:12 pm.",
+    "placeholders": {
+      "savedAt": {
+        "type": "String"
+      }
+    }
+  },
   "weatherSpoken": "{temperature} degrees, {condition}, feels like {feelsLike}.",
   "@weatherSpoken": {
     "description": "Screen-reader weather sentence.",
@@ -308,6 +390,10 @@
     }
   },
   "proceed": "Proceed",
+  "next": "Next",
+  "@next": {
+    "description": "Moves on from the first outfit."
+  },
   "done": "Done",
   "buyAt": "Buy at {brand}",
   "@buyAt": {

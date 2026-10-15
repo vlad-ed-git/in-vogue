@@ -5,6 +5,7 @@ import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/repositories/setup_repository.dart';
 import 'package:in_vogue/features/setup/domain/usecases/get_setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/save_setup_step.dart';
+import 'package:in_vogue/features/setup/presentation/bloc/first_outfit_bloc.dart';
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 
 void init(GetIt locator) {
@@ -22,5 +23,13 @@ void init(GetIt locator) {
     ..registerLazySingleton<SaveSetupStep>(() => SaveSetupStep(locator()))
     ..registerFactoryParam<SetupBloc, SetupStep, void>(
       (step, _) => SetupBloc(saveSetupStep: locator(), initialStep: step),
+    )
+    ..registerFactory<FirstOutfitBloc>(
+      () => FirstOutfitBloc(
+        getSavedLocation: locator(),
+        getKeptPhoto: locator(),
+        getWeatherReport: locator(),
+        tryOnOutfit: locator(),
+      ),
     );
 }
