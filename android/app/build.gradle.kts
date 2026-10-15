@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -7,10 +9,21 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val releasePropertiesFile = rootProject.file("key.properties")
+val releaseProperties = Properties().apply {
+    if (releasePropertiesFile.exists()) {
+        releasePropertiesFile.inputStream().use { load(it) }
+    }
+}
+
 android {
     namespace = "com.invogue.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
+
+    buildFeatures {
+        resValues = true
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -27,11 +40,23 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (releasePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = releaseProperties.getProperty("keyAlias")
+                keyPassword = releaseProperties.getProperty("keyPassword")
+                storeFile = file(releaseProperties.getProperty("storeFile"))
+                storePassword = releaseProperties.getProperty("storePassword")
+            }
+        }
+    }
+
     flavorDimensions += "environment"
     productFlavors {
         create("development") {
             dimension = "environment"
             applicationIdSuffix = ".dev"
+            signingConfig = signingConfigs.getByName("debug")
             resValue("string", "app_name", "In Vogue Dev")
         }
         create("production") {
@@ -42,8 +67,9 @@ android {
 
     buildTypes {
         release {
-            // Local demo APKs only. Configure a private release key before distribution.
-            signingConfig = signingConfigs.getByName("debug")
+            // Development may use its debug key for demos. Production stays
+            // unsigned until the owner supplies android/key.properties.
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 }
