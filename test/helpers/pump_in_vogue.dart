@@ -73,3 +73,8 @@ Color? fillOf(WidgetTester tester, Finder finder) {
   if (widget is Container) return widget.color;
   throw ArgumentError('$widget has no fill');
 }
+
+/// Finds the [InVogueIcon]s drawing [icon].
+Finder findIcon(InVogueIcons icon) => find.byWidgetPredicate(
+  (widget) => widget is InVogueIcon && widget.icon == icon,
+);

@@ -8,5 +8,372 @@
   "networkFailure": "You’re offline. Please check your connection.",
   "serverFailure": "Something went wrong. Please try again.",
   "startupFailure": "In Vogue couldn’t start. Please try again.",
-  "retry": "Try again"
+  "retry": "Try again",
+  "back": "Back",
+  "@back": {
+    "description": "Back bar action."
+  },
+  "close": "Close",
+  "@close": {
+    "description": "Close action on Go Pro."
+  },
+  "setupFolio": "{step} / {total}",
+  "@setupFolio": {
+    "description": "Setup progress folio, such as 2 / 6.",
+    "placeholders": {
+      "step": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "yourPicks": "Your picks",
+  "@yourPicks": {
+    "description": "Link to the loved pieces."
+  },
+  "yourPicksCount": "Your picks · {count}",
+  "@yourPicksCount": {
+    "description": "Count of loved pieces in the picks bar.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "before": "Before",
+  "@before": {
+    "description": "Makeup comparison: the face photo."
+  },
+  "after": "After",
+  "@after": {
+    "description": "Makeup comparison: the finished look."
+  },
+  "tabHome": "Home",
+  "tabMakeup": "Makeup",
+  "tabSettings": "Settings",
+  "temperatureSpoken": "{temperature} degrees",
+  "@temperatureSpoken": {
+    "description": "Screen-reader temperature.",
+    "placeholders": {
+      "temperature": {
+        "type": "int"
+      }
+    }
+  },
+  "feelsLike": "Feels like {temperature}°",
+  "@feelsLike": {
+    "placeholders": {
+      "temperature": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherSpoken": "{temperature} degrees, {condition}, feels like {feelsLike}.",
+  "@weatherSpoken": {
+    "description": "Screen-reader weather sentence.",
+    "placeholders": {
+      "temperature": {
+        "type": "int"
+      },
+      "condition": {
+        "type": "String"
+      },
+      "feelsLike": {
+        "type": "int"
+      }
+    }
+  },
+  "weatherSpokenWithDay": "{day}, {temperature} degrees, {condition}, feels like {feelsLike}.",
+  "@weatherSpokenWithDay": {
+    "description": "Screen-reader weather sentence with its day.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      },
+      "temperature": {
+        "type": "int"
+      },
+      "condition": {
+        "type": "String"
+      },
+      "feelsLike": {
+        "type": "int"
+      }
+    }
+  },
+  "occasionWork": "Work",
+  "@occasionWork": {
+    "description": "Occasion row in the Change sheet."
+  },
+  "occasionCasual": "Casual",
+  "@occasionCasual": {
+    "description": "Occasion row in the Change sheet."
+  },
+  "occasionGoingOut": "Going out",
+  "@occasionGoingOut": {
+    "description": "Occasion row in the Change sheet."
+  },
+  "occasionStayingIn": "Staying in",
+  "@occasionStayingIn": {
+    "description": "Occasion row in the Change sheet."
+  },
+  "occasionWorkKicker": "Workday",
+  "@occasionWorkKicker": {
+    "description": "Occasion kicker, shown in capitals."
+  },
+  "occasionCasualKicker": "Casual",
+  "@occasionCasualKicker": {
+    "description": "Occasion kicker, shown in capitals."
+  },
+  "occasionGoingOutKicker": "Going out",
+  "@occasionGoingOutKicker": {
+    "description": "Occasion kicker, shown in capitals."
+  },
+  "occasionStayingInKicker": "Staying in",
+  "@occasionStayingInKicker": {
+    "description": "Occasion kicker, shown in capitals."
+  },
+  "change": "Change",
+  "dayIs": "{day, select, today{Today is} other{Tomorrow is}}",
+  "@dayIs": {
+    "description": "Title of the occasion sheet.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "aiPreviewCredit": "AI preview · Outfits by {brand}",
+  "@aiPreviewCredit": {
+    "description": "Credit under every photo of the user.",
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "outfitsByCredit": "Outfits by {brand}",
+  "@outfitsByCredit": {
+    "description": "Credit under a partner photo.",
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "gettingOutfitReady": "Getting your outfit ready…",
+  "tryOnFailed": "We couldn’t dress you this time. Your photo is fine.",
+  "locationOff": "In Vogue needs your location for the weather.",
+  "openSettings": "Open settings",
+  "offlineSaved": "You’re offline. This is the outfit saved on {savedAt}.",
+  "@offlineSaved": {
+    "description": "savedAt is a date and time such as Thu 16 Oct at 9:12 pm.",
+    "placeholders": {
+      "savedAt": {
+        "type": "String"
+      }
+    }
+  },
+  "savedAt": "{date} at {time}",
+  "@savedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "everyLookSeen": "{day, select, today{You’ve seen every outfit that suits today. New pieces arrive soon.} other{You’ve seen every outfit that suits tomorrow. New pieces arrive soon.}}",
+  "@everyLookSeen": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "notFullLength": "This photo doesn’t show you head to toe.",
+  "chooseAnotherPhoto": "Choose another photo",
+  "chooseDifferentPhoto": "Choose a different photo",
+  "chooseFromPhotos": "Choose from Photos",
+  "@chooseFromPhotos": {
+    "description": "iOS photo picker button."
+  },
+  "chooseFromGallery": "Choose from Gallery",
+  "@chooseFromGallery": {
+    "description": "Android photo picker button."
+  },
+  "continueAction": "Continue",
+  "example": "Example",
+  "@example": {
+    "description": "Kicker under an example photo, shown in capitals."
+  },
+  "yourPhoto": "Your photo",
+  "@yourPhoto": {
+    "description": "Kicker under the chosen photo, shown in capitals."
+  },
+  "photoPasses": "Your photo works",
+  "@photoPasses": {
+    "description": "Screen-reader label of the check on a photo that passes."
+  },
+  "photoHeadToToe": "Head to toe",
+  "photoStanding": "Standing, facing forward",
+  "photoGoodLight": "Good light",
+  "photoJustYou": "Just you",
+  "photoCloseUp": "Close up",
+  "photoFacingForward": "Facing forward",
+  "photoDaylight": "Daylight",
+  "photoHairOff": "Hair off your face",
+  "bodyPhotoPrivacy": "Your photo is only used to dress you in outfits. You can replace it any time.",
+  "exampleBodySpoken": "Example: a woman photographed head to toe, facing forward, in even light",
+  "exampleFaceSpoken": "Example: a face photographed close up, facing forward, in daylight",
+  "otherOutfitsPreparing": "Other outfits are on their way.",
+  "otherOutfitsLocked": "Other outfits come with Pro.",
+  "goPro": "Go Pro",
+  "outfitTileSpoken": "Outfit {index} of {count}",
+  "@outfitTileSpoken": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "outfitTileShownSpoken": "Outfit {index} of {count}, shown",
+  "@outfitTileShownSpoken": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lockedSpoken": "Part of Pro",
+  "planFree": "Free plan · {outfits, plural, =0{no outfits} =1{1 outfit} other{{outfits} outfits}} and {looks, plural, =0{no makeup looks} =1{1 makeup look} other{{looks} makeup looks}} left",
+  "@planFree": {
+    "placeholders": {
+      "outfits": {
+        "type": "int"
+      },
+      "looks": {
+        "type": "int"
+      }
+    }
+  },
+  "planNoOutfits": "Free plan · no outfits left",
+  "planMakeupLeft": "Free plan · {looks, plural, =0{no makeup looks} =1{1 makeup look} other{{looks} makeup looks}} left",
+  "@planMakeupLeft": {
+    "placeholders": {
+      "looks": {
+        "type": "int"
+      }
+    }
+  },
+  "onProList": "On the Pro list ✓",
+  "loveSpoken": "Love {name}",
+  "@loveSpoken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "loved": "Loved",
+  "loveThisColour": "Love this colour",
+  "colourCount": "{count, plural, =1{1 colour} other{{count} colours}}",
+  "@colourCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moreColours": "+{count}",
+  "@moreColours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "proceed": "Proceed",
+  "done": "Done",
+  "buyAt": "Buy at {brand}",
+  "@buyAt": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "noLongerAvailable": "No longer available at {brand}",
+  "@noLongerAvailable": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
+  "catalogPhotoSpoken": "{name} in {colour}, catalogue photo",
+  "@catalogPhotoSpoken": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "colour": {
+        "type": "String"
+      }
+    }
+  },
+  "preparing": "Preparing",
+  "faceAfterStep": "Your face after step {step}",
+  "@faceAfterStep": {
+    "placeholders": {
+      "step": {
+        "type": "int"
+      }
+    }
+  },
+  "faceWithLook": "Your face with the finished look",
+  "facePhotoSpoken": "Your face photo",
+  "logOut": "Log out",
+  "deleteAccount": "Delete account",
+  "proName": "In Vogue Pro",
+  "proLine": "More outfits, more choice, makeup for all of them.",
+  "proBenefitDaily": "A new outfit every day",
+  "proBenefitChoice": "Other outfits to choose from",
+  "proBenefitCollection": "The whole collection to browse",
+  "proBenefitMakeup": "Makeup for every outfit",
+  "proPrice": "$7.99 a month · or $59.99 a year",
+  "@proPrice": {
+    "description": "The only price in the app."
+  },
+  "onTheList": "You’re on the list.",
+  "proSoon": "Pro opens soon, and you’ll be the first to know.",
+  "backToInVogue": "Back to In Vogue",
+  "widgetStepHold": "Press and hold your home screen",
+  "widgetStepPlus": "Tap +",
+  "widgetStepChoose": "Choose In Vogue",
+  "widgetGettingReady": "Getting ready",
+  "@widgetGettingReady": {
+    "description": "Home-screen widget before the first outfit."
+  },
+  "widgetSaved": "Saved {when}",
+  "@widgetSaved": {
+    "description": "Home-screen widget date line when the snapshot is stale.",
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  }
 }

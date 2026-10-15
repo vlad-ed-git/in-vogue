@@ -2,6 +2,20 @@
 /// of `design-spec/`. Features import this one file.
 library;
 
+export 'foundations/focus_ring.dart';
+export 'foundations/in_vogue_context.dart';
+export 'foundations/in_vogue_format.dart';
+export 'foundations/in_vogue_icon.dart';
+export 'foundations/in_vogue_icons.dart';
+export 'foundations/kicker.dart';
+export 'foundations/layout_blocks.dart';
+export 'foundations/marked_text.dart';
+export 'foundations/photo_slot.dart';
+export 'foundations/pressable.dart';
+export 'foundations/svg_path.dart';
+export 'foundations/swatch.dart';
+export 'foundations/tap_target.dart';
+export 'foundations/temperature_text.dart';
 export 'theme/in_vogue_theme.dart';
 export 'tokens/in_vogue_colors.dart';
 export 'tokens/in_vogue_layout.dart';

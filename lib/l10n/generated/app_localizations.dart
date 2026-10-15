@@ -153,6 +153,587 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get retry;
+
+  /// Back bar action.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// Close action on Go Pro.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// Setup progress folio, such as 2 / 6.
+  ///
+  /// In en, this message translates to:
+  /// **'{step} / {total}'**
+  String setupFolio(int step, int total);
+
+  /// Link to the loved pieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Your picks'**
+  String get yourPicks;
+
+  /// Count of loved pieces in the picks bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Your picks · {count}'**
+  String yourPicksCount(int count);
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get tomorrow;
+
+  /// Makeup comparison: the face photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get before;
+
+  /// Makeup comparison: the finished look.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get after;
+
+  /// No description provided for @tabHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get tabHome;
+
+  /// No description provided for @tabMakeup.
+  ///
+  /// In en, this message translates to:
+  /// **'Makeup'**
+  String get tabMakeup;
+
+  /// No description provided for @tabSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get tabSettings;
+
+  /// Screen-reader temperature.
+  ///
+  /// In en, this message translates to:
+  /// **'{temperature} degrees'**
+  String temperatureSpoken(int temperature);
+
+  /// No description provided for @feelsLike.
+  ///
+  /// In en, this message translates to:
+  /// **'Feels like {temperature}°'**
+  String feelsLike(int temperature);
+
+  /// Screen-reader weather sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{temperature} degrees, {condition}, feels like {feelsLike}.'**
+  String weatherSpoken(int temperature, String condition, int feelsLike);
+
+  /// Screen-reader weather sentence with its day.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}, {temperature} degrees, {condition}, feels like {feelsLike}.'**
+  String weatherSpokenWithDay(
+    String day,
+    int temperature,
+    String condition,
+    int feelsLike,
+  );
+
+  /// Occasion row in the Change sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get occasionWork;
+
+  /// Occasion row in the Change sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Casual'**
+  String get occasionCasual;
+
+  /// Occasion row in the Change sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Going out'**
+  String get occasionGoingOut;
+
+  /// Occasion row in the Change sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Staying in'**
+  String get occasionStayingIn;
+
+  /// Occasion kicker, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Workday'**
+  String get occasionWorkKicker;
+
+  /// Occasion kicker, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Casual'**
+  String get occasionCasualKicker;
+
+  /// Occasion kicker, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Going out'**
+  String get occasionGoingOutKicker;
+
+  /// Occasion kicker, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Staying in'**
+  String get occasionStayingInKicker;
+
+  /// No description provided for @change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get change;
+
+  /// Title of the occasion sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'{day, select, today{Today is} other{Tomorrow is}}'**
+  String dayIs(String day);
+
+  /// Credit under every photo of the user.
+  ///
+  /// In en, this message translates to:
+  /// **'AI preview · Outfits by {brand}'**
+  String aiPreviewCredit(String brand);
+
+  /// Credit under a partner photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfits by {brand}'**
+  String outfitsByCredit(String brand);
+
+  /// No description provided for @gettingOutfitReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting your outfit ready…'**
+  String get gettingOutfitReady;
+
+  /// No description provided for @tryOnFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t dress you this time. Your photo is fine.'**
+  String get tryOnFailed;
+
+  /// No description provided for @locationOff.
+  ///
+  /// In en, this message translates to:
+  /// **'In Vogue needs your location for the weather.'**
+  String get locationOff;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get openSettings;
+
+  /// savedAt is a date and time such as Thu 16 Oct at 9:12 pm.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re offline. This is the outfit saved on {savedAt}.'**
+  String offlineSaved(String savedAt);
+
+  /// No description provided for @savedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} at {time}'**
+  String savedAt(String date, String time);
+
+  /// No description provided for @everyLookSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'{day, select, today{You’ve seen every outfit that suits today. New pieces arrive soon.} other{You’ve seen every outfit that suits tomorrow. New pieces arrive soon.}}'**
+  String everyLookSeen(String day);
+
+  /// No description provided for @notFullLength.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo doesn’t show you head to toe.'**
+  String get notFullLength;
+
+  /// No description provided for @chooseAnotherPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another photo'**
+  String get chooseAnotherPhoto;
+
+  /// No description provided for @chooseDifferentPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a different photo'**
+  String get chooseDifferentPhoto;
+
+  /// iOS photo picker button.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Photos'**
+  String get chooseFromPhotos;
+
+  /// Android photo picker button.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Gallery'**
+  String get chooseFromGallery;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueAction;
+
+  /// Kicker under an example photo, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Example'**
+  String get example;
+
+  /// Kicker under the chosen photo, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo'**
+  String get yourPhoto;
+
+  /// Screen-reader label of the check on a photo that passes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo works'**
+  String get photoPasses;
+
+  /// No description provided for @photoHeadToToe.
+  ///
+  /// In en, this message translates to:
+  /// **'Head to toe'**
+  String get photoHeadToToe;
+
+  /// No description provided for @photoStanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing, facing forward'**
+  String get photoStanding;
+
+  /// No description provided for @photoGoodLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Good light'**
+  String get photoGoodLight;
+
+  /// No description provided for @photoJustYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Just you'**
+  String get photoJustYou;
+
+  /// No description provided for @photoCloseUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Close up'**
+  String get photoCloseUp;
+
+  /// No description provided for @photoFacingForward.
+  ///
+  /// In en, this message translates to:
+  /// **'Facing forward'**
+  String get photoFacingForward;
+
+  /// No description provided for @photoDaylight.
+  ///
+  /// In en, this message translates to:
+  /// **'Daylight'**
+  String get photoDaylight;
+
+  /// No description provided for @photoHairOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair off your face'**
+  String get photoHairOff;
+
+  /// No description provided for @bodyPhotoPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo is only used to dress you in outfits. You can replace it any time.'**
+  String get bodyPhotoPrivacy;
+
+  /// No description provided for @exampleBodySpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: a woman photographed head to toe, facing forward, in even light'**
+  String get exampleBodySpoken;
+
+  /// No description provided for @exampleFaceSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: a face photographed close up, facing forward, in daylight'**
+  String get exampleFaceSpoken;
+
+  /// No description provided for @otherOutfitsPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Other outfits are on their way.'**
+  String get otherOutfitsPreparing;
+
+  /// No description provided for @otherOutfitsLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Other outfits come with Pro.'**
+  String get otherOutfitsLocked;
+
+  /// No description provided for @goPro.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Pro'**
+  String get goPro;
+
+  /// No description provided for @outfitTileSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit {index} of {count}'**
+  String outfitTileSpoken(int index, int count);
+
+  /// No description provided for @outfitTileShownSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit {index} of {count}, shown'**
+  String outfitTileShownSpoken(int index, int count);
+
+  /// No description provided for @lockedSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of Pro'**
+  String get lockedSpoken;
+
+  /// No description provided for @planFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan · {outfits, plural, =0{no outfits} =1{1 outfit} other{{outfits} outfits}} and {looks, plural, =0{no makeup looks} =1{1 makeup look} other{{looks} makeup looks}} left'**
+  String planFree(int outfits, int looks);
+
+  /// No description provided for @planNoOutfits.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan · no outfits left'**
+  String get planNoOutfits;
+
+  /// No description provided for @planMakeupLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan · {looks, plural, =0{no makeup looks} =1{1 makeup look} other{{looks} makeup looks}} left'**
+  String planMakeupLeft(int looks);
+
+  /// No description provided for @onProList.
+  ///
+  /// In en, this message translates to:
+  /// **'On the Pro list ✓'**
+  String get onProList;
+
+  /// No description provided for @loveSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Love {name}'**
+  String loveSpoken(String name);
+
+  /// No description provided for @loved.
+  ///
+  /// In en, this message translates to:
+  /// **'Loved'**
+  String get loved;
+
+  /// No description provided for @loveThisColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Love this colour'**
+  String get loveThisColour;
+
+  /// No description provided for @colourCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 colour} other{{count} colours}}'**
+  String colourCount(int count);
+
+  /// No description provided for @moreColours.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count}'**
+  String moreColours(int count);
+
+  /// No description provided for @proceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Proceed'**
+  String get proceed;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @buyAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy at {brand}'**
+  String buyAt(String brand);
+
+  /// No description provided for @noLongerAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No longer available at {brand}'**
+  String noLongerAvailable(String brand);
+
+  /// No description provided for @catalogPhotoSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} in {colour}, catalogue photo'**
+  String catalogPhotoSpoken(String name, String colour);
+
+  /// No description provided for @preparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing'**
+  String get preparing;
+
+  /// No description provided for @faceAfterStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Your face after step {step}'**
+  String faceAfterStep(int step);
+
+  /// No description provided for @faceWithLook.
+  ///
+  /// In en, this message translates to:
+  /// **'Your face with the finished look'**
+  String get faceWithLook;
+
+  /// No description provided for @facePhotoSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Your face photo'**
+  String get facePhotoSpoken;
+
+  /// No description provided for @logOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logOut;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccount;
+
+  /// No description provided for @proName.
+  ///
+  /// In en, this message translates to:
+  /// **'In Vogue Pro'**
+  String get proName;
+
+  /// No description provided for @proLine.
+  ///
+  /// In en, this message translates to:
+  /// **'More outfits, more choice, makeup for all of them.'**
+  String get proLine;
+
+  /// No description provided for @proBenefitDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'A new outfit every day'**
+  String get proBenefitDaily;
+
+  /// No description provided for @proBenefitChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Other outfits to choose from'**
+  String get proBenefitChoice;
+
+  /// No description provided for @proBenefitCollection.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole collection to browse'**
+  String get proBenefitCollection;
+
+  /// No description provided for @proBenefitMakeup.
+  ///
+  /// In en, this message translates to:
+  /// **'Makeup for every outfit'**
+  String get proBenefitMakeup;
+
+  /// The only price in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'\$7.99 a month · or \$59.99 a year'**
+  String get proPrice;
+
+  /// No description provided for @onTheList.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re on the list.'**
+  String get onTheList;
+
+  /// No description provided for @proSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro opens soon, and you’ll be the first to know.'**
+  String get proSoon;
+
+  /// No description provided for @backToInVogue.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to In Vogue'**
+  String get backToInVogue;
+
+  /// No description provided for @widgetStepHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Press and hold your home screen'**
+  String get widgetStepHold;
+
+  /// No description provided for @widgetStepPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap +'**
+  String get widgetStepPlus;
+
+  /// No description provided for @widgetStepChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose In Vogue'**
+  String get widgetStepChoose;
+
+  /// Home-screen widget before the first outfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting ready'**
+  String get widgetGettingReady;
+
+  /// Home-screen widget date line when the snapshot is stale.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {when}'**
+  String widgetSaved(String when);
 }
 
 class _AppLocalizationsDelegate
