@@ -19,6 +19,34 @@ flutterN gen-l10n
 flutterN run
 ```
 
+
+### iOS native configuration
+
+After changing the iOS minimum deployment target or regenerating native
+dependencies, regenerate the Swift Package Manager configuration for both
+flavors before opening/running the app in Xcode:
+
+```sh
+flutterN build ios --config-only --debug --flavor development -t lib/main_development.dart
+flutterN build ios --config-only --debug --flavor production -t lib/main_production.dart
+```
+
+This updates Flutter's generated `FlutterGeneratedPluginSwiftPackage` manifest.
+Do not edit that manifest directly: Flutter regenerates it.
+
+if you get this error
+
+```
+ios/SourcePackages/cloud_firestore-6.6.0"
+failed: No such file or directory (2)
+```
+
+Try creating the dir
+
+```
+mkdir -p build/ios/SourcePackages
+```
+
 Plain `flutterN run` defaults to development. Explicit commands:
 
 ```sh
