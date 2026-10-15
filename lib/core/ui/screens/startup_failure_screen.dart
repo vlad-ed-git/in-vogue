@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:in_vogue/core/design_system/design_system.dart';
+import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/l10n/generated/app_localizations.dart';
 

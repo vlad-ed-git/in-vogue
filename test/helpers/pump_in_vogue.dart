@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:in_vogue/core/design_system/design_system.dart';
+import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/l10n/generated/app_localizations.dart';
 
 /// Pumps [child] the way the app shows it: the Paper theme, its builder and

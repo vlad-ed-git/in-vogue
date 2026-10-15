@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:in_vogue/core/design_system/design_system.dart';
+import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/ui/screens/foundation_screen.dart';
 import 'package:in_vogue/core/utils/localization_ext.dart';
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
