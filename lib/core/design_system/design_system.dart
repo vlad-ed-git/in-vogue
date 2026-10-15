@@ -7,6 +7,8 @@ export 'components/actions/love_toggle.dart';
 export 'components/actions/text_link.dart';
 export 'components/feedback/in_vogue_sheet.dart';
 export 'components/feedback/notice.dart';
+export 'components/makeup/before_after.dart';
+export 'components/makeup/makeup_step.dart';
 export 'components/navigation/back_bar.dart';
 export 'components/navigation/category_chips.dart';
 export 'components/navigation/day_switch.dart';

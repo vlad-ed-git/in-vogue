@@ -64,6 +64,9 @@ final testImage = MemoryImage(
   ]),
 );
 
+/// A second 1 × 1 PNG, distinct from [testImage].
+final otherTestImage = MemoryImage(Uint8List.fromList(testImage.bytes));
+
 /// The colour of the first [DecoratedBox] or [ColoredBox] painted for
 /// [finder], whichever it is.
 Color? fillOf(WidgetTester tester, Finder finder) {
