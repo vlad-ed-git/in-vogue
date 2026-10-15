@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -263,7 +262,7 @@ class InVogueSheetOption extends StatelessWidget {
                   style: selected ? InVogueType.bodyStrong : InVogueType.body,
                 ),
               ),
-              if (selected) const InVogueIcon(InVogueIcons.check),
+              if (selected) const Icon(InVogueIcons.check),
             ],
           ),
         ),

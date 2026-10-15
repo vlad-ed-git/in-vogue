@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -52,11 +51,7 @@ class YourPicksLink extends StatelessWidget {
       builder: (context, state) => Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const InVogueIcon(
-            InVogueIcons.heart,
-            size: 20,
-            color: InVogueColors.ink,
-          ),
+          const Icon(InVogueIcons.heart, size: 20, color: InVogueColors.ink),
           const SizedBox(width: 6),
           Flexible(child: Text(label, style: InVogueType.link)),
         ],

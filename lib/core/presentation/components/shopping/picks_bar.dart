@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/components/actions/in_vogue_button.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
@@ -51,7 +50,7 @@ class PicksBar extends StatelessWidget {
               Expanded(
                 child: Row(
                   children: [
-                    InVogueIcon(
+                    Icon(
                       count > 0 ? InVogueIcons.heartFill : InVogueIcons.heart,
                       size: 20,
                       color: count > 0

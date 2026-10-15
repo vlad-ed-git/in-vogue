@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
@@ -80,11 +79,7 @@ class CheckBadge extends StatelessWidget {
       child: ColoredBox(
         color: InVogueColors.ink,
         child: Center(
-          child: InVogueIcon(
-            InVogueIcons.check,
-            size: 14,
-            color: InVogueColors.paper,
-          ),
+          child: Icon(InVogueIcons.check, size: 14, color: InVogueColors.paper),
         ),
       ),
     ),
@@ -115,7 +110,7 @@ class LockOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-    child: InVogueIcon(
+    child: Icon(
       InVogueIcons.lock,
       size: 24,
       color: InVogueColors.ink,

@@ -236,10 +236,7 @@ void main() {
         find.text('Add the name you’d like us to use.'),
       );
       expect(error.style!.color, InVogueColors.ink);
-      expect(
-        tester.widget<InVogueIcon>(findIcon(InVogueIcons.warning)).size,
-        20,
-      );
+      expect(tester.widget<Icon>(findIcon(InVogueIcons.warning)).size, 20);
     });
 
     testWidgets('the label names the field for screen readers', (tester) async {

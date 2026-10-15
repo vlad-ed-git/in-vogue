@@ -302,7 +302,7 @@ void main() {
     ) async {
       await pumpInVogue(tester, harness(loved: false, onChanged: (_) {}));
       expect(tester.getSize(find.byType(LoveToggle)), const Size.square(44));
-      final heart = tester.widget<InVogueIcon>(findIcon(InVogueIcons.heart));
+      final heart = tester.widget<Icon>(findIcon(InVogueIcons.heart));
       expect(heart.size, 22);
       expect(heart.color, InVogueColors.ink);
     });
@@ -312,9 +312,7 @@ void main() {
     ) async {
       final handle = tester.ensureSemantics();
       await pumpInVogue(tester, harness(loved: true, onChanged: (_) {}));
-      final heart = tester.widget<InVogueIcon>(
-        findIcon(InVogueIcons.heartFill),
-      );
+      final heart = tester.widget<Icon>(findIcon(InVogueIcons.heartFill));
       expect(heart.color, InVogueColors.signal);
       expect(
         tester.getSemantics(

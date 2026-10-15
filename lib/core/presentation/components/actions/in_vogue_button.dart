@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -68,7 +67,7 @@ class InVogueButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final InVogueButtonKind kind;
 
-  final InVogueIcons? icon;
+  final IconData? icon;
 
   /// Icon colour when it differs from the label.
   final Color? iconColor;
@@ -142,7 +141,7 @@ class InVogueButton extends StatelessWidget {
               ),
               if (icon != null) ...[
                 const SizedBox(width: InVogueSpace.s3),
-                InVogueIcon(
+                Icon(
                   icon!,
                   size: compact ? 18 : 22,
                   color: enabled ? (iconColor ?? foreground) : foreground,

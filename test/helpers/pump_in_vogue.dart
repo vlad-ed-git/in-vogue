@@ -77,10 +77,8 @@ Color? fillOf(WidgetTester tester, Finder finder) {
   throw ArgumentError('$widget has no fill');
 }
 
-/// Finds the [InVogueIcon]s drawing [icon].
-Finder findIcon(InVogueIcons icon) => find.byWidgetPredicate(
-  (widget) => widget is InVogueIcon && widget.icon == icon,
-);
+/// Finds the [Icon]s showing [icon].
+Finder findIcon(IconData icon) => find.byIcon(icon);
 
 /// Finds the [TextLink] labelled [label].
 Finder findLink(String label) => find.byWidgetPredicate(

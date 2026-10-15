@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/presentation/components/actions/in_vogue_button.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
@@ -84,7 +83,7 @@ class Notice extends StatelessWidget {
         message: context.translated.notFullLength,
       );
 
-  final InVogueIcons icon;
+  final IconData icon;
 
   final String message;
 
@@ -117,7 +116,7 @@ class Notice extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            InVogueIcon(
+            Icon(
               icon,
               color: alert ? InVogueColors.alert : InVogueColors.onAccent,
             ),

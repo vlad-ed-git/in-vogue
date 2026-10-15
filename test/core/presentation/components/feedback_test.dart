@@ -58,9 +58,7 @@ void main() {
       );
       final border = band(tester).border! as Border;
       expect(border.top, const BorderSide(color: InVogueColors.ink, width: 2));
-      final warning = tester.widget<InVogueIcon>(
-        findIcon(InVogueIcons.warning),
-      );
+      final warning = tester.widget<Icon>(findIcon(InVogueIcons.warning));
       expect(warning.color, InVogueColors.ink, reason: 'no error red');
       final button = tester.widget<InVogueButton>(find.byType(InVogueButton));
       expect(button.kind, InVogueButtonKind.secondary);

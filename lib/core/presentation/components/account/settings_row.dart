@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/components/actions/text_link.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/photo_slot.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
@@ -59,7 +58,7 @@ class SettingsRow extends StatelessWidget {
   /// A whole-row action with an ink icon, such as Log out.
   const SettingsRow.command({
     required this.title,
-    required InVogueIcons this.icon,
+    required IconData this.icon,
     required this.onTap,
     super.key,
   }) : value = null,
@@ -76,7 +75,7 @@ class SettingsRow extends StatelessWidget {
   final VoidCallback? onAction;
   final ImageProvider? avatar;
   final bool showAvatar;
-  final InVogueIcons? icon;
+  final IconData? icon;
   final VoidCallback? onTap;
 
   /// Log out.
@@ -103,7 +102,7 @@ class SettingsRow extends StatelessWidget {
         if (icon != null)
           Row(
             children: [
-              InVogueIcon(icon!, size: 20, color: InVogueColors.alert),
+              Icon(icon!, size: 20, color: InVogueColors.alert),
               const SizedBox(width: 6),
               Flexible(
                 child: Text(

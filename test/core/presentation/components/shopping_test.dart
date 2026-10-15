@@ -227,7 +227,7 @@ void main() {
         scroll: false,
       );
       expect(find.text('Your picks · 3'), findsOneWidget);
-      final heart = tester.widget<InVogueIcon>(find.byType(InVogueIcon).first);
+      final heart = tester.widget<Icon>(find.byType(Icon).first);
       expect(heart.icon, InVogueIcons.heartFill);
       expect(heart.color, InVogueColors.signal);
       final bar = tester.getRect(find.byType(PicksBar));
@@ -246,7 +246,7 @@ void main() {
         PicksBar(count: 0, action: PicksBarAction.done, onPressed: () {}),
       );
       expect(find.text('Your picks · 0'), findsOneWidget);
-      final heart = tester.widget<InVogueIcon>(find.byType(InVogueIcon).first);
+      final heart = tester.widget<Icon>(find.byType(Icon).first);
       expect(heart.icon, InVogueIcons.heart);
       expect(heart.color, InVogueColors.ink);
       expect(find.text('Done'), findsOneWidget);

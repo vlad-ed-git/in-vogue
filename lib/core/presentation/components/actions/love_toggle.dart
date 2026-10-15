@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -98,7 +97,7 @@ class _LoveToggleState extends State<LoveToggle>
       child: Center(
         child: ScaleTransition(
           scale: _scale,
-          child: InVogueIcon(
+          child: Icon(
             widget.loved ? InVogueIcons.heartFill : InVogueIcons.heart,
             size: LoveToggle.glyphSize,
             color: widget.loved ? InVogueColors.signal : InVogueColors.ink,

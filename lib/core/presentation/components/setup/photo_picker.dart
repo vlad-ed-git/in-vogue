@@ -3,7 +3,6 @@ import 'package:in_vogue/core/presentation/components/actions/in_vogue_button.da
 import 'package:in_vogue/core/presentation/components/actions/text_link.dart';
 import 'package:in_vogue/core/presentation/components/feedback/notice.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/kicker.dart';
 import 'package:in_vogue/core/presentation/foundations/photo_slot.dart';
@@ -164,7 +163,7 @@ class _Checklist extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const InVogueIcon(InVogueIcons.check, size: 16),
+                    const Icon(InVogueIcons.check, size: 16),
                     const SizedBox(width: InVogueSpace.s2),
                     Expanded(child: Text(item, style: InVogueType.body)),
                   ],

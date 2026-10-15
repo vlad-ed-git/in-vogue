@@ -35,7 +35,6 @@ export 'components/widget/home_widget_preview.dart';
 export 'foundations/focus_ring.dart';
 export 'foundations/in_vogue_context.dart';
 export 'foundations/in_vogue_format.dart';
-export 'foundations/in_vogue_icon.dart';
 export 'foundations/in_vogue_icons.dart';
 export 'foundations/kicker.dart';
 export 'foundations/layout_blocks.dart';

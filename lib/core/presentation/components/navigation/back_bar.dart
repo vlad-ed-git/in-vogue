@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -44,8 +43,7 @@ class BackBar extends StatelessWidget {
                 Pressable(
                   onTap: onBack,
                   semanticLabel: l10n.close,
-                  builder: (context, state) =>
-                      const InVogueIcon(InVogueIcons.close),
+                  builder: (context, state) => const Icon(InVogueIcons.close),
                 ),
               ]
             : [
@@ -59,7 +57,7 @@ class BackBar extends StatelessWidget {
                     builder: (context, state) => Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const InVogueIcon(InVogueIcons.caretLeft, size: 20),
+                        const Icon(InVogueIcons.caretLeft, size: 20),
                         const SizedBox(width: 2),
                         Text(l10n.back, style: InVogueType.link),
                       ],

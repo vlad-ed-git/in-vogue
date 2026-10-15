@@ -75,7 +75,7 @@ void main() {
       );
       expect(findIcon(InVogueIcons.signOut), findsOneWidget);
       expect(
-        tester.widget<InVogueIcon>(findIcon(InVogueIcons.trash)).color,
+        tester.widget<Icon>(findIcon(InVogueIcons.trash)).color,
         InVogueColors.ink,
         reason: 'no red',
       );

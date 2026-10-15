@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/components/actions/in_vogue_button.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/layout_blocks.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -56,7 +55,7 @@ class ProOffer extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          const InVogueIcon(InVogueIcons.check, size: 20),
+                          const Icon(InVogueIcons.check, size: 20),
                           const SizedBox(width: InVogueSpace.s3),
                           Expanded(
                             child: Text(benefit, style: InVogueType.bodyStrong),

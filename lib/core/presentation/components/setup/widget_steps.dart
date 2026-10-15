@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
@@ -52,7 +51,7 @@ class WidgetSteps extends StatelessWidget {
                       width: 28,
                       child: Align(
                         alignment: AlignmentDirectional.centerStart,
-                        child: InVogueIcon(steps[i].$2),
+                        child: Icon(steps[i].$2),
                       ),
                     ),
                   ],

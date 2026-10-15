@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:in_vogue/core/presentation/foundations/in_vogue_icon.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/kicker.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -138,7 +137,7 @@ class _InVogueTextFieldState extends State<InVogueTextField> {
             liveRegion: true,
             child: Row(
               children: [
-                const InVogueIcon(
+                const Icon(
                   InVogueIcons.warning,
                   size: 20,
                   color: InVogueColors.alert,
