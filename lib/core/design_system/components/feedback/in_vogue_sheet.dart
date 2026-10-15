@@ -53,6 +53,16 @@ class InVogueSheetRoute<T> extends PopupRoute<T> {
   @override
   Duration get reverseTransitionDuration => InVogueMotion.sheetOut;
 
+  // Preserve: the reduced-motion fade keeps its full length.
+  @override
+  AnimationController createAnimationController() => AnimationController(
+    duration: transitionDuration,
+    reverseDuration: reverseTransitionDuration,
+    debugLabel: debugLabel,
+    vsync: navigator!,
+    animationBehavior: AnimationBehavior.preserve,
+  );
+
   @override
   Widget buildPage(
     BuildContext context,

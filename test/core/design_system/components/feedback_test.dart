@@ -304,13 +304,17 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
       expect(tester.getBottomLeft(find.byType(InVogueSheet)).dy, 844);
-      expect(
-        find.ancestor(
-          of: find.byType(InVogueSheet),
-          matching: find.byType(FadeTransition),
-        ),
-        findsWidgets,
+      final fade = tester.widget<FadeTransition>(
+        find
+            .ancestor(
+              of: find.byType(InVogueSheet),
+              matching: find.byType(FadeTransition),
+            )
+            .first,
       );
+      expect(fade.opacity.value, closeTo(100 / 280, 0.01));
+      await tester.pump(const Duration(milliseconds: 180));
+      expect(fade.opacity.value, 1);
     });
   });
 }
