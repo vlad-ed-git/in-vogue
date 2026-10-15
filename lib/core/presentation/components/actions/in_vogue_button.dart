@@ -130,7 +130,8 @@ class InVogueButton extends StatelessWidget {
             minWidth: double.infinity,
           ),
           padding: padding,
-          alignment: AlignmentDirectional.centerStart,
+          // The row centres the label; an alignment would also make the
+          // button take all the height it is given.
           child: Row(
             children: [
               Expanded(

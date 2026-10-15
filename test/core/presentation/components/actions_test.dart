@@ -20,6 +20,24 @@ void main() {
       tester.widget<Text>(find.text(label)).style!.color!;
 
   group('InVogueButton', () {
+    testWidgets('keeps its height when given room to grow', (tester) async {
+      await pumpInVogue(
+        tester,
+        Align(
+          alignment: Alignment.topLeft,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 350, maxHeight: 400),
+            child: InVogueButton.primary(label: 'Proceed', onPressed: () {}),
+          ),
+        ),
+        scroll: false,
+      );
+      expect(
+        tester.getSize(find.byType(InVogueButton)).height,
+        InVogueLayout.controlHeight,
+      );
+    });
+
     testWidgets('primary is Rouge with a white label, 52 tall and full width', (
       tester,
     ) async {

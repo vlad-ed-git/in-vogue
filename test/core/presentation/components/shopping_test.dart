@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
@@ -203,6 +205,37 @@ void main() {
   });
 
   group('PicksBar', () {
+    testWidgets('sits at the bottom of a screen as its bottom bar', (
+      tester,
+    ) async {
+      await pumpInVogue(
+        tester,
+        Scaffold(
+          body: const SizedBox.expand(),
+          bottomNavigationBar: PicksBar(
+            count: 2,
+            action: PicksBarAction.proceed,
+            onPressed: () {},
+          ),
+        ),
+        scroll: false,
+      );
+      final bar = tester.getRect(find.byType(PicksBar));
+      final row = math.max(
+        InVogueLayout.controlHeight,
+        tester.getSize(find.text('Your picks · 2')).height,
+      );
+      expect(bar.bottom, 844);
+      expect(
+        bar.height,
+        InVogueLayout.strokeHairline + 2 * InVogueSpace.s3 + row,
+      );
+      expect(
+        tester.getSize(find.byType(InVogueButton)).height,
+        InVogueLayout.controlHeight,
+      );
+    });
+
     testWidgets('count with a Rouge heart, Proceed at 52% width', (
       tester,
     ) async {
@@ -232,10 +265,17 @@ void main() {
       expect(heart.color, InVogueColors.signal);
       final bar = tester.getRect(find.byType(PicksBar));
       final button = tester.getRect(find.byType(InVogueButton));
+      // The row is as tall as the button, or the label if it wraps.
+      final extra =
+          math.max(
+            InVogueLayout.controlHeight,
+            tester.getSize(find.text('Your picks · 3')).height,
+          ) -
+          InVogueLayout.controlHeight;
       expect(button.width, closeTo(350 * 0.52, 1e-9));
       expect(button.right, bar.right - 20);
-      expect(bar.bottom - button.bottom, 12 + 34);
-      expect(button.top - bar.top, 12 + 1);
+      expect(bar.bottom - button.bottom, 12 + 34 + extra / 2);
+      expect(button.top - bar.top, 12 + 1 + extra / 2);
       await tester.tap(find.text('Proceed'));
       expect(pressed, 1);
     });
