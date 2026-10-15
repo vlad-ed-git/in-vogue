@@ -62,8 +62,8 @@ void main() {
   testWidgets(
     'reopens the saved step with the earlier steps behind it for Back',
     (tester) async {
-      await pumpRouter(tester, SetupStep.firstOutfit);
-      expect(find.text('setup:firstOutfit'), findsOneWidget);
+      await pumpRouter(tester, SetupStep.picks);
+      expect(find.text('setup:picks'), findsOneWidget);
       router.config.pop();
       await tester.pumpAndSettle();
       expect(find.text('setup:photo'), findsOneWidget);
@@ -82,10 +82,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('setup:photo'), findsOneWidget);
     verify(repository.saveStep(SetupStep.photo)).called(1);
-    router.config.go(AppRoutes.forStep(SetupStep.firstOutfit));
+    router.config.go(AppRoutes.forStep(SetupStep.picks));
     await tester.pumpAndSettle();
-    expect(find.text('setup:firstOutfit'), findsOneWidget);
-    verify(repository.saveStep(SetupStep.firstOutfit)).called(1);
+    expect(find.text('setup:picks'), findsOneWidget);
+    verify(repository.saveStep(SetupStep.picks)).called(1);
   });
 
   testWidgets('gives every setup step its own route', (tester) async {
@@ -99,10 +99,10 @@ void main() {
   });
 
   testWidgets('keeps an unfinished setup on its step', (tester) async {
-    await pumpRouter(tester, SetupStep.picks);
+    await pumpRouter(tester, SetupStep.signIn);
     router.config.go(AppRoutes.home);
     await tester.pumpAndSettle();
-    expect(find.text('setup:picks'), findsOneWidget);
+    expect(find.text('setup:signIn'), findsOneWidget);
     expect(find.text('tab:home'), findsNothing);
   });
 

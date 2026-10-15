@@ -13,7 +13,6 @@ import 'package:in_vogue/features/location/domain/usecases/get_saved_location.da
 import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
 import 'package:in_vogue/features/location/domain/usecases/open_location_settings.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
-import 'package:in_vogue/features/outfits/domain/usecases/try_on_outfit.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/check_full_length.dart';
@@ -25,15 +24,14 @@ import 'package:in_vogue/features/preferences/domain/usecases/set_language.dart'
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/save_setup_step.dart';
-import 'package:in_vogue/features/setup/presentation/bloc/first_outfit_bloc.dart';
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
+import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 import 'package:mockito/mockito.dart';
 
 import 'features/location/location_repository_test.mocks.dart';
 import 'features/photos/photo_repository_test.mocks.dart';
 import 'features/preferences/preferences_repository_test.mocks.dart';
-import 'features/setup/first_outfit_bloc_test.mocks.dart';
 import 'features/setup/setup_repository_test.mocks.dart';
 import 'features/weather/weather_repository_test.mocks.dart';
 import 'helpers/pump_in_vogue.dart';
@@ -63,12 +61,10 @@ void main() {
       weather.forecastFor(any),
     ).thenAnswer((_) async => const Left(NetworkFailure()));
     locator = GetIt.asNewInstance()
-      ..registerFactory<FirstOutfitBloc>(
-        () => FirstOutfitBloc(
+      ..registerFactory<ForecastBloc>(
+        () => ForecastBloc(
           getSavedLocation: GetSavedLocation(location),
-          getKeptPhoto: GetKeptPhoto(photos),
           getWeatherReport: GetWeatherReport(weather),
-          tryOnOutfit: TryOnOutfit(MockTryOnRepository()),
         ),
       )
       ..registerFactoryParam<PhotoBloc, PhotoRole, void>(
@@ -159,14 +155,16 @@ void main() {
     verify(setup.saveStep(SetupStep.welcome)).called(1);
   });
 
-  testWidgets('continues from Your photo to the first outfit', (tester) async {
+  testWidgets('continues from Your photo to the weather and picks', (
+    tester,
+  ) async {
     await tester.pumpWidget(app(step: SetupStep.photo));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Continue'));
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.text('3 / 6'), findsOneWidget);
-    verify(setup.saveStep(SetupStep.firstOutfit)).called(1);
+    verify(setup.saveStep(SetupStep.picks)).called(1);
   });
 
   testWidgets('starts in English even when the device language is Spanish', (

@@ -10,11 +10,11 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/settings/presentation/screens/settings_screen.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
-import 'package:in_vogue/features/setup/presentation/bloc/first_outfit_bloc.dart';
-import 'package:in_vogue/features/setup/presentation/screens/first_outfit_screen.dart';
+import 'package:in_vogue/features/setup/presentation/screens/picks_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/your_photo_screen.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
+import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 
 /// The app's screens, with their blocs from [locator].
 AppScreens inVogueScreens(GetIt locator) => AppScreens(
@@ -33,17 +33,16 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
       child: Builder(
         builder: (context) => YourPhotoScreen(
           onBack: () => context.pop(),
-          onDone: () => context.go(AppRoutes.forStep(SetupStep.firstOutfit)),
+          onDone: () => context.go(AppRoutes.forStep(SetupStep.picks)),
         ),
       ),
     ),
-    SetupStep.firstOutfit => BlocProvider(
-      create: (_) =>
-          locator<FirstOutfitBloc>()..add(const FirstOutfitStarted()),
+    SetupStep.picks => BlocProvider(
+      create: (_) => locator<ForecastBloc>()..add(const ForecastRequested()),
       child: Builder(
-        builder: (context) => FirstOutfitScreen(
+        builder: (context) => PicksScreen(
           onBack: () => context.pop(),
-          onNext: () => context.go(AppRoutes.forStep(SetupStep.picks)),
+          onProceed: () => context.go(AppRoutes.forStep(SetupStep.signIn)),
         ),
       ),
     ),

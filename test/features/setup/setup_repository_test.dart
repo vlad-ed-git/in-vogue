@@ -37,8 +37,8 @@ void main() {
     });
 
     test('reads the saved step', () {
-      when(store.readString('setup_step')).thenReturn('picks');
-      expect(source.getStep(), SetupStep.picks);
+      when(store.readString('setup_step')).thenReturn('profile');
+      expect(source.getStep(), SetupStep.profile);
     });
 
     test('starts at welcome when the saved value is unknown', () {
@@ -48,8 +48,8 @@ void main() {
 
     test('saves the step by its stable name', () async {
       when(store.writeString(any, any)).thenAnswer((_) async {});
-      await source.saveStep(SetupStep.firstOutfit);
-      verify(store.writeString('setup_step', 'firstOutfit')).called(1);
+      await source.saveStep(SetupStep.picks);
+      verify(store.writeString('setup_step', 'picks')).called(1);
     });
   });
 

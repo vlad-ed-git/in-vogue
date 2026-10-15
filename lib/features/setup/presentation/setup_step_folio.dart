@@ -8,9 +8,9 @@ extension SetupStepFolio on SetupStep {
   int? get folio => switch (this) {
     SetupStep.welcome || SetupStep.done => null,
     SetupStep.photo => 2,
-    SetupStep.firstOutfit => 3,
-    SetupStep.picks => 4,
-    SetupStep.signIn || SetupStep.name || SetupStep.facePhoto => 5,
-    SetupStep.widget || SetupStep.widgetSteps => 6,
+    SetupStep.picks => 3,
+    SetupStep.signIn => 4,
+    SetupStep.profile => 5,
+    SetupStep.widget => 6,
   };
 }

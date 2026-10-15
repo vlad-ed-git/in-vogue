@@ -43,20 +43,20 @@ void main() {
       ).thenAnswer((_) async => const Left(CacheFailure()));
       return buildBloc(initialStep: SetupStep.photo);
     },
-    act: (bloc) => bloc.add(const SetupStepReached(SetupStep.firstOutfit)),
-    expect: () => [const SetupState(step: SetupStep.firstOutfit)],
+    act: (bloc) => bloc.add(const SetupStepReached(SetupStep.picks)),
+    expect: () => [const SetupState(step: SetupStep.picks)],
   );
 
   blocTest<SetupBloc, SetupState>(
     'does not save the step it is already on',
-    build: () => buildBloc(initialStep: SetupStep.picks),
-    act: (bloc) => bloc.add(const SetupStepReached(SetupStep.picks)),
+    build: () => buildBloc(initialStep: SetupStep.signIn),
+    act: (bloc) => bloc.add(const SetupStepReached(SetupStep.signIn)),
     expect: () => <SetupState>[],
     verify: (_) => verifyNever(repository.saveStep(any)),
   );
 
   test('reports finished setup only for the done step', () {
-    expect(const SetupState(step: SetupStep.widgetSteps).isFinished, isFalse);
+    expect(const SetupState(step: SetupStep.widget).isFinished, isFalse);
     expect(const SetupState(step: SetupStep.done).isFinished, isTrue);
   });
 
@@ -66,23 +66,23 @@ void main() {
       repository.saveStep(SetupStep.photo),
     ).thenAnswer((_) => firstSave.future);
     when(
-      repository.saveStep(SetupStep.firstOutfit),
-    ).thenAnswer((_) async => const Right(SetupStep.firstOutfit));
+      repository.saveStep(SetupStep.picks),
+    ).thenAnswer((_) async => const Right(SetupStep.picks));
     final bloc = buildBloc();
     addTearDown(bloc.close);
     bloc
       ..add(const SetupStepReached(SetupStep.photo))
-      ..add(const SetupStepReached(SetupStep.firstOutfit));
+      ..add(const SetupStepReached(SetupStep.picks));
     await Future<void>.delayed(Duration.zero);
-    verifyNever(repository.saveStep(SetupStep.firstOutfit));
+    verifyNever(repository.saveStep(SetupStep.picks));
     final finished = bloc.stream.firstWhere(
-      (state) => state.step == SetupStep.firstOutfit,
+      (state) => state.step == SetupStep.picks,
     );
     firstSave.complete(const Right(SetupStep.photo));
     await finished.timeout(const Duration(seconds: 2));
     verifyInOrder([
       repository.saveStep(SetupStep.photo),
-      repository.saveStep(SetupStep.firstOutfit),
+      repository.saveStep(SetupStep.picks),
     ]);
   });
 }

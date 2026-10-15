@@ -5,6 +5,7 @@ import 'package:in_vogue/features/weather/data/data_sources/weather_remote_data_
 import 'package:in_vogue/features/weather/data/repositories/weather_repository_impl.dart';
 import 'package:in_vogue/features/weather/domain/repositories/weather_repository.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
+import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 
 void init(GetIt locator) {
   locator
@@ -29,7 +30,11 @@ void init(GetIt locator) {
         logMessages: locator(),
       ),
     )
-    ..registerLazySingleton<GetWeatherReport>(
-      () => GetWeatherReport(locator()),
+    ..registerLazySingleton<GetWeatherReport>(() => GetWeatherReport(locator()))
+    ..registerFactory<ForecastBloc>(
+      () => ForecastBloc(
+        getSavedLocation: locator(),
+        getWeatherReport: locator(),
+      ),
     );
 }

@@ -14,13 +14,10 @@ abstract final class AppRoutes {
   static const _segments = <SetupStep, String>{
     SetupStep.welcome: 'setup',
     SetupStep.photo: 'photo',
-    SetupStep.firstOutfit: 'outfit',
     SetupStep.picks: 'picks',
     SetupStep.signIn: 'sign-in',
-    SetupStep.name: 'name',
-    SetupStep.facePhoto: 'face',
+    SetupStep.profile: 'about-you',
     SetupStep.widget: 'widget',
-    SetupStep.widgetSteps: 'steps',
   };
 
   static final Map<SetupStep, String> _paths = () {

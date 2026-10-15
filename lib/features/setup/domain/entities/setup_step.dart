@@ -2,14 +2,13 @@
 enum SetupStep {
   welcome,
   photo,
-  firstOutfit,
+
+  /// Tomorrow's weather and pieces to pick for it.
   picks,
   signIn,
-  name,
-  facePhoto,
-  widget,
 
-  /// The iPhone's three steps for adding the widget.
-  widgetSteps,
+  /// The person's name and optional face photo.
+  profile,
+  widget,
   done,
 }
