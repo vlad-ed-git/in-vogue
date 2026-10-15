@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:in_vogue/core/ui/theme/app_theme.dart';
+import 'package:in_vogue/core/design_system/design_system.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/l10n/generated/app_localizations.dart';
 
@@ -20,8 +20,9 @@ class _StartupFailureAppState extends State<StartupFailureApp> {
     locale: const Locale('en'),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    theme: AppTheme.light,
-    darkTheme: AppTheme.dark,
+    theme: InVogueTheme.paper,
+    themeMode: ThemeMode.light,
+    builder: InVogueTheme.builder,
     home: Builder(
       builder: (context) => Scaffold(
         body: SafeArea(

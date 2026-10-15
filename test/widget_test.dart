@@ -90,7 +90,7 @@ void main() {
     },
   );
 
-  testWidgets('fits a small screen with 200% text in both themes', (
+  testWidgets('fits a small screen at 200% text in either phone appearance', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(320, 568);
@@ -111,6 +111,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.text('In Vogue'), findsOneWidget);
+      final context = tester.element(find.text('In Vogue'));
+      expect(Theme.of(context).brightness, Brightness.light);
+      expect(
+        Theme.of(context).scaffoldBackgroundColor,
+        const Color(0xFFFFFFFF),
+      );
     }
   });
 }

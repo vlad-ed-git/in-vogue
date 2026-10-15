@@ -96,6 +96,7 @@ abstract final class InVogueType {
     height: 28 / 26,
     fontWeight: FontWeight.w700,
     fontVariations: [FontVariation('wght', 700)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -109,6 +110,7 @@ abstract final class InVogueType {
     height: 1,
     fontWeight: FontWeight.w500,
     fontVariations: [FontVariation('wght', 500)],
+    letterSpacing: 0,
     color: InVogueColors.graphite,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -121,6 +123,7 @@ abstract final class InVogueType {
     height: 1,
     fontWeight: FontWeight.w700,
     fontVariations: [FontVariation('wght', 700)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -133,6 +136,7 @@ abstract final class InVogueType {
     height: 32 / 28,
     fontWeight: FontWeight.w300,
     fontVariations: [FontVariation('wght', 300)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -147,6 +151,7 @@ abstract final class InVogueType {
     height: 24 / 17,
     fontWeight: FontWeight.w600,
     fontVariations: [FontVariation('wght', 600)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -159,6 +164,7 @@ abstract final class InVogueType {
     height: 20 / 15,
     fontWeight: FontWeight.w600,
     fontVariations: [FontVariation('wght', 600)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -171,6 +177,7 @@ abstract final class InVogueType {
     height: 24 / 16,
     fontWeight: FontWeight.w400,
     fontVariations: [FontVariation('wght', 400)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -183,6 +190,7 @@ abstract final class InVogueType {
     height: 20 / 14,
     fontWeight: FontWeight.w400,
     fontVariations: [FontVariation('wght', 400)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -195,6 +203,7 @@ abstract final class InVogueType {
     height: 20 / 17,
     fontWeight: FontWeight.w600,
     fontVariations: [FontVariation('wght', 600)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -207,6 +216,7 @@ abstract final class InVogueType {
     height: 20 / 15,
     fontWeight: FontWeight.w500,
     fontVariations: [FontVariation('wght', 500)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -233,6 +243,7 @@ abstract final class InVogueType {
     height: 16 / 12,
     fontWeight: FontWeight.w400,
     fontVariations: [FontVariation('wght', 400)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -245,6 +256,7 @@ abstract final class InVogueType {
     height: 16 / 14,
     fontWeight: FontWeight.w500,
     fontVariations: [FontVariation('wght', 500)],
+    letterSpacing: 0,
     color: InVogueColors.graphite,
     leadingDistribution: TextLeadingDistribution.even,
   );
@@ -257,6 +269,7 @@ abstract final class InVogueType {
     height: 16 / 14,
     fontWeight: FontWeight.w700,
     fontVariations: [FontVariation('wght', 700)],
+    letterSpacing: 0,
     color: InVogueColors.ink,
     leadingDistribution: TextLeadingDistribution.even,
   );
