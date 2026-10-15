@@ -91,6 +91,24 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('fits a 320-point phone at 200% text, folio on the right', (
+      tester,
+    ) async {
+      await pumpInVogue(
+        tester,
+        BackBar(onBack: () {}, step: 2),
+        size: const Size(320, 568),
+        textScale: 2,
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.text('2 / 6'), findsOneWidget);
+      expect(tester.getRect(find.text('2 / 6')).right, lessThanOrEqualTo(300));
+      expect(
+        tester.getRect(find.text('2 / 6')).left,
+        greaterThan(tester.getRect(find.text('Back')).right),
+      );
+    });
+
     testWidgets('after setup there is no folio', (tester) async {
       await pumpInVogue(tester, BackBar(onBack: () {}));
       expect(find.textContaining('/'), findsNothing);

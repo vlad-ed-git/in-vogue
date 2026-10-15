@@ -66,11 +66,18 @@ class BackBar extends StatelessWidget {
                 ),
                 if (step != null) ...[
                   const SizedBox(width: InVogueSpace.s4),
-                  Text(
-                    l10n.setupFolio(step!, total),
-                    style: InVogueType.meta.copyWith(
-                      color: InVogueColors.graphite,
-                      fontFeatures: InVogueType.tabularFigures,
+                  // Shrinks rather than overflows at large text sizes.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Text(
+                        l10n.setupFolio(step!, total),
+                        style: InVogueType.meta.copyWith(
+                          color: InVogueColors.graphite,
+                          fontFeatures: InVogueType.tabularFigures,
+                        ),
+                      ),
                     ),
                   ),
                 ],
