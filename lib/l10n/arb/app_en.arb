@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+  "appName": "In Vogue",
+  "tagline": "Meet tomorrow’s weather in style.",
+  "welcomeDescription": "Outfits for your day. Makeup for your look.",
+  "language": "Language",
+  "cacheFailure": "We couldn’t save your changes. Please try again.",
+  "networkFailure": "You’re offline. Please check your connection.",
+  "serverFailure": "Something went wrong. Please try again.",
+  "startupFailure": "In Vogue couldn’t start. Please try again.",
+  "retry": "Try again"
+}

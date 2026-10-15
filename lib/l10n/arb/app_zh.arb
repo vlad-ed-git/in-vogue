@@ -1,0 +1,12 @@
+{
+  "@@locale": "zh",
+  "appName": "In Vogue",
+  "tagline": "以时尚穿搭，迎接明天的天气。",
+  "welcomeDescription": "穿搭随天气，妆容配风格。",
+  "language": "语言",
+  "cacheFailure": "无法保存更改，请重试。",
+  "networkFailure": "网络已断开，请检查网络连接。",
+  "serverFailure": "出现了一些问题，请重试。",
+  "startupFailure": "In Vogue 无法启动，请重试。",
+  "retry": "重试"
+}

@@ -1,0 +1,12 @@
+{
+  "@@locale": "es",
+  "appName": "In Vogue",
+  "tagline": "Viste con estilo para el tiempo de mañana.",
+  "welcomeDescription": "Conjuntos para tu día. Maquillaje para tu look.",
+  "language": "Idioma",
+  "cacheFailure": "No pudimos guardar tus cambios. Inténtalo de nuevo.",
+  "networkFailure": "No tienes conexión. Revisa tu conexión a internet.",
+  "serverFailure": "Algo salió mal. Inténtalo de nuevo.",
+  "startupFailure": "In Vogue no pudo iniciarse. Inténtalo de nuevo.",
+  "retry": "Reintentar"
+}
