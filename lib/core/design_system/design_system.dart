@@ -32,6 +32,7 @@ export 'components/shopping/shop_item.dart';
 export 'components/weather/rolling_temperature.dart';
 export 'components/weather/weather_glyph.dart';
 export 'components/weather/weather_line.dart';
+export 'components/widget/home_widget_preview.dart';
 export 'foundations/focus_ring.dart';
 export 'foundations/in_vogue_context.dart';
 export 'foundations/in_vogue_format.dart';
