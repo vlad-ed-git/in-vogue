@@ -2,6 +2,9 @@
 /// of `design-spec/`. Features import this one file.
 library;
 
+export 'components/account/pro_confirmation.dart';
+export 'components/account/pro_offer.dart';
+export 'components/account/settings_row.dart';
 export 'components/actions/in_vogue_button.dart';
 export 'components/actions/love_toggle.dart';
 export 'components/actions/text_link.dart';
