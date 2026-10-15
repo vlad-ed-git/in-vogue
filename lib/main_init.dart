@@ -17,6 +17,7 @@ import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart'
 import 'package:in_vogue/features/setup/di/init.dart' as setup_di;
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/get_setup_step.dart';
+import 'package:in_vogue/features/weather/di/init.dart' as weather_di;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -68,6 +69,7 @@ abstract final class MainInit {
       preferences_di.init(locator);
       setup_di.init(locator);
       location_di.init(locator);
+      weather_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
       final setupStep = await locator<GetSetupStep>()(const NoParams());
       _registerErrorHandlers(locator<LogMessages>());
