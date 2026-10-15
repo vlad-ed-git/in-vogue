@@ -2,4 +2,6 @@
 <resources>
     <!-- In Vogue has one theme, Paper: no night resources, nothing follows the phone. -->
     <color name="paper">#FFFFFF</color>
+    <!-- Background layer of the adaptive launcher icon. -->
+    <color name="ic_launcher_background">#FFFFFF</color>
 </resources>
