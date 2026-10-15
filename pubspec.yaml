@@ -21,7 +21,9 @@ dependencies:
   hive_flutter: ^1.1.0
   intl: ^0.20.2
   path: ^1.9.1
+  path_drawing: ^1.0.1
   path_provider: ^2.1.6
+  phosphor_flutter: ^2.1.0
   sqflite: ^2.4.4+2
 
 dev_dependencies:
@@ -41,3 +43,12 @@ flutter:
   default-flavor: development
   config:
     enable-swift-package-manager: false
+  # Sofia Sans in two widths (SIL OFL, see assets/fonts/OFL.txt). Variable
+  # fonts: every style selects its weight through FontVariation('wght').
+  fonts:
+    - family: Sofia Sans
+      fonts:
+        - asset: assets/fonts/SofiaSans-Variable.ttf
+    - family: Sofia Sans Extra Condensed
+      fonts:
+        - asset: assets/fonts/SofiaSansExtraCondensed-Variable.ttf
