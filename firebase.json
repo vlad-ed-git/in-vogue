@@ -1,0 +1,76 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "buildConfigurations": {
+          "src/development": {
+            "projectId": "in-vogue-dev",
+            "appId": "1:184104161725:android:cd544d85268bdccc2302d4",
+            "fileOutput": "android/app/src/development/google-services.json"
+          },
+          "src/production": {
+            "projectId": "in-vogue",
+            "appId": "1:854510811606:android:d57be25145360057bc0c77",
+            "fileOutput": "android/app/src/production/google-services.json"
+          }
+        }
+      },
+      "ios": {
+        "buildConfigurations": {
+          "Debug-development": {
+            "projectId": "in-vogue-dev",
+            "appId": "1:184104161725:ios:49a609aee5c98c452302d4",
+            "uploadDebugSymbols": false,
+            "fileOutput": "ios/flavors/development/GoogleService-Info.plist"
+          },
+          "Profile-development": {
+            "projectId": "in-vogue-dev",
+            "appId": "1:184104161725:ios:49a609aee5c98c452302d4",
+            "uploadDebugSymbols": false,
+            "fileOutput": "ios/flavors/development/GoogleService-Info.plist"
+          },
+          "Release-development": {
+            "projectId": "in-vogue-dev",
+            "appId": "1:184104161725:ios:49a609aee5c98c452302d4",
+            "uploadDebugSymbols": false,
+            "fileOutput": "ios/flavors/development/GoogleService-Info.plist"
+          },
+          "Debug-production": {
+            "projectId": "in-vogue",
+            "appId": "1:854510811606:ios:26fa1f486255d82ebc0c77",
+            "uploadDebugSymbols": false,
+            "fileOutput": "ios/flavors/production/GoogleService-Info.plist"
+          },
+          "Profile-production": {
+            "projectId": "in-vogue",
+            "appId": "1:854510811606:ios:26fa1f486255d82ebc0c77",
+            "uploadDebugSymbols": false,
+            "fileOutput": "ios/flavors/production/GoogleService-Info.plist"
+          },
+          "Release-production": {
+            "projectId": "in-vogue",
+            "appId": "1:854510811606:ios:26fa1f486255d82ebc0c77",
+            "uploadDebugSymbols": false,
+            "fileOutput": "ios/flavors/production/GoogleService-Info.plist"
+          }
+        }
+      },
+      "dart": {
+        "lib/firebase_options_development.dart": {
+          "projectId": "in-vogue-dev",
+          "configurations": {
+            "android": "1:184104161725:android:cd544d85268bdccc2302d4",
+            "ios": "1:184104161725:ios:49a609aee5c98c452302d4"
+          }
+        },
+        "lib/firebase_options_production.dart": {
+          "projectId": "in-vogue",
+          "configurations": {
+            "android": "1:854510811606:android:d57be25145360057bc0c77",
+            "ios": "1:854510811606:ios:26fa1f486255d82ebc0c77"
+          }
+        }
+      }
+    }
+  }
+}

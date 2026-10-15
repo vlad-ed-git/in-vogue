@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "in-vogue-dev",
+    "development": "in-vogue-dev",
+    "production": "in-vogue"
+  }
+}
