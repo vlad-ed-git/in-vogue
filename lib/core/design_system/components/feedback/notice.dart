@@ -9,12 +9,8 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// A plain message in the flow of the page, with the fix next to it: a flat
-/// Rose band, the icon on the left, ink words and an optional action below.
-///
-/// A blocking problem ([alert]) adds a 2-point ink rule along the top and
-/// the `warning` icon; it is never red, so it can't pass for a Rouge action.
-/// It lives where the problem is, never as a toast or modal.
+/// A Rose band with an icon, a message and an optional action. [alert] adds
+/// a 2-point ink rule on top and announces the message.
 class Notice extends StatelessWidget {
   const Notice({
     required this.icon,
@@ -24,7 +20,7 @@ class Notice extends StatelessWidget {
     super.key,
   });
 
-  /// Location is off: Home shows this in place of the weather.
+  /// Location is unavailable; offers Open settings.
   factory Notice.locationOff({
     required BuildContext context,
     required VoidCallback onOpenSettings,
@@ -39,8 +35,7 @@ class Notice extends StatelessWidget {
     ),
   );
 
-  /// Offline: the saved outfit is on screen; [savedAt] is its real date and
-  /// time, such as "Thu 16 Oct at 9:12 pm".
+  /// Offline, with the time [savedAt] the content was saved.
   factory Notice.offline({
     required BuildContext context,
     required String savedAt,
@@ -51,7 +46,7 @@ class Notice extends StatelessWidget {
     message: context.translated.offlineSaved(savedAt),
   );
 
-  /// A try-on failed: the user's photo stays, faded, above this.
+  /// A failed try-on; offers Try again.
   factory Notice.tryOnFailed({
     required BuildContext context,
     required VoidCallback onRetry,
@@ -69,7 +64,7 @@ class Notice extends StatelessWidget {
     ),
   );
 
-  /// Every suitable outfit has been seen; nothing is repeated.
+  /// Every suitable outfit for [day] has been shown.
   factory Notice.everyLookSeen({
     required BuildContext context,
     required ForecastDay day,
@@ -80,8 +75,7 @@ class Notice extends StatelessWidget {
     message: context.translated.everyLookSeen(day.name),
   );
 
-  /// The chosen photo is not full length. Its fix, Choose another photo,
-  /// is the screen's primary button below.
+  /// The chosen photo is not full length.
   factory Notice.notFullLength({required BuildContext context, Key? key}) =>
       Notice(
         key: key,
@@ -92,13 +86,12 @@ class Notice extends StatelessWidget {
 
   final InVogueIcons icon;
 
-  /// One or two plain sentences: what happened and what to do.
   final String message;
 
-  /// The fix, usually a button.
+  /// Shown below the message.
   final Widget? action;
 
-  /// A blocking problem: the ink rule on top, read out at once.
+  /// Adds the ink rule and announces the message.
   final bool alert;
 
   @override
@@ -118,8 +111,8 @@ class Notice extends StatelessWidget {
             : null,
       ),
       child: Padding(
-        // The alert rule is drawn inside the top padding, like the spec's
-        // inset shadow, so the content does not move.
+        // The alert rule is drawn inside the padding, like CSS's inset
+        // shadow, so content does not move.
         padding: const EdgeInsets.all(InVogueSpace.s4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

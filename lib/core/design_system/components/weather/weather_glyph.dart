@@ -29,7 +29,7 @@ enum WeatherGlyphType {
 
   const WeatherGlyphType(this.specName, this.cycle, {this.stagger});
 
-  /// File name in `design-spec/assets/weather/`, without `-light.svg`.
+  /// Source file name, without `-light.svg`.
   final String specName;
 
   /// Length of one loop cycle.

@@ -4,12 +4,8 @@ import 'package:in_vogue/core/design_system/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_layout.dart';
 
-/// A photograph in a square-cut frame: tiles, pickers, Shop items, faces.
-///
-/// While the photo is missing or loading, the frame is a plain Rose block at
-/// its final size: no shimmer, no spinner, no percentage. Photos fill their
-/// frame ([BoxFit.cover]); the user's full-length portrait uses `PhotoStage`,
-/// which contains instead.
+/// A photo in a fixed-ratio frame that shows [background] while the photo
+/// is missing or loading.
 class PhotoSlot extends StatelessWidget {
   const PhotoSlot({
     this.image,
@@ -25,22 +21,20 @@ class PhotoSlot extends StatelessWidget {
 
   final ImageProvider? image;
 
-  /// Width over height; 4:5 unless the frame says otherwise.
+  /// Width over height.
   final double aspectRatio;
   final BoxFit fit;
   final Alignment alignment;
 
-  /// [InVogueLayout.opacityLocked] behind Go Pro.
   final double opacity;
 
-  /// The empty and loading fill: Rose, or paper where a partner photo is
-  /// contained.
+  /// Fill shown while there is no photo.
   final Color background;
 
-  /// What the photo shows; null for a decorative photo.
+  /// Describes the photo; null hides it from screen readers.
   final String? semanticLabel;
 
-  /// Drawn over the photo: only a check badge or a lock, never words.
+  /// Drawn over the photo.
   final Widget? overlay;
 
   @override
@@ -70,11 +64,11 @@ class PhotoSlot extends StatelessWidget {
   }
 }
 
-/// The ink check on a selected photo: 22 points square, 6 from the corner.
+/// A 22-point ink square with a paper check.
 class CheckBadge extends StatelessWidget {
   const CheckBadge({this.semanticLabel, super.key});
 
-  /// Spoken state, such as "shown"; silent when null.
+  /// Read by screen readers; silent when null.
   final String? semanticLabel;
 
   @override
@@ -97,7 +91,7 @@ class CheckBadge extends StatelessWidget {
   );
 }
 
-/// Places a [CheckBadge] 6 points in from a photo's top-right corner.
+/// A [CheckBadge] 6 points in from the top-end corner.
 class CheckBadgeOverlay extends StatelessWidget {
   const CheckBadgeOverlay({this.semanticLabel, super.key});
 
@@ -113,7 +107,7 @@ class CheckBadgeOverlay extends StatelessWidget {
   );
 }
 
-/// The lock glyph centred on a photo behind Go Pro.
+/// A centred lock icon.
 class LockOverlay extends StatelessWidget {
   const LockOverlay({this.semanticLabel, super.key});
 

@@ -1,48 +1,39 @@
 import 'package:flutter/animation.dart';
 
-/// Durations and easings of `design-spec/tokens.json`. Fast and few: every
-/// screen is complete with all of it switched off.
+/// Durations, distances and easing curves.
 abstract final class InVogueMotion {
-  /// Pressed colour on buttons and rows.
+  /// Pressed state.
   static const press = Duration(milliseconds: 100);
 
-  /// Heart fill, text crossfades, the old numeral leaving.
+  /// Small changes and exits.
   static const quick = Duration(milliseconds: 160);
 
-  /// Outfit crossfade, new numeral arriving, tab rule sliding. Also every
-  /// crossfade that replaces a movement under reduced motion.
+  /// Standard transitions and reduced-motion crossfades.
   static const base = Duration(milliseconds: 240);
 
-  /// Sheets in.
+  /// Sheet entrance.
   static const sheet = Duration(milliseconds: 280);
 
-  /// Sheets out.
+  /// Sheet exit.
   static const sheetOut = Duration(milliseconds: 200);
 
-  /// The check mark on You're on the list.
+  /// Drawn strokes.
   static const draw = Duration(milliseconds: 600);
 
-  /// The curtain reveal of a newly made outfit.
+  /// Curtain reveal.
   static const reveal = Duration(milliseconds: 720);
 
-  /// The new numeral starts this long after the old one leaves.
+  /// Delay before a rolling numeral enters.
   static const rollDelay = Duration(milliseconds: 40);
 
-  /// How far a rolling numeral travels, in points.
+  /// Travel of a rolling numeral, in points.
   static const double rollDistance = 14;
 
-  /// How far a newly selected hero settles upward, in points.
+  /// Upward settle of a crossfading photo, in points.
   static const double settleDistance = 4;
 
-  /// Anything that moves within the screen.
   static const Curve standard = Cubic(0.2, 0, 0, 1);
-
-  /// Things arriving: sheets, the new numeral, the check stroke.
   static const Curve enter = Cubic(0.05, 0.7, 0.1, 1);
-
-  /// Things leaving: sheets closing, the old numeral.
   static const Curve exit = Cubic(0.3, 0, 0.8, 0.15);
-
-  /// The curtain reveal only.
   static const Curve curtain = Cubic(0.65, 0, 0.35, 1);
 }

@@ -4,16 +4,12 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/design_system/foundations/in_vogue_context.dart';
 
-/// Grows the tap area of a small control (a text link, a swatch, a heart) to
-/// the platform minimum without changing its size, so it still sits exactly
-/// where the grid puts it. A tap in the margin reaches the control's centre.
-///
-/// Like any hit testing, the larger area only works inside the parent's
-/// bounds; place small controls with room around them, as the spec does.
+/// Extends [child]'s tap area to at least [minSize] without changing its
+/// layout size. Taps outside the parent's bounds are still not received.
 class TapTarget extends SingleChildRenderObjectWidget {
   const TapTarget({super.key, this.minSize, super.child});
 
-  /// The smallest tap area; the platform minimum when null.
+  /// Defaults to the platform minimum.
   final double? minSize;
 
   @override
@@ -37,7 +33,7 @@ class RenderTapTarget extends RenderProxyBox {
     _minSize = value;
   }
 
-  /// The area that answers taps, in local coordinates.
+  /// The area that receives taps, in local coordinates.
   Rect get tapArea {
     final dx = math.max(0, (_minSize - size.width) / 2).toDouble();
     final dy = math.max(0, (_minSize - size.height) / 2).toDouble();

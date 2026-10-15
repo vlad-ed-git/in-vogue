@@ -5,16 +5,11 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// The three destinations after setup.
+/// Tab bar destinations.
 enum InVogueTab { home, makeup, settings }
 
-/// Home · Makeup · Settings, in words: three plain words are clearer than
-/// pictograms and keep the bar quiet under a photograph.
-///
-/// The current tab is ink at weight 700 with a 32 × 2 ink marker sitting on
-/// the top hairline; the others are graphite. Paper, 50 points plus the
-/// bottom safe area, and it never hides on scroll. Only on Home, Makeup and
-/// Settings; never during setup or on pushed screens.
+/// A bottom bar of three text tabs; the current one is bold with a 32 × 2
+/// marker on the top hairline. Includes the bottom safe area.
 class InVogueTabBar extends StatelessWidget {
   const InVogueTabBar({
     required this.current,
@@ -108,8 +103,7 @@ class _Tab extends StatelessWidget {
           style: current ? InVogueType.navActive : InVogueType.nav,
         ),
         if (current)
-          // The marker covers the hairline: it starts one point above the
-          // tab, on the rule itself.
+          // Starts on the hairline, one point above the tab.
           const Positioned(
             top: -InVogueLayout.strokeHairline,
             child: SizedBox(

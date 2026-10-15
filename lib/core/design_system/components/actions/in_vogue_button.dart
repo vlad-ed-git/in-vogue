@@ -8,22 +8,17 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 
-/// How a button ranks. At most one primary on a screen.
+/// Button fill style.
 enum InVogueButtonKind {
-  /// Rouge with a white label: the step forward (Use my location, Continue,
-  /// Next, Proceed, Shop, Get my makeup, Go Pro).
+  /// Rouge fill, white label.
   primary,
 
-  /// Rose with an ink label: actions that repeat or step aside (Buy at
-  /// {Brand}, Try again). Never without a label.
+  /// Rose fill, ink label.
   secondary,
 }
 
-/// A button: square, 52 points tall and as wide as its column, with the
-/// label flush left and an optional icon flush right. Pressing darkens the
-/// fill over 100 ms; there is no ripple, lift or shadow. A disabled button
-/// is studio grey with a graphite label, but prefer showing a button only
-/// when it can work.
+/// A full-width square button with a flush-left label and an optional
+/// trailing icon. Darkens while pressed; studio grey when disabled.
 class InVogueButton extends StatelessWidget {
   const InVogueButton({
     required this.label,
@@ -67,25 +62,21 @@ class InVogueButton extends StatelessWidget {
     super.key,
   }) : kind = InVogueButtonKind.secondary;
 
-  /// Verb first, sentence case, never a number.
   final String label;
 
   /// Null disables the button.
   final VoidCallback? onPressed;
   final InVogueButtonKind kind;
 
-  /// `arrowRight` moves on, `arrowUpRight` leaves the app, `image` opens the
-  /// photo picker, `retry` tries again.
   final InVogueIcons? icon;
 
-  /// The icon's colour when it differs from the label (the Rouge heart of
-  /// Loved).
+  /// Icon colour when it differs from the label.
   final Color? iconColor;
 
-  /// 44 points tall, for a half-width column such as Buy at {Brand}.
+  /// 44 points tall instead of 52.
   final bool compact;
 
-  /// A secondary button set inside a Rose notice: paper, so it shows.
+  /// Paper fill instead of Rose, for Rose backgrounds.
   final bool onRose;
   final String? semanticLabel;
   final FocusNode? focusNode;
@@ -115,8 +106,7 @@ class InVogueButton extends StatelessWidget {
     final height = compact
         ? InVogueLayout.controlHeightCompact
         : InVogueLayout.controlHeight;
-    // A label that wraps keeps the button's height while it can, exactly as
-    // the spec's fixed-height CSS does, then grows rather than overflow.
+    // A wrapping label keeps the minimum height while it fits, then grows.
     final padding = compact
         ? const EdgeInsetsDirectional.fromSTEB(14, 2, InVogueSpace.s3, 2)
         : const EdgeInsetsDirectional.fromSTEB(18, 2, InVogueSpace.s4, 2);

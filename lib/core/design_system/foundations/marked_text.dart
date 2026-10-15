@@ -4,17 +4,13 @@ import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_layout.dart';
 
-/// Text with the two marks In Vogue draws on words, placed exactly as the
-/// spec's CSS places them:
+/// Text with an optional highlight behind it and an optional underline, both
+/// placed as CSS places them.
 ///
-/// * the Rose **highlighter** behind the one phrase worth noticing: it
-///   covers each line fragment's type box (the font's ascent to descent) and
-///   reaches [highlightOutset] beyond it, repeated on every line it wraps to;
-/// * the **underline** of a text link: [underlineThickness] thick,
-///   [underlineOffset] below the baseline of every line.
-///
-/// Flutter's span background and text decoration follow the line box and the
-/// font's own underline metrics, so neither matches the spec.
+/// The highlight covers each line's glyph box (ascent to descent) plus
+/// [highlightOutset]; the underline sits [underlineOffset] below each
+/// baseline. Flutter's own span background and decoration follow different
+/// metrics.
 class MarkedText extends StatelessWidget {
   const MarkedText(
     this.text, {
@@ -35,28 +31,28 @@ class MarkedText extends StatelessWidget {
   final String text;
   final TextStyle style;
 
-  /// Paint the Rose highlighter behind the text.
+  /// Paints [highlightColor] behind the text.
   final bool highlight;
   final Color highlightColor;
 
-  /// How far the highlighter reaches beyond each fragment's type box.
+  /// How far the highlight extends beyond each line's glyph box.
   final EdgeInsets highlightOutset;
 
-  /// Underline the text, as a text link.
+  /// Underlines every line.
   final bool underline;
 
-  /// The underline's colour; the text colour when null.
+  /// Defaults to the text colour.
   final Color? underlineColor;
   final double underlineThickness;
 
-  /// Distance from the baseline to the top of the underline.
+  /// Distance from the baseline to the underline's top.
   final double underlineOffset;
 
-  /// The text scale; the ambient one when null.
+  /// Defaults to the ambient text scaler.
   final TextScaler? textScaler;
   final int? maxLines;
 
-  /// Read instead of [text].
+  /// Read by screen readers instead of [text].
   final String? semanticsLabel;
 
   @override
@@ -231,7 +227,7 @@ class RenderMarkedText extends RenderBox {
     markNeedsPaint();
   }
 
-  /// The highlighter rectangles, one per line fragment, in local coordinates.
+  /// Highlight rectangles, one per line fragment.
   List<Rect> get highlightRects {
     final length = _painter.plainText.length;
     if (_highlightColor == null || length == 0) return const [];
@@ -249,7 +245,7 @@ class RenderMarkedText extends RenderBox {
     ];
   }
 
-  /// The underline rectangles, one per line, in local coordinates.
+  /// Underline rectangles, one per line.
   List<Rect> get underlineRects {
     if (_underlineColor == null) return const [];
     return [

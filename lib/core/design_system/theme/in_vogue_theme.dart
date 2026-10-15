@@ -6,13 +6,9 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 
-/// Paper: In Vogue's one theme, used on every phone in every system setting.
-///
-/// There is no dark theme and no theme switch. [paper] maps the tokens onto
-/// Material roles so stock widgets match the system, and [builder] keeps the
-/// phone's appearance, text size and system bars from changing it.
+/// The app's only theme, light, mapped onto Material roles.
 abstract final class InVogueTheme {
-  /// Dark status and navigation bar content on [InVogueColors.paper].
+  /// Dark system bar content on paper.
   static const systemOverlayStyle = SystemUiOverlayStyle(
     statusBarColor: Color(0x00000000),
     statusBarBrightness: Brightness.light,
@@ -24,7 +20,6 @@ abstract final class InVogueTheme {
     systemNavigationBarContrastEnforced: false,
   );
 
-  /// Material roles, as `design-spec/guide/10-flutter.md` maps them.
   static const colorScheme = ColorScheme(
     brightness: Brightness.light,
     primary: InVogueColors.signal,
@@ -61,8 +56,6 @@ abstract final class InVogueTheme {
     surfaceTint: Color(0x00000000),
   );
 
-  /// Material text roles, as the Flutter guide maps them. Roles the guide
-  /// leaves open take the nearest In Vogue style.
   static const textTheme = TextTheme(
     displayLarge: InVogueType.numeral,
     displayMedium: InVogueType.headline,
@@ -84,7 +77,6 @@ abstract final class InVogueTheme {
   static const _square = RoundedRectangleBorder();
   static const _transparent = WidgetStatePropertyAll<Color>(Color(0x00000000));
 
-  /// The one theme.
   static final ThemeData paper = _build();
 
   static ThemeData _build() {
@@ -336,9 +328,8 @@ abstract final class InVogueTheme {
     );
   }
 
-  /// Wraps the app (pass it to `MaterialApp.builder`) so nothing follows the
-  /// phone's appearance: the platform brightness reads light, system bars are
-  /// dark on paper, and text grows with the system up to 200%.
+  /// A `MaterialApp.builder` that forces light platform brightness, sets the
+  /// system bar style and caps text scaling at 200%.
   static Widget builder(BuildContext context, Widget? child) {
     final media = MediaQuery.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(

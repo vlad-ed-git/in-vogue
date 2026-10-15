@@ -11,10 +11,9 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 
-/// Opens a sheet over the veil: it rises from the bottom in 280 ms and
-/// leaves in 200 ms; with reduced motion it fades. Tapping the veil, dragging
-/// the sheet down or Back closes it. Completes with the value it is popped
-/// with, or null.
+/// Shows a modal sheet that slides up over the veil (fades under reduced
+/// motion). Closes on a veil tap, a downward drag or back, and completes with
+/// the popped value.
 Future<T?> showInVogueSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -26,7 +25,7 @@ Future<T?> showInVogueSheet<T>({
   ),
 );
 
-/// The route behind [showInVogueSheet].
+/// The route used by [showInVogueSheet].
 class InVogueSheetRoute<T> extends PopupRoute<T> {
   InVogueSheetRoute({
     required this.builder,
@@ -143,9 +142,8 @@ class _DraggableSheetState extends State<_DraggableSheet> {
   );
 }
 
-/// The paper panel of a sheet: the grabber, then [child], with the page
-/// margins and the bottom safe area. Square, flat, no shadow. Content taller
-/// than the screen scrolls.
+/// A sheet panel: a grabber above [child], with page margins and the bottom
+/// safe area. Scrolls when taller than the screen.
 class InVogueSheet extends StatelessWidget {
   const InVogueSheet({required this.child, super.key});
 
@@ -189,8 +187,7 @@ class InVogueSheet extends StatelessWidget {
   }
 }
 
-/// The top of a sheet: its `section` title and a `meta` line in graphite,
-/// such as "Tomorrow is" over "Thursday 16 October".
+/// A sheet title with an optional subtitle.
 class InVogueSheetHeader extends StatelessWidget {
   const InVogueSheetHeader({required this.title, this.subtitle, super.key});
 
@@ -227,8 +224,7 @@ class InVogueSheetHeader extends StatelessWidget {
   );
 }
 
-/// One choice in a sheet: a hairline row at least 56 points tall. The
-/// current choice is `body-strong` with a check; the others are `body`.
+/// A choice row with a check when [selected].
 class InVogueSheetOption extends StatelessWidget {
   const InVogueSheetOption({
     required this.label,
@@ -248,7 +244,7 @@ class InVogueSheetOption extends StatelessWidget {
     selected: selected,
     inMutuallyExclusiveGroup: true,
     expandTapTarget: false,
-    // The 56-point minimum includes the hairline, as in the spec's CSS.
+    // The 56-point minimum includes the hairline, as in CSS.
     builder: (context, state) => DecoratedBox(
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: InVogueColors.rule)),

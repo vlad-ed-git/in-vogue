@@ -8,17 +8,13 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// The first line of Home: the forecast's city on the left and Your picks
-/// on the right. No logo, search, avatar, bell or greeting.
-///
-/// The city comes from the location, never typed in; a long name wraps,
-/// never truncates. Without location, Home shows the location notice instead.
+/// A bar with a place name on the left and a Your picks link on the right.
 class TopBar extends StatelessWidget {
   const TopBar({required this.city, required this.onYourPicks, super.key});
 
   final String city;
 
-  /// Opens Pick what you like.
+  /// Your picks action.
   final VoidCallback? onYourPicks;
 
   @override
@@ -29,8 +25,7 @@ class TopBar extends StatelessWidget {
         children: [
           Expanded(child: Text(city, style: InVogueType.item)),
           const SizedBox(width: InVogueSpace.s4),
-          // At very large text the link wraps within 60% of the bar rather
-          // than pushing the city off the screen.
+          // Wraps the link within 60% of the bar at very large text.
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.6),
             child: YourPicksLink(onTap: onYourPicks),
@@ -41,7 +36,7 @@ class TopBar extends StatelessWidget {
   );
 }
 
-/// "Your picks" with the outline heart, in the link size, not underlined.
+/// A heart followed by "Your picks".
 class YourPicksLink extends StatelessWidget {
   const YourPicksLink({required this.onTap, super.key});
 

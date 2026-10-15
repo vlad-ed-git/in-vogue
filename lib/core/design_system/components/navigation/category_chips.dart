@@ -6,17 +6,10 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 
-/// One-choice filters on Pick what you like: All · Coats & jackets ·
-/// Knitwear · Tops · Trousers & jeans · Skirts & shorts · Dresses.
+/// A horizontally scrolling row of single-choice chips.
 ///
-/// Square chips, 36 tall, with a 1-point ink edge and the label in the link
-/// size; the selected one is filled ink with paper words. One at a time. The
-/// row scrolls sideways and runs past the right margin, so the cut-off chip
-/// shows there is more.
-///
-/// Place it outside the page margin: it adds the margin itself, so the row
-/// can run to the screen's edge. Its 6-point padding above and below lets
-/// each chip's tap area reach 48.
+/// Adds the page margin itself, so it can scroll to the screen edges; its
+/// 6-point vertical padding gives each chip a 48-point tap area.
 class CategoryChips extends StatelessWidget {
   const CategoryChips({
     required this.labels,
@@ -30,10 +23,9 @@ class CategoryChips extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onSelected;
 
-  /// The group's name for screen readers, such as "Categories".
+  /// Screen-reader name of the group.
   final String? semanticLabel;
 
-  /// A chip's height.
   static const double chipHeight = 36;
 
   @override
@@ -41,7 +33,7 @@ class CategoryChips extends StatelessWidget {
     container: true,
     explicitChildNodes: true,
     label: semanticLabel,
-    // Hug the row's own height whatever the parent offers.
+    // Takes the row's own height under any constraints.
     child: Align(
       alignment: AlignmentDirectional.topStart,
       heightFactor: 1,

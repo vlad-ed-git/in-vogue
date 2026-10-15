@@ -27,12 +27,11 @@ enum HomeWidgetSize {
   final double numeral;
 }
 
-/// A picture of the home-screen widget: a Rouge slab with Rose type, beside
-/// a full-height portrait (none in [HomeWidgetSize.small]).
+/// A rendering of the home-screen widget: a Rouge weather slab beside a
+/// full-height picture (none in [HomeWidgetSize.small]).
 ///
-/// The picture is, in order of precedence, the [flatLays], the faded
-/// [waitingPhoto] with "Getting ready", or the [portrait]. Square-cut; scaled
-/// uniformly to [width]; never follows the text size.
+/// The picture is the first available of [flatLays], [waitingPhoto] and
+/// [portrait]. Scales uniformly to [width] and ignores text scaling.
 class HomeWidgetPreview extends StatelessWidget {
   const HomeWidgetPreview({
     required this.size,
@@ -73,7 +72,7 @@ class HomeWidgetPreview extends StatelessWidget {
   /// to three stacked in large.
   final List<ImageProvider> flatLays;
 
-  /// The person's own photo, before the first outfit exists.
+  /// Shown faded under "Getting ready".
   final ImageProvider? waitingPhoto;
 
   /// Rendered width; the design size when null.
@@ -193,7 +192,7 @@ class _Slab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Shrinks only when the figures cannot fit, such as 104° in large.
+    // Shrinks only when the figures do not fit, such as 104° in large.
     final numeral = Transform.translate(
       offset: const Offset(-5, 0),
       child: FittedBox(

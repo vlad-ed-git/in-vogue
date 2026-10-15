@@ -2,8 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_layout.dart';
 
-/// A garment's real colour as a dot: data, never decoration. It is the only
-/// round thing in In Vogue, ringed with `line` so pale colours stay visible.
+/// A colour dot with a thin ring; [selected] adds an outer ink ring.
 class Swatch extends StatelessWidget {
   const Swatch({
     required this.color,
@@ -12,16 +11,13 @@ class Swatch extends StatelessWidget {
     super.key,
   });
 
-  /// In tiles, the Shop page and colour lines.
   static const double small = 12;
 
-  /// In the colour sheet.
   static const double large = 28;
 
   final Color color;
   final double size;
 
-  /// The chosen colour: a 2-point paper gap, then 2 points of ink.
   final bool selected;
 
   @override

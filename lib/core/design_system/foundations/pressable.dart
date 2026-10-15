@@ -5,18 +5,18 @@ import 'package:flutter/services.dart';
 import 'package:in_vogue/core/design_system/foundations/focus_ring.dart';
 import 'package:in_vogue/core/design_system/foundations/tap_target.dart';
 
-/// The haptics of `design-spec/guide/06-motion.md`. Nothing else buzzes.
+/// Haptic feedback kinds.
 enum InVogueHaptic {
   /// No haptic.
   none,
 
-  /// A selection tick: the day switch, chips and outfit tiles.
+  /// A selection tick.
   selection,
 
-  /// A light impact: loving a piece.
+  /// A light impact.
   light,
 
-  /// A medium impact: the Pro check finishing.
+  /// A medium impact.
   medium;
 
   /// Plays this haptic.
@@ -28,7 +28,7 @@ enum InVogueHaptic {
   };
 }
 
-/// What a [Pressable] tells the widget it draws.
+/// The interaction state passed to a [Pressable] builder.
 @immutable
 class PressableState {
   const PressableState({
@@ -37,20 +37,19 @@ class PressableState {
     required this.enabled,
   });
 
-  /// A finger or pointer is down on the control.
+  /// A pointer is down on the control.
   final bool pressed;
 
-  /// Keyboard or switch focus is on the control.
+  /// Focus is highlighted on the control.
   final bool focused;
 
-  /// The control can be used.
+  /// [Pressable.onTap] is set.
   final bool enabled;
 }
 
-/// The interaction every In Vogue control shares: no ripple, no lift, just
-/// a pressed state the control paints itself; Enter and Space activate it;
-/// keyboard focus draws the focus ring; small controls reach the platform's
-/// minimum tap area; and screen readers hear what it is.
+/// A tappable control without ink effects: reports its pressed and focus
+/// state to [builder], activates on tap, Enter or Space, draws a focus ring
+/// for keyboard focus, and forms one semantics node.
 class Pressable extends StatefulWidget {
   const Pressable({
     required this.onTap,
@@ -74,40 +73,32 @@ class Pressable extends StatefulWidget {
   /// Called on tap or keyboard activation; null disables the control.
   final VoidCallback? onTap;
 
-  /// Draws the control for its current [PressableState].
   final Widget Function(BuildContext context, PressableState state) builder;
 
-  /// Replaces or joins the spoken label of the content.
+  /// Screen-reader label.
   final String? semanticLabel;
 
-  /// Spoken after the label, such as "Loved".
+  /// Screen-reader value, read after the label.
   final String? semanticValue;
 
-  /// Speak only [semanticLabel], not the content's own text.
+  /// Hides the content's own semantics.
   final bool excludeSemantics;
 
-  /// Screen readers call it a button.
   final bool button;
 
-  /// Screen readers call it a link.
   final bool link;
 
-  /// Selection state for selectable items (tabs, tiles).
   final bool? selected;
 
-  /// On or off state for toggles (the heart, chips).
   final bool? toggled;
 
-  /// One choice among several, such as a tab.
   final bool inMutuallyExclusiveGroup;
 
-  /// A specific role, such as [SemanticsRole.tab].
   final SemanticsRole? role;
 
-  /// Played when the control activates.
   final InVogueHaptic haptic;
 
-  /// Grow the tap area to the platform minimum without changing layout.
+  /// Wraps the control in a [TapTarget].
   final bool expandTapTarget;
 
   final FocusNode? focusNode;

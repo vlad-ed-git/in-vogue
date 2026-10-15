@@ -8,26 +8,25 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// The bar on pushed screens: Back on the left; on the right the setup folio
-/// ("2 / 6") or nothing. Go Pro uses [BackBar.close] instead: a close on the
-/// right. There is never a title in the bar; the screen's title sits below.
+/// A bar with Back on the left and an optional "2 / 6" step folio on the
+/// right.
 class BackBar extends StatelessWidget {
-  /// Back, with the setup [step] of [total] when the screen is part of setup.
+  /// Shows "[step] / [total]" when [step] is set.
   const BackBar({required this.onBack, this.step, this.total = 6, super.key})
     : assert(step == null || (step >= 1 && step <= total), 'step out of range'),
       _close = false;
 
-  /// A close on the right and nothing on the left (Go Pro).
+  /// A bar with only a close button, on the right.
   const BackBar.close({required VoidCallback onClose, super.key})
     : onBack = onClose,
       step = null,
       total = 0,
       _close = true;
 
-  /// Back or close.
+  /// Back or close action.
   final VoidCallback? onBack;
 
-  /// The setup step, 2 to 6; null after setup, where there is no folio.
+  /// Current step; no folio when null.
   final int? step;
   final int total;
   final bool _close;
@@ -50,8 +49,7 @@ class BackBar extends StatelessWidget {
                 ),
               ]
             : [
-                // The caret's drawing sits 6 points inside its box; pull it
-                // out so its stroke, not its box, meets the margin.
+                // Aligns the caret's stroke, not its box, with the margin.
                 Transform.translate(
                   offset: const Offset(-6, 0),
                   child: Pressable(

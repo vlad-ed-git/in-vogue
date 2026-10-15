@@ -2,11 +2,7 @@ import 'dart:ui' show Path;
 
 import 'package:path_parsing/path_parsing.dart';
 
-/// Turns SVG path data into a [Path], once per distinct string.
-///
-/// Icons and weather glyphs are drawn from the spec's own Phosphor SVG data
-/// on its 256-unit grid; parsing is cached because the same few paths repaint
-/// on every frame of a glyph's loop.
+/// Parses SVG path data into a [Path], caching each distinct string.
 abstract final class SvgPath {
   static final Map<String, Path> _cache = {};
 

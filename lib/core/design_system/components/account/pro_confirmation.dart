@@ -12,8 +12,8 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// A check that draws itself, then a headline and line that fade in, and a
-/// button back. Plays a medium haptic when the check is drawn.
+/// A check that draws itself, then a fading-in headline and line, and a
+/// back button. Plays a medium haptic once the check is drawn.
 class ProConfirmation extends StatefulWidget {
   const ProConfirmation({required this.onBack, super.key});
 
@@ -113,7 +113,7 @@ class DrawnCheckPainter extends CustomPainter {
 
   final Animation<double> progress;
 
-  /// The CSS dash length the stroke is revealed through.
+  /// Dash length through which the stroke is revealed, as in CSS.
   static const double dash = 80;
 
   static final Path _check = Path()

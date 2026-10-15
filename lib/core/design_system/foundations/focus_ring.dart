@@ -2,12 +2,11 @@ import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_layout.dart';
 
-/// Keyboard and switch-access focus: a 2-point paper gap, then 2 points of
-/// ink, outside the control and square like everything else.
+/// Draws a focus ring outside [child]: a 2-point paper gap, then 2 points of
+/// ink.
 class FocusRing extends StatelessWidget {
   const FocusRing({required this.visible, required this.child, super.key});
 
-  /// Shown only while focus is highlighted (keyboard or switch access).
   final bool visible;
   final Widget child;
 
@@ -18,7 +17,7 @@ class FocusRing extends StatelessWidget {
   );
 }
 
-/// Paints the focus ring around the box it is given.
+/// Paints a focus ring around its box.
 class FocusRingPainter extends CustomPainter {
   const FocusRingPainter();
 

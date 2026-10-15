@@ -3,12 +3,8 @@ import 'package:in_vogue/core/design_system/foundations/in_vogue_context.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// A temperature set as a display numeral: "54°".
-///
-/// The figures use the display face; the degree sign is Sofia Sans 200 at
-/// 86% of the figure's size, because the condensed "°" reads as a raised
-/// zero. Only the degree sign is shown, never the unit. Screen readers hear
-/// "54 degrees". Display text grows with the system size up to 1.3 times.
+/// A temperature such as "54°", with the degree sign in a lighter, smaller
+/// text face. Read as "54 degrees".
 class TemperatureText extends StatelessWidget {
   const TemperatureText(
     this.degrees, {
@@ -19,20 +15,18 @@ class TemperatureText extends StatelessWidget {
     super.key,
   });
 
-  /// Whole degrees in the user's unit.
   final int degrees;
 
-  /// [InVogueType.numeral], [InVogueType.numeralSmall] or a widget size.
   final TextStyle style;
 
-  /// The style's line height is relative (the home-screen widget's 0.74).
+  /// Scales the degree sign's line height with its own size.
   final bool relativeLineHeight;
   final Color? color;
 
-  /// The text scale; the display scale (capped at 1.3) when null.
+  /// Defaults to the display text scaler.
   final TextScaler? textScaler;
 
-  /// "54", or "−3" with a true minus sign.
+  /// Digits with a true minus sign below zero.
   static String figures(int degrees) =>
       degrees < 0 ? '−${-degrees}' : '$degrees';
 

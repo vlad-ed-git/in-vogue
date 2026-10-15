@@ -10,13 +10,8 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 
-/// Today | Tomorrow on Home (and Before | After on Makeup): two words in the
-/// `tab` style over a hairline. The selected one is ink at weight 700 with a
-/// 2-point ink rule that slides to it; the other is graphite at 500. The
-/// selected day's short date sits flush right in `meta`.
-///
-/// Not a filled segmented control, never a third day. Switching never starts
-/// a try-on. Screen readers hear a tab list.
+/// Two tabs over a hairline; a 2-point rule slides under the selected one.
+/// An optional [date] sits on the right. Read as a tab list.
 class DaySwitch extends StatefulWidget {
   const DaySwitch({
     required this.labels,
@@ -26,15 +21,14 @@ class DaySwitch extends StatefulWidget {
     super.key,
   }) : assert(labels.length == 2, 'a day switch has two tabs');
 
-  /// "Today", "Tomorrow" (or "Before", "After").
   final List<String> labels;
   final int selectedIndex;
   final ValueChanged<int> onSelected;
 
-  /// The selected day's short date, such as "Thu 16 Oct".
+  /// Shown on the right and read with the selected tab.
   final String? date;
 
-  /// The switch's height at the default text size, including its hairline.
+  /// Height at the default text size, hairline included.
   static const double height = 40;
 
   @override
@@ -82,8 +76,8 @@ class _DaySwitchState extends State<DaySwitch>
   Widget build(BuildContext context) {
     final tabScale = context.displayTextScaler.scale(1);
     final textScale = MediaQuery.textScalerOf(context).scale(1);
-    // The CSS box: tabs 24 tall plus 8 and the 2-point rule, 6 below the top;
-    // the date 20 tall, 10 above the hairline. Taller text grows the box.
+    // As in CSS: tabs (24 + 8 + 2-point rule) start 6 from the top; the date
+    // (20) sits 10 above the hairline. Larger text grows the box.
     final height = math.max(
       DaySwitch.height,
       math.max(24 * tabScale + 16, 20 * textScale + 20),

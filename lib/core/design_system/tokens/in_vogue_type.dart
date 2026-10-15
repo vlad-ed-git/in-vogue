@@ -1,42 +1,37 @@
 import 'package:flutter/painting.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_colors.dart';
 
-/// The type roles of `design-spec/tokens.json`: Sofia Sans in two widths.
+/// Text styles.
 ///
-/// Sizes are logical points (dp). Line heights are exact CSS line boxes:
-/// `height` is the line height divided by the size, with the leading shared
-/// evenly above and below, as a browser does. Letter spacing is in points
-/// (the spec's `em` times the size). Each weight is set both as `fontWeight`
-/// (for the CJK fallback) and as the variable `wght` axis.
+/// Line heights split their leading evenly above and below, as CSS does.
+/// Weights are set on both `fontWeight` and the variable `wght` axis.
 abstract final class InVogueType {
-  /// Sofia Sans Extra Condensed: the few big things.
+  /// Display typeface.
   static const displayFamily = 'Sofia Sans Extra Condensed';
 
-  /// Sofia Sans: everything you read.
+  /// Text typeface.
   static const textFamily = 'Sofia Sans';
 
-  /// Chinese falls back to the platform CJK face; no CJK font is bundled.
+  /// Platform CJK faces used for Chinese.
   static const cjkFallback = [
     'PingFang SC',
     'Noto Sans CJK SC',
     'Noto Sans SC',
   ];
 
-  /// Display styles grow with the system text size up to this factor.
+  /// Maximum text scale of display styles.
   static const displayMaxScale = 1.3;
 
-  /// Text styles grow with the system text size up to this factor.
+  /// Maximum text scale of text styles.
   static const textMaxScale = 2.0;
 
-  /// The degree sign beside a display numeral is Sofia Sans 200 at 86%.
+  /// Size of a degree sign relative to its numeral.
   static const degreeScale = 0.86;
 
-  /// Counts and folios ("2 / 6", "Your picks · 3") use tabular figures.
+  /// Fixed-width digits.
   static const tabularFigures = [FontFeature.tabularFigures()];
 
-  // Display: Sofia Sans Extra Condensed. At most one above the fold.
-
-  /// The temperature on Home: 84 / 64, light.
+  /// 84 / 64, light.
   static const numeral = TextStyle(
     fontFamily: displayFamily,
     fontFamilyFallback: cjkFallback,
@@ -49,7 +44,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Widget temperature and makeup step numbers: 48 / 40, light.
+  /// 48 / 40, light.
   static const numeralSmall = TextStyle(
     fontFamily: displayFamily,
     fontFamilyFallback: cjkFallback,
@@ -62,7 +57,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Welcome and the two Pro screens: 52 / 48, bold.
+  /// 52 / 48, bold.
   static const headline = TextStyle(
     fontFamily: displayFamily,
     fontFamilyFallback: cjkFallback,
@@ -75,7 +70,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// The one screen title: 40 / 38, bold.
+  /// 40 / 38, bold.
   static const title = TextStyle(
     fontFamily: displayFamily,
     fontFamilyFallback: cjkFallback,
@@ -88,7 +83,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Headings inside a screen: 26 / 28, bold.
+  /// 26 / 28, bold.
   static const section = TextStyle(
     fontFamily: displayFamily,
     fontFamilyFallback: cjkFallback,
@@ -101,8 +96,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Today / Tomorrow and Before / After: 24 / 24. Inactive weight 500;
-  /// see [tabActive].
+  /// 24 / 24, medium, graphite.
   static const tab = TextStyle(
     fontFamily: displayFamily,
     fontFamilyFallback: cjkFallback,
@@ -115,7 +109,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// The selected tab: weight 700 in ink.
+  /// [tab], bold, ink.
   static const tabActive = TextStyle(
     fontFamily: displayFamily,
     fontFamilyFallback: cjkFallback,
@@ -128,7 +122,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// The Pro price, the only price in the app: 28 / 32, light.
+  /// 28 / 32, light.
   static const figure = TextStyle(
     fontFamily: displayFamily,
     fontFamilyFallback: cjkFallback,
@@ -141,9 +135,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  // Text: Sofia Sans. Sentence case, flush left, ragged right.
-
-  /// The line that matters in a block: 17 / 24, semibold.
+  /// 17 / 24, semibold.
   static const bodyStrong = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -156,7 +148,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Piece names, the city, setting names: 15 / 20, semibold.
+  /// 15 / 20, semibold.
   static const item = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -169,7 +161,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Running text: 16 / 24, regular.
+  /// 16 / 24, regular.
   static const body = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -182,7 +174,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Secondary facts, usually in graphite: 14 / 20, regular.
+  /// 14 / 20, regular.
   static const meta = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -195,7 +187,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Button labels, flush left: 17 / 20, semibold.
+  /// 17 / 20, semibold.
   static const button = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -208,7 +200,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Text actions: 15 / 20, medium. Underlining belongs to the link widget.
+  /// 15 / 20, medium.
   static const link = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -221,8 +213,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Kickers in capitals, three words at most: 12 / 16, bold, +10%.
-  /// Capitals are applied by the widget, never written into the string.
+  /// 12 / 16, bold, 10% tracking; shown in capitals by `Kicker`.
   static const label = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -235,7 +226,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Photo credits and the plan line, usually in graphite: 12 / 16.
+  /// 12 / 16, regular.
   static const caption = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -248,7 +239,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// Tab bar labels: 14 / 16. Inactive weight 500; see [navActive].
+  /// 14 / 16, medium, graphite.
   static const nav = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -261,7 +252,7 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// The current tab: weight 700 in ink.
+  /// [nav], bold, ink.
   static const navActive = TextStyle(
     fontFamily: textFamily,
     fontFamilyFallback: cjkFallback,
@@ -274,15 +265,11 @@ abstract final class InVogueType {
     leadingDistribution: TextLeadingDistribution.even,
   );
 
-  /// The degree sign set after a display [numeral] (for example
-  /// [numeral] or [numeralSmall]): Sofia Sans at weight 200 and 86% of the
-  /// figure's size, because the condensed "°" is a tall oval that reads as a
-  /// raised zero. Letter spacing is inherited from the numeral.
+  /// Style of a degree sign after [numeral]: the text face at weight 200 and
+  /// 86% of the size.
   ///
-  /// The tokens give the numerals absolute line heights (64 and 40 points),
-  /// which the smaller sign keeps, exactly as in CSS. The home-screen widget
-  /// sets its numerals with a relative line height instead; pass
-  /// [relativeLineHeight] there so the sign scales it with its own size.
+  /// Keeps the numeral's absolute line height, as CSS does, unless
+  /// [relativeLineHeight] is set.
   static TextStyle degreeFor(
     TextStyle numeral, {
     bool relativeLineHeight = false,

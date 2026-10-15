@@ -1,5 +1,4 @@
-/// The In Vogue design system: tokens, the Paper theme and the components
-/// of `design-spec/`. Features import this one file.
+/// Design tokens, theme and shared widgets.
 library;
 
 export 'components/account/pro_confirmation.dart';

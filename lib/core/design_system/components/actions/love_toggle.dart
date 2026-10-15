@@ -7,13 +7,8 @@ import 'package:in_vogue/core/design_system/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// The heart that adds a piece, in one colour, to Your picks; tap again to
-/// remove it. Loving only adds weight to recommendations; it never filters.
-///
-/// Not loved: the outline heart in ink. Loved: the filled heart in Rouge,
-/// with one 1.2× pop and a light haptic; removing is instant and silent. The
-/// glyph is 22 points in a 44-point tap area. It sits in the text row under a
-/// photo, never on top of one.
+/// A heart toggle: an ink outline, or a Rouge fill that pops once with a
+/// light haptic when turned on.
 class LoveToggle extends StatefulWidget {
   const LoveToggle({
     required this.loved,
@@ -22,10 +17,10 @@ class LoveToggle extends StatefulWidget {
     super.key,
   });
 
-  /// The size of the tap area.
+  /// Tap area size.
   static const double size = 44;
 
-  /// The size of the heart.
+  /// Heart size.
   static const double glyphSize = 22;
 
   final bool loved;
@@ -33,7 +28,7 @@ class LoveToggle extends StatefulWidget {
   /// Called with the new state; null disables the heart.
   final ValueChanged<bool>? onChanged;
 
-  /// The piece and colour, spoken as "Love {pieceLabel}".
+  /// Read as "Love {pieceLabel}".
   final String pieceLabel;
 
   @override
@@ -44,8 +39,7 @@ class _LoveToggleState extends State<LoveToggle>
     with SingleTickerProviderStateMixin {
   late final AnimationController _pop;
 
-  /// One pop: up to 1.2 at the midpoint and back. As in CSS keyframes, the
-  /// standard curve eases each half on its own.
+  /// Up to 1.2 and back, each half eased separately (CSS keyframes).
   late final Animation<double> _scale;
 
   @override
