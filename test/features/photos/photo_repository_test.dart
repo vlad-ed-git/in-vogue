@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
-import 'package:in_vogue/features/photos/data/data_sources/photo_check_data_source.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_picker_data_source.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_store_data_source.dart';
 import 'package:in_vogue/features/photos/data/photo_exception.dart';
@@ -25,26 +24,22 @@ const _body = UserPhoto(
 
 @GenerateMocks([
   PhotoPickerDataSource,
-  PhotoCheckDataSource,
   PhotoStoreDataSource,
   PhotoRepository,
   LogMessages,
 ])
 void main() {
   late MockPhotoPickerDataSource picker;
-  late MockPhotoCheckDataSource check;
   late MockPhotoStoreDataSource store;
   late MockLogMessages logger;
   late PhotoRepositoryImpl repository;
 
   setUp(() {
     picker = MockPhotoPickerDataSource();
-    check = MockPhotoCheckDataSource();
     store = MockPhotoStoreDataSource();
     logger = MockLogMessages();
     repository = PhotoRepositoryImpl(
       pickerDataSource: picker,
-      checkDataSource: check,
       storeDataSource: store,
       logMessages: logger,
     );
@@ -78,27 +73,6 @@ void main() {
         stackTrace: error.stackTrace,
       ),
     ).called(1);
-  });
-
-  test('says whether a photo shows the person head to toe', () async {
-    when(check.isFullLength('/tmp/a.jpg')).thenAnswer((_) async => true);
-    when(check.isFullLength('/tmp/b.jpg')).thenAnswer((_) async => false);
-    expect(
-      await repository.isFullLength('/tmp/a.jpg'),
-      const Right<Failure, bool>(true),
-    );
-    expect(
-      await repository.isFullLength('/tmp/b.jpg'),
-      const Right<Failure, bool>(false),
-    );
-  });
-
-  test('maps a photo the check cannot read to a photo failure', () async {
-    when(check.isFullLength(any)).thenThrow(unreadable());
-    expect(
-      await repository.isFullLength('/tmp/a.jpg'),
-      const Left<Failure, bool>(PhotoFailure()),
-    );
   });
 
   test('keeps a photo, or reports that it could not', () async {

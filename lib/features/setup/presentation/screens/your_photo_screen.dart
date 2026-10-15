@@ -10,7 +10,7 @@ import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
 
 /// Setup step 2: the full-body photo every outfit is made from, chosen from
-/// Photos or Gallery and checked for head to toe.
+/// Photos or Gallery and trusted as the person's own.
 class YourPhotoScreen extends StatelessWidget {
   const YourPhotoScreen({
     required this.onBack,
@@ -80,9 +80,6 @@ class YourPhotoScreen extends StatelessWidget {
           kind: PhotoKind.body,
           example: example,
           chosen: path == null ? null : FileImage(File(path)),
-          check: state.status == PhotoStatus.rejected
-              ? PhotoCheck.notFullLength
-              : PhotoCheck.passed,
           onChoose: () => bloc.add(const PhotoChooseRequested()),
           onContinue: state.busy
               ? null

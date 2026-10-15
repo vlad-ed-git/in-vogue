@@ -13,7 +13,7 @@ import '../../helpers/pump_in_vogue.dart';
 class _MockPhotoBloc extends MockBloc<PhotoEvent, PhotoState>
     implements PhotoBloc {}
 
-const _passed = PhotoState(status: PhotoStatus.passed, path: '/tmp/me.jpg');
+const _passed = PhotoState(status: PhotoStatus.chosen, path: '/tmp/me.jpg');
 
 Finder _button(String label) =>
     find.ancestor(of: find.text(label), matching: find.byType(InVogueButton));
@@ -77,7 +77,7 @@ void main() {
     expect(find.text('Choose from Photos'), findsNothing);
   });
 
-  testWidgets('offers Continue and another choice for a photo that passes', (
+  testWidgets('trusts the chosen photo: Continue, or choose another', (
     tester,
   ) async {
     await pumpScreen(tester, state: _passed);
@@ -91,29 +91,12 @@ void main() {
     await pumpScreen(
       tester,
       state: const PhotoState(
-        status: PhotoStatus.passed,
+        status: PhotoStatus.chosen,
         path: '/tmp/me.jpg',
         busy: true,
       ),
     );
     expect(tester.widget<InVogueButton>(_button('Continue')).onPressed, isNull);
-  });
-
-  testWidgets('explains a photo that is not head to toe', (tester) async {
-    await pumpScreen(
-      tester,
-      state: const PhotoState(
-        status: PhotoStatus.rejected,
-        path: '/tmp/me.jpg',
-      ),
-    );
-    expect(
-      find.text('This photo doesn’t show you head to toe.'),
-      findsOneWidget,
-    );
-    expect(_button('Continue'), findsNothing);
-    await tester.tap(_button('Choose another photo'));
-    verify(() => bloc.add(const PhotoChooseRequested())).called(1);
   });
 
   testWidgets('says when a photo cannot be opened', (tester) async {

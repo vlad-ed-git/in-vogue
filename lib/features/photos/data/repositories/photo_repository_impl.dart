@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
-import 'package:in_vogue/features/photos/data/data_sources/photo_check_data_source.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_picker_data_source.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_store_data_source.dart';
 import 'package:in_vogue/features/photos/data/photo_exception.dart';
@@ -13,16 +12,13 @@ import 'package:in_vogue/features/photos/domain/repositories/photo_repository.da
 class PhotoRepositoryImpl implements PhotoRepository {
   PhotoRepositoryImpl({
     required PhotoPickerDataSource pickerDataSource,
-    required PhotoCheckDataSource checkDataSource,
     required PhotoStoreDataSource storeDataSource,
     required LogMessages logMessages,
   }) : _picker = pickerDataSource,
-       _check = checkDataSource,
        _store = storeDataSource,
        _logger = logMessages;
 
   final PhotoPickerDataSource _picker;
-  final PhotoCheckDataSource _check;
   final PhotoStoreDataSource _store;
   final LogMessages _logger;
 
@@ -32,16 +28,6 @@ class PhotoRepositoryImpl implements PhotoRepository {
       return Right(await _picker.choose());
     } on PhotoException catch (error) {
       _log('choose', error.cause, error.stackTrace);
-      return const Left(PhotoFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, bool>> isFullLength(String path) async {
-    try {
-      return Right(await _check.isFullLength(path));
-    } on PhotoException catch (error) {
-      _log('isFullLength', error.cause, error.stackTrace);
       return const Left(PhotoFailure());
     }
   }

@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
-import 'package:in_vogue/features/photos/domain/usecases/check_full_length.dart';
 import 'package:in_vogue/features/photos/domain/usecases/choose_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/keep_photo.dart';
@@ -26,7 +25,7 @@ sealed class PhotoAction extends PhotoEvent {
   const PhotoAction();
 }
 
-/// Opens the system picker and checks the chosen photo.
+/// Opens the system picker.
 final class PhotoChooseRequested extends PhotoAction {
   const PhotoChooseRequested();
 }
@@ -40,11 +39,8 @@ enum PhotoStatus {
   /// No photo: the example shows.
   empty,
 
-  /// A photo that can be used is on screen.
-  passed,
-
-  /// A body photo that is not full length is on screen.
-  rejected,
+  /// The person's chosen photo is on screen.
+  chosen,
 
   /// The photo on screen is kept; setup moves on.
   confirmed,
@@ -67,7 +63,7 @@ class PhotoState extends Equatable {
   /// Whether [path] is the kept photo.
   final bool isKept;
 
-  /// Choosing, checking or keeping.
+  /// Choosing or keeping.
   final bool busy;
   final Failure? failure;
 
@@ -87,13 +83,12 @@ class PhotoState extends Equatable {
   List<Object?> get props => [status, path, isKept, busy, failure];
 }
 
-/// One photo of the person: chosen with the system picker, checked for full
-/// length when it is the body photo, and kept privately on Continue.
+/// One photo of the person: chosen with the system picker, trusted as the
+/// person's own, and kept privately on Continue.
 class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
   PhotoBloc({
     required this._role,
     required this._choosePhoto,
-    required this._checkFullLength,
     required this._keepPhoto,
     required this._getKeptPhoto,
   }) : super(const PhotoState()) {
@@ -109,7 +104,6 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
 
   final PhotoRole _role;
   final ChoosePhoto _choosePhoto;
-  final CheckFullLength _checkFullLength;
   final KeepPhoto _keepPhoto;
   final GetKeptPhoto _getKeptPhoto;
 
@@ -119,7 +113,7 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
       if (photo != null) {
         emit(
           PhotoState(
-            status: PhotoStatus.passed,
+            status: PhotoStatus.chosen,
             path: photo.path,
             isKept: true,
           ),
@@ -136,28 +130,13 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     if (failure != null) return emit(before._with(failure: failure));
     final path = chosen.getOrElse(() => null);
     if (path == null) return emit(before);
-    if (_role != PhotoRole.body) {
-      return emit(PhotoState(status: PhotoStatus.passed, path: path));
-    }
-    final fullLength = await _checkFullLength(path);
-    emit(
-      fullLength.fold(
-        (failure) => before._with(failure: failure),
-        (passes) => PhotoState(
-          status: passes ? PhotoStatus.passed : PhotoStatus.rejected,
-          path: path,
-        ),
-      ),
-    );
+    emit(PhotoState(status: PhotoStatus.chosen, path: path));
   }
 
   Future<void> _confirm(Emitter<PhotoState> emit) async {
     final path = state.path;
-    final usable =
-        state.status == PhotoStatus.passed ||
-        state.status == PhotoStatus.confirmed;
-    if (!usable || path == null) return;
-    final shown = state._with(status: PhotoStatus.passed);
+    if (state.status == PhotoStatus.empty || path == null) return;
+    final shown = state._with(status: PhotoStatus.chosen);
     emit(shown._with(busy: true));
     if (shown.isKept) {
       return emit(shown._with(status: PhotoStatus.confirmed));

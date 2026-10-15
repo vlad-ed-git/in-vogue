@@ -7,20 +7,18 @@
 import 'dart:async' as _i5;
 
 import 'package:dartz/dartz.dart' as _i3;
-import 'package:in_vogue/core/domain/errors/failures.dart' as _i10;
-import 'package:in_vogue/core/domain/errors/log_messages.dart' as _i11;
-import 'package:in_vogue/features/photos/data/data_sources/photo_check_data_source.dart'
-    as _i6;
+import 'package:in_vogue/core/domain/errors/failures.dart' as _i9;
+import 'package:in_vogue/core/domain/errors/log_messages.dart' as _i10;
 import 'package:in_vogue/features/photos/data/data_sources/photo_picker_data_source.dart'
     as _i4;
 import 'package:in_vogue/features/photos/data/data_sources/photo_store_data_source.dart'
-    as _i7;
+    as _i6;
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
-    as _i8;
+    as _i7;
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
     as _i2;
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart'
-    as _i9;
+    as _i8;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -66,35 +64,17 @@ class MockPhotoPickerDataSource extends _i1.Mock
           as _i5.Future<String?>);
 }
 
-/// A class which mocks [PhotoCheckDataSource].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockPhotoCheckDataSource extends _i1.Mock
-    implements _i6.PhotoCheckDataSource {
-  MockPhotoCheckDataSource() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i5.Future<bool> isFullLength(String? path) =>
-      (super.noSuchMethod(
-            Invocation.method(#isFullLength, [path]),
-            returnValue: _i5.Future<bool>.value(false),
-          )
-          as _i5.Future<bool>);
-}
-
 /// A class which mocks [PhotoStoreDataSource].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPhotoStoreDataSource extends _i1.Mock
-    implements _i7.PhotoStoreDataSource {
+    implements _i6.PhotoStoreDataSource {
   MockPhotoStoreDataSource() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i2.UserPhoto> keep(String? source, _i8.PhotoRole? role) =>
+  _i5.Future<_i2.UserPhoto> keep(String? source, _i7.PhotoRole? role) =>
       (super.noSuchMethod(
             Invocation.method(#keep, [source, role]),
             returnValue: _i5.Future<_i2.UserPhoto>.value(
@@ -104,82 +84,69 @@ class MockPhotoStoreDataSource extends _i1.Mock
           as _i5.Future<_i2.UserPhoto>);
 
   @override
-  _i2.UserPhoto? kept(_i8.PhotoRole? role) =>
+  _i2.UserPhoto? kept(_i7.PhotoRole? role) =>
       (super.noSuchMethod(Invocation.method(#kept, [role])) as _i2.UserPhoto?);
 }
 
 /// A class which mocks [PhotoRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPhotoRepository extends _i1.Mock implements _i9.PhotoRepository {
+class MockPhotoRepository extends _i1.Mock implements _i8.PhotoRepository {
   MockPhotoRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i3.Either<_i10.Failure, String?>> choose() =>
+  _i5.Future<_i3.Either<_i9.Failure, String?>> choose() =>
       (super.noSuchMethod(
             Invocation.method(#choose, []),
-            returnValue: _i5.Future<_i3.Either<_i10.Failure, String?>>.value(
-              _FakeEither_1<_i10.Failure, String?>(
+            returnValue: _i5.Future<_i3.Either<_i9.Failure, String?>>.value(
+              _FakeEither_1<_i9.Failure, String?>(
                 this,
                 Invocation.method(#choose, []),
               ),
             ),
           )
-          as _i5.Future<_i3.Either<_i10.Failure, String?>>);
+          as _i5.Future<_i3.Either<_i9.Failure, String?>>);
 
   @override
-  _i5.Future<_i3.Either<_i10.Failure, bool>> isFullLength(String? path) =>
-      (super.noSuchMethod(
-            Invocation.method(#isFullLength, [path]),
-            returnValue: _i5.Future<_i3.Either<_i10.Failure, bool>>.value(
-              _FakeEither_1<_i10.Failure, bool>(
-                this,
-                Invocation.method(#isFullLength, [path]),
-              ),
-            ),
-          )
-          as _i5.Future<_i3.Either<_i10.Failure, bool>>);
-
-  @override
-  _i5.Future<_i3.Either<_i10.Failure, _i2.UserPhoto>> keep(
+  _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto>> keep(
     String? path,
-    _i8.PhotoRole? role,
+    _i7.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#keep, [path, role]),
             returnValue:
-                _i5.Future<_i3.Either<_i10.Failure, _i2.UserPhoto>>.value(
-                  _FakeEither_1<_i10.Failure, _i2.UserPhoto>(
+                _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto>>.value(
+                  _FakeEither_1<_i9.Failure, _i2.UserPhoto>(
                     this,
                     Invocation.method(#keep, [path, role]),
                   ),
                 ),
           )
-          as _i5.Future<_i3.Either<_i10.Failure, _i2.UserPhoto>>);
+          as _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto>>);
 
   @override
-  _i5.Future<_i3.Either<_i10.Failure, _i2.UserPhoto?>> kept(
-    _i8.PhotoRole? role,
+  _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto?>> kept(
+    _i7.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#kept, [role]),
             returnValue:
-                _i5.Future<_i3.Either<_i10.Failure, _i2.UserPhoto?>>.value(
-                  _FakeEither_1<_i10.Failure, _i2.UserPhoto?>(
+                _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto?>>.value(
+                  _FakeEither_1<_i9.Failure, _i2.UserPhoto?>(
                     this,
                     Invocation.method(#kept, [role]),
                   ),
                 ),
           )
-          as _i5.Future<_i3.Either<_i10.Failure, _i2.UserPhoto?>>);
+          as _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto?>>);
 }
 
 /// A class which mocks [LogMessages].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogMessages extends _i1.Mock implements _i11.LogMessages {
+class MockLogMessages extends _i1.Mock implements _i10.LogMessages {
   MockLogMessages() {
     _i1.throwOnMissingStub(this);
   }

@@ -15,7 +15,6 @@ import 'package:in_vogue/features/location/domain/usecases/open_location_setting
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
-import 'package:in_vogue/features/photos/domain/usecases/check_full_length.dart';
 import 'package:in_vogue/features/photos/domain/usecases/choose_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/keep_photo.dart';
@@ -71,7 +70,6 @@ void main() {
         (role, _) => PhotoBloc(
           role: role,
           choosePhoto: ChoosePhoto(photos),
-          checkFullLength: CheckFullLength(photos),
           keepPhoto: KeepPhoto(photos),
           getKeptPhoto: GetKeptPhoto(photos),
         ),

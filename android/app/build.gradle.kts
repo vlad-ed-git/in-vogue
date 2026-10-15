@@ -83,8 +83,3 @@ kotlin {
 flutter {
     source = "../.."
 }
-
-dependencies {
-    // On-device pose detection for the full-length photo check.
-    implementation("com.google.mlkit:pose-detection:18.0.0-beta5")
-}
