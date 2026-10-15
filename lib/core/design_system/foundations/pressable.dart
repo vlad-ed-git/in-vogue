@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsRole;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:in_vogue/core/design_system/foundations/focus_ring.dart';
@@ -61,6 +63,7 @@ class Pressable extends StatefulWidget {
     this.selected,
     this.toggled,
     this.inMutuallyExclusiveGroup = false,
+    this.role,
     this.haptic = InVogueHaptic.none,
     this.expandTapTarget = true,
     this.focusNode,
@@ -97,6 +100,9 @@ class Pressable extends StatefulWidget {
 
   /// One choice among several, such as a tab.
   final bool inMutuallyExclusiveGroup;
+
+  /// A specific role, such as [SemanticsRole.tab].
+  final SemanticsRole? role;
 
   /// Played when the control activates.
   final InVogueHaptic haptic;
@@ -165,7 +171,8 @@ class _PressableState extends State<Pressable> {
     );
     child = Semantics(
       container: true,
-      button: widget.button && !widget.link,
+      role: widget.role,
+      button: widget.button && !widget.link && widget.role == null,
       link: widget.link,
       enabled: _enabled,
       selected: widget.selected,
