@@ -111,10 +111,11 @@ failed writes retain the previous language and show a localized message.
 - `components/`: the spec's components, grouped by area.
 
 Fonts are Sofia Sans and Sofia Sans Extra Condensed (variable, SIL OFL) in
-`assets/fonts/`. Icons and weather glyphs are drawn from the spec's Phosphor SVG
-path data. Copy lives in the ARB files; there are no partner credits in the UI.
-Tests compare tokens, icon paths and glyph paths with `../design-spec/` when it is
-present beside this repository.
+`assets/fonts/`. Interface icons come from `phosphoricons_flutter` (Phosphor
+Regular, plus the filled heart). Weather glyphs are drawn from the spec's Phosphor
+path data so that rain and snow can animate drop by drop. Copy lives in the ARB
+files; there are no partner credits in the UI. Tests compare tokens and glyph
+paths with `../design-spec/` when it is present beside this repository.
 
 Launcher icons are generated from `../design-spec/assets/logo/`:
 
