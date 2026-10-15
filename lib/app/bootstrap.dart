@@ -2,10 +2,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/app/in_vogue_app.dart';
+import 'package:in_vogue/app/router/in_vogue_screens.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/ui/screens/startup_failure_screen.dart';
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
+import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 import 'package:in_vogue/main_init.dart';
 
 Future<void> bootstrap({
@@ -14,13 +16,16 @@ Future<void> bootstrap({
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    final language = await MainInit.init(
+    final startup = await MainInit.init(
       environment: environment,
       firebaseOptions: firebaseOptions,
     );
     runApp(
       InVogueApp(
-        createPreferencesBloc: () => GetIt.I<PreferencesBloc>(param1: language),
+        createPreferencesBloc: () =>
+            GetIt.I<PreferencesBloc>(param1: startup.language),
+        createSetupBloc: () => GetIt.I<SetupBloc>(param1: startup.setupStep),
+        screens: inVogueScreens,
       ),
     );
   } catch (error, stack) {

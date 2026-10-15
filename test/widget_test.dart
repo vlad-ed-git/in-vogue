@@ -2,27 +2,81 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/app/in_vogue_app.dart';
+import 'package:in_vogue/app/router/in_vogue_screens.dart';
+import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/set_language.dart';
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
+import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
+import 'package:in_vogue/features/setup/domain/usecases/save_setup_step.dart';
+import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 import 'package:mockito/mockito.dart';
 
 import 'features/preferences/preferences_repository_test.mocks.dart';
+import 'features/setup/setup_repository_test.mocks.dart';
+import 'helpers/pump_in_vogue.dart';
 
 void main() {
-  late MockPreferencesRepository repository;
+  late MockPreferencesRepository preferences;
+  late MockSetupRepository setup;
+
   setUp(() {
-    repository = MockPreferencesRepository();
+    preferences = MockPreferencesRepository();
+    setup = MockSetupRepository();
+    when(setup.saveStep(any)).thenAnswer(
+      (invocation) async =>
+          Right(invocation.positionalArguments.first as SetupStep),
+    );
   });
 
-  InVogueApp app({SupportedLanguages language = SupportedLanguages.english}) =>
-      InVogueApp(
-        createPreferencesBloc: () => PreferencesBloc(
-          setLanguage: SetLanguage(repository),
-          initialLanguage: language,
-        ),
-      );
+  InVogueApp app({
+    SupportedLanguages language = SupportedLanguages.english,
+    SetupStep step = SetupStep.done,
+  }) => InVogueApp(
+    createPreferencesBloc: () => PreferencesBloc(
+      setLanguage: SetLanguage(preferences),
+      initialLanguage: language,
+    ),
+    createSetupBloc: () =>
+        SetupBloc(saveSetupStep: SaveSetupStep(setup), initialStep: step),
+    screens: inVogueScreens,
+  );
+
+  /// Opens Settings from its [tab] label and picks [name] in the language
+  /// row titled [row].
+  Future<void> chooseLanguage(
+    WidgetTester tester, {
+    required String tab,
+    required String row,
+    required String name,
+  }) async {
+    await tester.tap(find.text(tab));
+    await tester.pumpAndSettle();
+    final languageRow = find.ancestor(
+      of: find.text(row),
+      matching: find.byType(SettingsRow),
+    );
+    await tester.tap(
+      find.descendant(of: languageRow, matching: find.byType(TextLink)),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(name).last);
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('opens setup until it is finished, then the tabs', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app(step: SetupStep.welcome));
+    await tester.pumpAndSettle();
+    expect(find.byType(InVogueTabBar), findsNothing);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    expect(find.byType(InVogueTabBar), findsOneWidget);
+  });
 
   testWidgets('starts in English even when the device language is Spanish', (
     tester,
@@ -31,8 +85,8 @@ void main() {
     addTearDown(tester.binding.platformDispatcher.clearLocaleTestValue);
     await tester.pumpWidget(app());
     await tester.pumpAndSettle();
-    expect(find.text('In Vogue'), findsOneWidget);
-    expect(find.text('Meet tomorrow’s weather in style.'), findsOneWidget);
+    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
   });
 
   testWidgets(
@@ -40,52 +94,63 @@ void main() {
     (tester) async {
       await tester.pumpWidget(app(language: SupportedLanguages.chinese));
       await tester.pumpAndSettle();
-      expect(find.text('以时尚穿搭，迎接明天的天气。'), findsOneWidget);
-      expect(find.text('Meet tomorrow’s weather in style.'), findsNothing);
+      expect(find.text('首页'), findsOneWidget);
+      expect(find.text('Home'), findsNothing);
     },
   );
 
   testWidgets(
-    'switches all visible copy to Spanish through the BLoC and repository',
+    'switches all visible copy to Spanish from Settings through the BLoC',
     (tester) async {
       when(
-        repository.setLanguage(SupportedLanguages.spanish),
+        preferences.setLanguage(SupportedLanguages.spanish),
       ).thenAnswer((_) async => const Right(SupportedLanguages.spanish));
       await tester.pumpWidget(app());
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(DropdownButton<SupportedLanguages>));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Español').last);
-      await tester.pumpAndSettle();
-      expect(
-        find.text('Viste con estilo para el tiempo de mañana.'),
-        findsOneWidget,
+      await chooseLanguage(
+        tester,
+        tab: 'Settings',
+        row: 'Language',
+        name: 'Español',
       );
       expect(find.text('Idioma'), findsOneWidget);
-      verify(repository.setLanguage(SupportedLanguages.spanish)).called(1);
+      expect(find.text('Inicio'), findsOneWidget);
+      expect(find.text('Español'), findsOneWidget);
+      verify(preferences.setLanguage(SupportedLanguages.spanish)).called(1);
     },
   );
 
+  testWidgets('opens the language sheet over the tab bar', (tester) async {
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(findLink('Change'));
+    await tester.pumpAndSettle();
+    expect(find.byType(InVogueSheet), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(TabShell),
+        matching: find.byType(InVogueSheet),
+      ),
+      findsNothing,
+    );
+  });
+
   testWidgets(
-    'shows a localized failure and restores the selected language after a failed save',
+    'shows a localized failure and keeps the language after a failed save',
     (tester) async {
       when(
-        repository.setLanguage(any),
+        preferences.setLanguage(any),
       ).thenAnswer((_) async => const Left(CacheFailure()));
       await tester.pumpWidget(app(language: SupportedLanguages.spanish));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(DropdownButton<SupportedLanguages>));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('中文').last);
-      await tester.pumpAndSettle();
+      await chooseLanguage(tester, tab: 'Ajustes', row: 'Idioma', name: '中文');
       expect(
         find.text('No pudimos guardar tus cambios. Inténtalo de nuevo.'),
         findsOneWidget,
       );
-      expect(
-        find.text('Viste con estilo para el tiempo de mañana.'),
-        findsOneWidget,
-      );
+      expect(find.text('Idioma'), findsOneWidget);
       expect(find.text('Español'), findsOneWidget);
     },
   );
@@ -107,16 +172,20 @@ void main() {
     for (final brightness in Brightness.values) {
       tester.binding.platformDispatcher.platformBrightnessTestValue =
           brightness;
-      await tester.pumpWidget(app(language: SupportedLanguages.spanish));
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-      expect(find.text('In Vogue'), findsOneWidget);
-      final context = tester.element(find.text('In Vogue'));
-      expect(Theme.of(context).brightness, Brightness.light);
-      expect(
-        Theme.of(context).scaffoldBackgroundColor,
-        const Color(0xFFFFFFFF),
-      );
+      for (final step in [SetupStep.welcome, SetupStep.done]) {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpWidget(
+          app(language: SupportedLanguages.spanish, step: step),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        final context = tester.element(find.byType(Scaffold).first);
+        expect(Theme.of(context).brightness, Brightness.light);
+        expect(
+          Theme.of(context).scaffoldBackgroundColor,
+          const Color(0xFFFFFFFF),
+        );
+      }
     }
   });
 }

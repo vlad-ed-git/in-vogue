@@ -13,13 +13,19 @@ import 'package:in_vogue/core/persistence/hive_key_value_store.dart';
 import 'package:in_vogue/core/persistence/sqlite_cache.dart';
 import 'package:in_vogue/features/preferences/di/init.dart' as preferences_di;
 import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart';
+import 'package:in_vogue/features/setup/di/init.dart' as setup_di;
+import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
+import 'package:in_vogue/features/setup/domain/usecases/get_setup_step.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
+/// What the first frame shows, read before it is drawn.
+typedef StartupState = ({SupportedLanguages language, SetupStep setupStep});
+
 abstract final class MainInit {
   /// Only initializes SDKs and local resources. No sign-in or network fetches.
-  static Future<SupportedLanguages> init({
+  static Future<StartupState> init({
     required AppEnvironment environment,
     required FirebaseOptions firebaseOptions,
   }) async {
@@ -59,12 +65,17 @@ abstract final class MainInit {
     );
     try {
       preferences_di.init(locator);
+      setup_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
+      final setupStep = await locator<GetSetupStep>()(const NoParams());
       _registerErrorHandlers(locator<LogMessages>());
-      // Read before runApp to avoid a flash of the wrong language.
-      return language.fold(
-        (_) => SupportedLanguages.defaultLanguage,
-        (value) => value,
+      // Read before runApp to avoid a flash of the wrong language or screen.
+      return (
+        language: language.fold(
+          (_) => SupportedLanguages.defaultLanguage,
+          (value) => value,
+        ),
+        setupStep: setupStep.fold((_) => SetupStep.welcome, (value) => value),
       );
     } catch (_) {
       await locator.reset();

@@ -10,13 +10,13 @@ import 'package:in_vogue/core/presentation/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
 
-/// Shows a modal sheet that slides up over the veil (fades under reduced
-/// motion). Closes on a veil tap, a downward drag or back, and completes with
-/// the popped value.
+/// Shows a modal sheet over the whole app, tab bar included, that slides up
+/// over the veil (fades under reduced motion). Closes on a veil tap, a
+/// downward drag or back, and completes with the popped value.
 Future<T?> showInVogueSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
-}) => Navigator.of(context).push(
+}) => Navigator.of(context, rootNavigator: true).push(
   InVogueSheetRoute<T>(
     builder: builder,
     reduceMotion: context.reduceMotion,
