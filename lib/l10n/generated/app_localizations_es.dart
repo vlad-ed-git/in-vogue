@@ -183,6 +183,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get notFullLength => 'Esta foto no te muestra de pies a cabeza.';
 
   @override
+  String get photoUnreadable => 'No pudimos abrir esta foto. Elige otra.';
+
+  @override
+  String get addPhotoOfYou => 'Añade una foto tuya';
+
+  @override
+  String get bodyPhotoWhy => 'Vestimos esta foto con cada conjunto.';
+
+  @override
   String get chooseAnotherPhoto => 'Elegir otra foto';
 
   @override

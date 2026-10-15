@@ -188,6 +188,18 @@
     }
   },
   "notFullLength": "This photo doesn’t show you head to toe.",
+  "photoUnreadable": "We couldn’t open this photo. Choose another one.",
+  "@photoUnreadable": {
+    "description": "A chosen photo could not be read."
+  },
+  "addPhotoOfYou": "Add a photo of you",
+  "@addPhotoOfYou": {
+    "description": "Title of setup step 2."
+  },
+  "bodyPhotoWhy": "We dress this photo in each outfit.",
+  "@bodyPhotoWhy": {
+    "description": "Why setup step 2 needs the photo."
+  },
   "chooseAnotherPhoto": "Choose another photo",
   "chooseDifferentPhoto": "Choose a different photo",
   "chooseFromPhotos": "Choose from Photos",

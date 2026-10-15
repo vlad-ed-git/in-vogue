@@ -44,3 +44,8 @@ final class LocationFailure extends Failure {
   @override
   List<Object?> get props => [problem];
 }
+
+/// A photo could not be chosen or read.
+final class PhotoFailure extends Failure {
+  const PhotoFailure();
+}

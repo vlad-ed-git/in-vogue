@@ -375,6 +375,24 @@ abstract class AppLocalizations {
   /// **'This photo doesn’t show you head to toe.'**
   String get notFullLength;
 
+  /// A chosen photo could not be read.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t open this photo. Choose another one.'**
+  String get photoUnreadable;
+
+  /// Title of setup step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of you'**
+  String get addPhotoOfYou;
+
+  /// Why setup step 2 needs the photo.
+  ///
+  /// In en, this message translates to:
+  /// **'We dress this photo in each outfit.'**
+  String get bodyPhotoWhy;
+
   /// No description provided for @chooseAnotherPhoto.
   ///
   /// In en, this message translates to:

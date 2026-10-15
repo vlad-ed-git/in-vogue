@@ -9,9 +9,11 @@ import 'package:in_vogue/core/di/init.dart' as core_di;
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
+import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/core/persistence/hive_key_value_store.dart';
 import 'package:in_vogue/core/persistence/sqlite_cache.dart';
 import 'package:in_vogue/features/location/di/init.dart' as location_di;
+import 'package:in_vogue/features/photos/di/init.dart' as photos_di;
 import 'package:in_vogue/features/preferences/di/init.dart' as preferences_di;
 import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart';
 import 'package:in_vogue/features/setup/di/init.dart' as setup_di;
@@ -62,6 +64,7 @@ abstract final class MainInit {
     core_di.init(
       locator,
       environment: environment,
+      directory: AppDirectory(directory.path),
       keyValueStore: store,
       sqliteCache: cache,
     );
@@ -70,6 +73,7 @@ abstract final class MainInit {
       setup_di.init(locator);
       location_di.init(locator);
       weather_di.init(locator);
+      photos_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
       final setupStep = await locator<GetSetupStep>()(const NoParams());
       _registerErrorHandlers(locator<LogMessages>());

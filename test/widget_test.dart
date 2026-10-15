@@ -12,6 +12,12 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
 import 'package:in_vogue/features/location/domain/usecases/open_location_settings.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
+import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
+import 'package:in_vogue/features/photos/domain/usecases/check_full_length.dart';
+import 'package:in_vogue/features/photos/domain/usecases/choose_photo.dart';
+import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
+import 'package:in_vogue/features/photos/domain/usecases/keep_photo.dart';
+import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/set_language.dart';
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
@@ -20,6 +26,7 @@ import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 import 'package:mockito/mockito.dart';
 
 import 'features/location/location_repository_test.mocks.dart';
+import 'features/photos/photo_repository_test.mocks.dart';
 import 'features/preferences/preferences_repository_test.mocks.dart';
 import 'features/setup/setup_repository_test.mocks.dart';
 import 'helpers/pump_in_vogue.dart';
@@ -34,7 +41,18 @@ void main() {
     preferences = MockPreferencesRepository();
     setup = MockSetupRepository();
     location = MockLocationRepository();
+    final photos = MockPhotoRepository();
+    when(photos.kept(any)).thenAnswer((_) async => const Right(null));
     locator = GetIt.asNewInstance()
+      ..registerFactoryParam<PhotoBloc, PhotoRole, void>(
+        (role, _) => PhotoBloc(
+          role: role,
+          choosePhoto: ChoosePhoto(photos),
+          checkFullLength: CheckFullLength(photos),
+          keepPhoto: KeepPhoto(photos),
+          getKeptPhoto: GetKeptPhoto(photos),
+        ),
+      )
       ..registerFactory<LocationBloc>(
         () => LocationBloc(
           locateUser: LocateUser(location),
@@ -108,6 +126,7 @@ void main() {
     await tester.tap(find.text('Use my location'));
     await tester.pumpAndSettle();
     expect(find.text('2 / 6'), findsOneWidget);
+    expect(find.text('Add a photo of you'), findsOneWidget);
     verify(setup.saveStep(SetupStep.photo)).called(1);
     await tester.tap(find.text('Back'));
     await tester.pumpAndSettle();

@@ -181,6 +181,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notFullLength => 'This photo doesn’t show you head to toe.';
 
   @override
+  String get photoUnreadable =>
+      'We couldn’t open this photo. Choose another one.';
+
+  @override
+  String get addPhotoOfYou => 'Add a photo of you';
+
+  @override
+  String get bodyPhotoWhy => 'We dress this photo in each outfit.';
+
+  @override
   String get chooseAnotherPhoto => 'Choose another photo';
 
   @override
