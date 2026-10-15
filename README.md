@@ -1,9 +1,10 @@
 # In Vogue
 
-A Flutter mobile app for outfits matched to tomorrow’s weather. This first slice
-provides native flavors, Firebase initialization, local persistence, localization,
-and a working language picker. Onboarding, weather, outfits, makeup, auth, and
-widgets are the next product work.
+A Flutter mobile app for outfits matched to tomorrow’s weather. So far it has
+native flavors, Firebase initialization, local persistence, localization, a
+language picker and the design system (theme and shared widgets). Onboarding,
+weather, outfits, makeup, auth and the home-screen widgets are the next product
+work.
 
 ## Run
 
@@ -68,7 +69,8 @@ lib/
     data/                  # Local diagnostic implementation
     persistence/           # Hive key/value store and SQLite cache
     di/                    # Initialized core resources and disposal
-    ui/                    # Shared theme and starter/error surfaces
+    presentation/          # Design system: tokens, theme, shared widgets
+    ui/                    # Starter and startup-failure screens
     utils/                 # context.translated, Either and locale helpers
   features/preferences/
     domain/                # Repository contract and language use cases
@@ -93,9 +95,32 @@ provider keys, and auth tokens out of this generic cache.
 `context.translated.tagline`, `context.color`, and `context.txtTheme` follow the
 Utano style. English is the explicit initial default, regardless of device locale.
 The saved choice loads before the first app frame. Rapid changes are serialized;
-failed writes retain the previous language and show a localized message. Current
-themes follow the system; location/daylight theme scheduling comes with weather.
-Commissioner/Newsreader fonts, final icons, and product screens remain design work.
+failed writes retain the previous language and show a localized message.
+
+## Design system
+
+`lib/core/presentation/` implements the design spec in `../design-spec/`; import
+`package:in_vogue/core/presentation/presentation.dart`.
+
+- `tokens/`: colours, type, spacing, layout and motion as constants.
+- `theme/`: `InVogueTheme.paper`, the only theme, and `InVogueTheme.builder`, which
+  keeps the platform brightness light and caps text scaling at 200%. iOS sets
+  `UIUserInterfaceStyle` to Light and Android has no night resources.
+- `foundations/`: icons, text with highlight and underline, tap targets,
+  `Pressable`, photos, swatches and layout helpers.
+- `components/`: the spec's components, grouped by area.
+
+Fonts are Sofia Sans and Sofia Sans Extra Condensed (variable, SIL OFL) in
+`assets/fonts/`. Icons and weather glyphs are drawn from the spec's Phosphor SVG
+path data. Copy lives in the ARB files; there are no partner credits in the UI.
+Tests compare tokens, icon paths and glyph paths with `../design-spec/` when it is
+present beside this repository.
+
+Launcher icons are generated from `../design-spec/assets/logo/`:
+
+```sh
+scripts/generate_app_icons.sh
+```
 
 ## Verify
 
@@ -124,8 +149,10 @@ flutterN test integration_test/startup_test.dart --flavor development -d <simula
 Tests cover Firebase/environment isolation, iOS flavor wiring (bundle IDs, display
 names, xcconfigs and default entrypoints), English fallback and language restore,
 Mockito repository failures, BLoC ordering, real Hive reopen/isolation, real SQLite
-expiry/upserts, complete ARB catalogs, UI language switching/failure recovery, and
-320px screens at 200% text in both themes. The device integration test additionally
+expiry/upserts, complete ARB catalogs, UI language switching/failure recovery,
+320px screens at 200% text whatever the phone's appearance, the design tokens,
+theme and every design-system widget, and the launcher icon sets. The device
+integration test additionally
 initializes real native Firebase/Hive/SQLite and reloads persisted preferences.
 Use a test installation: it changes the language and clears its disposable cache.
 Verification is local. Do not add Git-hosted workflows or CI/CD setup; this is an explicit owner requirement.
