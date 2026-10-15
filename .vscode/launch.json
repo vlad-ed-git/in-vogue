@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "In Vogue · Development",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_development.dart",
+      "toolArgs": ["--flavor", "development"]
+    },
+    {
+      "name": "In Vogue · Production",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main_production.dart",
+      "toolArgs": ["--flavor", "production"]
+    }
+  ]
+}
