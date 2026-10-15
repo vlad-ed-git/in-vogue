@@ -1,5 +1,6 @@
 # Project instructions
 
+- THINK LOGICALLY ABOUT WHAT YOU ARE DOING (owner rule). Check every step against the product's rules and costs before building it. Example: no YouCam call before sign-up, because anonymous use would spend tokens with no tracking.
 - Use the `flutterN` alias, never `flutter`, for Flutter commands. In this environment it is available through `zsh -ic`.
 - Read and maintain `../checkpoint.md` as the resumable source of truth for plans, progress, decisions, and verification.
 - Use feature-first Clean Architecture, BLoC, GetIt, Hive, SQLite, and test-driven development.
