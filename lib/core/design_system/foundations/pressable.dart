@@ -54,6 +54,7 @@ class Pressable extends StatefulWidget {
     required this.onTap,
     required this.builder,
     this.semanticLabel,
+    this.semanticValue,
     this.excludeSemantics = false,
     this.button = true,
     this.link = false,
@@ -75,6 +76,9 @@ class Pressable extends StatefulWidget {
 
   /// Replaces or joins the spoken label of the content.
   final String? semanticLabel;
+
+  /// Spoken after the label, such as "Loved".
+  final String? semanticValue;
 
   /// Speak only [semanticLabel], not the content's own text.
   final bool excludeSemantics;
@@ -110,6 +114,7 @@ class Pressable extends StatefulWidget {
 class _PressableState extends State<Pressable> {
   bool _pressed = false;
   bool _focused = false;
+  bool _hasFocus = false;
 
   bool get _enabled => widget.onTap != null;
 
@@ -156,7 +161,10 @@ class _PressableState extends State<Pressable> {
       selected: widget.selected,
       toggled: widget.toggled,
       inMutuallyExclusiveGroup: widget.inMutuallyExclusiveGroup ? true : null,
+      focusable: _enabled ? true : null,
+      focused: _enabled ? _hasFocus : null,
       label: widget.semanticLabel,
+      value: widget.semanticValue,
       excludeSemantics: widget.excludeSemantics,
       onTap: _enabled ? _activate : null,
       child: FocusableActionDetector(
@@ -166,6 +174,9 @@ class _PressableState extends State<Pressable> {
         mouseCursor: _enabled
             ? SystemMouseCursors.click
             : SystemMouseCursors.basic,
+        onFocusChange: (value) {
+          if (_hasFocus != value) setState(() => _hasFocus = value);
+        },
         onShowFocusHighlight: (value) {
           if (_focused != value) setState(() => _focused = value);
         },

@@ -2,6 +2,9 @@
 /// of `design-spec/`. Features import this one file.
 library;
 
+export 'components/actions/in_vogue_button.dart';
+export 'components/actions/love_toggle.dart';
+export 'components/actions/text_link.dart';
 export 'foundations/focus_ring.dart';
 export 'foundations/in_vogue_context.dart';
 export 'foundations/in_vogue_format.dart';
