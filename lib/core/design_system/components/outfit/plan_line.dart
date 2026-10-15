@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/design_system/components/actions/text_link.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_colors.dart';
+import 'package:in_vogue/core/design_system/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/design_system/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
@@ -53,7 +54,9 @@ class PlanLine extends StatelessWidget {
         border: Border(top: BorderSide(color: InVogueColors.rule)),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(top: InVogueSpace.s4),
+        padding: const EdgeInsets.only(
+          top: InVogueLayout.strokeHairline + InVogueSpace.s4,
+        ),
         child: Text.rich(
           TextSpan(
             style: style,
