@@ -7,6 +7,7 @@ import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/models/account_model.dart';
 import 'package:in_vogue/features/account/data/repositories/account_repository_impl.dart';
+import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
 import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
@@ -115,6 +116,13 @@ void main() {
         AccountModel.toJson(const AccountSetup(), photos: {}, created: false),
         isEmpty,
       );
+    });
+
+    test('reads the plan an account document records', () {
+      expect(AccountModel.planFromJson({'plan': 'pro'}), AccountPlan.pro);
+      expect(AccountModel.planFromJson({'plan': 'free'}), AccountPlan.free);
+      expect(AccountModel.planFromJson({'plan': 'gold'}), isNull);
+      expect(AccountModel.planFromJson(null), isNull);
     });
 
     test('reads the photos an account document records', () {

@@ -10,24 +10,26 @@ import 'package:dartz/dartz.dart' as _i2;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i7;
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart'
     as _i3;
-import 'package:in_vogue/features/account/domain/entities/account_setup.dart'
+import 'package:in_vogue/features/account/domain/entities/account_plan.dart'
     as _i8;
+import 'package:in_vogue/features/account/domain/entities/account_setup.dart'
+    as _i9;
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart'
     as _i6;
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart'
-    as _i15;
+    as _i16;
 import 'package:in_vogue/features/location/domain/entities/user_location.dart'
-    as _i11;
-import 'package:in_vogue/features/location/domain/repositories/location_repository.dart'
-    as _i10;
-import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
-    as _i14;
-import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
-    as _i13;
-import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart'
     as _i12;
+import 'package:in_vogue/features/location/domain/repositories/location_repository.dart'
+    as _i11;
+import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
+    as _i15;
+import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
+    as _i14;
+import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart'
+    as _i13;
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart'
-    as _i9;
+    as _i10;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i5;
 
@@ -180,9 +182,25 @@ class MockAccountRepository extends _i1.Mock implements _i6.AccountRepository {
           as _i4.Future<_i2.Either<_i7.Failure, bool>>);
 
   @override
+  _i4.Future<_i2.Either<_i7.Failure, _i8.AccountPlan?>> plan(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#plan, [accountId]),
+            returnValue:
+                _i4.Future<_i2.Either<_i7.Failure, _i8.AccountPlan?>>.value(
+                  _FakeEither_0<_i7.Failure, _i8.AccountPlan?>(
+                    this,
+                    Invocation.method(#plan, [accountId]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i7.Failure, _i8.AccountPlan?>>);
+
+  @override
   _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>> save(
     String? accountId,
-    _i8.AccountSetup? setup,
+    _i9.AccountSetup? setup,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#save, [accountId, setup]),
@@ -199,7 +217,7 @@ class MockAccountRepository extends _i1.Mock implements _i6.AccountRepository {
 /// A class which mocks [ProfileRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProfileRepository extends _i1.Mock implements _i9.ProfileRepository {
+class MockProfileRepository extends _i1.Mock implements _i10.ProfileRepository {
   MockProfileRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -248,13 +266,13 @@ class MockProfileRepository extends _i1.Mock implements _i9.ProfileRepository {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLocationRepository extends _i1.Mock
-    implements _i10.LocationRepository {
+    implements _i11.LocationRepository {
   MockLocationRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i7.Failure, _i11.UserLocation>> locate({
+  _i4.Future<_i2.Either<_i7.Failure, _i12.UserLocation>> locate({
     required bool? askPermission,
     required String? languageCode,
   }) =>
@@ -264,8 +282,8 @@ class MockLocationRepository extends _i1.Mock
               #languageCode: languageCode,
             }),
             returnValue:
-                _i4.Future<_i2.Either<_i7.Failure, _i11.UserLocation>>.value(
-                  _FakeEither_0<_i7.Failure, _i11.UserLocation>(
+                _i4.Future<_i2.Either<_i7.Failure, _i12.UserLocation>>.value(
+                  _FakeEither_0<_i7.Failure, _i12.UserLocation>(
                     this,
                     Invocation.method(#locate, [], {
                       #askPermission: askPermission,
@@ -274,21 +292,21 @@ class MockLocationRepository extends _i1.Mock
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i7.Failure, _i11.UserLocation>>);
+          as _i4.Future<_i2.Either<_i7.Failure, _i12.UserLocation>>);
 
   @override
-  _i4.Future<_i2.Either<_i7.Failure, _i11.UserLocation?>> savedLocation() =>
+  _i4.Future<_i2.Either<_i7.Failure, _i12.UserLocation?>> savedLocation() =>
       (super.noSuchMethod(
             Invocation.method(#savedLocation, []),
             returnValue:
-                _i4.Future<_i2.Either<_i7.Failure, _i11.UserLocation?>>.value(
-                  _FakeEither_0<_i7.Failure, _i11.UserLocation?>(
+                _i4.Future<_i2.Either<_i7.Failure, _i12.UserLocation?>>.value(
+                  _FakeEither_0<_i7.Failure, _i12.UserLocation?>(
                     this,
                     Invocation.method(#savedLocation, []),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i7.Failure, _i11.UserLocation?>>);
+          as _i4.Future<_i2.Either<_i7.Failure, _i12.UserLocation?>>);
 
   @override
   _i4.Future<void> openSettings(_i7.LocationProblem? problem) =>
@@ -303,7 +321,7 @@ class MockLocationRepository extends _i1.Mock
 /// A class which mocks [PhotoRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPhotoRepository extends _i1.Mock implements _i12.PhotoRepository {
+class MockPhotoRepository extends _i1.Mock implements _i13.PhotoRepository {
   MockPhotoRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -322,43 +340,43 @@ class MockPhotoRepository extends _i1.Mock implements _i12.PhotoRepository {
           as _i4.Future<_i2.Either<_i7.Failure, String?>>);
 
   @override
-  _i4.Future<_i2.Either<_i7.Failure, _i13.UserPhoto>> keep(
+  _i4.Future<_i2.Either<_i7.Failure, _i14.UserPhoto>> keep(
     String? path,
-    _i14.PhotoRole? role,
+    _i15.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#keep, [path, role]),
             returnValue:
-                _i4.Future<_i2.Either<_i7.Failure, _i13.UserPhoto>>.value(
-                  _FakeEither_0<_i7.Failure, _i13.UserPhoto>(
+                _i4.Future<_i2.Either<_i7.Failure, _i14.UserPhoto>>.value(
+                  _FakeEither_0<_i7.Failure, _i14.UserPhoto>(
                     this,
                     Invocation.method(#keep, [path, role]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i7.Failure, _i13.UserPhoto>>);
+          as _i4.Future<_i2.Either<_i7.Failure, _i14.UserPhoto>>);
 
   @override
-  _i4.Future<_i2.Either<_i7.Failure, _i13.UserPhoto?>> kept(
-    _i14.PhotoRole? role,
+  _i4.Future<_i2.Either<_i7.Failure, _i14.UserPhoto?>> kept(
+    _i15.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#kept, [role]),
             returnValue:
-                _i4.Future<_i2.Either<_i7.Failure, _i13.UserPhoto?>>.value(
-                  _FakeEither_0<_i7.Failure, _i13.UserPhoto?>(
+                _i4.Future<_i2.Either<_i7.Failure, _i14.UserPhoto?>>.value(
+                  _FakeEither_0<_i7.Failure, _i14.UserPhoto?>(
                     this,
                     Invocation.method(#kept, [role]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i7.Failure, _i13.UserPhoto?>>);
+          as _i4.Future<_i2.Either<_i7.Failure, _i14.UserPhoto?>>);
 }
 
 /// A class which mocks [PicksRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPicksRepository extends _i1.Mock implements _i15.PicksRepository {
+class MockPicksRepository extends _i1.Mock implements _i16.PicksRepository {
   MockPicksRepository() {
     _i1.throwOnMissingStub(this);
   }

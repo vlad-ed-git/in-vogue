@@ -1,3 +1,4 @@
+import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
@@ -15,6 +16,12 @@ abstract final class AccountModel {
   /// Where [photo] is kept in Storage for the account [accountId].
   static String photoPath(String accountId, UserPhoto photo) =>
       'users/$accountId/photos/${p.basename(photo.path)}';
+
+  /// The plan recorded in an account document; null when there is none.
+  static AccountPlan? planFromJson(Object? json) => switch (json) {
+    {'plan': final String plan} => AccountPlan.values.asNameMap()[plan],
+    _ => null,
+  };
 
   /// The photos recorded in an account document; unreadable ones are left
   /// out.

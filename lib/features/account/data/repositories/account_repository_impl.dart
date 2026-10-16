@@ -6,6 +6,7 @@ import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/models/account_model.dart';
+import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
 import 'package:in_vogue/features/photos/data/photo_content_type.dart';
@@ -29,6 +30,26 @@ class AccountRepositoryImpl implements AccountRepository {
     try {
       return Right(
         await _remote.readAccount(accountId).timeout(timeLimit) != null,
+      );
+    } on TimeoutException catch (error, stack) {
+      _log(error, stack);
+      return const Left(NetworkFailure());
+    } on NetworkException catch (error) {
+      _log(error.cause, error.stackTrace);
+      return const Left(NetworkFailure());
+    } on ServerException catch (error) {
+      _log(error.cause, error.stackTrace);
+      return const Left(ServerFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, AccountPlan?>> plan(String accountId) async {
+    try {
+      return Right(
+        AccountModel.planFromJson(
+          await _remote.readAccount(accountId).timeout(timeLimit),
+        ),
       );
     } on TimeoutException catch (error, stack) {
       _log(error, stack);

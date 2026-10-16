@@ -1,9 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
+import 'package:in_vogue/features/auth/domain/entities/sign_in_method.dart';
 
-/// The only ways to sign in.
-enum SignInMethod { apple, google }
+export 'package:in_vogue/features/auth/domain/entities/sign_in_method.dart';
 
 abstract interface class AuthRepository {
   /// Signs in with [method]'s account, creating it on first use.

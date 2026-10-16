@@ -130,9 +130,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   static Account _account(User user) {
     final name = user.displayName?.trim();
+    final providers = {for (final info in user.providerData) info.providerId};
     return Account(
       id: user.uid,
       name: name == null || name.isEmpty ? null : name,
+      method: providers.contains('apple.com')
+          ? SignInMethod.apple
+          : providers.contains('google.com')
+          ? SignInMethod.google
+          : null,
     );
   }
 
