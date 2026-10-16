@@ -11,8 +11,8 @@ import 'package:in_vogue/core/utils/context_ext.dart';
 /// A sign-in provider.
 enum SignInProvider { apple, google }
 
-/// Apple and Google sign-in buttons, 12 apart: Apple first on Apple
-/// platforms, Google first elsewhere.
+/// Sign-in buttons, 12 apart: Apple then Google on Apple platforms, Google
+/// alone elsewhere.
 class SignInButtons extends StatelessWidget {
   const SignInButtons({
     required this.onApple,
@@ -33,13 +33,14 @@ class SignInButtons extends StatelessWidget {
       provider: SignInProvider.google,
       onPressed: onGoogle,
     );
-    final buttons = context.isApplePlatform ? [apple, google] : [google, apple];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        buttons.first,
-        const SizedBox(height: InVogueSpace.s3),
-        buttons.last,
+        if (context.isApplePlatform) ...[
+          apple,
+          const SizedBox(height: InVogueSpace.s3),
+        ],
+        google,
       ],
     );
   }

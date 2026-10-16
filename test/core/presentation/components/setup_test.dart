@@ -323,22 +323,28 @@ void main() {
       expect(taps, ['apple', 'google']);
     });
 
-    testWidgets('Google first on Android', (tester) async {
+    testWidgets('Google alone on Android', (tester) async {
       await pumpInVogue(
         tester,
         SignInButtons(onApple: () {}, onGoogle: () {}),
         platform: TargetPlatform.android,
       );
       expect(
-        tester.widget<SignInButton>(find.byType(SignInButton).first).provider,
-        SignInProvider.google,
+        tester
+            .widgetList<SignInButton>(find.byType(SignInButton))
+            .map((button) => button.provider),
+        [SignInProvider.google],
       );
     });
 
     testWidgets('Apple is ink on paper text; Google paper with an edge', (
       tester,
     ) async {
-      await pumpInVogue(tester, SignInButtons(onApple: () {}, onGoogle: () {}));
+      await pumpInVogue(
+        tester,
+        SignInButtons(onApple: () {}, onGoogle: () {}),
+        platform: TargetPlatform.iOS,
+      );
       Color fill(String label) => tester
           .widget<ColoredBox>(
             find
@@ -379,6 +385,7 @@ void main() {
         tester,
         SignInButtons(onApple: () {}, onGoogle: () {}),
         locale: const Locale('es'),
+        platform: TargetPlatform.iOS,
       );
       expect(find.bySemanticsLabel('Iniciar sesión con Apple'), findsOneWidget);
       expect(
