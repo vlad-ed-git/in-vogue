@@ -16,10 +16,11 @@ sealed class PicksEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Shows the pieces worn in [band], with the saved picks.
+/// Shows the pieces worn in [band], or every piece when it is null, with
+/// the saved picks.
 final class PicksRequested extends PicksEvent {
   const PicksRequested(this.band);
-  final WarmthBand band;
+  final WarmthBand? band;
 
   @override
   List<Object?> get props => [band];

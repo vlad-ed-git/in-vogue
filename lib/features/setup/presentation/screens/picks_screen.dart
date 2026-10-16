@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/core/utils/failure_message.dart';
-import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/catalog/presentation/widgets/piece_grid.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
@@ -121,75 +121,19 @@ class PicksScreen extends StatelessWidget {
         ForecastStatus.loading => const SizedBox.shrink(),
       };
 
-  Widget _pieces(BuildContext context, PicksState state) {
-    final rows = (state.pieces.length / 2).ceil();
-    return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: context.pageMargin),
-      sliver: SliverList.builder(
-        itemCount: rows + 1,
-        itemBuilder: (context, index) {
-          if (index == 0) return const _Prompt();
-          final row = state.pieces.skip((index - 1) * 2).take(2).toList();
-          return Padding(
-            padding: const EdgeInsets.only(bottom: InVogueSpace.s6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _tile(context, row.first, state.picks)),
-                const SizedBox(width: InVogueLayout.gutter),
-                Expanded(
-                  child: row.length > 1
-                      ? _tile(context, row.last, state.picks)
-                      : const SizedBox.shrink(),
-                ),
-              ],
-            ),
-          );
-        },
+  Widget _pieces(BuildContext context, PicksState state) => SliverMainAxisGroup(
+    slivers: [
+      SliverPadding(
+        padding: EdgeInsets.symmetric(horizontal: context.pageMargin),
+        sliver: const SliverToBoxAdapter(child: _Prompt()),
       ),
-    );
-  }
-
-  Widget _tile(BuildContext context, Piece piece, Set<String> picks) {
-    final bloc = context.read<PicksBloc>();
-    final loved = [
-      for (final colourway in piece.colourways)
-        if (picks.contains(colourway.id)) colourway,
-    ];
-    final shown = loved.isEmpty ? piece.colourways.first : loved.first;
-    return ProductTile(
-      photo: imageFor(shown.photoUrl),
-      name: piece.name,
-      colours: [for (final colourway in piece.colourways) Color(colourway.hex)],
-      loved: loved.isNotEmpty,
-      onLoveChanged: (love) {
-        for (final colourway in love ? [shown] : loved) {
-          bloc.add(PickToggled(colourway.id, loved: love));
-        }
-      },
-      onTap: () => showColourSheet(
-        context: context,
-        pieceName: piece.name,
-        colours: [
-          for (final colourway in piece.colourways)
-            PieceColour(
-              name: colourway.name,
-              color: Color(colourway.hex),
-              wornPhoto: imageFor(colourway.photoUrl),
-              flatPhoto: colourway.flatUrl == null
-                  ? null
-                  : imageFor(colourway.flatUrl!),
-            ),
-        ],
-        lovedIndexes: {
-          for (var i = 0; i < piece.colourways.length; i++)
-            if (picks.contains(piece.colourways[i].id)) i,
-        },
-        onLoveChanged: (index, love) =>
-            bloc.add(PickToggled(piece.colourways[index].id, loved: love)),
+      SliverPieceGrid(
+        pieces: state.pieces,
+        picks: state.picks,
+        imageFor: imageFor,
       ),
-    );
-  }
+    ],
+  );
 }
 
 /// The heading and the one-line instruction, with its heart.
