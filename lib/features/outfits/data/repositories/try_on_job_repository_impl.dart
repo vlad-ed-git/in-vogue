@@ -29,6 +29,19 @@ class TryOnJobRepositoryImpl implements TryOnJobRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> clearAccount(String accountId) async {
+    try {
+      await _local.save({
+        for (final MapEntry(:key, :value) in _local.jobs().entries)
+          if (value.accountId != accountId) key: value,
+      });
+      return const Right(unit);
+    } on CacheException {
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> clear(String key) async {
     try {
       await _local.save({..._local.jobs()}..remove(key));

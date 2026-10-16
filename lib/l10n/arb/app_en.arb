@@ -731,5 +731,17 @@
   "defaultDayTitle": "Home opens on",
   "@defaultDayTitle": {
     "description": "Title of the default day sheet."
+  },
+  "deleteAccountTitle": "Delete your account?",
+  "@deleteAccountTitle": {
+    "description": "Title of the sheet that confirms deleting the account."
+  },
+  "deleteAccountLine": "Your profile, photos, picks and outfits will be deleted. You’ll confirm with Apple or Google. This can’t be undone.",
+  "@deleteAccountLine": {
+    "description": "What deleting the account removes."
+  },
+  "keepAccount": "Keep my account",
+  "@keepAccount": {
+    "description": "Closes the delete sheet without deleting."
   }
 }

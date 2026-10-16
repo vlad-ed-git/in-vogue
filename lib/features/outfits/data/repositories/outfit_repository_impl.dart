@@ -63,6 +63,13 @@ class OutfitRepositoryImpl implements OutfitRepository {
       _guard('outfit', () async => (await _load()).outfits[id]);
 
   @override
+  Future<Either<Failure, Unit>> forgetPictures(String accountId) =>
+      _guard('forgetPictures', () async {
+        await _pictures.forget(accountId);
+        return unit;
+      });
+
+  @override
   Future<Either<Failure, Set<String>>> shownSignatures(String accountId) =>
       _guard('shownSignatures', () => _remote.signatures(accountId));
 

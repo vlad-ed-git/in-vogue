@@ -1160,6 +1160,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Home opens on'**
   String get defaultDayTitle;
+
+  /// Title of the sheet that confirms deleting the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account?'**
+  String get deleteAccountTitle;
+
+  /// What deleting the account removes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your profile, photos, picks and outfits will be deleted. You’ll confirm with Apple or Google. This can’t be undone.'**
+  String get deleteAccountLine;
+
+  /// Closes the delete sheet without deleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my account'**
+  String get keepAccount;
 }
 
 class _AppLocalizationsDelegate

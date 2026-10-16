@@ -93,6 +93,19 @@ class MockPicksRepository extends _i1.Mock implements _i7.PicksRepository {
           as _i4.Future<_i2.Either<_i5.Failure, Set<String>>>);
 
   @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> clear() =>
+      (super.noSuchMethod(
+            Invocation.method(#clear, []),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#clear, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
   _i4.Future<_i2.Either<_i5.Failure, Set<String>>> setPick(
     String? colourwayId, {
     required bool? loved,

@@ -10,6 +10,7 @@ import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
 import 'package:in_vogue/features/account/domain/usecases/get_plan.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
+import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/entities/sign_in_method.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
@@ -56,6 +57,10 @@ class _MockLogOutBloc extends MockBloc<LogOutEvent, LogOutState>
 
 class _MockPreferencesBloc extends MockBloc<PreferencesEvent, PreferencesState>
     implements PreferencesBloc {}
+
+class _MockDeleteAccountBloc
+    extends MockBloc<DeleteAccountEvent, DeleteAccountState>
+    implements DeleteAccountBloc {}
 
 @GenerateMocks([
   GetCurrentAccount,
@@ -171,12 +176,14 @@ void main() {
     late _MockPhotoBloc face;
     late _MockPhotoBloc body;
     late _MockLocationBloc location;
+    late _MockDeleteAccountBloc deletion;
 
     setUpAll(() {
       registerFallbackValue(const SettingsLoaded());
       registerFallbackValue(const ProfileLoaded());
       registerFallbackValue(const PhotoLoaded());
       registerFallbackValue(const LocationSettingsRequested());
+      registerFallbackValue(const DeleteAccountConfirmed());
     });
 
     Future<void> pumpSettings(WidgetTester tester) async {
@@ -185,6 +192,12 @@ void main() {
       face = _MockPhotoBloc();
       body = _MockPhotoBloc();
       location = _MockLocationBloc();
+      deletion = _MockDeleteAccountBloc();
+      whenListen(
+        deletion,
+        const Stream<DeleteAccountState>.empty(),
+        initialState: const DeleteAccountState(),
+      );
       final logOut = _MockLogOutBloc();
       final preferences = _MockPreferencesBloc();
       whenListen(
@@ -245,8 +258,13 @@ void main() {
             BlocProvider<LocationBloc>.value(value: location),
             BlocProvider<LogOutBloc>.value(value: logOut),
             BlocProvider<PreferencesBloc>.value(value: preferences),
+            BlocProvider<DeleteAccountBloc>.value(value: deletion),
           ],
-          child: SettingsScreen(onLoggedOut: () {}, bodyPhoto: () => body),
+          child: SettingsScreen(
+            onLoggedOut: () {},
+            onAccountDeleted: () {},
+            bodyPhoto: () => body,
+          ),
         ),
         scroll: false,
       );
@@ -268,6 +286,7 @@ void main() {
         'Default day',
         'Language',
         'Log out',
+        'Delete account',
       ]);
       expect(find.text('Signed in with Apple'), findsOneWidget);
       expect(find.text('Used to dress you'), findsOneWidget);
@@ -318,6 +337,35 @@ void main() {
       verify(
         () => settings.add(const SettingsDefaultDayChanged(ForecastDay.today)),
       ).called(1);
+    });
+
+    testWidgets('Delete account asks once more, and Keep keeps it', (
+      tester,
+    ) async {
+      await pumpSettings(tester);
+      await tester.ensureVisible(find.text('Delete account'));
+      await tester.pump();
+      await tester.tap(find.text('Delete account'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Delete your account?'), findsOneWidget);
+      await tester.tap(find.text('Keep my account'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      verifyNever(() => deletion.add(any()));
+    });
+
+    testWidgets('Delete account deletes once confirmed', (tester) async {
+      await pumpSettings(tester);
+      await tester.ensureVisible(find.text('Delete account'));
+      await tester.pump();
+      await tester.tap(find.text('Delete account'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.tap(find.text('Delete account').last);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      verify(() => deletion.add(const DeleteAccountConfirmed())).called(1);
     });
   });
 }

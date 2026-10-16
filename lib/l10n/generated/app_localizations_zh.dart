@@ -665,4 +665,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get defaultDayTitle => '首页打开时显示';
+
+  @override
+  String get deleteAccountTitle => '删除你的账户？';
+
+  @override
+  String get deleteAccountLine =>
+      '你的资料、照片、心选和穿搭将被删除。你需要通过 Apple 或 Google 确认。此操作无法撤销。';
+
+  @override
+  String get keepAccount => '保留我的账户';
 }

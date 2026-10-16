@@ -705,4 +705,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get defaultDayTitle => 'Home opens on';
+
+  @override
+  String get deleteAccountTitle => 'Delete your account?';
+
+  @override
+  String get deleteAccountLine =>
+      'Your profile, photos, picks and outfits will be deleted. You’ll confirm with Apple or Google. This can’t be undone.';
+
+  @override
+  String get keepAccount => 'Keep my account';
 }

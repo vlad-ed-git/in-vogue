@@ -63,6 +63,26 @@ class AccountRepositoryImpl implements AccountRepository {
     }
   }
 
+  /// How long deleting an account may take before it counts as offline.
+  static const deleteTimeLimit = Duration(minutes: 1);
+
+  @override
+  Future<Either<Failure, Unit>> delete(String accountId) async {
+    try {
+      await _remote.deleteAccount(accountId).timeout(deleteTimeLimit);
+      return const Right(unit);
+    } on TimeoutException catch (error, stack) {
+      _log(error, stack);
+      return const Left(NetworkFailure());
+    } on NetworkException catch (error) {
+      _log(error.cause, error.stackTrace);
+      return const Left(NetworkFailure());
+    } on ServerException catch (error) {
+      _log(error.cause, error.stackTrace);
+      return const Left(ServerFailure());
+    }
+  }
+
   @override
   Future<Either<Failure, Unit>> save(
     String accountId,

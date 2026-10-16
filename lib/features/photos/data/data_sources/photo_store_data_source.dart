@@ -15,6 +15,9 @@ abstract interface class PhotoStoreDataSource {
   /// Null before the first photo or when its file is gone. Throws
   /// [CacheException].
   UserPhoto? kept(PhotoRole role);
+
+  /// Deletes the [role] photo and its record. Throws [CacheException].
+  Future<void> forget(PhotoRole role);
 }
 
 /// Photos in a private folder, with their file names and revisions in the
@@ -66,6 +69,19 @@ class PhotoStoreDataSourceImpl implements PhotoStoreDataSource {
     final file = p.join(_directory, record.name);
     if (!File(file).existsSync()) return null;
     return UserPhoto(role: role, path: file, revision: record.revision);
+  }
+
+  @override
+  Future<void> forget(PhotoRole role) async {
+    final record = _record(role);
+    if (record != null) {
+      try {
+        await File(p.join(_directory, record.name)).delete();
+      } on FileSystemException {
+        // Already gone.
+      }
+    }
+    await _store.delete(_key(role));
   }
 
   ({String name, int revision})? _record(PhotoRole role) {

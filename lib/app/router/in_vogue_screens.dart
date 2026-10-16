@@ -8,6 +8,7 @@ import 'package:in_vogue/app/router/app_routes.dart';
 import 'package:in_vogue/app/router/app_screens.dart';
 import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
@@ -177,11 +178,15 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
                 ..add(const PhotoLoaded()),
         ),
         BlocProvider(create: (_) => locator<LocationBloc>()),
+        BlocProvider(create: (_) => locator<DeleteAccountBloc>()),
       ],
       child: Builder(
         builder: (context) => SettingsScreen(
           onLoggedOut: () => context.read<SetupBloc>().add(
             const SetupStepReached(SetupStep.signIn),
+          ),
+          onAccountDeleted: () => context.read<SetupBloc>().add(
+            const SetupStepReached(SetupStep.welcome),
           ),
           bodyPhoto: () => locator<PhotoBloc>(param1: PhotoRole.body),
         ),

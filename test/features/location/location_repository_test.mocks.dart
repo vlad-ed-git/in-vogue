@@ -109,6 +109,15 @@ class MockLocationLocalDataSource extends _i1.Mock
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteLocation() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteLocation, []),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [LocationRepository].
@@ -156,6 +165,19 @@ class MockLocationRepository extends _i1.Mock
                 ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, _i7.UserLocation?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> forget() =>
+      (super.noSuchMethod(
+            Invocation.method(#forget, []),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#forget, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 
   @override
   _i4.Future<void> openSettings(_i5.LocationProblem? problem) =>

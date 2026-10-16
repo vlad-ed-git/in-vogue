@@ -19,6 +19,16 @@ class PicksRepositoryImpl implements PicksRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> clear() async {
+    try {
+      await _local.save(const {});
+      return const Right(unit);
+    } on CacheException {
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, Set<String>>> setPick(
     String colourwayId, {
     required bool loved,

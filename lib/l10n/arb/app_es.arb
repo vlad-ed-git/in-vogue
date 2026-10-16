@@ -175,5 +175,8 @@
   "locationNotSet": "Sin definir",
   "defaultDay": "Día predeterminado",
   "defaultDayTomorrow": "Mañana; hoy de 6 a 9 de la mañana",
-  "defaultDayTitle": "Inicio se abre en"
+  "defaultDayTitle": "Inicio se abre en",
+  "deleteAccountTitle": "¿Eliminar tu cuenta?",
+  "deleteAccountLine": "Se eliminarán tu perfil, tus fotos, tu selección y tus conjuntos. Lo confirmarás con Apple o Google. No se puede deshacer.",
+  "keepAccount": "Conservar mi cuenta"
 }

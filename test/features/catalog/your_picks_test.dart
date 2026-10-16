@@ -60,6 +60,12 @@ class _Picks implements PicksRepository {
   Future<Either<Failure, Set<String>>> picks() async => Right({...loved});
 
   @override
+  Future<Either<Failure, Unit>> clear() async {
+    loved.clear();
+    return const Right(unit);
+  }
+
+  @override
   Future<Either<Failure, Set<String>>> setPick(
     String colourwayId, {
     required bool loved,

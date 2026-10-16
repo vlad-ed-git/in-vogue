@@ -12,6 +12,9 @@ abstract interface class OutfitPictureLocalDataSource {
   /// Keeps [picture] as [name] for [accountId]; its file. Throws
   /// [CacheException].
   Future<String> keep(String accountId, String name, List<int> picture);
+
+  /// Deletes every picture of [accountId]. Throws [CacheException].
+  Future<void> forget(String accountId);
 }
 
 class OutfitPictureLocalDataSourceImpl implements OutfitPictureLocalDataSource {
@@ -28,6 +31,16 @@ class OutfitPictureLocalDataSourceImpl implements OutfitPictureLocalDataSource {
     final file = _file(accountId, name);
     try {
       return File(file).existsSync() ? file : null;
+    } on FileSystemException catch (error, stack) {
+      throw CacheException(error, stack);
+    }
+  }
+
+  @override
+  Future<void> forget(String accountId) async {
+    final folder = Directory(p.join(_directory, accountId));
+    try {
+      if (folder.existsSync()) await folder.delete(recursive: true);
     } on FileSystemException catch (error, stack) {
       throw CacheException(error, stack);
     }

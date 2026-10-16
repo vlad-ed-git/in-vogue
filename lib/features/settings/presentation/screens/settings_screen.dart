@@ -8,6 +8,7 @@ import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/core/utils/failure_message.dart';
 import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
+import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
@@ -23,12 +24,16 @@ import 'package:in_vogue/features/settings/presentation/bloc/settings_bloc.dart'
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
     required this.onLoggedOut,
+    required this.onAccountDeleted,
     required this.bodyPhoto,
     super.key,
   });
 
   /// Called once the person is logged out.
   final VoidCallback onLoggedOut;
+
+  /// Called once the account is deleted.
+  final VoidCallback onAccountDeleted;
 
   /// Makes the body photo's bloc.
   final PhotoBloc Function() bodyPhoto;
@@ -40,6 +45,13 @@ class SettingsScreen extends StatelessWidget {
         listenWhen: (previous, current) => previous != current,
         listener: (context, state) {
           if (state.status == LogOutStatus.loggedOut) onLoggedOut();
+          if (state.failure != null) _fail(context, state.failure!);
+        },
+      ),
+      BlocListener<DeleteAccountBloc, DeleteAccountState>(
+        listenWhen: (previous, current) => previous != current,
+        listener: (context, state) {
+          if (state.status == DeleteAccountStatus.deleted) onAccountDeleted();
           if (state.failure != null) _fail(context, state.failure!);
         },
       ),
@@ -90,6 +102,16 @@ class SettingsScreen extends StatelessWidget {
                           : null,
                     ),
                   ),
+                  BlocBuilder<DeleteAccountBloc, DeleteAccountState>(
+                    builder: (context, state) =>
+                        SettingsRow.deleteAccount(context, () async {
+                          if (state.status != DeleteAccountStatus.idle) return;
+                          final bloc = context.read<DeleteAccountBloc>();
+                          if (await _confirmDelete(context)) {
+                            bloc.add(const DeleteAccountConfirmed());
+                          }
+                        }),
+                  ),
                 ],
               ),
               const SizedBox(height: InVogueSpace.s10),
@@ -99,6 +121,40 @@ class SettingsScreen extends StatelessWidget {
       ),
     ),
   );
+
+  /// Asks once more before deleting the account; true to delete.
+  static Future<bool> _confirmDelete(BuildContext context) async {
+    final delete = await showInVogueSheet<bool>(
+      context: context,
+      builder: (context) {
+        final l10n = context.translated;
+        return InVogueSheet(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              InVogueSheetHeader(title: l10n.deleteAccountTitle),
+              Text(
+                l10n.deleteAccountLine,
+                style: InVogueType.body.copyWith(color: InVogueColors.graphite),
+              ),
+              const SizedBox(height: InVogueSpace.s6),
+              InVogueButton.primary(
+                label: l10n.deleteAccount,
+                icon: InVogueIcons.trash,
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
+              const SizedBox(height: InVogueSpace.s3),
+              InVogueButton.secondary(
+                label: l10n.keepAccount,
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    return delete ?? false;
+  }
 
   static void _fail(BuildContext context, Failure failure) => context.showSnack(
     message: failure.uiFriendlyMessage(context),

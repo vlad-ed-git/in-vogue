@@ -158,6 +158,15 @@ class MockAccountRemoteDataSource extends _i1.Mock
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteAccount(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteAccount, [accountId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [AccountRepository].
@@ -196,6 +205,19 @@ class MockAccountRepository extends _i1.Mock implements _i6.AccountRepository {
                 ),
           )
           as _i4.Future<_i2.Either<_i7.Failure, _i8.AccountPlan?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>> delete(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#delete, [accountId]),
+            returnValue: _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i7.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#delete, [accountId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>);
 
   @override
   _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>> save(
@@ -309,6 +331,19 @@ class MockLocationRepository extends _i1.Mock
           as _i4.Future<_i2.Either<_i7.Failure, _i12.UserLocation?>>);
 
   @override
+  _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>> forget() =>
+      (super.noSuchMethod(
+            Invocation.method(#forget, []),
+            returnValue: _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i7.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#forget, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>);
+
+  @override
   _i4.Future<void> openSettings(_i7.LocationProblem? problem) =>
       (super.noSuchMethod(
             Invocation.method(#openSettings, [problem]),
@@ -371,6 +406,19 @@ class MockPhotoRepository extends _i1.Mock implements _i13.PhotoRepository {
                 ),
           )
           as _i4.Future<_i2.Either<_i7.Failure, _i14.UserPhoto?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>> forget(_i15.PhotoRole? role) =>
+      (super.noSuchMethod(
+            Invocation.method(#forget, [role]),
+            returnValue: _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i7.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#forget, [role]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>);
 }
 
 /// A class which mocks [PicksRepository].
@@ -393,6 +441,19 @@ class MockPicksRepository extends _i1.Mock implements _i16.PicksRepository {
             ),
           )
           as _i4.Future<_i2.Either<_i7.Failure, Set<String>>>);
+
+  @override
+  _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>> clear() =>
+      (super.noSuchMethod(
+            Invocation.method(#clear, []),
+            returnValue: _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i7.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#clear, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>);
 
   @override
   _i4.Future<_i2.Either<_i7.Failure, Set<String>>> setPick(

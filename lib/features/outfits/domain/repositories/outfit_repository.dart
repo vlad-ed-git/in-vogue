@@ -12,6 +12,9 @@ abstract interface class OutfitRepository {
   /// The outfit [id]; null when the knowledge base has none.
   Future<Either<Failure, Outfit?>> outfit(String id);
 
+  /// Deletes [accountId]'s outfit pictures from the phone.
+  Future<Either<Failure, Unit>> forgetPictures(String accountId);
+
   /// Signatures of every outfit made for [accountId].
   Future<Either<Failure, Set<String>>> shownSignatures(String accountId);
 

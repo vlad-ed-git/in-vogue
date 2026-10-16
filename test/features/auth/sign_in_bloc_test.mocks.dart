@@ -86,6 +86,32 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
             ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> reauthenticate() =>
+      (super.noSuchMethod(
+            Invocation.method(#reauthenticate, []),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#reauthenticate, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> deleteUser() =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteUser, []),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#deleteUser, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 }
 
 /// A class which mocks [SaveSetupToAccount].

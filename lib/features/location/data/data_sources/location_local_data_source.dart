@@ -8,6 +8,7 @@ abstract interface class LocationLocalDataSource {
   /// Null when nothing readable is saved.
   UserLocation? getLocation();
   Future<void> saveLocation(UserLocation location);
+  Future<void> deleteLocation();
 }
 
 class LocationLocalDataSourceImpl implements LocationLocalDataSource {
@@ -25,6 +26,9 @@ class LocationLocalDataSourceImpl implements LocationLocalDataSource {
       return null;
     }
   }
+
+  @override
+  Future<void> deleteLocation() => _store.delete(locationKey);
 
   @override
   Future<void> saveLocation(UserLocation location) => _store.writeString(

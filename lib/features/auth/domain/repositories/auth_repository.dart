@@ -14,4 +14,11 @@ abstract interface class AuthRepository {
 
   /// Signs out of the account and of its provider.
   Future<Either<Failure, Unit>> signOut();
+
+  /// Asks the person to confirm with their provider again, as deleting the
+  /// account needs a recent sign-in.
+  Future<Either<Failure, Unit>> reauthenticate();
+
+  /// Deletes the signed-in account.
+  Future<Either<Failure, Unit>> deleteUser();
 }

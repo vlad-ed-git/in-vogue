@@ -28,6 +28,14 @@ abstract interface class AuthRemoteDataSource {
 
   /// Signs out of Firebase, then of Google so it asks for an account again.
   Future<void> signOut();
+
+  /// Asks the signed-in person to confirm with their provider again. Throws
+  /// [SignInException] or [NetworkException].
+  Future<void> reauthenticate();
+
+  /// Deletes the signed-in account, then signs out of Google. Throws
+  /// [SignInException] or [NetworkException].
+  Future<void> deleteUser();
 }
 
 /// Firebase Auth, with credentials from Sign in with Apple and Google Sign-In.
@@ -45,13 +53,18 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   );
 
   @override
-  Future<Account> signIn(SignInMethod method) async {
+  Future<Account> signIn(SignInMethod method) => _translate(() async {
+    final user = switch (method) {
+      SignInMethod.apple => await _signInWithApple(),
+      SignInMethod.google => await _signInWithGoogle(),
+    };
+    return _account(user);
+  });
+
+  /// Runs [call], translating the providers' errors.
+  static Future<T> _translate<T>(Future<T> Function() call) async {
     try {
-      final user = switch (method) {
-        SignInMethod.apple => await _signInWithApple(),
-        SignInMethod.google => await _signInWithGoogle(),
-      };
-      return _account(user);
+      return await call();
     } on SignInWithAppleAuthorizationException catch (error, stack) {
       throw SignInException(
         error.code == AuthorizationErrorCode.canceled
@@ -76,14 +89,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
-  Future<User> _signInWithApple() async {
+  /// Apple's credential for Firebase, with the name Apple shared.
+  Future<({AuthCredential credential, String? name})> _appleCredential() async {
     final rawNonce = _nonce();
     final apple = await SignInWithApple.getAppleIDCredential(
       scopes: [AppleIDAuthorizationScopes.fullName],
       nonce: sha256.convert(utf8.encode(rawNonce)).toString(),
     );
-    final result = await _auth.signInWithCredential(
-      AppleAuthProvider.credentialWithIDToken(
+    final name = [
+      apple.givenName,
+      apple.familyName,
+    ].whereType<String>().join(' ').trim();
+    return (
+      credential: AppleAuthProvider.credentialWithIDToken(
         apple.identityToken!,
         rawNonce,
         AppleFullPersonName(
@@ -91,14 +109,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           familyName: apple.familyName,
         ),
       ),
+      name: name.isEmpty ? null : name,
     );
+  }
+
+  /// Google's credential for Firebase.
+  Future<({AuthCredential credential, String? name})>
+  _googleCredential() async {
+    await _googleReady;
+    final google = await GoogleSignIn.instance.authenticate();
+    return (
+      credential: GoogleAuthProvider.credential(
+        idToken: google.authentication.idToken,
+      ),
+      name: null,
+    );
+  }
+
+  Future<User> _signInWithApple() async {
+    final apple = await _appleCredential();
+    final result = await _auth.signInWithCredential(apple.credential);
     final user = result.user!;
     // Apple shares the name only on the first sign-in; keep it on the account.
-    final name = [
-      apple.givenName,
-      apple.familyName,
-    ].whereType<String>().join(' ').trim();
-    if (name.isNotEmpty && (user.displayName ?? '').trim().isEmpty) {
+    final name = apple.name;
+    if (name != null && (user.displayName ?? '').trim().isEmpty) {
       await user.updateDisplayName(name);
       await user.reload();
       return _auth.currentUser ?? user;
@@ -107,13 +141,34 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   Future<User> _signInWithGoogle() async {
-    await _googleReady;
-    final google = await GoogleSignIn.instance.authenticate();
-    final result = await _auth.signInWithCredential(
-      GoogleAuthProvider.credential(idToken: google.authentication.idToken),
-    );
+    final google = await _googleCredential();
+    final result = await _auth.signInWithCredential(google.credential);
     return result.user!;
   }
+
+  @override
+  Future<void> reauthenticate() => _translate(() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw SignInException(
+        SignInProblem.failed,
+        StateError('Nobody is signed in'),
+        StackTrace.current,
+      );
+    }
+    final credential = switch (_account(user).method) {
+      SignInMethod.apple => await _appleCredential(),
+      _ => await _googleCredential(),
+    };
+    await user.reauthenticateWithCredential(credential.credential);
+  });
+
+  @override
+  Future<void> deleteUser() => _translate(() async {
+    await _auth.currentUser?.delete();
+    await _googleReady;
+    await GoogleSignIn.instance.signOut();
+  });
 
   @override
   Account? currentAccount() {

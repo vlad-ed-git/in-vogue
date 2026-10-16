@@ -40,6 +40,36 @@ class AuthRepositoryImpl implements AuthRepository {
       Right(_remote.currentAccount());
 
   @override
+  Future<Either<Failure, Unit>> reauthenticate() =>
+      _guard('reauthenticate', _remote.reauthenticate);
+
+  @override
+  Future<Either<Failure, Unit>> deleteUser() =>
+      _guard('deleteUser', _remote.deleteUser);
+
+  Future<Either<Failure, Unit>> _guard(
+    String method,
+    Future<void> Function() call,
+  ) async {
+    try {
+      await call();
+      return const Right(unit);
+    } on SignInException catch (error) {
+      if (error.problem == SignInProblem.failed) {
+        _logger.logError(
+          callerClass: 'AuthRepositoryImpl',
+          callerMethod: method,
+          error: error.cause,
+          stackTrace: error.stackTrace,
+        );
+      }
+      return Left(SignInFailure(error.problem));
+    } on NetworkException {
+      return const Left(NetworkFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> signOut() async {
     try {
       await _remote.signOut();

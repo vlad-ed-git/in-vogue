@@ -12,4 +12,7 @@ abstract interface class PhotoRepository {
 
   /// The kept [role] photo; null before the first.
   Future<Either<Failure, UserPhoto?>> kept(PhotoRole role);
+
+  /// Deletes the kept [role] photo from the phone.
+  Future<Either<Failure, Unit>> forget(PhotoRole role);
 }

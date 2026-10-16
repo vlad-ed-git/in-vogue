@@ -4,9 +4,11 @@ import 'package:get_it/get_it.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/repositories/account_repository_impl.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
+import 'package:in_vogue/features/account/domain/usecases/delete_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/get_plan.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
+import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 
 void init(GetIt locator) {
   locator
@@ -32,6 +34,21 @@ void init(GetIt locator) {
       ),
     )
     ..registerLazySingleton<GetPlan>(() => GetPlan(locator()))
+    ..registerLazySingleton<DeleteAccount>(
+      () => DeleteAccount(
+        auth: locator(),
+        account: locator(),
+        photos: locator(),
+        picks: locator(),
+        profile: locator(),
+        location: locator(),
+        outfits: locator(),
+        jobs: locator(),
+      ),
+    )
+    ..registerFactory<DeleteAccountBloc>(
+      () => DeleteAccountBloc(deleteAccount: locator()),
+    )
     ..registerLazySingleton<EnsureAccount>(
       () => EnsureAccount(
         auth: locator(),

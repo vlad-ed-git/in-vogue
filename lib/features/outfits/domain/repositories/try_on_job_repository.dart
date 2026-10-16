@@ -10,4 +10,7 @@ abstract interface class TryOnJobRepository {
   Future<Either<Failure, Unit>> save(TryOnJob job);
 
   Future<Either<Failure, Unit>> clear(String key);
+
+  /// Forgets every job of [accountId].
+  Future<Either<Failure, Unit>> clearAccount(String accountId);
 }

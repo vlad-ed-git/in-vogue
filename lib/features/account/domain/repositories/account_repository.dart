@@ -10,6 +10,9 @@ abstract interface class AccountRepository {
   /// The account's plan; null before the account is saved.
   Future<Either<Failure, AccountPlan?>> plan(String accountId);
 
+  /// Deletes the account [accountId]'s data and files from the server.
+  Future<Either<Failure, Unit>> delete(String accountId);
+
   /// Saves [setup] on the account [accountId]. Photos are uploaded only when
   /// the account holds another revision; the wishlist mirrors the picks.
   Future<Either<Failure, Unit>> save(String accountId, AccountSetup setup);

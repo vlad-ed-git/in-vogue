@@ -67,6 +67,17 @@ class LocationRepositoryImpl implements LocationRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> forget() async {
+    try {
+      await _local.deleteLocation();
+      return const Right(unit);
+    } on CacheException catch (error) {
+      _log('forget', error);
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
   Future<void> openSettings(LocationProblem problem) =>
       _device.openSettings(problem);
 

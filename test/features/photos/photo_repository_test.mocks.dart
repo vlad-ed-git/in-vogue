@@ -86,6 +86,15 @@ class MockPhotoStoreDataSource extends _i1.Mock
   @override
   _i2.UserPhoto? kept(_i7.PhotoRole? role) =>
       (super.noSuchMethod(Invocation.method(#kept, [role])) as _i2.UserPhoto?);
+
+  @override
+  _i5.Future<void> forget(_i7.PhotoRole? role) =>
+      (super.noSuchMethod(
+            Invocation.method(#forget, [role]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 }
 
 /// A class which mocks [PhotoRepository].
@@ -141,6 +150,19 @@ class MockPhotoRepository extends _i1.Mock implements _i8.PhotoRepository {
                 ),
           )
           as _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto?>>);
+
+  @override
+  _i5.Future<_i3.Either<_i9.Failure, _i3.Unit>> forget(_i7.PhotoRole? role) =>
+      (super.noSuchMethod(
+            Invocation.method(#forget, [role]),
+            returnValue: _i5.Future<_i3.Either<_i9.Failure, _i3.Unit>>.value(
+              _FakeEither_1<_i9.Failure, _i3.Unit>(
+                this,
+                Invocation.method(#forget, [role]),
+              ),
+            ),
+          )
+          as _i5.Future<_i3.Either<_i9.Failure, _i3.Unit>>);
 }
 
 /// A class which mocks [LogMessages].

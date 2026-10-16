@@ -705,4 +705,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get defaultDayTitle => 'Inicio se abre en';
+
+  @override
+  String get deleteAccountTitle => '¿Eliminar tu cuenta?';
+
+  @override
+  String get deleteAccountLine =>
+      'Se eliminarán tu perfil, tus fotos, tu selección y tus conjuntos. Lo confirmarás con Apple o Google. No se puede deshacer.';
+
+  @override
+  String get keepAccount => 'Conservar mi cuenta';
 }

@@ -330,6 +330,10 @@ void main() {
 }
 
 class _FakeOutfits implements OutfitRepository {
+  @override
+  Future<Either<Failure, Unit>> forgetPictures(String accountId) =>
+      throw UnimplementedError();
+
   _FakeOutfits(this.ranked);
 
   final List<Outfit> ranked;
@@ -463,6 +467,10 @@ class _FakeBudget implements UnitBudgetRepository {
 }
 
 class _FakePhotos implements PhotoRepository {
+  @override
+  Future<Either<Failure, Unit>> forget(PhotoRole role) =>
+      throw UnimplementedError();
+
   UserPhoto? body = _body;
 
   @override
@@ -478,6 +486,9 @@ class _FakePhotos implements PhotoRepository {
 }
 
 class _FakePicks implements PicksRepository {
+  @override
+  Future<Either<Failure, Unit>> clear() => throw UnimplementedError();
+
   @override
   Future<Either<Failure, Set<String>>> picks() async => const Right({});
 

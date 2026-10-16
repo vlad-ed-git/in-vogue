@@ -41,6 +41,10 @@ abstract interface class AccountRemoteDataSource {
     required Set<String> add,
     required Set<String> remove,
   });
+
+  /// Deletes the account document, everything under it, and every file of
+  /// the account in Storage.
+  Future<void> deleteAccount(String accountId);
 }
 
 class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
@@ -137,6 +141,35 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
       await batch.commit();
     }
   });
+
+  /// Collections under an account document.
+  static const _collections = ['wishlist', 'outfits'];
+
+  @override
+  Future<void> deleteAccount(String accountId) => _guard(() async {
+    for (final name in _collections) {
+      final documents = await _account(accountId).collection(name).get();
+      for (var start = 0; start < documents.docs.length; start += batchSize) {
+        final batch = _firestore.batch();
+        for (final document in documents.docs.skip(start).take(batchSize)) {
+          batch.delete(document.reference);
+        }
+        await batch.commit();
+      }
+    }
+    await _account(accountId).delete();
+    await _deleteFolder(_storage.ref('users/$accountId'));
+  });
+
+  Future<void> _deleteFolder(Reference folder) async {
+    final listed = await folder.listAll();
+    for (final item in listed.items) {
+      await item.delete();
+    }
+    for (final prefix in listed.prefixes) {
+      await _deleteFolder(prefix);
+    }
+  }
 
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {

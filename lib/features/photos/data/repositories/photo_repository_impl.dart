@@ -52,6 +52,17 @@ class PhotoRepositoryImpl implements PhotoRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, Unit>> forget(PhotoRole role) async {
+    try {
+      await _store.forget(role);
+      return const Right(unit);
+    } on CacheException catch (error) {
+      _log('forget', error.cause, error.stackTrace);
+      return const Left(CacheFailure());
+    }
+  }
+
   void _log(String method, Object error, StackTrace stackTrace) =>
       _logger.logError(
         callerClass: 'PhotoRepositoryImpl',

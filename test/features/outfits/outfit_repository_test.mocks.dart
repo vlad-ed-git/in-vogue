@@ -221,4 +221,13 @@ class MockOutfitPictureLocalDataSource extends _i1.Mock
             ),
           )
           as _i3.Future<String>);
+
+  @override
+  _i3.Future<void> forget(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#forget, [accountId]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
 }

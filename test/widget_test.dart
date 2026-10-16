@@ -10,6 +10,7 @@ import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
 import 'package:in_vogue/features/auth/domain/usecases/log_out.dart';
 import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
@@ -75,6 +76,10 @@ class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
 class _MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
     implements SettingsBloc {}
 
+class _MockDeleteAccountBloc
+    extends MockBloc<DeleteAccountEvent, DeleteAccountState>
+    implements DeleteAccountBloc {}
+
 void main() {
   late MockPreferencesRepository preferences;
   late MockSetupRepository setup;
@@ -115,6 +120,15 @@ void main() {
           saveSetupToAccount: saveSetup,
         ),
       )
+      ..registerFactory<DeleteAccountBloc>(() {
+        final deletion = _MockDeleteAccountBloc();
+        whenListen(
+          deletion,
+          const Stream<DeleteAccountState>.empty(),
+          initialState: const DeleteAccountState(),
+        );
+        return deletion;
+      })
       ..registerFactory<SettingsBloc>(() {
         final settings = _MockSettingsBloc();
         whenListen(
