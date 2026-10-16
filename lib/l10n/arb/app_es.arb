@@ -129,5 +129,12 @@
   "aboutYouTitle": "¿Cómo te llamamos?",
   "yourName": "Tu nombre",
   "facePhotoTitle": "Añade una foto de tu cara",
-  "facePhotoLine": "Opcional. Así el maquillaje va contigo."
+  "facePhotoLine": "Opcional. Así el maquillaje va contigo.",
+  "addWidgetTitle": "Añade In Vogue a tu pantalla de inicio",
+  "addWidgetLine": "El tiempo de mañana y tu conjunto, sin abrir la app.",
+  "addToHomeScreen": "Añadir a la pantalla de inicio",
+  "skip": "Omitir",
+  "widgetStepsTitle": "Tres pasos en el iPhone",
+  "widgetNotReady": "El widget aún no está listo. Puedes añadirlo más tarde.",
+  "widgetPreviewSpoken": "{weather} Tu conjunto se está preparando."
 }

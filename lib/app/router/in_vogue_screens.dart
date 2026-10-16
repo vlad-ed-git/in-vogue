@@ -7,18 +7,20 @@ import 'package:in_vogue/app/router/app_screens.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:in_vogue/features/settings/presentation/screens/settings_screen.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
+import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 import 'package:in_vogue/features/setup/presentation/screens/about_you_screen.dart';
+import 'package:in_vogue/features/setup/presentation/screens/add_widget_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/picks_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/sign_in_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/your_photo_screen.dart';
-import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 
 /// The app's screens, with their blocs from [locator].
@@ -91,36 +93,32 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         ),
       ),
     ),
-    _ => _PendingStep(step),
+    SetupStep.widget => MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              locator<ForecastBloc>()..add(const ForecastRequested()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              locator<PhotoBloc>(param1: PhotoRole.body)
+                ..add(const PhotoLoaded()),
+        ),
+      ],
+      child: Builder(
+        builder: (context) => AddWidgetScreen(
+          onBack: () => context.pop(),
+          onFinish: () => context.read<SetupBloc>().add(
+            const SetupStepReached(SetupStep.done),
+          ),
+          onAddWidget: locator<HomeWidgetRepository>().requestPin,
+        ),
+      ),
+    ),
+    SetupStep.done => const SizedBox.shrink(),
   },
   tab: (tab) => switch (tab) {
     InVogueTab.settings => const SettingsScreen(),
     InVogueTab.home || InVogueTab.makeup => const SizedBox.shrink(),
   },
 );
-
-/// A setup step whose screen is still to be built: Back and the folio.
-class _PendingStep extends StatelessWidget {
-  const _PendingStep(this.step);
-
-  final SetupStep step;
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(
-      child: PageMargin(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (step.folio != null)
-              BackBar(
-                onBack: () => context.pop(),
-                step: step.folio,
-                total: SetupStepFolio.total,
-              ),
-          ],
-        ),
-      ),
-    ),
-  );
-}

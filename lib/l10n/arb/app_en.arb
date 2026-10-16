@@ -502,5 +502,23 @@
     "description": "Label of the name field."
   },
   "facePhotoTitle": "Add a face photo",
-  "facePhotoLine": "Optional. It makes your makeup match you."
+  "facePhotoLine": "Optional. It makes your makeup match you.",
+  "addWidgetTitle": "Add In Vogue to your home screen",
+  "@addWidgetTitle": {
+    "description": "Title of setup step 6."
+  },
+  "addWidgetLine": "Tomorrow’s weather and your outfit, without opening the app.",
+  "addToHomeScreen": "Add to home screen",
+  "skip": "Skip",
+  "widgetStepsTitle": "Three steps on iPhone",
+  "widgetNotReady": "The widget isn’t ready yet. You can add it later.",
+  "widgetPreviewSpoken": "{weather} Your outfit is getting ready.",
+  "@widgetPreviewSpoken": {
+    "description": "The widget preview read aloud; weather is weatherSpokenWithDay.",
+    "placeholders": {
+      "weather": {
+        "type": "String"
+      }
+    }
+  }
 }

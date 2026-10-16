@@ -501,4 +501,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get facePhotoLine => '可选。让妆容更适合你。';
+
+  @override
+  String get addWidgetTitle => '把 In Vogue 添加到主屏幕';
+
+  @override
+  String get addWidgetLine => '无需打开应用，即可查看明天的天气和你的穿搭。';
+
+  @override
+  String get addToHomeScreen => '添加到主屏幕';
+
+  @override
+  String get skip => '跳过';
+
+  @override
+  String get widgetStepsTitle => '在 iPhone 上只需三步';
+
+  @override
+  String get widgetNotReady => '小组件尚未就绪，你可以稍后添加。';
+
+  @override
+  String widgetPreviewSpoken(String weather) {
+    return '$weather你的穿搭正在准备中。';
+  }
 }

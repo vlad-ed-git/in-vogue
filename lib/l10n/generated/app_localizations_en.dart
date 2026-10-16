@@ -537,4 +537,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get facePhotoLine => 'Optional. It makes your makeup match you.';
+
+  @override
+  String get addWidgetTitle => 'Add In Vogue to your home screen';
+
+  @override
+  String get addWidgetLine =>
+      'Tomorrow’s weather and your outfit, without opening the app.';
+
+  @override
+  String get addToHomeScreen => 'Add to home screen';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get widgetStepsTitle => 'Three steps on iPhone';
+
+  @override
+  String get widgetNotReady =>
+      'The widget isn’t ready yet. You can add it later.';
+
+  @override
+  String widgetPreviewSpoken(String weather) {
+    return '$weather Your outfit is getting ready.';
+  }
 }

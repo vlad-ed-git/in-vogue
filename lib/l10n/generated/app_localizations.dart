@@ -884,6 +884,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Optional. It makes your makeup match you.'**
   String get facePhotoLine;
+
+  /// Title of setup step 6.
+  ///
+  /// In en, this message translates to:
+  /// **'Add In Vogue to your home screen'**
+  String get addWidgetTitle;
+
+  /// No description provided for @addWidgetLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow’s weather and your outfit, without opening the app.'**
+  String get addWidgetLine;
+
+  /// No description provided for @addToHomeScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to home screen'**
+  String get addToHomeScreen;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @widgetStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Three steps on iPhone'**
+  String get widgetStepsTitle;
+
+  /// No description provided for @widgetNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'The widget isn’t ready yet. You can add it later.'**
+  String get widgetNotReady;
+
+  /// The widget preview read aloud; weather is weatherSpokenWithDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{weather} Your outfit is getting ready.'**
+  String widgetPreviewSpoken(String weather);
 }
 
 class _AppLocalizationsDelegate

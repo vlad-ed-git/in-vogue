@@ -9,6 +9,10 @@ import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/auth/data/repositories/unavailable_auth_repository.dart';
+import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
+import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
+import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/catalog_asset_data_source.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/picks_local_data_source.dart';
 import 'package:in_vogue/features/catalog/data/repositories/catalog_repository_impl.dart';
@@ -17,6 +21,8 @@ import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/home_widget/data/repositories/unavailable_home_widget_repository.dart';
+import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
@@ -30,6 +36,11 @@ import 'package:in_vogue/features/photos/domain/usecases/keep_photo.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/set_language.dart';
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
+import 'package:in_vogue/features/profile/data/data_sources/profile_local_data_source.dart';
+import 'package:in_vogue/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:in_vogue/features/profile/domain/usecases/get_profile_name.dart';
+import 'package:in_vogue/features/profile/domain/usecases/save_profile_name.dart';
+import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/save_setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
@@ -70,6 +81,24 @@ void main() {
       weather.forecastFor(any),
     ).thenAnswer((_) async => const Left(NetworkFailure()));
     locator = GetIt.asNewInstance()
+      ..registerFactory<SignInBloc>(
+        () => SignInBloc(signIn: SignIn(const UnavailableAuthRepository())),
+      )
+      ..registerFactory<ProfileBloc>(() {
+        final profile = ProfileRepositoryImpl(
+          ProfileLocalDataSourceImpl(MemoryStore()),
+        );
+        return ProfileBloc(
+          getProfileName: GetProfileName(profile),
+          saveProfileName: SaveProfileName(profile),
+          getCurrentAccount: GetCurrentAccount(
+            const UnavailableAuthRepository(),
+          ),
+        );
+      })
+      ..registerSingleton<HomeWidgetRepository>(
+        const UnavailableHomeWidgetRepository(),
+      )
       ..registerFactory<PicksBloc>(() {
         final picks = PicksRepositoryImpl(
           PicksLocalDataSourceImpl(MemoryStore()),
@@ -185,6 +214,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('3 / 6'), findsOneWidget);
     verify(setup.saveStep(SetupStep.picks)).called(1);
+  });
+
+  testWidgets('finishes setup from the widget step and opens Home', (
+    tester,
+  ) async {
+    await tester.pumpWidget(app(step: SetupStep.widget));
+    await tester.pumpAndSettle();
+    expect(find.text('6 / 6'), findsOneWidget);
+    await tester.ensureVisible(findLink('Skip'));
+    await tester.pumpAndSettle();
+    await tester.tap(findLink('Skip'));
+    await tester.pumpAndSettle();
+    expect(find.byType(InVogueTabBar), findsOneWidget);
+    verify(setup.saveStep(SetupStep.done)).called(1);
   });
 
   testWidgets('starts in English even when the device language is Spanish', (
