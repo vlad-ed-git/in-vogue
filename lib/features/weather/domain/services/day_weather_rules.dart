@@ -58,17 +58,21 @@ abstract final class DayWeatherRules {
   }) {
     final hours = _windowHours(forecast, date, occasion);
     if (hours.isEmpty) return null;
-    final coldest = hours.map((hour) => hour.feelsLike).reduce(math.min);
+    final feelsLike = hours.map((hour) => hour.feelsLike);
+    final coldest = feelsLike.reduce(math.min);
     final snowCanSettle = coldest < snowBelow;
     final snow = hours.any(_isSnow);
+    final precipitation = snow && snowCanSettle
+        ? Precipitation.snow
+        : snow || hours.any(_isWet)
+        ? Precipitation.wet
+        : Precipitation.dry;
     return WeatherClass(
       band: WarmthBand.forFeelsLike(coldest),
-      precipitation: snow && snowCanSettle
-          ? Precipitation.snow
-          : snow || hours.any(_isWet)
-          ? Precipitation.wet
-          : Precipitation.dry,
+      precipitation: precipitation,
       windy: hours.any((hour) => hour.windGusts >= windyGusts),
+      drizzle: precipitation == Precipitation.dry && hours.any(_isDamp),
+      warmest: WarmthBand.forFeelsLike(feelsLike.reduce(math.max)),
     );
   }
 

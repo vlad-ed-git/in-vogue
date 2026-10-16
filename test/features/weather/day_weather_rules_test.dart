@@ -226,7 +226,9 @@ void main() {
         23: (h) => h.copyWith(feelsLike: -3),
       });
       expect(classify(forecast).band, WarmthBand.cold);
+      expect(classify(forecast).warmest, WarmthBand.warm);
       expect(classify(forecastWith({})).band, WarmthBand.mild);
+      expect(classify(forecastWith({})).warmest, WarmthBand.mild);
     });
 
     test('keeps rain and wind together, which the weather line cannot', () {
@@ -250,11 +252,20 @@ void main() {
     });
 
     test('counts drizzle as dry and gales as windy', () {
+      final drizzle = classify(
+        forecastWith({12: (h) => h.copyWith(weatherCode: 53)}),
+      );
+      expect(drizzle.precipitation, Precipitation.dry);
+      expect(drizzle.drizzle, isTrue);
+      expect(classify(forecastWith({})).drizzle, isFalse);
       expect(
         classify(
-          forecastWith({12: (h) => h.copyWith(weatherCode: 53)}),
-        ).precipitation,
-        Precipitation.dry,
+          forecastWith({
+            10: (h) => h.copyWith(weatherCode: 53),
+            12: (h) => h.copyWith(weatherCode: 63),
+          }),
+        ).drizzle,
+        isFalse,
       );
       expect(
         classify(forecastWith({12: (h) => h.copyWith(windGusts: 80)})).windy,

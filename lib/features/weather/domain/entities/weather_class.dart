@@ -12,13 +12,21 @@ class WeatherClass extends Equatable {
     required this.band,
     required this.precipitation,
     required this.windy,
-  });
+    this.drizzle = false,
+    WarmthBand? warmest,
+  }) : warmest = warmest ?? band;
 
   final WarmthBand band;
   final Precipitation precipitation;
 
   /// Gusts of Beaufort 6 or more.
   final bool windy;
+
+  /// Drizzle falls on an otherwise [Precipitation.dry] day.
+  final bool drizzle;
+
+  /// The band of the warmest feels-like.
+  final WarmthBand warmest;
 
   /// The knowledge base's cell for this class and [occasion], such as
   /// "cool|wet|windy|work".
@@ -34,5 +42,5 @@ class WeatherClass extends Equatable {
   };
 
   @override
-  List<Object?> get props => [band, precipitation, windy];
+  List<Object?> get props => [band, precipitation, windy, drizzle, warmest];
 }
