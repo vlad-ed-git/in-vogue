@@ -4,6 +4,8 @@ import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/forecast.dart';
 import 'package:in_vogue/features/weather/domain/entities/hourly_weather.dart';
+import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
+import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 
 /// Turns a forecast into one day's weather line for an occasion, from the
 /// hours that occasion spends outdoors.
@@ -27,14 +29,14 @@ abstract final class DayWeatherRules {
   /// Snow is snow only when the window feels colder than this, °C.
   static const snowBelow = 14.0;
 
-  /// Null when the forecast does not cover the window.
-  static DayWeather? summarize(
-    Forecast forecast, {
-    required DateTime date,
-    required Occasion occasion,
-  }) {
+  /// [forecast]'s hours on [date] in [occasion]'s window.
+  static List<HourlyWeather> _windowHours(
+    Forecast forecast,
+    DateTime date,
+    Occasion occasion,
+  ) {
     final (first, last) = window(occasion);
-    final hours = [
+    return [
       for (final hour in forecast.hours)
         if (hour.time.year == date.year &&
             hour.time.month == date.month &&
@@ -43,6 +45,40 @@ abstract final class DayWeatherRules {
             hour.time.hour <= last)
           hour,
     ];
+  }
+
+  /// The knowledge base's class of the window: the band of its coldest
+  /// feels-like; snow only when that band is cool or cold, rain otherwise;
+  /// drizzle counts as dry and gales as windy. Null when the forecast does
+  /// not cover the window.
+  static WeatherClass? classify(
+    Forecast forecast, {
+    required DateTime date,
+    required Occasion occasion,
+  }) {
+    final hours = _windowHours(forecast, date, occasion);
+    if (hours.isEmpty) return null;
+    final coldest = hours.map((hour) => hour.feelsLike).reduce(math.min);
+    final snowCanSettle = coldest < snowBelow;
+    final snow = hours.any(_isSnow);
+    return WeatherClass(
+      band: WarmthBand.forFeelsLike(coldest),
+      precipitation: snow && snowCanSettle
+          ? Precipitation.snow
+          : snow || hours.any(_isWet)
+          ? Precipitation.wet
+          : Precipitation.dry,
+      windy: hours.any((hour) => hour.windGusts >= windyGusts),
+    );
+  }
+
+  /// Null when the forecast does not cover the window.
+  static DayWeather? summarize(
+    Forecast forecast, {
+    required DateTime date,
+    required Occasion occasion,
+  }) {
+    final hours = _windowHours(forecast, date, occasion);
     if (hours.isEmpty) return null;
     final warmest = hours.reduce(
       (a, b) => b.temperature > a.temperature ? b : a,

@@ -10,6 +10,8 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/setup/presentation/screens/add_widget_screen.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
+import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
+import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 
@@ -42,6 +44,11 @@ final _ready = ForecastState(
         WeatherTiming.from,
         DateTime.utc(2026, 10, 16, 14),
       ),
+    ),
+    weatherClass: const WeatherClass(
+      band: WarmthBand.cool,
+      precipitation: Precipitation.wet,
+      windy: false,
     ),
     fetchedAt: DateTime.utc(2026, 10, 15, 13),
     isSaved: false,

@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/forecast.dart';
+import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
+import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/services/day_weather_rules.dart';
 
 import 'forecast_fixtures.dart';
@@ -208,5 +210,80 @@ void main() {
       ),
       isNull,
     );
+  });
+
+  group('the knowledge base class', () {
+    WeatherClass classify(
+      Forecast forecast, [
+      Occasion occasion = Occasion.work,
+    ]) => DayWeatherRules.classify(forecast, date: _day, occasion: occasion)!;
+
+    test('takes the band of the coldest feels-like in the window', () {
+      final forecast = forecastWith({
+        7: (h) => h.copyWith(feelsLike: 7),
+        14: (h) => h.copyWith(feelsLike: 22),
+        // Outside the workday.
+        23: (h) => h.copyWith(feelsLike: -3),
+      });
+      expect(classify(forecast).band, WarmthBand.cold);
+      expect(classify(forecastWith({})).band, WarmthBand.mild);
+    });
+
+    test('keeps rain and wind together, which the weather line cannot', () {
+      final forecast = forecastWith({
+        12: (h) => h.copyWith(precipitation: 2, precipitationProbability: 80),
+        16: (h) => h.copyWith(windGusts: 45),
+      });
+      expect(
+        classify(forecast),
+        const WeatherClass(
+          band: WarmthBand.mild,
+          precipitation: Precipitation.wet,
+          windy: true,
+        ),
+      );
+      expect(
+        classify(forecast, Occasion.goingOut).cell(Occasion.goingOut),
+        'mild|dry|calm|going_out',
+      );
+      expect(classify(forecast).cell(Occasion.work), 'mild|wet|windy|work');
+    });
+
+    test('counts drizzle as dry and gales as windy', () {
+      expect(
+        classify(
+          forecastWith({12: (h) => h.copyWith(weatherCode: 53)}),
+        ).precipitation,
+        Precipitation.dry,
+      );
+      expect(
+        classify(forecastWith({12: (h) => h.copyWith(windGusts: 80)})).windy,
+        isTrue,
+      );
+      expect(
+        classify(forecastWith({12: (h) => h.copyWith(windGusts: 38)})).windy,
+        isFalse,
+      );
+    });
+
+    test('has snow only when it is cool or cold, rain otherwise', () {
+      Forecast snow(double feelsLike) => forecastWith({
+        for (var hour = 7; hour <= 19; hour++)
+          hour: (h) => h.copyWith(feelsLike: feelsLike),
+        10: (h) => h.copyWith(feelsLike: feelsLike, weatherCode: 73),
+      });
+      expect(classify(snow(2)).precipitation, Precipitation.snow);
+      expect(classify(snow(15)).precipitation, Precipitation.wet);
+    });
+
+    test('names its cell with the occasion\'s context', () {
+      const weather = WeatherClass(
+        band: WarmthBand.hot,
+        precipitation: Precipitation.dry,
+        windy: false,
+      );
+      expect(weather.cell(Occasion.casual), 'hot|dry|calm|casual');
+      expect(weather.cell(Occasion.stayingIn), 'hot|dry|calm|staying_in');
+    });
   });
 }
