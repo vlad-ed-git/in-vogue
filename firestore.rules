@@ -7,5 +7,25 @@ service cloud.firestore {
     match /users/{uid}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+
+    // The development try-on budget: signed-in people reserve and give
+    // back units, never past the limit, and never change the limit.
+    match /usage/youcam {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+        && validUsage(request.resource.data)
+        && request.resource.data.unitLimit == 15;
+      allow update: if request.auth != null
+        && validUsage(request.resource.data)
+        && request.resource.data.unitLimit == resource.data.unitLimit;
+    }
+
+    function validUsage(usage) {
+      return usage.keys().hasOnly(['unitsSpent', 'unitLimit', 'updatedAt'])
+        && usage.unitsSpent is int
+        && usage.unitLimit is int
+        && usage.unitsSpent >= 0
+        && usage.unitsSpent <= usage.unitLimit;
+    }
   }
 }
