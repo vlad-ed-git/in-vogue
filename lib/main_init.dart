@@ -16,7 +16,6 @@ import 'package:in_vogue/features/auth/di/init.dart' as auth_di;
 import 'package:in_vogue/features/catalog/di/init.dart' as catalog_di;
 import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
 import 'package:in_vogue/features/location/di/init.dart' as location_di;
-import 'package:in_vogue/features/outfits/di/init.dart' as outfits_di;
 import 'package:in_vogue/features/photos/di/init.dart' as photos_di;
 import 'package:in_vogue/features/preferences/di/init.dart' as preferences_di;
 import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart';
@@ -79,7 +78,6 @@ abstract final class MainInit {
       location_di.init(locator);
       weather_di.init(locator);
       photos_di.init(locator);
-      outfits_di.init(locator);
       catalog_di.init(locator);
       auth_di.init(locator);
       profile_di.init(locator);
