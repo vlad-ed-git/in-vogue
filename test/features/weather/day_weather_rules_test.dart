@@ -287,6 +287,19 @@ void main() {
       expect(classify(snow(15)).precipitation, Precipitation.wet);
     });
 
+    test('is read back from its cell', () {
+      expect(
+        WeatherClass.fromCell('cool|wet|windy|work'),
+        const WeatherClass(
+          band: WarmthBand.cool,
+          precipitation: Precipitation.wet,
+          windy: true,
+        ),
+      );
+      expect(WeatherClass.fromCell('cool|wet'), isNull);
+      expect(WeatherClass.fromCell('balmy|dry|calm|work'), isNull);
+    });
+
     test('names its cell with the occasion\'s context', () {
       const weather = WeatherClass(
         band: WarmthBand.hot,

@@ -32,9 +32,32 @@ class WeatherClass extends Equatable {
   /// "cool|wet|windy|work".
   String cell(Occasion occasion) =>
       '${band.name}|${precipitation.name}|${windy ? 'windy' : 'calm'}|'
-      '${_contexts[occasion]}';
+      '${contexts[occasion]}';
 
-  static const _contexts = {
+  /// The class a [cell] names, without its drizzle or warmest band; null
+  /// when it names none.
+  static WeatherClass? fromCell(String cell) {
+    if (cell.split('|') case [final band, final falls, final wind, ...]) {
+      final named = (
+        WarmthBand.values.asNameMap()[band],
+        Precipitation.values.asNameMap()[falls],
+      );
+      if (named case (
+        final band?,
+        final precipitation?,
+      ) when wind == 'windy' || wind == 'calm') {
+        return WeatherClass(
+          band: band,
+          precipitation: precipitation,
+          windy: wind == 'windy',
+        );
+      }
+    }
+    return null;
+  }
+
+  /// The knowledge base's name of each occasion's context.
+  static const contexts = {
     Occasion.work: 'work',
     Occasion.casual: 'casual',
     Occasion.goingOut: 'going_out',
