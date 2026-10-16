@@ -5,6 +5,7 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/core/domain/utils/latest_updates.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
@@ -82,13 +83,13 @@ class MakeOutfit {
   /// How long the service keeps a pass's picture downloadable.
   static const pictureLifetime = Duration(hours: 2);
 
-  final _making = <String, _Making>{};
+  final _making = <String, LatestUpdates<TryOnUpdate>>{};
 
   /// The making's updates, ending with [TryOnDone] or [TryOnFailed]; the
   /// latest update first when it is already under way.
   Stream<TryOnUpdate> call(MakeOutfitParams params) {
     final making = _making.putIfAbsent(params.key, () {
-      final making = _Making();
+      final making = LatestUpdates<TryOnUpdate>();
       unawaited(
         _make(params, making.add).then((last) {
           _making.remove(params.key);
@@ -269,32 +270,4 @@ class MakeOutfit {
       }
     }
   }
-}
-
-/// One making's updates, replaying the latest to each new listener.
-class _Making {
-  final _updates = StreamController<TryOnUpdate>.broadcast(sync: true);
-  TryOnUpdate? _latest;
-  bool _closed = false;
-
-  void add(TryOnUpdate update) {
-    _latest = update;
-    _updates.add(update);
-  }
-
-  void close() {
-    _closed = true;
-    unawaited(_updates.close());
-  }
-
-  Stream<TryOnUpdate> watch() => Stream.multi((listener) {
-    final latest = _latest;
-    if (latest != null) listener.addSync(latest);
-    if (_closed) return listener.closeSync();
-    final subscription = _updates.stream.listen(
-      listener.addSync,
-      onDone: listener.closeSync,
-    );
-    listener.onCancel = subscription.cancel;
-  });
 }
