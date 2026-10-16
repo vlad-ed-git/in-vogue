@@ -51,10 +51,11 @@ class MakeLookParams extends Equatable {
 /// each step on the picture of the step before, keeps every picture and
 /// records the look. A look already made is never made again.
 ///
-/// The analysis and every step reserve their units first and give them
-/// back when the service charges nothing. Progress is kept after each step,
-/// so a look cut short goes on where it stopped. One making per look runs
-/// at a time; asking again follows it.
+/// Nothing starts that the budget cannot finish. The analysis and every
+/// step reserve their units first and give them back when the service
+/// charges nothing. Progress is kept after each step, so a look cut short
+/// goes on where it stopped. One making per look runs at a time; asking
+/// again follows it.
 class MakeLook {
   MakeLook({
     required this._looks,
@@ -186,6 +187,24 @@ class MakeLook {
     final known = await _looks.faceColours(accountId, face.path);
     if (known case Left(value: final failure)) return MakeupFailed(failure);
     var colours = known.getOrElse(() => null);
+    // Nothing starts that the budget cannot finish: the recipe has as many
+    // steps whatever the face's colours.
+    final analysisUnpaid =
+        colours == null && job.analysisTask == null && !job.analysisReserved;
+    final stepsUnpaid =
+        recipe.steps.length -
+        job.tasks.length -
+        (job.reservedStep == null ? 0 : 1);
+    final needed =
+        (analysisUnpaid ? unitsPerAnalysis : 0) +
+        (stepsUnpaid > 0 ? stepsUnpaid * unitsPerStep : 0);
+    if (needed > 0) {
+      final left = await _budget.left();
+      if (left case Left(value: final failure)) return MakeupFailed(failure);
+      if (left.getOrElse(() => 0) < needed) {
+        return const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent));
+      }
+    }
     if (colours == null) {
       final String task;
       if (job.analysisTask case final String started) {

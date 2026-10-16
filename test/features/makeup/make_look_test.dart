@@ -262,15 +262,34 @@ void main() {
     expect(updates.last, isA<MakeupDone>());
   });
 
-  test('stops when the budget would pass its limit', () async {
-    budget.limit = MakeLook.unitsPerAnalysis + 1;
+  test('starts no look the budget cannot finish', () async {
+    budget.limit = MakeLook.unitsPerAnalysis + 2;
+    expect(
+      (await make()).last,
+      const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent)),
+    );
+    expect(service.uploads, isEmpty);
+    expect(budget.spent, 0);
+    looks.colours[_face.path] = _colours;
+    budget.limit = 2;
+    expect(
+      (await make()).last,
+      const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent)),
+    );
+    expect(service.steps, isEmpty);
+  });
+
+  test('stops when units run out on the way, keeping what is made', () async {
+    budget
+      ..limit = MakeLook.unitsPerAnalysis + 3
+      ..othersSpend = 2;
     final updates = await make();
     expect(
       updates.last,
       const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent)),
     );
     expect(service.steps, hasLength(1));
-    expect(budget.spent, MakeLook.unitsPerAnalysis + 1);
+    expect(keptJob()!.pictures, ['step-1.jpg']);
     expect(looks.recorded, isEmpty);
   });
 
@@ -628,24 +647,28 @@ class _FakeBudget implements UnitBudgetRepository {
   int limit = 30;
   int spent = 0;
 
+  /// Units someone else spends once the first reservation is made.
+  int othersSpend = 0;
+
   @override
   Future<Either<Failure, Unit>> reserve(int units) async {
     if (spent + units > limit) {
       return const Left(TryOnFailure(TryOnProblem.budgetSpent));
     }
-    spent += units;
-    return const Right(unit);
-  }
-
-  @override
-  Future<Either<Failure, Unit>> release(int units) async {
-    spent -= units;
+    spent += units + othersSpend;
+    othersSpend = 0;
     return const Right(unit);
   }
 
   @override
   Future<Either<Failure, int>> left() async =>
       Right(spent >= limit ? 0 : limit - spent);
+
+  @override
+  Future<Either<Failure, Unit>> release(int units) async {
+    spent -= units;
+    return const Right(unit);
+  }
 }
 
 class _FakePhotos implements PhotoRepository {
