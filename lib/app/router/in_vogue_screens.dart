@@ -202,7 +202,7 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
       providers: [
         BlocProvider(
           create: (context) => locator<MakeupBloc>()
-            ..add(MakeupDayShown(_makeupDay(context.read<HomeBloc>().state))),
+            ..add(MakeupDayShown(makeupDayOf(context.read<HomeBloc>().state))),
         ),
         BlocProvider(
           create: (_) =>
@@ -212,9 +212,9 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
       ],
       child: BlocListener<HomeBloc, HomeState>(
         listenWhen: (previous, current) =>
-            _makeupDay(previous) != _makeupDay(current),
+            makeupDayOf(previous) != makeupDayOf(current),
         listener: (context, home) =>
-            context.read<MakeupBloc>().add(MakeupDayShown(_makeupDay(home))),
+            context.read<MakeupBloc>().add(MakeupDayShown(makeupDayOf(home))),
         child: _OnTabShown(
           tab: InVogueTab.makeup,
           // The face photo may have been replaced in Settings.
@@ -238,8 +238,9 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
   },
 );
 
-/// Home's day, as the Makeup tab follows it.
-MakeupDay _makeupDay(HomeState home) {
+/// Home's day, as the Makeup tab follows it: an outfit being looked up or
+/// made is pending, unless Home cannot look it up.
+MakeupDay makeupDayOf(HomeState home) {
   final shown = home.shown;
   return MakeupDay(
     day: home.selected,
