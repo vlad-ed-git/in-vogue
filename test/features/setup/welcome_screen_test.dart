@@ -57,9 +57,24 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('shows the In Vogue logo, not a photo', (tester) async {
+    final handle = tester.ensureSemantics();
+    await pumpWelcome(tester);
+    final images = tester
+        .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+        .map((box) => box.decoration)
+        .whereType<BoxDecoration>()
+        .map((decoration) => decoration.image?.image)
+        .whereType<AssetImage>()
+        .map((image) => image.assetName);
+    expect(images, ['assets/images/logo.png']);
+    expect(find.bySemanticsLabel('In Vogue'), findsOneWidget);
+    expect(find.text('In Vogue'), findsNothing);
+    handle.dispose();
+  });
+
   testWidgets('introduces In Vogue and asks for the location', (tester) async {
     await pumpWelcome(tester);
-    expect(find.text('In Vogue'), findsOneWidget);
     expect(find.text('Meet tomorrow’s weather in style'), findsOneWidget);
     expect(
       find.text(

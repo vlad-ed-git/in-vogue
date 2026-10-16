@@ -15,8 +15,8 @@ class WelcomeScreen extends StatefulWidget {
   /// Called once the location is found and saved.
   final VoidCallback onLocated;
 
-  /// The brand photo, shown full bleed.
-  static const photo = AssetImage('assets/images/welcome.jpg');
+  /// The In Vogue logo, the app icon's artwork.
+  static const logo = AssetImage('assets/images/logo.png');
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -62,31 +62,27 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    PageMargin(
-                      child: SizedBox(
-                        height: _nameBarHeight,
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: Text(
-                            l10n.appName,
-                            style: _nameStyle,
-                            textScaler: context.displayTextScaler,
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Fills the height the text leaves, so the button stays
-                    // in the first view; scrolls below the minimum.
+                    const SizedBox(height: InVogueSpace.s6),
+                    // The logo as a square in the height the text leaves, so
+                    // the button stays in the first view; scrolls below the
+                    // minimum.
                     Expanded(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: _photoMin),
-                        child: const DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: InVogueColors.studio,
-                            image: DecorationImage(
-                              image: WelcomeScreen.photo,
-                              fit: BoxFit.cover,
-                              alignment: Alignment(0, -0.08),
+                      child: PageMargin(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minHeight: _logoMin,
+                          ),
+                          child: Semantics(
+                            image: true,
+                            label: l10n.appName,
+                            child: const DecoratedBox(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: WelcomeScreen.logo,
+                                  fit: BoxFit.contain,
+                                  alignment: AlignmentDirectional.topStart,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -155,16 +151,4 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 }
 
-const double _nameBarHeight = 52;
-const double _photoMin = 200;
-
-/// The name in the display face, 28 on a 28 line.
-const TextStyle _nameStyle = TextStyle(
-  fontFamily: InVogueType.displayFamily,
-  fontFamilyFallback: InVogueType.cjkFallback,
-  fontSize: 28,
-  height: 1,
-  fontWeight: FontWeight.w700,
-  fontVariations: [FontVariation('wght', 700)],
-  color: InVogueColors.ink,
-);
+const double _logoMin = 160;
