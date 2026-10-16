@@ -642,6 +642,10 @@ class _FakeBudget implements UnitBudgetRepository {
     spent -= units;
     return const Right(unit);
   }
+
+  @override
+  Future<Either<Failure, int>> left() async =>
+      Right(spent >= limit ? 0 : limit - spent);
 }
 
 class _FakePhotos implements PhotoRepository {

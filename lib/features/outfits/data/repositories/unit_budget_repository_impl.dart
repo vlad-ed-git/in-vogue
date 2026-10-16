@@ -35,9 +35,13 @@ class UnitBudgetRepositoryImpl implements UnitBudgetRepository {
         return const Right(unit);
       });
 
-  Future<Either<Failure, Unit>> _guard(
+  @override
+  Future<Either<Failure, int>> left() =>
+      _guard('left', () async => Right(await _remote.left()));
+
+  Future<Either<Failure, T>> _guard<T>(
     String method,
-    Future<Either<Failure, Unit>> Function() call,
+    Future<Either<Failure, T>> Function() call,
   ) async {
     try {
       return await call().timeout(timeLimit);

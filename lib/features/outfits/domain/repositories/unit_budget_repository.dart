@@ -9,4 +9,7 @@ abstract interface class UnitBudgetRepository {
 
   /// Gives back [units] reserved for a call the service did not charge.
   Future<Either<Failure, Unit>> release(int units);
+
+  /// The units left before the limit.
+  Future<Either<Failure, int>> left();
 }

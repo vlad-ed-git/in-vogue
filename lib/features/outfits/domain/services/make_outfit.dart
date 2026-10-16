@@ -50,10 +50,11 @@ class MakeOutfitParams extends Equatable {
 /// chooses an outfit not shown before, tries it on piece by piece, keeps
 /// its picture and records it.
 ///
-/// Every pass reserves its units first and gives them back when the service
-/// charges nothing. Progress is kept after each step, so a try-on cut short
-/// goes on where it stopped. One making per day and occasion runs at a
-/// time; asking again follows it.
+/// Nothing starts that the budget cannot finish. Every pass reserves its
+/// units first and gives them back when the service charges nothing.
+/// Progress is kept after each step, so a try-on cut short goes on where it
+/// stopped. One making per day and occasion runs at a time; asking again
+/// follows it.
 class MakeOutfit {
   MakeOutfit({
     required this._outfits,
@@ -144,6 +145,16 @@ class MakeOutfit {
 
     String? pictureUrl;
     final passes = outfit.passes;
+    // Nothing starts that the budget cannot finish.
+    final unpaid =
+        passes.length - job.tasks.length - (job.reservedPass == null ? 0 : 1);
+    if (unpaid > 0) {
+      final left = await _budget.left();
+      if (left case Left(value: final failure)) return TryOnFailed(failure);
+      if (left.getOrElse(() => 0) < unpaid * unitsPerPass) {
+        return const TryOnFailed(TryOnFailure(TryOnProblem.budgetSpent));
+      }
+    }
     for (var index = 0; index < passes.length; index++) {
       report(TryOnProgress(piece: index + 1, pieces: passes.length));
       final String task;

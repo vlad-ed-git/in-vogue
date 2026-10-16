@@ -9,4 +9,8 @@ abstract final class UnitBudgetModel {
     required int limit,
     required int units,
   }) => units > 0 && spent + units <= limit;
+
+  /// The units left in [limit] after [spent]; never below 0.
+  static int left({required int spent, required int limit}) =>
+      spent >= limit ? 0 : limit - spent;
 }

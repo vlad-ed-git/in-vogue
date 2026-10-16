@@ -13,6 +13,9 @@ abstract interface class UnitBudgetRemoteDataSource {
 
   /// Takes [units] off the units spent.
   Future<void> release(int units);
+
+  /// The units left before the limit.
+  Future<int> left();
 }
 
 class UnitBudgetRemoteDataSourceImpl implements UnitBudgetRemoteDataSource {
@@ -51,6 +54,17 @@ class UnitBudgetRemoteDataSourceImpl implements UnitBudgetRemoteDataSource {
       'updatedAt': FieldValue.serverTimestamp(),
     }),
   );
+
+  @override
+  Future<int> left() => _guard(() async {
+    final usage = (await _usage.get()).data();
+    return UnitBudgetModel.left(
+      spent: (usage?['unitsSpent'] as num?)?.toInt() ?? 0,
+      limit:
+          (usage?['unitLimit'] as num?)?.toInt() ??
+          UnitBudgetModel.developmentLimit,
+    );
+  });
 
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {
