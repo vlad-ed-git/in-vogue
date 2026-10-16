@@ -115,7 +115,7 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         ),
       ),
     ),
-    SetupStep.done => const SizedBox.shrink(),
+    SetupStep.done => throw ArgumentError.value(step, 'step', 'Has no screen'),
   },
   tab: (tab) => switch (tab) {
     InVogueTab.settings => const SettingsScreen(),
