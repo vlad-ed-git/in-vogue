@@ -42,9 +42,26 @@ keep the Xcode-saved version.
 Plain `flutterN run` defaults to development. Explicit commands:
 
 ```sh
-flutterN run --flavor development -t lib/main_development.dart
+flutterN run --flavor development -t lib/main_development.dart \
+  --dart-define-from-file=secrets/development.json
 flutterN run --flavor production -t lib/main_production.dart
 ```
+
+### The YouCam key (development only)
+
+Try-ons call YouCam from the app for now. The key is read only by the
+development entrypoint, from the git-ignored `secrets/development.json`;
+the production entrypoint never reads it, and a build without it makes no
+outfits. Create the file from `secrets/youcam_api.txt`:
+
+```sh
+python3 scripts/write_development_defines.py
+```
+
+The development launch configuration passes it. Every try-on pass costs 2
+units: the Firestore document `usage/youcam` (`unitsSpent`, `unitLimit` 15)
+reserves them before each call and gives them back when YouCam charges
+nothing, and no try-on starts past the limit. Tests never call YouCam.
 
 VS Code launch configurations select the matching flavor and entrypoint. A
 mismatched entrypoint/flavor fails startup before initializing Firebase or
@@ -76,6 +93,18 @@ Separate entrypoints follow the [FlutterFire flavor guide](https://codewithandre
 and Flutter’s [Android](https://docs.flutter.dev/deployment/flavors) and
 [iOS](https://docs.flutter.dev/deployment/flavors-ios) flavor configuration.
 No backend rules, functions, auth providers, or paid API calls are deployed by setup.
+
+### Firestore and Storage rules
+
+`firestore.rules` and `storage.rules` let each person read and write only
+`users/{uid}/**` (uploads: images under 10 MB), and let signed-in people
+reserve units in `usage/youcam` without passing or changing its limit.
+Deploy them to development with an admin service account:
+
+```sh
+GOOGLE_APPLICATION_CREDENTIALS=secrets/<service-account>.json \
+  firebase deploy --only firestore:rules,storage --project in-vogue-dev
+```
 
 ### Sign-in prerequisites
 
@@ -111,6 +140,8 @@ lib/
     photos/                # System photo picker and private photo store
     catalog/               # Bundled collection and picks
     auth/                  # Sign in with Apple and Google, Firebase Auth
+    account/               # The setup saved on users/{uid} and in Storage
+    outfits/               # Choosing, trying on and recording outfits
     profile/               # The person's name
     home_widget/           # Placing the home-screen widget
     preferences/           # Language
@@ -187,10 +218,12 @@ bloc_test's `MockBloc` for screens, sqflite_common_ffi for SQLite and
 http_mock_adapter for dio. Where a package documents nothing, the tests cover our
 code around it.
 
-The picks collection is bundled from the catalog pull in `../resources/`:
+The picks collection and the knowledge base's outfits are bundled from
+`../resources/`:
 
 ```sh
 python3 scripts/export_catalog.py
+python3 scripts/export_outfits.py
 ```
 
 Native builds take minutes. Rely on the checks above while working, and run

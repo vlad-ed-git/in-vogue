@@ -2,18 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "In Vogue · Development",
+      "name": "In Vogue \u00b7 Development",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_development.dart",
-      "toolArgs": ["--flavor", "development"]
+      "toolArgs": [
+        "--flavor",
+        "development",
+        "--dart-define-from-file=secrets/development.json"
+      ]
     },
     {
-      "name": "In Vogue · Production",
+      "name": "In Vogue \u00b7 Production",
       "request": "launch",
       "type": "dart",
       "program": "lib/main_production.dart",
-      "toolArgs": ["--flavor", "production"]
+      "toolArgs": [
+        "--flavor",
+        "production"
+      ]
     }
   ]
 }
