@@ -25,3 +25,6 @@ android/app/src/production/google-services.json
 ios/flavors/development/GoogleService-Info.plist
 ios/flavors/production/GoogleService-Info.plist
 missing_translations.json
+
+# Local API keys and secrets.
+secrets/
