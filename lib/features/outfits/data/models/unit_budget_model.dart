@@ -1,7 +1,7 @@
 /// The units spent and their limit.
 abstract final class UnitBudgetModel {
   /// The development budget, in units.
-  static const developmentLimit = 15;
+  static const developmentLimit = 30;
 
   /// Whether [units] more fit in [limit] after [spent].
   static bool allows({

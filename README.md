@@ -59,7 +59,7 @@ python3 scripts/write_development_defines.py
 ```
 
 The development launch configuration passes it. Every try-on pass costs 2
-units: the Firestore document `usage/youcam` (`unitsSpent`, `unitLimit` 15)
+units: the Firestore document `usage/youcam` (`unitsSpent`, `unitLimit` 30)
 reserves them before each call and gives them back when YouCam charges
 nothing, and no try-on starts past the limit. Tests never call YouCam.
 
@@ -98,7 +98,7 @@ No backend rules, functions, auth providers, or paid API calls are deployed by s
 
 `firestore.rules` and `storage.rules` let each person read and write only
 `users/{uid}/**` (uploads: images under 10 MB), and let signed-in people
-reserve units in `usage/youcam` without passing or changing its limit.
+reserve units in `usage/youcam` without passing or changing its limit of 30.
 Deploy them to development with an admin service account:
 
 ```sh
