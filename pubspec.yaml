@@ -62,6 +62,7 @@ flutter:
     enable-swift-package-manager: false
   assets:
     - assets/catalog/
+    - assets/outfits/
     - assets/images/
   # Sofia Sans in two widths (SIL OFL, see assets/fonts/OFL.txt). Variable
   # fonts: every style selects its weight through FontVariation('wght').
