@@ -1,10 +1,11 @@
 # In Vogue
 
-A Flutter mobile app for outfits matched to tomorrow’s weather. So far it has
-native flavors, Firebase initialization, local persistence, localization, a
-language picker and the design system (theme and shared widgets). Onboarding,
-weather, outfits, makeup, auth and the home-screen widgets are the next product
-work.
+A Flutter mobile app for outfits matched to tomorrow’s weather. It has native
+flavors, Firebase initialization, local persistence, localization, the design
+system and the six-screen setup flow: Welcome (location), Your photo, tomorrow’s
+weather with pieces to pick, Sign in, About you and the home-screen widget.
+Sign-in, the widget and the try-on run behind contracts whose stand-ins say
+plainly that they are not available yet. Home, Makeup and Settings are next.
 
 ## Run
 
@@ -90,7 +91,8 @@ No backend rules, functions, auth providers, or paid API calls are deployed by s
 
 ```text
 lib/
-  app/                     # Bootstrap and MaterialApp composition
+  app/                     # Bootstrap and MaterialApp.router composition
+    router/                # go_router routes, setup resume, tab shell, screens
   core/
     config/                # Environment identity and validation
     domain/                # Pure Dart languages, failures, use-case contracts
@@ -98,13 +100,21 @@ lib/
     persistence/           # Hive key/value store and SQLite cache
     di/                    # Initialized core resources and disposal
     presentation/          # Design system: tokens, theme, shared widgets
-    ui/                    # Starter and startup-failure screens
+    network/               # Server and network exceptions
+    ui/                    # Startup-failure screen
     utils/                 # context.translated, Either and locale helpers
-  features/preferences/
-    domain/                # Repository contract and language use cases
-    data/                  # Local source and repository implementation
-    presentation/bloc/     # Serial language updates and failure state
-    di/                    # Feature registrations
+  features/                # Each: domain/ data/ presentation/ di/
+    setup/                 # Saved setup step and the six setup screens
+    location/              # Coarse location (geolocator, geocoding)
+    weather/               # Open-Meteo through dio, day rules, header
+    photos/                # System photo picker and private photo store
+    catalog/               # Bundled collection and picks
+    auth/                  # Apple and Google sign-in contract
+    profile/               # The person's name
+    home_widget/           # Placing the home-screen widget
+    outfits/               # Try-on contract, used after sign-in
+    preferences/           # Language
+    settings/              # Settings tab
   l10n/arb/                # English source, Spanish and Simplified Chinese
   l10n/generated/          # Generated, checked-in translations
   main_init.dart           # Firebase → local stores → DI → saved language
@@ -115,8 +125,16 @@ Domain code has no Flutter, Firebase, Hive, or SQLite imports. Repositories retu
 Presentation converts failures into localized messages. GetIt is used at composition
 and DI boundaries; widgets receive their BLoC rather than resolving repositories.
 
-Hive stores the selected language. SQLite provides a versioned, disposable text
-cache with expiry; it is not the authoritative outfit ledger. Both stores are
+Routes are go_router 18, which uses the new `material_ui` package internally;
+every route gives an explicit `flutter/material` page so the app's theme styles
+it. Setup routes nest, so the saved step reopens with the earlier screens beneath
+it for Back.
+
+Hive stores the language, the setup step, the location, picks, the name and photo
+records. Photos themselves live in the app's support folder, saved by file name
+because iOS moves app folders on updates. SQLite provides a versioned, disposable
+text cache with expiry (forecasts for two days); it is not the authoritative
+outfit ledger. Both stores are
 isolated by flavor and closed by `GetIt.reset()` in tests. Keep private images,
 provider keys, and auth tokens out of this generic cache.
 
@@ -161,6 +179,18 @@ dart run build_runner build
 dart format --output=none --set-exit-if-changed lib test integration_test
 flutterN analyze
 flutterN test --coverage
+```
+
+Tests follow each package's own documented way of testing it: platform-interface
+mocks with `MockPlatformInterfaceMixin` for the plugins, `withClock` for time,
+bloc_test's `MockBloc` for screens, sqflite_common_ffi for SQLite and
+http_mock_adapter for dio. Where a package documents nothing, the tests cover our
+code around it.
+
+The picks collection is bundled from the catalog pull in `../resources/`:
+
+```sh
+python3 scripts/export_catalog.py
 ```
 
 Native builds take minutes. Rely on the checks above while working, and run
