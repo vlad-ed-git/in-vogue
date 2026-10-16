@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -23,9 +22,8 @@ import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart';
 import 'package:path/path.dart' as path;
 
-/// Without a [youCamApiKey] no try-on can start.
-void init(GetIt locator, {String? youCamApiKey}) {
-  final key = youCamApiKey?.trim() ?? '';
+/// Without a YouCam client no try-on can start.
+void init(GetIt locator) {
   locator
     ..registerLazySingleton<OutfitAssetDataSource>(
       () => OutfitAssetDataSourceImpl(rootBundle),
@@ -65,28 +63,12 @@ void init(GetIt locator, {String? youCamApiKey}) {
       () => TryOnJobRepositoryImpl(locator()),
     )
     ..registerLazySingleton<TryOnRepository>(
-      () => key.isEmpty
-          ? const UnavailableTryOnRepository()
-          : TryOnRepositoryImpl(
-              remoteDataSource: YouCamRemoteDataSourceImpl(
-                api: Dio(
-                  BaseOptions(
-                    baseUrl: YouCamRemoteDataSourceImpl.baseUrl,
-                    headers: {'Authorization': 'Bearer $key'},
-                    connectTimeout: const Duration(seconds: 15),
-                    receiveTimeout: const Duration(seconds: 30),
-                  ),
-                ),
-                files: Dio(
-                  BaseOptions(
-                    connectTimeout: const Duration(seconds: 15),
-                    receiveTimeout: const Duration(seconds: 60),
-                    sendTimeout: const Duration(seconds: 60),
-                  ),
-                ),
-              ),
+      () => locator.isRegistered<YouCamRemoteDataSource>()
+          ? TryOnRepositoryImpl(
+              remoteDataSource: locator(),
               logMessages: locator(),
-            ),
+            )
+          : const UnavailableTryOnRepository(),
     )
     ..registerLazySingleton<GetDayOutfit>(() => GetDayOutfit(locator()))
     ..registerLazySingleton<MakeOutfit>(

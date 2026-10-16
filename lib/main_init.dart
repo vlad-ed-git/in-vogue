@@ -76,6 +76,7 @@ abstract final class MainInit {
       directory: AppDirectory(directory.path),
       keyValueStore: store,
       sqliteCache: cache,
+      youCamApiKey: youCamApiKey,
     );
     try {
       preferences_di.init(locator);
@@ -88,7 +89,7 @@ abstract final class MainInit {
       profile_di.init(locator);
       home_widget_di.init(locator);
       account_di.init(locator);
-      outfits_di.init(locator, youCamApiKey: youCamApiKey);
+      outfits_di.init(locator);
       home_di.init(locator);
       settings_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
