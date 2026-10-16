@@ -292,6 +292,24 @@ abstract class AppLocalizations {
   /// **'Showing the forecast saved on {savedAt}.'**
   String weatherSaved(String savedAt);
 
+  /// Heading above the pieces for the day's weather.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a few you like'**
+  String get picksTitle;
+
+  /// heart is replaced by a heart icon, or spoken as heartSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap {heart} on a few pieces for this weather. We’ll learn your taste.'**
+  String picksLine(String heart);
+
+  /// The heart icon, read aloud inside picksLine.
+  ///
+  /// In en, this message translates to:
+  /// **'heart'**
+  String get heartSpoken;
+
   /// Screen-reader weather sentence.
   ///
   /// In en, this message translates to:

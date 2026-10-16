@@ -162,6 +162,17 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String get picksTitle => 'Elige algunas que te gusten';
+
+  @override
+  String picksLine(String heart) {
+    return 'Toca $heart en algunas prendas para este tiempo. Así aprendemos tu estilo.';
+  }
+
+  @override
+  String get heartSpoken => 'corazón';
+
+  @override
   String weatherSpoken(int temperature, String condition, int feelsLike) {
     return '$temperature grados, $condition, sensación de $feelsLike.';
   }

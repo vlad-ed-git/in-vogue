@@ -159,6 +159,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get picksTitle => 'Pick a few you like';
+
+  @override
+  String picksLine(String heart) {
+    return 'Tap $heart on a few pieces for this weather. We’ll learn your taste.';
+  }
+
+  @override
+  String get heartSpoken => 'heart';
+
+  @override
   String weatherSpoken(int temperature, String condition, int feelsLike) {
     return '$temperature degrees, $condition, feels like $feelsLike.';
   }

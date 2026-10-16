@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/app/in_vogue_app.dart';
@@ -8,6 +9,14 @@ import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/catalog/data/data_sources/catalog_asset_data_source.dart';
+import 'package:in_vogue/features/catalog/data/data_sources/picks_local_data_source.dart';
+import 'package:in_vogue/features/catalog/data/repositories/catalog_repository_impl.dart';
+import 'package:in_vogue/features/catalog/data/repositories/picks_repository_impl.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
+import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
@@ -33,6 +42,7 @@ import 'features/photos/photo_repository_test.mocks.dart';
 import 'features/preferences/preferences_repository_test.mocks.dart';
 import 'features/setup/setup_repository_test.mocks.dart';
 import 'features/weather/weather_repository_test.mocks.dart';
+import 'helpers/memory_store.dart';
 import 'helpers/pump_in_vogue.dart';
 
 const _place = UserLocation(latitude: 1, longitude: 2);
@@ -60,6 +70,18 @@ void main() {
       weather.forecastFor(any),
     ).thenAnswer((_) async => const Left(NetworkFailure()));
     locator = GetIt.asNewInstance()
+      ..registerFactory<PicksBloc>(() {
+        final picks = PicksRepositoryImpl(
+          PicksLocalDataSourceImpl(MemoryStore()),
+        );
+        return PicksBloc(
+          getPiecesForWeather: GetPiecesForWeather(
+            CatalogRepositoryImpl(CatalogAssetDataSourceImpl(rootBundle)),
+          ),
+          getPicks: GetPicks(picks),
+          setPick: SetPick(picks),
+        );
+      })
       ..registerFactory<ForecastBloc>(
         () => ForecastBloc(
           getSavedLocation: GetSavedLocation(location),

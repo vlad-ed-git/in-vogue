@@ -158,6 +158,23 @@
       }
     }
   },
+  "picksTitle": "Pick a few you like",
+  "@picksTitle": {
+    "description": "Heading above the pieces for the day's weather."
+  },
+  "picksLine": "Tap {heart} on a few pieces for this weather. We’ll learn your taste.",
+  "@picksLine": {
+    "description": "heart is replaced by a heart icon, or spoken as heartSpoken.",
+    "placeholders": {
+      "heart": {
+        "type": "String"
+      }
+    }
+  },
+  "heartSpoken": "heart",
+  "@heartSpoken": {
+    "description": "The heart icon, read aloud inside picksLine."
+  },
   "weatherSpoken": "{temperature} degrees, {condition}, feels like {feelsLike}.",
   "@weatherSpoken": {
     "description": "Screen-reader weather sentence.",

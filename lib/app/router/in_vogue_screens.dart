@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:in_vogue/app/router/app_routes.dart';
 import 'package:in_vogue/app/router/app_screens.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
@@ -37,8 +38,14 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         ),
       ),
     ),
-    SetupStep.picks => BlocProvider(
-      create: (_) => locator<ForecastBloc>()..add(const ForecastRequested()),
+    SetupStep.picks => MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              locator<ForecastBloc>()..add(const ForecastRequested()),
+        ),
+        BlocProvider(create: (_) => locator<PicksBloc>()),
+      ],
       child: Builder(
         builder: (context) => PicksScreen(
           onBack: () => context.pop(),

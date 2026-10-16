@@ -5,9 +5,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
+import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/setup/presentation/screens/picks_screen.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
+import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 import 'package:mocktail/mocktail.dart';
@@ -16,6 +19,9 @@ import '../../helpers/pump_in_vogue.dart';
 
 class _MockForecastBloc extends MockBloc<ForecastEvent, ForecastState>
     implements ForecastBloc {}
+
+class _MockPicksBloc extends MockBloc<PicksEvent, PicksState>
+    implements PicksBloc {}
 
 const _newYork = UserLocation(
   latitude: 40.71,
@@ -49,16 +55,60 @@ ForecastState _ready({UserLocation place = _newYork, bool isSaved = false}) =>
       report: _report(isSaved: isSaved),
     );
 
+Colourway _colourway(String id, String name, int hex) => Colourway(
+  id: id,
+  name: name,
+  hex: hex,
+  photoUrl: 'https://cdn.example/$id.jpg',
+  productUrl: 'https://shop.example/$id',
+);
+
+final _coat = Piece(
+  id: 'coat',
+  name: 'The Wool Coat',
+  category: PieceCategory.outerwear,
+  bands: const {WarmthBand.cool},
+  colourways: [
+    _colourway('coat-camel', 'Camel', 0xFFAB9073),
+    _colourway('coat-black', 'Black', 0xFF222122),
+  ],
+);
+final _jeans = Piece(
+  id: 'jeans',
+  name: 'The Way-High Jean',
+  category: PieceCategory.bottom,
+  bands: const {WarmthBand.cool},
+  colourways: [_colourway('jeans-indigo', 'Indigo', 0xFF29313F)],
+);
+
+PicksState _pieces({Set<String> picks = const {}}) => PicksState(
+  status: PicksStatus.ready,
+  pieces: [_coat, _jeans],
+  picks: picks,
+);
+
 Finder _button(String label) =>
     find.ancestor(of: find.text(label), matching: find.byType(InVogueButton));
 
+Finder _tileOf(String name) =>
+    find.ancestor(of: find.text(name), matching: find.byType(ProductTile));
+
+/// Scrolls [finder] into view, then taps it.
+Future<void> _tapInView(WidgetTester tester, Finder finder) async {
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  await tester.tap(finder);
+}
+
 void main() {
   late _MockForecastBloc forecast;
+  late _MockPicksBloc picks;
   late int backs;
   late int proceeds;
 
   setUp(() {
     forecast = _MockForecastBloc();
+    picks = _MockPicksBloc();
     backs = 0;
     proceeds = 0;
   });
@@ -66,19 +116,25 @@ void main() {
   Future<void> pumpScreen(
     WidgetTester tester,
     ForecastState state, {
+    Stream<ForecastState> states = const Stream.empty(),
+    PicksState pieces = const PicksState(),
     Size size = const Size(390, 844),
     double textScale = 1,
   }) async {
-    whenListen(
-      forecast,
-      const Stream<ForecastState>.empty(),
-      initialState: state,
-    );
+    whenListen(forecast, states, initialState: state);
+    whenListen(picks, const Stream<PicksState>.empty(), initialState: pieces);
     await pumpInVogue(
       tester,
-      BlocProvider<ForecastBloc>.value(
-        value: forecast,
-        child: PicksScreen(onBack: () => backs++, onProceed: () => proceeds++),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<ForecastBloc>.value(value: forecast),
+          BlocProvider<PicksBloc>.value(value: picks),
+        ],
+        child: PicksScreen(
+          onBack: () => backs++,
+          onProceed: () => proceeds++,
+          imageFor: (_) => testImage,
+        ),
       ),
       size: size,
       textScale: textScale,
@@ -87,7 +143,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('shows tomorrow’s weather at step 3 of 6, then Proceed', (
+  testWidgets('shows tomorrow’s weather at step 3 of 6; zero picks proceed', (
     tester,
   ) async {
     final handle = tester.ensureSemantics();
@@ -102,10 +158,81 @@ void main() {
     );
     expect(find.text('WORKDAY'), findsOneWidget);
     expect(find.text('Change'), findsNothing);
-    expect(find.text('Getting your outfit ready…'), findsNothing);
+    expect(find.text('Your picks · 0'), findsOneWidget);
     await tester.tap(_button('Proceed'));
     expect(proceeds, 1);
     handle.dispose();
+  });
+
+  testWidgets('shows pieces for the weather to pick from', (tester) async {
+    await pumpScreen(tester, _ready(), pieces: _pieces(picks: {'coat-black'}));
+    expect(find.text('Pick a few you like'), findsOneWidget);
+    expect(
+      find.textContaining('on a few pieces for this weather'),
+      findsOneWidget,
+    );
+    expect(find.text('The Wool Coat'), findsOneWidget);
+    expect(find.text('The Way-High Jean'), findsOneWidget);
+    expect(find.text('Your picks · 1'), findsOneWidget);
+    expect(find.byType(CategoryChips), findsNothing);
+    expect(find.textContaining(r'$'), findsNothing);
+  });
+
+  testWidgets('asks for the pieces of the day’s band once it has weather', (
+    tester,
+  ) async {
+    await pumpScreen(
+      tester,
+      const ForecastState(),
+      states: Stream.value(_ready()),
+    );
+    verify(() => picks.add(const PicksRequested(WarmthBand.cool))).called(1);
+  });
+
+  testWidgets('loves the colour shown with the heart', (tester) async {
+    await pumpScreen(tester, _ready(), pieces: _pieces());
+    await _tapInView(
+      tester,
+      find.descendant(
+        of: _tileOf('The Wool Coat'),
+        matching: find.byType(LoveToggle),
+      ),
+    );
+    verify(
+      () => picks.add(const PickToggled('coat-camel', loved: true)),
+    ).called(1);
+  });
+
+  testWidgets('unloves every loved colour of a piece', (tester) async {
+    await pumpScreen(
+      tester,
+      _ready(),
+      pieces: _pieces(picks: {'coat-camel', 'coat-black'}),
+    );
+    await _tapInView(
+      tester,
+      find.descendant(
+        of: _tileOf('The Wool Coat'),
+        matching: find.byType(LoveToggle),
+      ),
+    );
+    verify(
+      () => picks.add(const PickToggled('coat-camel', loved: false)),
+    ).called(1);
+    verify(
+      () => picks.add(const PickToggled('coat-black', loved: false)),
+    ).called(1);
+  });
+
+  testWidgets('opens a piece’s colours to love one', (tester) async {
+    await pumpScreen(tester, _ready(), pieces: _pieces());
+    await _tapInView(tester, find.text('The Way-High Jean'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ColourSheet), findsOneWidget);
+    await tester.tap(find.text('Love this colour'));
+    verify(
+      () => picks.add(const PickToggled('jeans-indigo', loved: true)),
+    ).called(1);
   });
 
   testWidgets('shows Celsius outside the Fahrenheit countries', (tester) async {
@@ -160,6 +287,7 @@ void main() {
     await pumpScreen(
       tester,
       _ready(),
+      pieces: _pieces(),
       size: const Size(320, 568),
       textScale: 2,
     );

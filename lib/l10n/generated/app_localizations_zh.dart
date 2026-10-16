@@ -158,6 +158,17 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get picksTitle => '挑几件你喜欢的';
+
+  @override
+  String picksLine(String heart) {
+    return '为这种天气挑几件，点 $heart 收藏。我们会记住你的喜好。';
+  }
+
+  @override
+  String get heartSpoken => '爱心';
+
+  @override
   String weatherSpoken(int temperature, String condition, int feelsLike) {
     return '$temperature 度，$condition，体感 $feelsLike 度。';
   }
