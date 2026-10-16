@@ -4,8 +4,9 @@ A Flutter mobile app for outfits matched to tomorrow’s weather. It has native
 flavors, Firebase initialization, local persistence, localization, the design
 system and the six-screen setup flow: Welcome (location), Your photo, tomorrow’s
 weather with pieces to pick, Sign in, About you and the home-screen widget.
-Sign-in and the widget run behind contracts whose stand-ins say plainly that
-they are not available yet. Settings has the language row; Home, Makeup and
+Sign-in is Sign in with Apple (on Apple platforms only) and Google, through
+Firebase Auth. The widget runs behind a contract whose stand-in says plainly
+that it is not available yet. Settings has the language row; Home, Makeup and
 the rest of Settings are next.
 
 ## Run
@@ -88,6 +89,17 @@ and Flutter’s [Android](https://docs.flutter.dev/deployment/flavors) and
 [iOS](https://docs.flutter.dev/deployment/flavors-ios) flavor configuration.
 No backend rules, functions, auth providers, or paid API calls are deployed by setup.
 
+### Sign-in prerequisites
+
+- Firebase Auth: the Apple and Google providers enabled; each Android signing
+  key's SHA-1 added to the flavor's Android app, then the native files
+  refreshed with `scripts/configure_firebase.sh <flavor>`.
+- iOS, in Xcode (Runner target): the team, the **Sign in with Apple**
+  capability, and a URL type with each flavor's `REVERSED_CLIENT_ID` from its
+  `GoogleService-Info.plist` (Google Sign-In fails without it).
+- Sign in with Apple is offered on Apple platforms only, so it needs no
+  Services ID or key.
+
 ## Architecture
 
 ```text
@@ -110,7 +122,7 @@ lib/
     weather/               # Open-Meteo through dio, day rules, header
     photos/                # System photo picker and private photo store
     catalog/               # Bundled collection and picks
-    auth/                  # Apple and Google sign-in contract
+    auth/                  # Sign in with Apple and Google, Firebase Auth
     profile/               # The person's name
     home_widget/           # Placing the home-screen widget
     preferences/           # Language
