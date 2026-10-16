@@ -145,5 +145,12 @@
   "noPicks": "Aún no has elegido nada.",
   "removePickTitle": "¿Quitar de tu selección?",
   "remove": "Quitar",
-  "keep": "Conservar"
+  "keep": "Conservar",
+  "outfitsTab": "Conjuntos",
+  "categoryAll": "Todo",
+  "categoryOuterwear": "Abrigos y chaquetas",
+  "categoryKnitwear": "Punto",
+  "categoryTops": "Tops",
+  "categoryBottoms": "Pantalones y faldas",
+  "categoryDresses": "Vestidos"
 }

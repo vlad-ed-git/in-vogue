@@ -583,5 +583,33 @@
   "keep": "Keep",
   "@keep": {
     "description": "Keeps the piece in the picks."
+  },
+  "outfitsTab": "Outfits",
+  "@outfitsTab": {
+    "description": "Home's tab with the whole collection to pick from."
+  },
+  "categoryAll": "All",
+  "@categoryAll": {
+    "description": "Category chip: every piece."
+  },
+  "categoryOuterwear": "Coats & jackets",
+  "@categoryOuterwear": {
+    "description": "Category chip."
+  },
+  "categoryKnitwear": "Knitwear",
+  "@categoryKnitwear": {
+    "description": "Category chip."
+  },
+  "categoryTops": "Tops",
+  "@categoryTops": {
+    "description": "Category chip."
+  },
+  "categoryBottoms": "Trousers & skirts",
+  "@categoryBottoms": {
+    "description": "Category chip: trousers, jeans, skirts and shorts."
+  },
+  "categoryDresses": "Dresses",
+  "@categoryDresses": {
+    "description": "Category chip."
   }
 }

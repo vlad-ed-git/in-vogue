@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
@@ -7,20 +8,27 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/core/utils/failure_message.dart';
+import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
+import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/catalog/presentation/widgets/piece_grid.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/temperature_unit.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/presentation/weather_text.dart';
 
-/// The Home tab: the day's weather and the person in the day's outfit,
-/// with Shop, all in the first view; the photo shrinks to fit, down to the
-/// stage's minimum. Swiping or the day switch moves between today and
-/// tomorrow.
+/// Home's tabs: today, tomorrow and the collection to pick from.
+enum HomeTab { today, tomorrow, outfits }
+
+/// The Home tab: for today and tomorrow, the day's weather and the person
+/// in the day's outfit, with Shop, all in the first view (the photo shrinks
+/// to fit, down to the stage's minimum); for Outfits, the whole collection
+/// to love. Swiping moves between the tabs.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     required this.onYourPicks,
     required this.onShop,
+    this.imageFor = networkImage,
     super.key,
   });
 
@@ -28,6 +36,13 @@ class HomeScreen extends StatefulWidget {
 
   /// Opens the pieces of the outfit on screen.
   final ValueChanged<DayOutfit> onShop;
+
+  /// The image at a URL.
+  final ImageProvider Function(String url) imageFor;
+
+  /// A photo from the web, cached on the phone.
+  static ImageProvider networkImage(String url) =>
+      CachedNetworkImageProvider(url);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -38,10 +53,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Heights of what shares the first view with the photo, once laid out.
   double? _headerHeight;
-  double? _shopHeight;
+  double? _belowHeight;
 
-  /// A fling faster than this, in logical pixels a second, switches days.
+  bool _outfits = false;
+  bool _collectionRequested = false;
+
+  /// The chosen category chip; 0 is All.
+  int _category = 0;
+
+  /// The day the weather showed last, to shift towards the new one.
+  ForecastDay? _shownDay;
+
+  /// A fling faster than this, in logical pixels a second, switches tabs.
   static const _swipeSpeed = 300.0;
+
+  /// The categories of the chips after All, in order.
+  static const _categories = [
+    PieceCategory.outerwear,
+    PieceCategory.knitwear,
+    PieceCategory.top,
+    PieceCategory.bottom,
+    PieceCategory.dress,
+  ];
 
   @override
   void initState() {
@@ -59,12 +92,35 @@ class _HomeScreenState extends State<HomeScreen> {
 
   HomeBloc get _bloc => context.read<HomeBloc>();
 
-  void _swipe(DragEndDetails details) {
+  HomeTab _tab(HomeState state) => _outfits
+      ? HomeTab.outfits
+      : state.selected == ForecastDay.today
+      ? HomeTab.today
+      : HomeTab.tomorrow;
+
+  void _select(HomeTab tab) {
+    if (tab == HomeTab.outfits) {
+      if (!_collectionRequested) {
+        _collectionRequested = true;
+        context.read<PicksBloc>().add(const PicksRequested(null));
+      }
+      return setState(() => _outfits = true);
+    }
+    setState(() => _outfits = false);
+    _bloc.add(
+      HomeDaySelected(
+        tab == HomeTab.today ? ForecastDay.today : ForecastDay.tomorrow,
+      ),
+    );
+  }
+
+  void _swipe(DragEndDetails details, HomeState state) {
     final speed = details.primaryVelocity ?? 0;
     if (speed.abs() < _swipeSpeed) return;
-    _bloc.add(
-      HomeDaySelected(speed < 0 ? ForecastDay.tomorrow : ForecastDay.today),
-    );
+    final index = _tab(state).index + (speed < 0 ? 1 : -1);
+    if (index >= 0 && index < HomeTab.values.length) {
+      _select(HomeTab.values[index]);
+    }
   }
 
   @override
@@ -73,114 +129,131 @@ class _HomeScreenState extends State<HomeScreen> {
       bottom: false,
       child: LayoutBuilder(
         builder: (context, viewport) => GestureDetector(
-          onHorizontalDragEnd: _swipe,
-          child: SingleChildScrollView(
-            child: PageMargin(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizeReporter(
-                    onSize: (size) =>
-                        setState(() => _headerHeight = size.height),
-                    child: _header(context, state),
-                  ),
-                  ..._stage(context, state, viewport),
-                  ..._about(context, state.shown.outfit),
-                  const SizedBox(height: InVogueSpace.s10),
-                ],
-              ),
-            ),
-          ),
+          onHorizontalDragEnd: (details) => _swipe(details, state),
+          child: _outfits
+              ? _collection(context, state)
+              : _day(context, state, viewport),
         ),
       ),
     ),
   );
 
-  Widget _header(BuildContext context, HomeState state) {
+  Widget _switch(BuildContext context, HomeState state) {
     final l10n = context.translated;
     final language = Localizations.localeOf(context).languageCode;
-    final day = state.shown;
-    final report = day.report;
     final date =
-        report?.weather.date ?? state.selected.dateFrom(DateTime.now());
+        state.shown.report?.weather.date ??
+        state.selected.dateFrom(DateTime.now());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TopBar(city: state.place?.city ?? '', onYourPicks: widget.onYourPicks),
         DaySwitch(
-          labels: [l10n.today, l10n.tomorrow],
-          selectedIndex: state.selected.index,
-          onSelected: (index) =>
-              _bloc.add(HomeDaySelected(ForecastDay.values[index])),
-          date: InVogueFormat.shortDate(date, language),
+          labels: [l10n.today, l10n.tomorrow, l10n.outfitsTab],
+          selectedIndex: _tab(state).index,
+          onSelected: (index) => _select(HomeTab.values[index]),
+          date: _outfits ? null : InVogueFormat.shortDate(date, language),
         ),
-        if (report != null)
-          ..._weather(context, state, report)
-        else if (day.weatherFailed || state.status == HomeStatus.failed)
-          Padding(
-            padding: const EdgeInsets.only(top: InVogueSpace.s4),
-            child: Notice(
-              icon: InVogueIcons.warning,
-              alert: true,
-              message: l10n.weatherUnavailable,
-              action: InVogueButton.secondary(
-                label: l10n.retry,
-                icon: InVogueIcons.retry,
-                onRose: true,
-                onPressed: () => _bloc.add(const HomeRetried()),
-              ),
-            ),
-          ),
       ],
     );
   }
 
-  List<Widget> _weather(
-    BuildContext context,
-    HomeState state,
-    WeatherReport report,
-  ) {
+  Widget _day(BuildContext context, HomeState state, BoxConstraints viewport) {
+    final day = state.selected;
+    final direction = _shownDay == null || _shownDay == day
+        ? 0
+        : (day.index > _shownDay!.index ? 1 : -1);
+    _shownDay = day;
+    return SingleChildScrollView(
+      child: PageMargin(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizeReporter(
+              onSize: (size) => setState(() => _headerHeight = size.height),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _switch(context, state),
+                  ShiftSwitcher(
+                    direction: direction,
+                    child: KeyedSubtree(
+                      key: ValueKey((
+                        day,
+                        state.shown.report?.weather.occasion,
+                        state.shown.weatherFailed,
+                      )),
+                      child: _weather(context, state),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ..._stage(context, state, viewport),
+            ..._about(context, state.shown.outfit),
+            const SizedBox(height: InVogueSpace.s10),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _weather(BuildContext context, HomeState state) {
     final l10n = context.translated;
     final language = Localizations.localeOf(context).languageCode;
+    final report = state.shown.report;
+    if (report == null) {
+      if (!state.shown.weatherFailed && state.status != HomeStatus.failed) {
+        return const SizedBox.shrink();
+      }
+      return Padding(
+        padding: const EdgeInsets.only(top: InVogueSpace.s4),
+        child: Notice(
+          icon: InVogueIcons.warning,
+          alert: true,
+          message: l10n.weatherUnavailable,
+          action: InVogueButton.secondary(
+            label: l10n.retry,
+            icon: InVogueIcons.retry,
+            onRose: true,
+            onPressed: () => _bloc.add(const HomeRetried()),
+          ),
+        ),
+      );
+    }
     final weather = report.weather;
     final unit = TemperatureUnit.forCountry(state.place?.countryCode);
     final savedAt = report.fetchedAt.toLocal();
-    return [
-      if (report.isSaved)
-        Padding(
-          padding: const EdgeInsets.only(top: InVogueSpace.s3),
-          child: Notice(
-            icon: InVogueIcons.offline,
-            message: l10n.weatherSaved(
-              l10n.savedAt(
-                InVogueFormat.shortDate(savedAt, language),
-                InVogueFormat.time(savedAt, language),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (report.isSaved)
+          Padding(
+            padding: const EdgeInsets.only(top: InVogueSpace.s3),
+            child: Notice(
+              icon: InVogueIcons.offline,
+              message: l10n.weatherSaved(
+                l10n.savedAt(
+                  InVogueFormat.shortDate(savedAt, language),
+                  InVogueFormat.time(savedAt, language),
+                ),
               ),
             ),
           ),
+        WeatherLine(
+          temperature: unit.degrees(weather.temperature),
+          feelsLike: unit.degrees(weather.feelsLike),
+          condition: weather.condition(l10n, language),
+          glyph: weather.sky.glyph,
+          highlight: weather.highlight,
+          dayLabel: report.day == ForecastDay.today
+              ? l10n.today
+              : l10n.tomorrow,
+          playKey: report.day,
         ),
-      WeatherLine(
-        temperature: unit.degrees(weather.temperature),
-        feelsLike: unit.degrees(weather.feelsLike),
-        condition: weather.condition(l10n, language),
-        glyph: weather.sky.glyph,
-        highlight: weather.highlight,
-        dayLabel: report.day == ForecastDay.today ? l10n.today : l10n.tomorrow,
-        playKey: report.day,
-      ),
-      OccasionLine(
-        occasion: weather.occasion,
-        onChange: () async {
-          final chosen = await showOccasionSheet(
-            context: context,
-            current: weather.occasion,
-            day: report.day,
-            date: InVogueFormat.shortDate(weather.date, language),
-          );
-          if (chosen != null) _bloc.add(HomeOccasionChanged(chosen));
-        },
-      ),
-    ];
+        OccasionLine(occasion: weather.occasion),
+      ],
+    );
   }
 
   List<Widget> _stage(
@@ -192,10 +265,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final outfit = state.shown.outfit;
     final photo = state.photo == null ? null : FileImage(File(state.photo!));
     final width = viewport.maxWidth - context.pageMargin * 2;
-    final shop = _shopHeight ?? InVogueSpace.s3 + InVogueLayout.controlHeight;
+    final below =
+        _belowHeight ??
+        InVogueLayout.topBarHeight +
+            InVogueSpace.s3 +
+            InVogueLayout.controlHeight;
     final height = PhotoStage.heightFor(
       available:
-          viewport.maxHeight - (_headerHeight ?? 0) - shop - InVogueSpace.s3,
+          viewport.maxHeight - (_headerHeight ?? 0) - below - InVogueSpace.s3,
       width: width,
     );
     final notice = _notice(context, state);
@@ -223,21 +300,48 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       SizeReporter(
         onSize: (size) {
-          if (size.height > 0) setState(() => _shopHeight = size.height);
+          if (size.height > 0) setState(() => _belowHeight = size.height);
         },
-        child: switch (outfit) {
-          OutfitShown(:final outfit) => Padding(
-            padding: const EdgeInsets.only(top: InVogueSpace.s3),
-            child: InVogueButton.primary(
-              label: l10n.shop,
-              onPressed: () => widget.onShop(outfit),
-            ),
-          ),
-          _ => const SizedBox.shrink(),
-        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (state.shown.report case final report?)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: TextLink(
+                  label: l10n.change,
+                  onTap: () => _changeOccasion(context, report),
+                ),
+              ),
+            if (outfit case OutfitShown(:final outfit))
+              Padding(
+                padding: const EdgeInsets.only(top: InVogueSpace.s2),
+                child: InVogueButton.primary(
+                  label: l10n.shop,
+                  onPressed: () => widget.onShop(outfit),
+                ),
+              ),
+          ],
+        ),
       ),
       if (notice != null) ...[const SizedBox(height: InVogueSpace.s3), notice],
     ];
+  }
+
+  Future<void> _changeOccasion(
+    BuildContext context,
+    WeatherReport report,
+  ) async {
+    final chosen = await showOccasionSheet(
+      context: context,
+      current: report.weather.occasion,
+      day: report.day,
+      date: InVogueFormat.shortDate(
+        report.weather.date,
+        Localizations.localeOf(context).languageCode,
+      ),
+    );
+    if (chosen != null) _bloc.add(HomeOccasionChanged(chosen));
   }
 
   /// What is said below the photo when there is no outfit to show.
@@ -289,5 +393,64 @@ class _HomeScreenState extends State<HomeScreen> {
       SectionHeading(context.translated.aboutThisOutfit),
       Text(reason, style: InVogueType.body),
     ];
+  }
+
+  Widget _collection(BuildContext context, HomeState state) {
+    final l10n = context.translated;
+    return BlocBuilder<PicksBloc, PicksState>(
+      builder: (context, picks) {
+        final category = _category == 0 ? null : _categories[_category - 1];
+        final pieces = category == null
+            ? picks.pieces
+            : [
+                for (final piece in picks.pieces)
+                  if (piece.category == category) piece,
+              ];
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: PageMargin(child: _switch(context, state)),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: context.pageMargin,
+                  top: InVogueSpace.s3,
+                  bottom: InVogueSpace.s3,
+                ),
+                child: CategoryChips(
+                  labels: [
+                    l10n.categoryAll,
+                    l10n.categoryOuterwear,
+                    l10n.categoryKnitwear,
+                    l10n.categoryTops,
+                    l10n.categoryBottoms,
+                    l10n.categoryDresses,
+                  ],
+                  selectedIndex: _category,
+                  onSelected: (index) => setState(() => _category = index),
+                ),
+              ),
+            ),
+            if (picks.status == PicksStatus.failed)
+              SliverToBoxAdapter(
+                child: PageMargin(
+                  child: Notice(
+                    icon: InVogueIcons.warning,
+                    alert: true,
+                    message: l10n.serverFailure,
+                  ),
+                ),
+              ),
+            SliverPieceGrid(
+              pieces: pieces,
+              picks: picks.picks,
+              imageFor: widget.imageFor,
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: InVogueSpace.s10)),
+          ],
+        );
+      },
+    );
   }
 }

@@ -145,5 +145,12 @@
   "noPicks": "你还没有挑选任何单品。",
   "removePickTitle": "从我的心选中移除？",
   "remove": "移除",
-  "keep": "保留"
+  "keep": "保留",
+  "outfitsTab": "穿搭",
+  "categoryAll": "全部",
+  "categoryOuterwear": "大衣与夹克",
+  "categoryKnitwear": "针织",
+  "categoryTops": "上衣",
+  "categoryBottoms": "裤装与半裙",
+  "categoryDresses": "连衣裙"
 }

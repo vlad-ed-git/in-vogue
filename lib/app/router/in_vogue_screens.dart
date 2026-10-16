@@ -127,8 +127,13 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
     SetupStep.done => throw ArgumentError.value(step, 'step', 'Has no screen'),
   },
   tab: (tab) => switch (tab) {
-    InVogueTab.home => BlocProvider(
-      create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
+    InVogueTab.home => MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
+        ),
+        BlocProvider(create: (_) => locator<PicksBloc>()),
+      ],
       child: Builder(
         builder: (context) => HomeScreen(
           onYourPicks: () => _push(

@@ -980,6 +980,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep'**
   String get keep;
+
+  /// Home's tab with the whole collection to pick from.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfits'**
+  String get outfitsTab;
+
+  /// Category chip: every piece.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get categoryAll;
+
+  /// Category chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Coats & jackets'**
+  String get categoryOuterwear;
+
+  /// Category chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Knitwear'**
+  String get categoryKnitwear;
+
+  /// Category chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tops'**
+  String get categoryTops;
+
+  /// Category chip: trousers, jeans, skirts and shorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Trousers & skirts'**
+  String get categoryBottoms;
+
+  /// Category chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Dresses'**
+  String get categoryDresses;
 }
 
 class _AppLocalizationsDelegate

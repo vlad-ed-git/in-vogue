@@ -601,4 +601,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get keep => 'Keep';
+
+  @override
+  String get outfitsTab => 'Outfits';
+
+  @override
+  String get categoryAll => 'All';
+
+  @override
+  String get categoryOuterwear => 'Coats & jackets';
+
+  @override
+  String get categoryKnitwear => 'Knitwear';
+
+  @override
+  String get categoryTops => 'Tops';
+
+  @override
+  String get categoryBottoms => 'Trousers & skirts';
+
+  @override
+  String get categoryDresses => 'Dresses';
 }

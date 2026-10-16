@@ -561,4 +561,25 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get keep => '保留';
+
+  @override
+  String get outfitsTab => '穿搭';
+
+  @override
+  String get categoryAll => '全部';
+
+  @override
+  String get categoryOuterwear => '大衣与夹克';
+
+  @override
+  String get categoryKnitwear => '针织';
+
+  @override
+  String get categoryTops => '上衣';
+
+  @override
+  String get categoryBottoms => '裤装与半裙';
+
+  @override
+  String get categoryDresses => '连衣裙';
 }

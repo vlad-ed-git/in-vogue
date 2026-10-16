@@ -6,6 +6,8 @@ import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
+import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home/presentation/screens/home_screen.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
@@ -21,6 +23,30 @@ import '../../helpers/pump_in_vogue.dart';
 
 class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
     implements HomeBloc {}
+
+class _MockPicksBloc extends MockBloc<PicksEvent, PicksState>
+    implements PicksBloc {}
+
+Piece _piece(String id, String name, PieceCategory category) => Piece(
+  id: id,
+  name: name,
+  category: category,
+  bands: const {WarmthBand.cool},
+  colourways: [
+    Colourway(
+      id: 'everlane:$id',
+      name: 'Black',
+      hex: 0xFF111111,
+      photoUrl: 'https://cdn.example/$id.jpg',
+      productUrl: 'https://www.everlane.com/products/$id',
+    ),
+  ],
+);
+
+final _collection = [
+  _piece('mac', 'Oversized Mac Coat', PieceCategory.outerwear),
+  _piece('slip', 'The Satin Slip Dress', PieceCategory.dress),
+];
 
 const _newYork = UserLocation(
   latitude: 40.71,
@@ -78,13 +104,27 @@ HomeState _state(OutfitView outfit) => HomeState(
 
 void main() {
   late _MockHomeBloc bloc;
+  late _MockPicksBloc picksBloc;
   late List<DayOutfit> shopped;
   late int picks;
 
-  setUpAll(() => registerFallbackValue(const HomeStarted()));
+  setUpAll(() {
+    registerFallbackValue(const HomeStarted());
+    registerFallbackValue(const PicksRequested(null));
+  });
 
   setUp(() {
     bloc = _MockHomeBloc();
+    picksBloc = _MockPicksBloc();
+    whenListen(
+      picksBloc,
+      const Stream<PicksState>.empty(),
+      initialState: PicksState(
+        status: PicksStatus.ready,
+        pieces: _collection,
+        picks: const {'everlane:slip'},
+      ),
+    );
     shopped = [];
     picks = 0;
   });
@@ -98,9 +138,16 @@ void main() {
     whenListen(bloc, const Stream<HomeState>.empty(), initialState: state);
     await pumpInVogue(
       tester,
-      BlocProvider<HomeBloc>.value(
-        value: bloc,
-        child: HomeScreen(onYourPicks: () => picks++, onShop: shopped.add),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<HomeBloc>.value(value: bloc),
+          BlocProvider<PicksBloc>.value(value: picksBloc),
+        ],
+        child: HomeScreen(
+          onYourPicks: () => picks++,
+          onShop: shopped.add,
+          imageFor: (_) => testImage,
+        ),
       ),
       size: size,
       textScale: textScale,
@@ -121,7 +168,6 @@ void main() {
     expect(weather.feelsLike, 49);
     final occasion = tester.widget<OccasionLine>(find.byType(OccasionLine));
     expect(occasion.occasion, Occasion.casual);
-    expect(occasion.onChange, isNotNull);
     expect(find.text('About this outfit'), findsOneWidget);
     expect(find.text(_reason), findsOneWidget);
     final stage = tester.widget<PhotoStage>(find.byType(PhotoStage));
@@ -187,16 +233,77 @@ void main() {
     expect(find.text('Try again'), findsNothing);
   });
 
-  testWidgets('switches days by tab and by swipe', (tester) async {
+  testWidgets('has Today, Tomorrow and Outfits, by tab and by swipe', (
+    tester,
+  ) async {
     await pumpHome(tester, _state(OutfitShown(_outfit)));
+    expect(tester.widget<DaySwitch>(find.byType(DaySwitch)).labels, [
+      'Today',
+      'Tomorrow',
+      'Outfits',
+    ]);
     await tester.tap(find.text('Today'));
     verify(() => bloc.add(const HomeDaySelected(ForecastDay.today))).called(1);
     await tester.fling(find.byType(PhotoStage), const Offset(400, 0), 1000);
     verify(() => bloc.add(const HomeDaySelected(ForecastDay.today))).called(1);
+    // Swiping on from tomorrow opens Outfits.
     await tester.fling(find.byType(PhotoStage), const Offset(-400, 0), 1000);
+    await tester.pump();
+    expect(find.byType(CategoryChips), findsOneWidget);
+    verify(() => picksBloc.add(const PicksRequested(null))).called(1);
+  });
+
+  testWidgets('moves the weather sideways towards the day chosen', (
+    tester,
+  ) async {
+    await pumpHome(tester, _state(OutfitShown(_outfit)));
+    final shift = tester.widget<ShiftSwitcher>(find.byType(ShiftSwitcher));
+    expect(shift.direction, 0);
+    expect(
+      find.descendant(
+        of: find.byType(ShiftSwitcher),
+        matching: find.byType(WeatherLine),
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('puts Change below the photo, on the right', (tester) async {
+    await pumpHome(tester, _state(OutfitShown(_outfit)));
+    final photo = tester.getRect(find.byType(PhotoStage));
+    final change = tester.getRect(findLink('Change'));
+    expect(change.top, greaterThanOrEqualTo(photo.bottom));
+    expect(change.right, closeTo(photo.right, 1));
+    expect(
+      tester.widget<OccasionLine>(find.byType(OccasionLine)).onChange,
+      isNull,
+    );
+  });
+
+  testWidgets('Outfits shows the whole collection to love', (tester) async {
+    await pumpHome(tester, _state(OutfitShown(_outfit)));
+    await tester.tap(find.text('Outfits'));
+    await tester.pump();
+    expect(find.byType(PhotoStage), findsNothing);
+    expect(find.byType(WeatherLine), findsNothing);
+    expect(find.text('Oversized Mac Coat'), findsOneWidget);
+    expect(find.text('The Satin Slip Dress'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Love Oversized Mac Coat'));
     verify(
-      () => bloc.add(const HomeDaySelected(ForecastDay.tomorrow)),
+      () => picksBloc.add(const PickToggled('everlane:mac', loved: true)),
     ).called(1);
+  });
+
+  testWidgets('Outfits filters by category', (tester) async {
+    await pumpHome(tester, _state(OutfitShown(_outfit)));
+    await tester.tap(find.text('Outfits'));
+    await tester.pump();
+    await tester.ensureVisible(find.text('Dresses'));
+    await tester.pump();
+    await tester.tap(find.text('Dresses'));
+    await tester.pump();
+    expect(find.text('Oversized Mac Coat'), findsNothing);
+    expect(find.text('The Satin Slip Dress'), findsOneWidget);
   });
 
   testWidgets('opens Your picks', (tester) async {
