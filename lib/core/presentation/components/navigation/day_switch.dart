@@ -82,49 +82,107 @@ class _DaySwitchState extends State<DaySwitch>
       DaySwitch.height,
       math.max(24 * tabScale + 16, 20 * textScale + 20),
     );
-    return Semantics(
-      role: SemanticsRole.tabBar,
-      container: true,
-      explicitChildNodes: true,
-      child: SizedBox(
-        height: height,
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            border: Border(bottom: BorderSide(color: InVogueColors.rule)),
-          ),
-          child: CustomMultiChildLayout(
-            delegate: _DaySwitchLayout(
-              tabs: widget.labels.length,
-              selected: widget.selectedIndex,
-              from: _from,
-              progress: _progress,
-              hasDate: widget.date != null,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final tabs = _tabsWidth(context);
+        final room = constraints.maxWidth;
+        // The date gives way to the tabs; it is still spoken with them.
+        final showDate =
+            widget.date != null &&
+            tabs + _DaySwitchLayout.gap + _dateWidth(context) <= room;
+        Widget line = SizedBox(
+          height: height,
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              border: Border(bottom: BorderSide(color: InVogueColors.rule)),
             ),
-            children: [
-              for (var i = 0; i < widget.labels.length; i++)
-                LayoutId(id: i, child: _tab(context, i)),
-              if (widget.date != null)
-                LayoutId(
-                  id: _DaySwitchLayout.dateId,
-                  // Spoken with the selected tab instead.
-                  child: ExcludeSemantics(
-                    child: Text(
-                      widget.date!,
-                      style: InVogueType.meta.copyWith(
-                        color: InVogueColors.graphite,
+            child: CustomMultiChildLayout(
+              delegate: _DaySwitchLayout(
+                tabs: widget.labels.length,
+                selected: widget.selectedIndex,
+                from: _from,
+                progress: _progress,
+                hasDate: showDate,
+              ),
+              children: [
+                for (var i = 0; i < widget.labels.length; i++)
+                  LayoutId(id: i, child: _tab(context, i)),
+                if (showDate)
+                  LayoutId(
+                    id: _DaySwitchLayout.dateId,
+                    // Spoken with the selected tab instead.
+                    child: ExcludeSemantics(
+                      child: Text(
+                        widget.date!,
+                        style: InVogueType.meta.copyWith(
+                          color: InVogueColors.graphite,
+                        ),
                       ),
                     ),
                   ),
+                LayoutId(
+                  id: _DaySwitchLayout.ruleId,
+                  child: ColoredBox(color: InVogueColors.ink),
                 ),
-              LayoutId(
-                id: _DaySwitchLayout.ruleId,
-                child: ColoredBox(color: InVogueColors.ink),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+        // Tabs that cannot fit shrink together rather than run off.
+        if (tabs > room) {
+          line = FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: SizedBox(width: tabs, child: line),
+          );
+        }
+        return Semantics(
+          role: SemanticsRole.tabBar,
+          container: true,
+          explicitChildNodes: true,
+          child: line,
+        );
+      },
     );
+  }
+
+  /// Width of the tabs and the gaps between them, each label set as if
+  /// selected.
+  double _tabsWidth(BuildContext context) {
+    var width = _DaySwitchLayout.gap * (widget.labels.length - 1);
+    for (final label in widget.labels) {
+      width += _textWidth(
+        context,
+        label,
+        InVogueType.tabActive,
+        context.displayTextScaler,
+      );
+    }
+    return width;
+  }
+
+  double _dateWidth(BuildContext context) => _textWidth(
+    context,
+    widget.date!,
+    InVogueType.meta,
+    MediaQuery.textScalerOf(context),
+  );
+
+  static double _textWidth(
+    BuildContext context,
+    String text,
+    TextStyle style,
+    TextScaler scaler,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textScaler: scaler,
+      textDirection: Directionality.of(context),
+      maxLines: 1,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    return width.ceilToDouble();
   }
 
   Widget _tab(BuildContext context, int index) {

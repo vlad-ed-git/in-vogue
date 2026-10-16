@@ -183,6 +183,30 @@ void main() {
   });
 
   group('DaySwitch', () {
+    testWidgets('gives the date up, then shrinks the tabs, rather than crowd', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpInVogue(
+        tester,
+        DaySwitch(
+          labels: const ['Today', 'Tomorrow', 'Outfits'],
+          selectedIndex: 1,
+          onSelected: (_) {},
+          date: 'Thu 16 Oct',
+        ),
+        size: const Size(320, 568),
+      );
+      expect(find.text('Thu 16 Oct'), findsNothing);
+      expect(find.bySemanticsLabel(RegExp('Tomorrow')), findsOneWidget);
+      final box = tester.getRect(find.byType(DaySwitch));
+      for (final label in ['Today', 'Tomorrow', 'Outfits']) {
+        final tab = tester.getRect(find.text(label));
+        expect(tab.right, lessThanOrEqualTo(box.right + 0.5), reason: label);
+      }
+      handle.dispose();
+    });
+
     testWidgets('holds a third tab, with the rule under the one chosen', (
       tester,
     ) async {
@@ -226,7 +250,12 @@ void main() {
     );
 
     testWidgets('lays out the spec’s 40-point box', (tester) async {
-      await pumpInVogue(tester, daySwitch(1, (_) {}));
+      // Wide enough for the date beside the tabs in the test font.
+      await pumpInVogue(
+        tester,
+        daySwitch(1, (_) {}),
+        size: const Size(600, 400),
+      );
       final box = tester.getRect(find.byType(DaySwitch));
       expect(box.height, 40);
       final today = tester.getRect(find.text('Today'));
