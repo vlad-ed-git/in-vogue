@@ -18,6 +18,7 @@ abstract final class PieceModel {
         category: _byName(PieceCategory.values, category),
         bands: {for (final band in bands) _byName(WarmthBand.values, band)},
         colourways: [for (final colourway in colourways) _colourway(colourway)],
+        waterResistant: json['rain'] == true,
       ),
     _ => throw const FormatException('Not a piece'),
   };

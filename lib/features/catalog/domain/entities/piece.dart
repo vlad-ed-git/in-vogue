@@ -52,6 +52,7 @@ class Piece extends Equatable {
     required this.category,
     required this.bands,
     required this.colourways,
+    this.waterResistant = false,
   });
 
   final String id;
@@ -62,6 +63,16 @@ class Piece extends Equatable {
   final Set<WarmthBand> bands;
   final List<Colourway> colourways;
 
+  /// Whether the partner documents it as water-resistant.
+  final bool waterResistant;
+
   @override
-  List<Object?> get props => [id, name, category, bands, colourways];
+  List<Object?> get props => [
+    id,
+    name,
+    category,
+    bands,
+    colourways,
+    waterResistant,
+  ];
 }

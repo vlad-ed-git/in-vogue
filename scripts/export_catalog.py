@@ -5,8 +5,9 @@
 
 Reads ../resources/catalog/everlane.women.json (the Shopify Global Catalog
 pull) and writes assets/catalog/everlane_women.json: one entry per style with
-its colourways, worn photo, product link, material and warmth bands. Prices
-are left out: the app never shows them.
+its colourways, worn photo, product link, material, warmth bands and whether
+it is documented as water-resistant. Prices are left out: the app never
+shows them.
 """
 import json
 import statistics
@@ -60,9 +61,12 @@ def main():
             "name": product["title"],
             "category": product["category"],
             "bands": set(),
+            "rain": False,
             "colourways": [],
         })
         style["bands"].update(product.get("warmthBands") or [])
+        # Only documented water resistance counts; nothing is called waterproof.
+        style["rain"] = style["rain"] or product.get("rainProtection") == "water_resistant"
         style["colourways"].append({
             "id": product["id"],
             "name": product["colorName"],

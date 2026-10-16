@@ -71,6 +71,19 @@ void main() {
       expect(piece.bands, {WarmthBand.mild, WarmthBand.cool});
       expect(piece.colourways.single.hex, 0xFFC3B091);
       expect(piece.colourways.single.flatUrl, isNull);
+      expect(piece.waterResistant, isFalse);
+    });
+
+    test('knows a piece documented as water-resistant', () {
+      final piece = PieceModel.fromJson({
+        'id': 'mac',
+        'name': 'The Mac',
+        'category': 'outerwear',
+        'bands': ['cool'],
+        'rain': true,
+        'colourways': <Object?>[],
+      });
+      expect(piece.waterResistant, isTrue);
     });
 
     test('rejects an entry that is not a piece', () {
@@ -84,6 +97,7 @@ void main() {
   test('the bundled catalog has every piece with a photo', () async {
     final pieces = await CatalogAssetDataSourceImpl(rootBundle).pieces();
     expect(pieces, hasLength(623));
+    expect(pieces.where((piece) => piece.waterResistant), hasLength(12));
     for (final piece in pieces) {
       expect(piece.colourways, isNotEmpty);
       expect(piece.bands, isNotEmpty);
