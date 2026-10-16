@@ -9,11 +9,21 @@ class CatalogRepositoryImpl implements CatalogRepository {
   CatalogRepositoryImpl(this._asset);
   final CatalogAssetDataSource _asset;
   List<Piece>? _pieces;
+  String? _brand;
 
   @override
   Future<Either<Failure, List<Piece>>> pieces() async {
     try {
       return Right(_pieces ??= await _asset.pieces());
+    } on FormatException {
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> brand() async {
+    try {
+      return Right(_brand ??= await _asset.brand());
     } on FormatException {
       return const Left(CacheFailure());
     }

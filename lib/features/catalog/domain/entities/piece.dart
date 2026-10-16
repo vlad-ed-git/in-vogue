@@ -13,6 +13,7 @@ class Colourway extends Equatable {
     required this.photoUrl,
     required this.productUrl,
     this.flatUrl,
+    this.material,
   });
 
   final String id;
@@ -28,8 +29,19 @@ class Colourway extends Equatable {
   final String? flatUrl;
   final String productUrl;
 
+  /// What it is made of; null when the partner does not say.
+  final String? material;
+
   @override
-  List<Object?> get props => [id, name, hex, photoUrl, flatUrl, productUrl];
+  List<Object?> get props => [
+    id,
+    name,
+    hex,
+    photoUrl,
+    flatUrl,
+    productUrl,
+    material,
+  ];
 }
 
 /// A piece of clothing from the partner's collection, in all its colours.

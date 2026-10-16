@@ -8,6 +8,7 @@ import 'package:in_vogue/features/catalog/domain/repositories/catalog_repository
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 
@@ -29,6 +30,7 @@ void init(GetIt locator) {
       () => GetPiecesForWeather(locator()),
     )
     ..registerLazySingleton<GetPicks>(() => GetPicks(locator()))
+    ..registerLazySingleton<GetShopPieces>(() => GetShopPieces(locator()))
     ..registerLazySingleton<SetPick>(() => SetPick(locator()))
     ..registerFactory<PicksBloc>(
       () => PicksBloc(

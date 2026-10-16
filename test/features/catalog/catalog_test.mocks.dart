@@ -10,6 +10,7 @@ import 'package:in_vogue/features/catalog/data/data_sources/catalog_asset_data_s
     as _i2;
 import 'package:in_vogue/features/catalog/domain/entities/piece.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:mockito/src/dummies.dart' as _i5;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -42,4 +43,14 @@ class MockCatalogAssetDataSource extends _i1.Mock
             returnValue: _i3.Future<List<_i4.Piece>>.value(<_i4.Piece>[]),
           )
           as _i3.Future<List<_i4.Piece>>);
+
+  @override
+  _i3.Future<String> brand() =>
+      (super.noSuchMethod(
+            Invocation.method(#brand, []),
+            returnValue: _i3.Future<String>.value(
+              _i5.dummyValue<String>(this, Invocation.method(#brand, [])),
+            ),
+          )
+          as _i3.Future<String>);
 }

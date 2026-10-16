@@ -38,6 +38,10 @@ abstract final class PieceModel {
         photoUrl: photo,
         flatUrl: flat,
         productUrl: url,
+        material: switch (json['material']) {
+          final String material when material.trim().isNotEmpty => material,
+          _ => null,
+        },
       ),
     _ => throw const FormatException('Not a colourway'),
   };
