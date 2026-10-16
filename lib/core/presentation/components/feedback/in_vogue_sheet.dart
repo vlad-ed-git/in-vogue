@@ -142,7 +142,7 @@ class _DraggableSheetState extends State<_DraggableSheet> {
 }
 
 /// A sheet panel: a grabber above [child], with page margins and the bottom
-/// safe area. Scrolls when taller than the screen.
+/// safe area. Scrolls when taller than the screen; text fields work in it.
 class InVogueSheet extends StatelessWidget {
   const InVogueSheet({required this.child, super.key});
 
@@ -155,7 +155,7 @@ class InVogueSheet extends StatelessWidget {
       constraints: BoxConstraints(
         maxHeight: media.size.height - media.viewPadding.top,
       ),
-      child: ColoredBox(
+      child: Material(
         color: InVogueColors.paper,
         child: Padding(
           padding: EdgeInsets.fromLTRB(
