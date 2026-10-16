@@ -6,6 +6,8 @@ import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
+import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
+import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
@@ -26,6 +28,8 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     required this._location,
     required this._outfits,
     required this._jobs,
+    required this._makeup,
+    required this._makeupJobs,
   });
 
   final AuthRepository _auth;
@@ -36,6 +40,8 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
   final LocationRepository _location;
   final OutfitRepository _outfits;
   final TryOnJobRepository _jobs;
+  final MakeupRepository _makeup;
+  final MakeupJobRepository _makeupJobs;
 
   @override
   Future<Either<Failure, Unit>> call(NoParams params) async {
@@ -62,6 +68,8 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     await _location.forget();
     await _outfits.forgetPictures(signedIn.id);
     await _jobs.clearAccount(signedIn.id);
+    await _makeup.forgetPictures(signedIn.id);
+    await _makeupJobs.clearAccount(signedIn.id);
     return const Right(unit);
   }
 }

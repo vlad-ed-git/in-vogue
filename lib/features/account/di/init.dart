@@ -44,6 +44,8 @@ void init(GetIt locator) {
         location: locator(),
         outfits: locator(),
         jobs: locator(),
+        makeup: locator(),
+        makeupJobs: locator(),
       ),
     )
     ..registerFactory<DeleteAccountBloc>(

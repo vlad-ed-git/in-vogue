@@ -10,6 +10,8 @@ import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
+import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
+import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
@@ -31,6 +33,8 @@ const _done = Right<Failure, Unit>(unit);
   LocationRepository,
   OutfitRepository,
   TryOnJobRepository,
+  MakeupRepository,
+  MakeupJobRepository,
 ])
 void main() {
   late MockAuthRepository auth;
@@ -41,6 +45,8 @@ void main() {
   late MockLocationRepository location;
   late MockOutfitRepository outfits;
   late MockTryOnJobRepository jobs;
+  late MockMakeupRepository makeup;
+  late MockMakeupJobRepository makeupJobs;
   late DeleteAccount delete;
 
   setUp(() {
@@ -52,6 +58,8 @@ void main() {
     location = MockLocationRepository();
     outfits = MockOutfitRepository();
     jobs = MockTryOnJobRepository();
+    makeup = MockMakeupRepository();
+    makeupJobs = MockMakeupJobRepository();
     delete = DeleteAccount(
       auth: auth,
       account: account,
@@ -61,6 +69,8 @@ void main() {
       location: location,
       outfits: outfits,
       jobs: jobs,
+      makeup: makeup,
+      makeupJobs: makeupJobs,
     );
     when(
       auth.currentAccount(),
@@ -74,6 +84,8 @@ void main() {
     when(location.forget()).thenAnswer((_) async => _done);
     when(outfits.forgetPictures(any)).thenAnswer((_) async => _done);
     when(jobs.clearAccount(any)).thenAnswer((_) async => _done);
+    when(makeup.forgetPictures(any)).thenAnswer((_) async => _done);
+    when(makeupJobs.clearAccount(any)).thenAnswer((_) async => _done);
   });
 
   void verifyPhoneKept() {
@@ -81,6 +93,7 @@ void main() {
     verifyNever(picks.clear());
     verifyNever(profile.clearName());
     verifyNever(location.forget());
+    verifyNever(makeup.forgetPictures(any));
   }
 
   test(
@@ -98,6 +111,8 @@ void main() {
         location.forget(),
         outfits.forgetPictures('uid-1'),
         jobs.clearAccount('uid-1'),
+        makeup.forgetPictures('uid-1'),
+        makeupJobs.clearAccount('uid-1'),
       ]);
     },
   );

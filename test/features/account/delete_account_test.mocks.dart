@@ -26,6 +26,18 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart'
     as _i17;
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart'
     as _i16;
+import 'package:in_vogue/features/makeup/domain/entities/makeup_job.dart'
+    as _i29;
+import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart'
+    as _i27;
+import 'package:in_vogue/features/makeup/domain/entities/makeup_recipe.dart'
+    as _i25;
+import 'package:in_vogue/features/makeup/domain/entities/skin_profile.dart'
+    as _i26;
+import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart'
+    as _i28;
+import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart'
+    as _i24;
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart'
     as _i20;
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart' as _i19;
@@ -606,6 +618,253 @@ class MockTryOnJobRepository extends _i1.Mock
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> save(_i23.TryOnJob? job) =>
+      (super.noSuchMethod(
+            Invocation.method(#save, [job]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#save, [job]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> clear(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#clear, [key]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#clear, [key]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> clearAccount(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#clearAccount, [accountId]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#clearAccount, [accountId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+}
+
+/// A class which mocks [MakeupRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockMakeupRepository extends _i1.Mock implements _i24.MakeupRepository {
+  MockMakeupRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i25.MakeupRecipe?>> recipe(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#recipe, [key]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i25.MakeupRecipe?>>.value(
+                  _FakeEither_0<_i5.Failure, _i25.MakeupRecipe?>(
+                    this,
+                    Invocation.method(#recipe, [key]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i25.MakeupRecipe?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i26.FaceColours?>> faceColours(
+    String? accountId,
+    String? facePhoto,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#faceColours, [accountId, facePhoto]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i26.FaceColours?>>.value(
+                  _FakeEither_0<_i5.Failure, _i26.FaceColours?>(
+                    this,
+                    Invocation.method(#faceColours, [accountId, facePhoto]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i26.FaceColours?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> saveFaceColours(
+    String? accountId,
+    String? facePhoto,
+    _i26.FaceColours? colours,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveFaceColours, [
+              accountId,
+              facePhoto,
+              colours,
+            ]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#saveFaceColours, [
+                  accountId,
+                  facePhoto,
+                  colours,
+                ]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, String?>> keptPicture(
+    String? accountId,
+    String? outfitSignature,
+    String? fileName,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#keptPicture, [
+              accountId,
+              outfitSignature,
+              fileName,
+            ]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, String?>>.value(
+              _FakeEither_0<_i5.Failure, String?>(
+                this,
+                Invocation.method(#keptPicture, [
+                  accountId,
+                  outfitSignature,
+                  fileName,
+                ]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, String?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, String>> keepPicture(
+    String? accountId,
+    String? outfitSignature,
+    String? name,
+    List<int>? picture,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#keepPicture, [
+              accountId,
+              outfitSignature,
+              name,
+              picture,
+            ]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, String>>.value(
+              _FakeEither_0<_i5.Failure, String>(
+                this,
+                Invocation.method(#keepPicture, [
+                  accountId,
+                  outfitSignature,
+                  name,
+                  picture,
+                ]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, String>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> record(
+    String? accountId,
+    _i27.MakeupLook? look,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#record, [accountId, look]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#record, [accountId, look]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>> look(
+    String? accountId,
+    String? outfitSignature,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#look, [accountId, outfitSignature]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>>.value(
+                  _FakeEither_0<_i5.Failure, _i27.MakeupLook?>(
+                    this,
+                    Invocation.method(#look, [accountId, outfitSignature]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>> latestLook(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#latestLook, [accountId]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>>.value(
+                  _FakeEither_0<_i5.Failure, _i27.MakeupLook?>(
+                    this,
+                    Invocation.method(#latestLook, [accountId]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> forgetPictures(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#forgetPictures, [accountId]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#forgetPictures, [accountId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+}
+
+/// A class which mocks [MakeupJobRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockMakeupJobRepository extends _i1.Mock
+    implements _i28.MakeupJobRepository {
+  MockMakeupJobRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i29.MakeupJob?>> job(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#job, [key]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i29.MakeupJob?>>.value(
+                  _FakeEither_0<_i5.Failure, _i29.MakeupJob?>(
+                    this,
+                    Invocation.method(#job, [key]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i29.MakeupJob?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> save(_i29.MakeupJob? job) =>
       (super.noSuchMethod(
             Invocation.method(#save, [job]),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(

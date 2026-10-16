@@ -143,7 +143,12 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
   });
 
   /// Collections under an account document.
-  static const _collections = ['wishlist', 'outfits'];
+  static const _collections = [
+    'wishlist',
+    'outfits',
+    'makeupLooks',
+    'colorProfiles',
+  ];
 
   @override
   Future<void> deleteAccount(String accountId) => _guard(() async {
