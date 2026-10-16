@@ -7,6 +7,7 @@
 import 'dart:async' as _i4;
 
 import 'package:dartz/dartz.dart' as _i2;
+import 'package:in_vogue/core/domain/entities/forecast_day.dart' as _i20;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
 import 'package:in_vogue/core/domain/usecases/use_case.dart' as _i7;
 import 'package:in_vogue/features/auth/domain/entities/account.dart' as _i6;
@@ -30,6 +31,8 @@ import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
     as _i11;
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart'
     as _i10;
+import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart'
+    as _i19;
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart'
     as _i14;
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart'
@@ -196,4 +199,29 @@ class MockMakeOutfit extends _i1.Mock implements _i17.MakeOutfit {
             returnValue: _i4.Stream<_i18.TryOnUpdate>.empty(),
           )
           as _i4.Stream<_i18.TryOnUpdate>);
+}
+
+/// A class which mocks [GetDefaultDay].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockGetDefaultDay extends _i1.Mock implements _i19.GetDefaultDay {
+  MockGetDefaultDay() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i20.ForecastDay>> call(
+    _i7.NoParams? params,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [params]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i20.ForecastDay>>.value(
+                  _FakeEither_0<_i5.Failure, _i20.ForecastDay>(
+                    this,
+                    Invocation.method(#call, [params]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i20.ForecastDay>>);
 }

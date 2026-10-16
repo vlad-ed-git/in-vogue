@@ -12,6 +12,7 @@ void init(GetIt locator) {
         getWeatherReport: locator(),
         getDayOutfit: locator(),
         makeOutfit: locator(),
+        getDefaultDay: locator(),
       ),
     )
     ..registerFactory<ShopBloc>(() => ShopBloc(getShopPieces: locator()));

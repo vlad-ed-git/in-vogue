@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
@@ -13,6 +14,7 @@ import 'package:in_vogue/features/preferences/domain/repositories/preferences_re
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/memory_store.dart';
 import 'preferences_repository_test.mocks.dart';
 
 @GenerateMocks([
@@ -109,4 +111,30 @@ void main() {
       verify(store.writeString('language', 'zh')).called(1);
     },
   );
+
+  test('keeps the default day, tomorrow until another is chosen', () async {
+    final repository = PreferencesRepositoryImpl(
+      localDataSource: PreferencesLocalDataSourceImpl(MemoryStore()),
+      logMessages: _QuietLog(),
+    );
+    expect(
+      await repository.defaultDay(),
+      const Right<Failure, ForecastDay>(ForecastDay.tomorrow),
+    );
+    await repository.setDefaultDay(ForecastDay.today);
+    expect(
+      await repository.defaultDay(),
+      const Right<Failure, ForecastDay>(ForecastDay.today),
+    );
+  });
+}
+
+class _QuietLog implements LogMessages {
+  @override
+  void logError({
+    required String callerClass,
+    required String callerMethod,
+    required Object error,
+    StackTrace? stackTrace,
+  }) {}
 }

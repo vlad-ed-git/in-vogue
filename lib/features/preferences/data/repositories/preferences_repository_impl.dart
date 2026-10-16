@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
@@ -35,6 +36,27 @@ class PreferencesRepositoryImpl implements PreferencesRepository {
       return Right(language);
     } on CacheException catch (error) {
       _log('setLanguage', error);
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, ForecastDay>> defaultDay() async {
+    try {
+      return Right(_local.getDefaultDay());
+    } on CacheException catch (error) {
+      _log('defaultDay', error);
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, ForecastDay>> setDefaultDay(ForecastDay day) async {
+    try {
+      await _local.setDefaultDay(day);
+      return Right(day);
+    } on CacheException catch (error) {
+      _log('setDefaultDay', error);
       return const Left(CacheFailure());
     }
   }

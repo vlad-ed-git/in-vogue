@@ -18,6 +18,7 @@ import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
+import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
 
@@ -178,7 +179,8 @@ class HomeState extends Equatable {
 
 /// Home's two days, today and tomorrow, each with its weather and outfit.
 ///
-/// The day shown by default (today from 06:00 to 08:59, tomorrow otherwise)
+/// The day shown by default (today from 06:00 to 08:59 and tomorrow
+/// otherwise, or always today when the person chose it)
 /// gets its outfit made when it has none; the other day only shows an
 /// outfit already made. Choosing an occasion makes that occasion's outfit
 /// if it has none. An outfit is never made twice.
@@ -190,6 +192,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required this._getWeatherReport,
     required this._getDayOutfit,
     required this._makeOutfit,
+    required this._getDefaultDay,
   }) : super(const HomeState()) {
     on<HomeStarted>(_start, transformer: restartable());
     on<HomeDaySelected>(_select);
@@ -204,6 +207,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetWeatherReport _getWeatherReport;
   final GetDayOutfit _getDayOutfit;
   final MakeOutfit _makeOutfit;
+  final GetDefaultDay _getDefaultDay;
 
   String? _accountId;
 
@@ -224,8 +228,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final photo = (await _getKeptPhoto(
       PhotoRole.body,
     )).fold<UserPhoto?>((_) => null, (photo) => photo);
+    final preferred = (await _getDefaultDay(
+      const NoParams(),
+    )).getOrElse(() => ForecastDay.tomorrow);
+    // Tomorrow means the morning rule: today from 06:00 to 08:59.
     final first = await _getWeatherReport(
-      WeatherReportParams(location: place, occasion: _keptOccasion(null)),
+      WeatherReportParams(
+        location: place,
+        day: preferred == ForecastDay.today ? ForecastDay.today : null,
+        occasion: _keptOccasion(null),
+      ),
     );
     final shownDay = first.fold(
       (_) => ForecastDay.shownAt(clock.now()),

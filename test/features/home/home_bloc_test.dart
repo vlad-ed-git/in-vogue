@@ -18,6 +18,7 @@ import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
+import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
@@ -78,6 +79,7 @@ DayOutfit _outfit(DateTime date, Occasion occasion) => DayOutfit(
   GetWeatherReport,
   GetDayOutfit,
   MakeOutfit,
+  GetDefaultDay,
 ])
 void main() {
   late MockGetCurrentAccount account;
@@ -86,6 +88,7 @@ void main() {
   late MockGetWeatherReport weather;
   late MockGetDayOutfit dayOutfit;
   late MockMakeOutfit makeOutfit;
+  late MockGetDefaultDay defaultDay;
 
   HomeBloc buildBloc() => HomeBloc(
     getCurrentAccount: account,
@@ -94,6 +97,7 @@ void main() {
     getWeatherReport: weather,
     getDayOutfit: dayOutfit,
     makeOutfit: makeOutfit,
+    getDefaultDay: defaultDay,
   );
 
   setUp(() {
@@ -103,6 +107,10 @@ void main() {
     weather = MockGetWeatherReport();
     dayOutfit = MockGetDayOutfit();
     makeOutfit = MockMakeOutfit();
+    defaultDay = MockGetDefaultDay();
+    when(
+      defaultDay(any),
+    ).thenAnswer((_) async => const Right(ForecastDay.tomorrow));
     when(
       account(any),
     ).thenAnswer((_) async => const Right(Account(id: 'uid-1')));
@@ -199,6 +207,27 @@ void main() {
       expect(made.date, _tomorrow);
       expect(made.occasion, Occasion.casual);
       expect(made.cell, 'mild|dry|calm|casual');
+    },
+  );
+
+  test(
+    'opens on today, and makes its outfit, when the person chose today',
+    () async {
+      when(
+        defaultDay(any),
+      ).thenAnswer((_) async => const Right(ForecastDay.today));
+      final bloc = buildBloc();
+      addTearDown(bloc.close);
+      await withClock(Clock.fixed(_now), () async {
+        bloc.add(const HomeStarted());
+        await bloc.stream.firstWhere(
+          (state) => state.day(ForecastDay.today).outfit is OutfitShown,
+        );
+      });
+      expect(bloc.state.selected, ForecastDay.today);
+      final made =
+          verify(makeOutfit(captureAny)).captured.single as MakeOutfitParams;
+      expect(made.date, _today);
     },
   );
 

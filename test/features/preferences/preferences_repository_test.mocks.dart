@@ -7,14 +7,15 @@
 import 'dart:async' as _i5;
 
 import 'package:dartz/dartz.dart' as _i2;
+import 'package:in_vogue/core/domain/entities/forecast_day.dart' as _i6;
 import 'package:in_vogue/core/domain/entities/supported_languages.dart' as _i4;
-import 'package:in_vogue/core/domain/errors/failures.dart' as _i7;
-import 'package:in_vogue/core/domain/errors/log_messages.dart' as _i9;
-import 'package:in_vogue/core/persistence/key_value_store.dart' as _i8;
+import 'package:in_vogue/core/domain/errors/failures.dart' as _i8;
+import 'package:in_vogue/core/domain/errors/log_messages.dart' as _i10;
+import 'package:in_vogue/core/persistence/key_value_store.dart' as _i9;
 import 'package:in_vogue/features/preferences/data/data_sources/preferences_local_data_source.dart'
     as _i3;
 import 'package:in_vogue/features/preferences/domain/repositories/preferences_repository.dart'
-    as _i6;
+    as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -62,56 +63,103 @@ class MockPreferencesLocalDataSource extends _i1.Mock
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
           as _i5.Future<void>);
+
+  @override
+  _i6.ForecastDay getDefaultDay() =>
+      (super.noSuchMethod(
+            Invocation.method(#getDefaultDay, []),
+            returnValue: _i6.ForecastDay.today,
+          )
+          as _i6.ForecastDay);
+
+  @override
+  _i5.Future<void> setDefaultDay(_i6.ForecastDay? day) =>
+      (super.noSuchMethod(
+            Invocation.method(#setDefaultDay, [day]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 }
 
 /// A class which mocks [PreferencesRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPreferencesRepository extends _i1.Mock
-    implements _i6.PreferencesRepository {
+    implements _i7.PreferencesRepository {
   MockPreferencesRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i2.Either<_i7.Failure, _i4.SupportedLanguages>> getLanguage() =>
+  _i5.Future<_i2.Either<_i8.Failure, _i4.SupportedLanguages>> getLanguage() =>
       (super.noSuchMethod(
             Invocation.method(#getLanguage, []),
             returnValue:
                 _i5.Future<
-                  _i2.Either<_i7.Failure, _i4.SupportedLanguages>
+                  _i2.Either<_i8.Failure, _i4.SupportedLanguages>
                 >.value(
-                  _FakeEither_0<_i7.Failure, _i4.SupportedLanguages>(
+                  _FakeEither_0<_i8.Failure, _i4.SupportedLanguages>(
                     this,
                     Invocation.method(#getLanguage, []),
                   ),
                 ),
           )
-          as _i5.Future<_i2.Either<_i7.Failure, _i4.SupportedLanguages>>);
+          as _i5.Future<_i2.Either<_i8.Failure, _i4.SupportedLanguages>>);
 
   @override
-  _i5.Future<_i2.Either<_i7.Failure, _i4.SupportedLanguages>> setLanguage(
+  _i5.Future<_i2.Either<_i8.Failure, _i4.SupportedLanguages>> setLanguage(
     _i4.SupportedLanguages? language,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#setLanguage, [language]),
             returnValue:
                 _i5.Future<
-                  _i2.Either<_i7.Failure, _i4.SupportedLanguages>
+                  _i2.Either<_i8.Failure, _i4.SupportedLanguages>
                 >.value(
-                  _FakeEither_0<_i7.Failure, _i4.SupportedLanguages>(
+                  _FakeEither_0<_i8.Failure, _i4.SupportedLanguages>(
                     this,
                     Invocation.method(#setLanguage, [language]),
                   ),
                 ),
           )
-          as _i5.Future<_i2.Either<_i7.Failure, _i4.SupportedLanguages>>);
+          as _i5.Future<_i2.Either<_i8.Failure, _i4.SupportedLanguages>>);
+
+  @override
+  _i5.Future<_i2.Either<_i8.Failure, _i6.ForecastDay>> defaultDay() =>
+      (super.noSuchMethod(
+            Invocation.method(#defaultDay, []),
+            returnValue:
+                _i5.Future<_i2.Either<_i8.Failure, _i6.ForecastDay>>.value(
+                  _FakeEither_0<_i8.Failure, _i6.ForecastDay>(
+                    this,
+                    Invocation.method(#defaultDay, []),
+                  ),
+                ),
+          )
+          as _i5.Future<_i2.Either<_i8.Failure, _i6.ForecastDay>>);
+
+  @override
+  _i5.Future<_i2.Either<_i8.Failure, _i6.ForecastDay>> setDefaultDay(
+    _i6.ForecastDay? day,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#setDefaultDay, [day]),
+            returnValue:
+                _i5.Future<_i2.Either<_i8.Failure, _i6.ForecastDay>>.value(
+                  _FakeEither_0<_i8.Failure, _i6.ForecastDay>(
+                    this,
+                    Invocation.method(#setDefaultDay, [day]),
+                  ),
+                ),
+          )
+          as _i5.Future<_i2.Either<_i8.Failure, _i6.ForecastDay>>);
 }
 
 /// A class which mocks [KeyValueStore].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockKeyValueStore extends _i1.Mock implements _i8.KeyValueStore {
+class MockKeyValueStore extends _i1.Mock implements _i9.KeyValueStore {
   MockKeyValueStore() {
     _i1.throwOnMissingStub(this);
   }
@@ -151,7 +199,7 @@ class MockKeyValueStore extends _i1.Mock implements _i8.KeyValueStore {
 /// A class which mocks [LogMessages].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogMessages extends _i1.Mock implements _i9.LogMessages {
+class MockLogMessages extends _i1.Mock implements _i10.LogMessages {
   MockLogMessages() {
     _i1.throwOnMissingStub(this);
   }
