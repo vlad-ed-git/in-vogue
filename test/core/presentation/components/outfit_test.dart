@@ -142,6 +142,35 @@ void main() {
       );
     });
 
+    testWidgets('waiting: a progress line under the message', (tester) async {
+      await pumpInVogue(
+        tester,
+        const PhotoStage(
+          state: PhotoStageState.waiting,
+          height: 380,
+          progress: 'Piece 2 of 3',
+        ),
+      );
+      expect(find.text('Getting your outfit ready…'), findsOneWidget);
+      expect(find.text('Piece 2 of 3'), findsOneWidget);
+      expect(
+        tester.getTopLeft(find.text('Piece 2 of 3')).dy,
+        greaterThan(
+          tester.getTopLeft(find.text('Getting your outfit ready…')).dy,
+        ),
+      );
+    });
+
+    testWidgets('idle: the faded photo with nothing over or under it', (
+      tester,
+    ) async {
+      await pumpInVogue(tester, stage(PhotoStageState.idle));
+      expect(opacities(tester), [0.28]);
+      expect(find.text('Getting your outfit ready…'), findsNothing);
+      expect(find.byType(Notice), findsNothing);
+      expect(tester.getSize(find.byType(PhotoStage)), const Size(350, 380));
+    });
+
     testWidgets('failed: the faded photo and a retry notice 12 below', (
       tester,
     ) async {

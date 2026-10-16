@@ -20,6 +20,9 @@ enum PhotoStageState {
 
   /// The person's own photo, faded, with a retry notice below.
   failed,
+
+  /// The person's own photo, faded, with nothing over it.
+  idle,
 }
 
 /// A full-length photo, contained on paper.
@@ -33,6 +36,7 @@ class PhotoStage extends StatefulWidget {
     this.outfit,
     this.photo,
     this.outfitLabel,
+    this.progress,
     this.onRetry,
     super.key,
   }) : assert(
@@ -53,6 +57,9 @@ class PhotoStage extends StatefulWidget {
 
   /// Describes [outfit] for screen readers.
   final String? outfitLabel;
+
+  /// A line under the waiting message, such as how far the try-on is.
+  final String? progress;
 
   /// Retry action for [PhotoStageState.failed].
   final VoidCallback? onRetry;
@@ -197,7 +204,7 @@ class _PhotoStageState extends State<PhotoStage> with TickerProviderStateMixin {
                 children: [
                   if (!ready || revealing) _faded(),
                   if (ready) _outfit(),
-                  if (waiting) const _WaitingMessage(),
+                  if (waiting) _WaitingMessage(progress: widget.progress),
                 ],
               ),
             ),
@@ -217,7 +224,9 @@ class _PhotoStageState extends State<PhotoStage> with TickerProviderStateMixin {
 }
 
 class _WaitingMessage extends StatelessWidget {
-  const _WaitingMessage();
+  const _WaitingMessage({this.progress});
+
+  final String? progress;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -229,12 +238,26 @@ class _WaitingMessage extends StatelessWidget {
           decoration: const BoxDecoration(color: InVogueColors.accent),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            child: Text(
-              context.translated.gettingOutfitReady,
-              textAlign: TextAlign.center,
-              style: InVogueType.bodyStrong.copyWith(
-                color: InVogueColors.onAccent,
-              ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.translated.gettingOutfitReady,
+                  textAlign: TextAlign.center,
+                  style: InVogueType.bodyStrong.copyWith(
+                    color: InVogueColors.onAccent,
+                  ),
+                ),
+                if (progress != null)
+                  Text(
+                    progress!,
+                    textAlign: TextAlign.center,
+                    style: InVogueType.meta.copyWith(
+                      color: InVogueColors.onAccent,
+                      fontFeatures: InVogueType.tabularFigures,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
