@@ -38,26 +38,6 @@ class HourlyWeather extends Equatable {
   /// Strongest gust, km/h.
   final double windGusts;
 
-  HourlyWeather copyWith({
-    double? temperature,
-    double? feelsLike,
-    int? precipitationProbability,
-    double? precipitation,
-    double? snowfall,
-    int? weatherCode,
-    double? windGusts,
-  }) => HourlyWeather(
-    time: time,
-    temperature: temperature ?? this.temperature,
-    feelsLike: feelsLike ?? this.feelsLike,
-    precipitationProbability:
-        precipitationProbability ?? this.precipitationProbability,
-    precipitation: precipitation ?? this.precipitation,
-    snowfall: snowfall ?? this.snowfall,
-    weatherCode: weatherCode ?? this.weatherCode,
-    windGusts: windGusts ?? this.windGusts,
-  );
-
   @override
   List<Object?> get props => [
     time,

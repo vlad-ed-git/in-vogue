@@ -33,3 +33,26 @@ Forecast forecastWith(
   utcOffset: const Duration(hours: -4),
   fetchedAt: forecastFetchedAt,
 );
+
+/// Copies of an hour with some readings changed.
+extension HourlyWeatherCopy on HourlyWeather {
+  HourlyWeather copyWith({
+    double? temperature,
+    double? feelsLike,
+    int? precipitationProbability,
+    double? precipitation,
+    double? snowfall,
+    int? weatherCode,
+    double? windGusts,
+  }) => HourlyWeather(
+    time: time,
+    temperature: temperature ?? this.temperature,
+    feelsLike: feelsLike ?? this.feelsLike,
+    precipitationProbability:
+        precipitationProbability ?? this.precipitationProbability,
+    precipitation: precipitation ?? this.precipitation,
+    snowfall: snowfall ?? this.snowfall,
+    weatherCode: weatherCode ?? this.weatherCode,
+    windGusts: windGusts ?? this.windGusts,
+  );
+}
