@@ -24,6 +24,24 @@ class AccountRepositoryImpl implements AccountRepository {
   static const timeLimit = Duration(seconds: 30);
 
   @override
+  Future<Either<Failure, bool>> exists(String accountId) async {
+    try {
+      return Right(
+        await _remote.readAccount(accountId).timeout(timeLimit) != null,
+      );
+    } on TimeoutException catch (error, stack) {
+      _log(error, stack);
+      return const Left(NetworkFailure());
+    } on NetworkException catch (error) {
+      _log(error.cause, error.stackTrace);
+      return const Left(NetworkFailure());
+    } on ServerException catch (error) {
+      _log(error.cause, error.stackTrace);
+      return const Left(ServerFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> save(
     String accountId,
     AccountSetup setup,

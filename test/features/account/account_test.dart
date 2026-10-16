@@ -2,13 +2,16 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/models/account_model.dart';
 import 'package:in_vogue/features/account/data/repositories/account_repository_impl.dart';
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
+import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
+import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
@@ -19,6 +22,7 @@ import 'package:in_vogue/features/profile/domain/repositories/profile_repository
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../auth/sign_in_bloc_test.mocks.dart';
 import 'account_test.mocks.dart';
 
 const _paris = UserLocation(
@@ -275,6 +279,18 @@ void main() {
       );
     });
 
+    test('knows whether the account has been saved', () async {
+      expect(
+        await repository.exists('uid-1'),
+        const Right<Failure, bool>(false),
+      );
+      when(remote.readAccount(any)).thenAnswer((_) async => {'plan': 'pro'});
+      expect(
+        await repository.exists('uid-1'),
+        const Right<Failure, bool>(true),
+      );
+    });
+
     test('says when it is offline or the server refuses', () async {
       when(
         remote.readAccount(any),
@@ -364,6 +380,62 @@ void main() {
       );
       expect(await save('uid-1'), const Left<Failure, Unit>(CacheFailure()));
       verifyNever(account.save(any, any));
+    });
+  });
+
+  group('EnsureAccount', () {
+    late MockAuthRepository auth;
+    late MockAccountRepository account;
+    late MockSaveSetupToAccount saveSetup;
+    late EnsureAccount ensure;
+
+    setUp(() {
+      auth = MockAuthRepository();
+      account = MockAccountRepository();
+      saveSetup = MockSaveSetupToAccount();
+      ensure = EnsureAccount(
+        auth: auth,
+        account: account,
+        saveSetupToAccount: saveSetup,
+      );
+      when(
+        auth.currentAccount(),
+      ).thenAnswer((_) async => const Right(Account(id: 'uid-1')));
+      when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
+    });
+
+    test("saves the phone's setup when the account was never saved", () async {
+      when(
+        account.exists(any),
+      ).thenAnswer((_) async => const Right<Failure, bool>(false));
+      expect(await ensure(const NoParams()), const Right<Failure, Unit>(unit));
+      verify(saveSetup('uid-1')).called(1);
+    });
+
+    test('leaves a saved account as it is', () async {
+      when(
+        account.exists(any),
+      ).thenAnswer((_) async => const Right<Failure, bool>(true));
+      await ensure(const NoParams());
+      verifyNever(saveSetup(any));
+    });
+
+    test('does nothing when nobody is signed in', () async {
+      when(auth.currentAccount()).thenAnswer((_) async => const Right(null));
+      await ensure(const NoParams());
+      verifyNever(account.exists(any));
+      verifyNever(saveSetup(any));
+    });
+
+    test('saves nothing when it cannot tell', () async {
+      when(
+        account.exists(any),
+      ).thenAnswer((_) async => const Left<Failure, bool>(NetworkFailure()));
+      expect(
+        await ensure(const NoParams()),
+        const Left<Failure, Unit>(NetworkFailure()),
+      );
+      verifyNever(saveSetup(any));
     });
   });
 }

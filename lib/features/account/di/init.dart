@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/repositories/account_repository_impl.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
+import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 
 void init(GetIt locator) {
@@ -27,6 +28,13 @@ void init(GetIt locator) {
         location: locator(),
         photos: locator(),
         picks: locator(),
+      ),
+    )
+    ..registerLazySingleton<EnsureAccount>(
+      () => EnsureAccount(
+        auth: locator(),
+        account: locator(),
+        saveSetupToAccount: locator(),
       ),
     );
 }

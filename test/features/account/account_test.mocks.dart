@@ -145,6 +145,19 @@ class MockAccountRepository extends _i1.Mock implements _i5.AccountRepository {
   }
 
   @override
+  _i4.Future<_i2.Either<_i6.Failure, bool>> exists(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#exists, [accountId]),
+            returnValue: _i4.Future<_i2.Either<_i6.Failure, bool>>.value(
+              _FakeEither_0<_i6.Failure, bool>(
+                this,
+                Invocation.method(#exists, [accountId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i6.Failure, bool>>);
+
+  @override
   _i4.Future<_i2.Either<_i6.Failure, _i2.Unit>> save(
     String? accountId,
     _i7.AccountSetup? setup,
