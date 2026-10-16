@@ -49,3 +49,23 @@ final class LocationFailure extends Failure {
 final class PhotoFailure extends Failure {
   const PhotoFailure();
 }
+
+/// Why signing in did not finish.
+enum SignInProblem {
+  /// Sign-in is not set up yet.
+  unavailable,
+
+  /// The person closed the provider's sheet.
+  cancelled,
+
+  /// The provider or the network failed.
+  failed,
+}
+
+final class SignInFailure extends Failure {
+  const SignInFailure(this.problem);
+  final SignInProblem problem;
+
+  @override
+  List<Object?> get props => [problem];
+}

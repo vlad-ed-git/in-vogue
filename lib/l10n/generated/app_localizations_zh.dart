@@ -477,4 +477,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get signInWithGoogle => '通过 Google 登录';
+
+  @override
+  String get signInTitle => '登录';
+
+  @override
+  String get signInLine => '你的照片和收藏会一起保留。然后我们为你准备第一套穿搭。';
+
+  @override
+  String get signInUnavailable => '登录暂不可用。';
+
+  @override
+  String get signInFailed => '登录失败，请重试。';
 }

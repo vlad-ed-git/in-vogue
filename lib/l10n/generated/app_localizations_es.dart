@@ -511,4 +511,18 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get signInWithGoogle => 'Iniciar sesión con Google';
+
+  @override
+  String get signInTitle => 'Inicia sesión';
+
+  @override
+  String get signInLine =>
+      'Tu foto y tus favoritos vienen contigo. Luego preparamos tu primer conjunto.';
+
+  @override
+  String get signInUnavailable => 'El inicio de sesión aún no está disponible.';
+
+  @override
+  String get signInFailed =>
+      'No pudimos iniciar tu sesión. Inténtalo de nuevo.';
 }

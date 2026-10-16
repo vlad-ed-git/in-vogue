@@ -9,6 +9,9 @@ extension FailureMessage on Failure {
     NetworkFailure() => context.translated.networkFailure,
     ServerFailure() => context.translated.serverFailure,
     PhotoFailure() => context.translated.photoUnreadable,
+    SignInFailure(problem: SignInProblem.unavailable) =>
+      context.translated.signInUnavailable,
+    SignInFailure() => context.translated.signInFailed,
     LocationFailure(:final needsSettings) =>
       needsSettings
           ? context.translated.locationOff

@@ -836,6 +836,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in with Google'**
   String get signInWithGoogle;
+
+  /// Title of setup step 4.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInTitle;
+
+  /// Under the sign-in title: what carries over, and what comes next.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo and picks come with you. Then we make your first outfit.'**
+  String get signInLine;
+
+  /// No description provided for @signInUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in isn’t available yet.'**
+  String get signInUnavailable;
+
+  /// No description provided for @signInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t sign you in. Please try again.'**
+  String get signInFailed;
 }
 
 class _AppLocalizationsDelegate

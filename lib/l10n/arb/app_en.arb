@@ -482,5 +482,15 @@
     }
   },
   "signInWithApple": "Sign in with Apple",
-  "signInWithGoogle": "Sign in with Google"
+  "signInWithGoogle": "Sign in with Google",
+  "signInTitle": "Sign in",
+  "@signInTitle": {
+    "description": "Title of setup step 4."
+  },
+  "signInLine": "Your photo and picks come with you. Then we make your first outfit.",
+  "@signInLine": {
+    "description": "Under the sign-in title: what carries over, and what comes next."
+  },
+  "signInUnavailable": "Sign-in isn’t available yet.",
+  "signInFailed": "We couldn’t sign you in. Please try again."
 }

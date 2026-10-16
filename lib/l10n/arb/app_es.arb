@@ -121,5 +121,9 @@
   "widgetGettingReady": "Preparando",
   "widgetSaved": "Guardado {when}",
   "signInWithApple": "Iniciar sesión con Apple",
-  "signInWithGoogle": "Iniciar sesión con Google"
+  "signInWithGoogle": "Iniciar sesión con Google",
+  "signInTitle": "Inicia sesión",
+  "signInLine": "Tu foto y tus favoritos vienen contigo. Luego preparamos tu primer conjunto.",
+  "signInUnavailable": "El inicio de sesión aún no está disponible.",
+  "signInFailed": "No pudimos iniciar tu sesión. Inténtalo de nuevo."
 }
