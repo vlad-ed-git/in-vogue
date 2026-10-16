@@ -8,55 +8,7 @@ import 'package:in_vogue/core/presentation/presentation.dart';
 import '../../../helpers/pump_in_vogue.dart';
 
 void main() {
-  group('WeatherGlyphType.fromWmo', () {
-    test('maps every WMO code group', () {
-      final expected = {
-        0: WeatherGlyphType.sun,
-        1: WeatherGlyphType.cloudSun,
-        2: WeatherGlyphType.cloudSun,
-        3: WeatherGlyphType.cloud,
-        45: WeatherGlyphType.cloudFog,
-        48: WeatherGlyphType.cloudFog,
-        for (var c = 51; c <= 67; c++) c: WeatherGlyphType.cloudRain,
-        for (var c = 80; c <= 82; c++) c: WeatherGlyphType.cloudRain,
-        for (var c = 71; c <= 77; c++) c: WeatherGlyphType.cloudSnow,
-        85: WeatherGlyphType.cloudSnow,
-        86: WeatherGlyphType.cloudSnow,
-        for (var c = 95; c <= 99; c++) c: WeatherGlyphType.cloudLightning,
-      };
-      expected.forEach(
-        (code, type) =>
-            expect(WeatherGlyphType.fromWmo(code), type, reason: '$code'),
-      );
-    });
-
-    test('gusts of 50 km/h make a dry day windy, never a wet one', () {
-      for (final code in [0, 1, 2, 3, 45, 48]) {
-        expect(
-          WeatherGlyphType.fromWmo(code, gustsKmh: 50),
-          WeatherGlyphType.wind,
-        );
-        expect(
-          WeatherGlyphType.fromWmo(code, gustsKmh: 49.9),
-          isNot(WeatherGlyphType.wind),
-        );
-      }
-      expect(
-        WeatherGlyphType.fromWmo(61, gustsKmh: 80),
-        WeatherGlyphType.cloudRain,
-      );
-      expect(
-        WeatherGlyphType.fromWmo(95, gustsKmh: 80),
-        WeatherGlyphType.cloudLightning,
-      );
-    });
-
-    test('unknown codes have no glyph', () {
-      for (final code in [-1, 4, 44, 50, 68, 70, 78, 83, 84, 87, 94, 100]) {
-        expect(WeatherGlyphType.fromWmo(code), isNull, reason: '$code');
-      }
-    });
-
+  group('WeatherGlyphType', () {
     test('loop lengths include three cycles and the stagger', () {
       expect(WeatherGlyphType.sun.loop, const Duration(milliseconds: 7200));
       expect(

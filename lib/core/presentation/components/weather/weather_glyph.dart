@@ -41,33 +41,8 @@ enum WeatherGlyphType {
   /// Cycles played before the glyph rests.
   static const int cycles = 3;
 
-  /// Gust speed from which a dry code maps to [wind].
-  static const double windyGustsKmh = 50;
-
   /// Total loop length, staggered parts included.
   Duration get loop => cycle * cycles + (stagger ?? Duration.zero) * 2;
-
-  /// The glyph for a WMO weather code; null for an unknown code.
-  static WeatherGlyphType? fromWmo(int code, {double? gustsKmh}) {
-    final dry = switch (code) {
-      0 => sun,
-      1 || 2 => cloudSun,
-      3 => cloud,
-      45 || 48 => cloudFog,
-      _ => null,
-    };
-    if (dry != null) {
-      return (gustsKmh ?? 0) >= windyGustsKmh ? wind : dry;
-    }
-    if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) {
-      return cloudRain;
-    }
-    if ((code >= 71 && code <= 77) || code == 85 || code == 86) {
-      return cloudSnow;
-    }
-    if (code >= 95 && code <= 99) return cloudLightning;
-    return null;
-  }
 }
 
 /// A weather glyph that plays its loop three times, then rests on its
