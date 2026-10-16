@@ -58,7 +58,10 @@ class WeatherLine extends StatelessWidget {
       child: RollingTemperature(temperature),
     );
     final details = AnimatedSwitcher(
-      duration: InVogueMotion.base,
+      // At the pace of the figure, so the line changes as one.
+      duration: context.reduceMotion
+          ? InVogueMotion.base
+          : RollingTemperature.enter,
       switchInCurve: InVogueMotion.standard,
       switchOutCurve: InVogueMotion.standard,
       layoutBuilder: (current, previous) => Stack(

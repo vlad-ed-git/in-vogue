@@ -259,10 +259,14 @@ void main() {
       final rest = tester.getTopLeft(find.text('61°')).dy;
       await tester.tap(find.byType(WeatherLine));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 80));
+      await tester.pump(const Duration(milliseconds: 120));
       expect(tester.getTopLeft(find.text('61°')).dy, lessThan(rest));
       expect(tester.getTopLeft(find.text('54°')).dy, greaterThan(rest));
-      await tester.pump(const Duration(milliseconds: 220));
+      // Slow enough to read as one change: still under way at 400 ms.
+      await tester.pump(const Duration(milliseconds: 280));
+      expect(find.text('61°'), findsOneWidget);
+      expect(tester.getTopLeft(find.text('54°')).dy, greaterThan(rest));
+      await tester.pump(const Duration(milliseconds: 260));
       expect(find.text('61°'), findsNothing);
       expect(tester.getTopLeft(find.text('54°')).dy, rest);
     });

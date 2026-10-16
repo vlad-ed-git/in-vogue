@@ -18,14 +18,24 @@ class RollingTemperature extends StatefulWidget {
   final int degrees;
   final TextStyle style;
 
+  /// How long the old value takes to leave.
+  static const leave = Duration(milliseconds: 320);
+
+  /// When the new value starts to enter.
+  static const enterDelay = Duration(milliseconds: 160);
+
+  /// How long the new value takes to arrive.
+  static const enter = Duration(milliseconds: 480);
+
+  /// The whole roll: [enterDelay] then [enter].
+  static const total = Duration(milliseconds: 640);
+
   @override
   State<RollingTemperature> createState() => _RollingTemperatureState();
 }
 
 class _RollingTemperatureState extends State<RollingTemperature>
     with SingleTickerProviderStateMixin {
-  static const _total = Duration(milliseconds: 280);
-
   // Preserve: the reduced-motion crossfade keeps its full length.
   late final AnimationController _roll;
 
@@ -34,7 +44,7 @@ class _RollingTemperatureState extends State<RollingTemperature>
     super.initState();
     _roll = AnimationController(
       vsync: this,
-      duration: _total,
+      duration: RollingTemperature.total,
       value: 1,
       animationBehavior: AnimationBehavior.preserve,
     );
@@ -49,7 +59,9 @@ class _RollingTemperatureState extends State<RollingTemperature>
     if (oldWidget.degrees != widget.degrees) {
       _previous = oldWidget.degrees;
       _crossfade = context.reduceMotion;
-      _roll.duration = _crossfade ? InVogueMotion.base : _total;
+      _roll.duration = _crossfade
+          ? InVogueMotion.base
+          : RollingTemperature.total;
       _roll.forward(from: 0);
     }
   }
@@ -62,7 +74,7 @@ class _RollingTemperatureState extends State<RollingTemperature>
 
   /// Eased progress of the window [start]–[end] of the roll.
   double _window(Duration start, Duration end, Curve curve) {
-    final now = _total * _roll.value;
+    final now = RollingTemperature.total * _roll.value;
     final t = (now - start).inMicroseconds / (end - start).inMicroseconds;
     return curve.transform(t.clamp(0.0, 1.0));
   }
@@ -84,12 +96,12 @@ class _RollingTemperatureState extends State<RollingTemperature>
       } else {
         final leave = _window(
           Duration.zero,
-          InVogueMotion.quick,
+          RollingTemperature.leave,
           InVogueMotion.exit,
         );
         final enter = _window(
-          InVogueMotion.rollDelay,
-          InVogueMotion.rollDelay + InVogueMotion.base,
+          RollingTemperature.enterDelay,
+          RollingTemperature.total,
           InVogueMotion.enter,
         );
         outgoing = 1 - leave;
