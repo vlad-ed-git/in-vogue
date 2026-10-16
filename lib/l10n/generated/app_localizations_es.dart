@@ -640,4 +640,69 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get waterResistantPieces => 'Prendas resistentes al agua';
+
+  @override
+  String get edit => 'Editar';
+
+  @override
+  String get replace => 'Cambiar';
+
+  @override
+  String get add => 'Añadir';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String signedInWith(String method) {
+    String _temp0 = intl.Intl.selectLogic(method, {
+      'apple': 'Sesión iniciada con Apple',
+      'other': 'Sesión iniciada con Google',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyPhoto => 'Foto de cuerpo entero';
+
+  @override
+  String get bodyPhotoUse => 'Se usa para vestirte';
+
+  @override
+  String get facePhoto => 'Foto de la cara';
+
+  @override
+  String get facePhotoUse => 'Se usa para el maquillaje';
+
+  @override
+  String get notAdded => 'Aún no añadida';
+
+  @override
+  String get membership => 'Membresía';
+
+  @override
+  String get planPro => 'Pro';
+
+  @override
+  String get planFreeName => 'Plan gratuito';
+
+  @override
+  String get location => 'Ubicación';
+
+  @override
+  String locationWhileUsing(String city) {
+    return '$city, mientras usas la app';
+  }
+
+  @override
+  String get locationNotSet => 'Sin definir';
+
+  @override
+  String get defaultDay => 'Día predeterminado';
+
+  @override
+  String get defaultDayTomorrow => 'Mañana; hoy de 6 a 9 de la mañana';
+
+  @override
+  String get defaultDayTitle => 'Inicio se abre en';
 }

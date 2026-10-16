@@ -1046,6 +1046,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Water-resistant pieces'**
   String get waterResistantPieces;
+
+  /// Action that edits a setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// Action that replaces a photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get replace;
+
+  /// Action that adds a missing photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// Saves an edited setting.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// How the person signed in.
+  ///
+  /// In en, this message translates to:
+  /// **'{method, select, apple{Signed in with Apple} other{Signed in with Google}}'**
+  String signedInWith(String method);
+
+  /// Settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Body photo'**
+  String get bodyPhoto;
+
+  /// What the body photo is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Used to dress you'**
+  String get bodyPhotoUse;
+
+  /// Settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Face photo'**
+  String get facePhoto;
+
+  /// What the face photo is for.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for makeup'**
+  String get facePhotoUse;
+
+  /// A photo that has not been added.
+  ///
+  /// In en, this message translates to:
+  /// **'Not added yet'**
+  String get notAdded;
+
+  /// Settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Membership'**
+  String get membership;
+
+  /// The Pro membership.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get planPro;
+
+  /// The free membership.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan'**
+  String get planFreeName;
+
+  /// Settings row.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// The saved place and when the app may read the location.
+  ///
+  /// In en, this message translates to:
+  /// **'{city}, while using the app'**
+  String locationWhileUsing(String city);
+
+  /// No saved location.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get locationNotSet;
+
+  /// Settings row: the day Home opens on.
+  ///
+  /// In en, this message translates to:
+  /// **'Default day'**
+  String get defaultDay;
+
+  /// Home opens on tomorrow, except early in the morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow, today from 6 to 9 am'**
+  String get defaultDayTomorrow;
+
+  /// Title of the default day sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Home opens on'**
+  String get defaultDayTitle;
 }
 
 class _AppLocalizationsDelegate

@@ -640,4 +640,69 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get waterResistantPieces => 'Water-resistant pieces';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get replace => 'Replace';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String signedInWith(String method) {
+    String _temp0 = intl.Intl.selectLogic(method, {
+      'apple': 'Signed in with Apple',
+      'other': 'Signed in with Google',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyPhoto => 'Body photo';
+
+  @override
+  String get bodyPhotoUse => 'Used to dress you';
+
+  @override
+  String get facePhoto => 'Face photo';
+
+  @override
+  String get facePhotoUse => 'Used for makeup';
+
+  @override
+  String get notAdded => 'Not added yet';
+
+  @override
+  String get membership => 'Membership';
+
+  @override
+  String get planPro => 'Pro';
+
+  @override
+  String get planFreeName => 'Free plan';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String locationWhileUsing(String city) {
+    return '$city, while using the app';
+  }
+
+  @override
+  String get locationNotSet => 'Not set';
+
+  @override
+  String get defaultDay => 'Default day';
+
+  @override
+  String get defaultDayTomorrow => 'Tomorrow, today from 6 to 9 am';
+
+  @override
+  String get defaultDayTitle => 'Home opens on';
 }

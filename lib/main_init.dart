@@ -23,6 +23,7 @@ import 'package:in_vogue/features/photos/di/init.dart' as photos_di;
 import 'package:in_vogue/features/preferences/di/init.dart' as preferences_di;
 import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart';
 import 'package:in_vogue/features/profile/di/init.dart' as profile_di;
+import 'package:in_vogue/features/settings/di/init.dart' as settings_di;
 import 'package:in_vogue/features/setup/di/init.dart' as setup_di;
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/get_setup_step.dart';
@@ -89,6 +90,7 @@ abstract final class MainInit {
       account_di.init(locator);
       outfits_di.init(locator, youCamApiKey: youCamApiKey);
       home_di.init(locator);
+      settings_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
       final setupStep = await locator<GetSetupStep>()(const NoParams());
       _registerErrorHandlers(locator<LogMessages>());

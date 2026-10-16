@@ -600,4 +600,69 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get waterResistantPieces => '防泼水单品';
+
+  @override
+  String get edit => '编辑';
+
+  @override
+  String get replace => '更换';
+
+  @override
+  String get add => '添加';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String signedInWith(String method) {
+    String _temp0 = intl.Intl.selectLogic(method, {
+      'apple': '已通过 Apple 登录',
+      'other': '已通过 Google 登录',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get bodyPhoto => '全身照';
+
+  @override
+  String get bodyPhotoUse => '用于为你换装';
+
+  @override
+  String get facePhoto => '面部照片';
+
+  @override
+  String get facePhotoUse => '用于妆容';
+
+  @override
+  String get notAdded => '尚未添加';
+
+  @override
+  String get membership => '会员';
+
+  @override
+  String get planPro => 'Pro';
+
+  @override
+  String get planFreeName => '免费方案';
+
+  @override
+  String get location => '位置';
+
+  @override
+  String locationWhileUsing(String city) {
+    return '$city，使用应用期间';
+  }
+
+  @override
+  String get locationNotSet => '未设置';
+
+  @override
+  String get defaultDay => '默认日期';
+
+  @override
+  String get defaultDayTomorrow => '明天；早上 6 点到 9 点显示今天';
+
+  @override
+  String get defaultDayTitle => '首页打开时显示';
 }

@@ -11,7 +11,7 @@ class TabShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: shell,
+    body: CurrentTab(tab: InVogueTab.values[shell.currentIndex], child: shell),
     bottomNavigationBar: InVogueTabBar(
       current: InVogueTab.values[shell.currentIndex],
       onSelected: (tab) => shell.goBranch(
@@ -20,4 +20,18 @@ class TabShell extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// The tab on screen, for the tabs beneath it.
+class CurrentTab extends InheritedWidget {
+  const CurrentTab({required this.tab, required super.child, super.key});
+
+  final InVogueTab tab;
+
+  /// The tab on screen; null outside the tabs.
+  static InVogueTab? of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<CurrentTab>()?.tab;
+
+  @override
+  bool updateShouldNotify(CurrentTab oldWidget) => oldWidget.tab != tab;
 }

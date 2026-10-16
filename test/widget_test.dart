@@ -39,11 +39,13 @@ import 'package:in_vogue/features/photos/domain/usecases/keep_photo.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/set_language.dart';
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
+import 'package:in_vogue/features/preferences/presentation/widgets/language_row.dart';
 import 'package:in_vogue/features/profile/data/data_sources/profile_local_data_source.dart';
 import 'package:in_vogue/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:in_vogue/features/profile/domain/usecases/get_profile_name.dart';
 import 'package:in_vogue/features/profile/domain/usecases/save_profile_name.dart';
 import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:in_vogue/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/save_setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
@@ -69,6 +71,9 @@ const _photo = UserPhoto(
 
 class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
     implements HomeBloc {}
+
+class _MockSettingsBloc extends MockBloc<SettingsEvent, SettingsState>
+    implements SettingsBloc {}
 
 void main() {
   late MockPreferencesRepository preferences;
@@ -110,6 +115,15 @@ void main() {
           saveSetupToAccount: saveSetup,
         ),
       )
+      ..registerFactory<SettingsBloc>(() {
+        final settings = _MockSettingsBloc();
+        whenListen(
+          settings,
+          const Stream<SettingsState>.empty(),
+          initialState: const SettingsState(),
+        );
+        return settings;
+      })
       ..registerFactory<HomeBloc>(() {
         final home = _MockHomeBloc();
         whenListen(
@@ -266,6 +280,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Log out'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Log out'));
     await tester.pumpAndSettle();
     expect(find.text('4 / 6'), findsOneWidget);
@@ -322,7 +338,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
-    await tester.tap(findLink('Change'));
+    final language = find.descendant(
+      of: find.byType(LanguageRow),
+      matching: find.byType(TextLink),
+    );
+    await tester.ensureVisible(language);
+    await tester.pumpAndSettle();
+    await tester.tap(language);
     await tester.pumpAndSettle();
     expect(find.byType(InVogueSheet), findsOneWidget);
     expect(

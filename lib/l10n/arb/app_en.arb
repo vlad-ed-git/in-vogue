@@ -645,5 +645,91 @@
   "waterResistantPieces": "Water-resistant pieces",
   "@waterResistantPieces": {
     "description": "Line under the Rain chip; never call them waterproof."
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Action that edits a setting."
+  },
+  "replace": "Replace",
+  "@replace": {
+    "description": "Action that replaces a photo."
+  },
+  "add": "Add",
+  "@add": {
+    "description": "Action that adds a missing photo."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Saves an edited setting."
+  },
+  "signedInWith": "{method, select, apple{Signed in with Apple} other{Signed in with Google}}",
+  "@signedInWith": {
+    "description": "How the person signed in.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "bodyPhoto": "Body photo",
+  "@bodyPhoto": {
+    "description": "Settings row."
+  },
+  "bodyPhotoUse": "Used to dress you",
+  "@bodyPhotoUse": {
+    "description": "What the body photo is for."
+  },
+  "facePhoto": "Face photo",
+  "@facePhoto": {
+    "description": "Settings row."
+  },
+  "facePhotoUse": "Used for makeup",
+  "@facePhotoUse": {
+    "description": "What the face photo is for."
+  },
+  "notAdded": "Not added yet",
+  "@notAdded": {
+    "description": "A photo that has not been added."
+  },
+  "membership": "Membership",
+  "@membership": {
+    "description": "Settings row."
+  },
+  "planPro": "Pro",
+  "@planPro": {
+    "description": "The Pro membership."
+  },
+  "planFreeName": "Free plan",
+  "@planFreeName": {
+    "description": "The free membership."
+  },
+  "location": "Location",
+  "@location": {
+    "description": "Settings row."
+  },
+  "locationWhileUsing": "{city}, while using the app",
+  "@locationWhileUsing": {
+    "description": "The saved place and when the app may read the location.",
+    "placeholders": {
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "locationNotSet": "Not set",
+  "@locationNotSet": {
+    "description": "No saved location."
+  },
+  "defaultDay": "Default day",
+  "@defaultDay": {
+    "description": "Settings row: the day Home opens on."
+  },
+  "defaultDayTomorrow": "Tomorrow, today from 6 to 9 am",
+  "@defaultDayTomorrow": {
+    "description": "Home opens on tomorrow, except early in the morning."
+  },
+  "defaultDayTitle": "Home opens on",
+  "@defaultDayTitle": {
+    "description": "Title of the default day sheet."
   }
 }

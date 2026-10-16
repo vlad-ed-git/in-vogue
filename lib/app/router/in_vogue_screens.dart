@@ -6,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:in_vogue/app/router/app_routes.dart';
 import 'package:in_vogue/app/router/app_screens.dart';
+import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
@@ -21,6 +22,7 @@ import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart'
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:in_vogue/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:in_vogue/features/settings/presentation/screens/settings_screen.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
@@ -134,35 +136,54 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         ),
         BlocProvider(create: (_) => locator<PicksBloc>()),
       ],
-      child: Builder(
-        builder: (context) => HomeScreen(
-          onYourPicks: () => _push(
-            context,
-            (context) => BlocProvider(
-              create: (_) =>
-                  locator<YourPicksBloc>()..add(const YourPicksLoaded()),
-              child: YourPicksScreen(onBack: () => Navigator.of(context).pop()),
+      child: _ReloadWhenShown(
+        child: Builder(
+          builder: (context) => HomeScreen(
+            onYourPicks: () => _push(
+              context,
+              (context) => BlocProvider(
+                create: (_) =>
+                    locator<YourPicksBloc>()..add(const YourPicksLoaded()),
+                child: YourPicksScreen(
+                  onBack: () => Navigator.of(context).pop(),
+                ),
+              ),
             ),
-          ),
-          onShop: (outfit) => _push(
-            context,
-            (context) => BlocProvider(
-              create: (_) =>
-                  locator<ShopBloc>()
-                    ..add(ShopRequested(outfit.outfit.outsideIn)),
-              child: ShopScreen(onBack: () => Navigator.of(context).pop()),
+            onShop: (outfit) => _push(
+              context,
+              (context) => BlocProvider(
+                create: (_) =>
+                    locator<ShopBloc>()
+                      ..add(ShopRequested(outfit.outfit.outsideIn)),
+                child: ShopScreen(onBack: () => Navigator.of(context).pop()),
+              ),
             ),
           ),
         ),
       ),
     ),
-    InVogueTab.settings => BlocProvider(
-      create: (_) => locator<LogOutBloc>(),
+    InVogueTab.settings => MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => locator<LogOutBloc>()),
+        BlocProvider(
+          create: (_) => locator<SettingsBloc>()..add(const SettingsLoaded()),
+        ),
+        BlocProvider(
+          create: (_) => locator<ProfileBloc>()..add(const ProfileLoaded()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              locator<PhotoBloc>(param1: PhotoRole.face)
+                ..add(const PhotoLoaded()),
+        ),
+        BlocProvider(create: (_) => locator<LocationBloc>()),
+      ],
       child: Builder(
         builder: (context) => SettingsScreen(
           onLoggedOut: () => context.read<SetupBloc>().add(
             const SetupStepReached(SetupStep.signIn),
           ),
+          bodyPhoto: () => locator<PhotoBloc>(param1: PhotoRole.body),
         ),
       ),
     ),
@@ -177,3 +198,31 @@ void _push(BuildContext context, WidgetBuilder builder) => unawaited(
     rootNavigator: true,
   ).push(MaterialPageRoute<void>(builder: builder)),
 );
+
+/// Reloads Home each time its tab comes back on screen, so changes made in
+/// Settings show there.
+class _ReloadWhenShown extends StatefulWidget {
+  const _ReloadWhenShown({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ReloadWhenShown> createState() => _ReloadWhenShownState();
+}
+
+class _ReloadWhenShownState extends State<_ReloadWhenShown> {
+  InVogueTab? _tab;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final tab = CurrentTab.of(context);
+    if (_tab != null && _tab != tab && tab == InVogueTab.home) {
+      context.read<HomeBloc>().add(const HomeStarted());
+    }
+    _tab = tab;
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
