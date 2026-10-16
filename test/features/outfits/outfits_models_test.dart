@@ -86,6 +86,12 @@ void main() {
       }
     });
 
+    test('know the palette of every outfit', () {
+      for (final outfit in index.outfits.values) {
+        expect(outfit.palette, isNotNull, reason: outfit.id);
+      }
+    });
+
     test('put a dress on in one pass, everything else from the bottom up', () {
       for (final outfit in index.outfits.values) {
         final categories = [for (final pass in outfit.passes) pass.category];

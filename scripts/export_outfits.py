@@ -6,7 +6,8 @@
 Reads ../resources/kb/outfits.index.v1.json and outfits.v1.json and writes
 assets/outfits/outfits.json with only what the app uses: each weather and
 occasion cell's ranked outfit ids, and per outfit its signature, pieces (as
-the catalog asset's colourway ids), try-on passes and one-line reasons.
+the catalog asset's colourway ids), try-on passes, one-line reasons and the
+palette its makeup follows.
 Every piece must be in the catalog asset (scripts/export_catalog.py), so
 the try-on and the Shop page always show the same pieces.
 """
@@ -45,6 +46,7 @@ def main():
                 for p in sorted(outfit["renderPlan"], key=lambda p: p["pass"])
             ],
             "reasons": outfit["reasons"],
+            "palette": outfit["palette"],
         }
     out = {
         "version": index["version"],

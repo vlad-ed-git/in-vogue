@@ -3,6 +3,21 @@ import 'package:equatable/equatable.dart';
 /// What a try-on pass dresses.
 enum GarmentCategory { lowerBody, upperBody, fullBody, outer }
 
+/// The colours of an outfit's pieces, as the knowledge base groups them.
+enum OutfitPalette {
+  /// Mostly beige, brown and cream.
+  warmNeutral,
+
+  /// Mostly black, white, grey and navy.
+  coolNeutral,
+
+  /// Neutrals with neither warm nor cool ones in the majority.
+  mixedNeutral,
+
+  /// At least one piece in a colour.
+  colourful,
+}
+
 /// One try-on pass: a piece put on the person, with the piece's worn photo
 /// as the reference.
 class TryOnPass extends Equatable {
@@ -32,6 +47,7 @@ class Outfit extends Equatable {
     required this.pieces,
     required this.passes,
     this.reasons = const {},
+    this.palette,
   });
 
   final String id;
@@ -48,6 +64,9 @@ class Outfit extends Equatable {
   /// A one-line reason for each knowledge-base cell the outfit suits.
   final Map<String, String> reasons;
 
+  /// Null when the knowledge base does not say.
+  final OutfitPalette? palette;
+
   /// Colourway ids of the pieces from the outer layer in: the try-on's
   /// passes in reverse.
   List<String> get outsideIn => passes.isEmpty
@@ -55,5 +74,5 @@ class Outfit extends Equatable {
       : [for (final pass in passes.reversed) pass.piece];
 
   @override
-  List<Object?> get props => [id, signature, pieces, passes, reasons];
+  List<Object?> get props => [id, signature, pieces, passes, reasons, palette];
 }
