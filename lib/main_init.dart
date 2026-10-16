@@ -18,6 +18,7 @@ import 'package:in_vogue/features/catalog/di/init.dart' as catalog_di;
 import 'package:in_vogue/features/home/di/init.dart' as home_di;
 import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
 import 'package:in_vogue/features/location/di/init.dart' as location_di;
+import 'package:in_vogue/features/makeup/di/init.dart' as makeup_di;
 import 'package:in_vogue/features/outfits/di/init.dart' as outfits_di;
 import 'package:in_vogue/features/photos/di/init.dart' as photos_di;
 import 'package:in_vogue/features/preferences/di/init.dart' as preferences_di;
@@ -90,6 +91,7 @@ abstract final class MainInit {
       home_widget_di.init(locator);
       account_di.init(locator);
       outfits_di.init(locator);
+      makeup_di.init(locator);
       home_di.init(locator);
       settings_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
