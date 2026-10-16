@@ -956,6 +956,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You, head to toe, in your outfit. {about}'**
   String outfitPhotoSpoken(String about);
+
+  /// Your picks has no loved pieces.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven’t picked anything yet.'**
+  String get noPicks;
+
+  /// Title of the sheet that confirms unloving a piece.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from your picks?'**
+  String get removePickTitle;
+
+  /// Confirms removing a piece from the picks.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// Keeps the piece in the picks.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get keep;
 }
 
 class _AppLocalizationsDelegate

@@ -589,4 +589,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String outfitPhotoSpoken(String about) {
     return 'Tú, de pies a cabeza, con tu conjunto. $about';
   }
+
+  @override
+  String get noPicks => 'Aún no has elegido nada.';
+
+  @override
+  String get removePickTitle => '¿Quitar de tu selección?';
+
+  @override
+  String get remove => 'Quitar';
+
+  @override
+  String get keep => 'Conservar';
 }

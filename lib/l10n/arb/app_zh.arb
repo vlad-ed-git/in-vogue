@@ -141,5 +141,9 @@
   "aboutThisOutfit": "关于这套穿搭",
   "tryOnPiece": "第 {piece} 件，共 {pieces} 件",
   "noOutfitForDay": "{day, select, today{今天没有穿搭。} other{明天没有穿搭。}}",
-  "outfitPhotoSpoken": "你从头到脚穿着这套穿搭。{about}"
+  "outfitPhotoSpoken": "你从头到脚穿着这套穿搭。{about}",
+  "noPicks": "你还没有挑选任何单品。",
+  "removePickTitle": "从我的心选中移除？",
+  "remove": "移除",
+  "keep": "保留"
 }

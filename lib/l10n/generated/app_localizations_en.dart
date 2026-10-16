@@ -589,4 +589,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String outfitPhotoSpoken(String about) {
     return 'You, head to toe, in your outfit. $about';
   }
+
+  @override
+  String get noPicks => 'You haven’t picked anything yet.';
+
+  @override
+  String get removePickTitle => 'Remove from your picks?';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get keep => 'Keep';
 }

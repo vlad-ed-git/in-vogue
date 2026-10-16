@@ -10,6 +10,8 @@ import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/catalog/presentation/bloc/your_picks_bloc.dart';
+import 'package:in_vogue/features/catalog/presentation/screens/your_picks_screen.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home/presentation/bloc/shop_bloc.dart';
 import 'package:in_vogue/features/home/presentation/screens/home_screen.dart';
@@ -131,19 +133,10 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         builder: (context) => HomeScreen(
           onYourPicks: () => _push(
             context,
-            (context) => MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (_) =>
-                      locator<ForecastBloc>()..add(const ForecastRequested()),
-                ),
-                BlocProvider(create: (_) => locator<PicksBloc>()),
-              ],
-              child: PicksScreen(
-                browsing: true,
-                onBack: () => Navigator.of(context).pop(),
-                onProceed: () => Navigator.of(context).pop(),
-              ),
+            (context) => BlocProvider(
+              create: (_) =>
+                  locator<YourPicksBloc>()..add(const YourPicksLoaded()),
+              child: YourPicksScreen(onBack: () => Navigator.of(context).pop()),
             ),
           ),
           onShop: (outfit) => _push(

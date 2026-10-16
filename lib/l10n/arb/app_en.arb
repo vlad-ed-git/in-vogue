@@ -567,5 +567,21 @@
         "type": "String"
       }
     }
+  },
+  "noPicks": "You haven’t picked anything yet.",
+  "@noPicks": {
+    "description": "Your picks has no loved pieces."
+  },
+  "removePickTitle": "Remove from your picks?",
+  "@removePickTitle": {
+    "description": "Title of the sheet that confirms unloving a piece."
+  },
+  "remove": "Remove",
+  "@remove": {
+    "description": "Confirms removing a piece from the picks."
+  },
+  "keep": "Keep",
+  "@keep": {
+    "description": "Keeps the piece in the picks."
   }
 }

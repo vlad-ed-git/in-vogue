@@ -11,6 +11,7 @@ import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather
 import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/catalog/presentation/bloc/your_picks_bloc.dart';
 
 void init(GetIt locator) {
   locator
@@ -36,6 +37,13 @@ void init(GetIt locator) {
       () => PicksBloc(
         getPiecesForWeather: locator(),
         getPicks: locator(),
+        setPick: locator(),
+      ),
+    )
+    ..registerFactory<YourPicksBloc>(
+      () => YourPicksBloc(
+        getPicks: locator(),
+        getShopPieces: locator(),
         setPick: locator(),
       ),
     );

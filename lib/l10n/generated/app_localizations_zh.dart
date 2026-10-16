@@ -549,4 +549,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String outfitPhotoSpoken(String about) {
     return '你从头到脚穿着这套穿搭。$about';
   }
+
+  @override
+  String get noPicks => '你还没有挑选任何单品。';
+
+  @override
+  String get removePickTitle => '从我的心选中移除？';
+
+  @override
+  String get remove => '移除';
+
+  @override
+  String get keep => '保留';
 }
