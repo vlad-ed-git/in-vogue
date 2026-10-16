@@ -435,12 +435,6 @@ abstract class AppLocalizations {
   /// **'{day, select, today{You’ve seen every outfit that suits today. New pieces arrive soon.} other{You’ve seen every outfit that suits tomorrow. New pieces arrive soon.}}'**
   String everyLookSeen(String day);
 
-  /// No description provided for @notFullLength.
-  ///
-  /// In en, this message translates to:
-  /// **'This photo doesn’t show you head to toe.'**
-  String get notFullLength;
-
   /// A chosen photo could not be read.
   ///
   /// In en, this message translates to:
@@ -458,12 +452,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We dress this photo in each outfit.'**
   String get bodyPhotoWhy;
-
-  /// No description provided for @chooseAnotherPhoto.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose another photo'**
-  String get chooseAnotherPhoto;
 
   /// No description provided for @chooseDifferentPhoto.
   ///
@@ -501,7 +489,7 @@ abstract class AppLocalizations {
   /// **'Your photo'**
   String get yourPhoto;
 
-  /// Screen-reader label of the check on a photo that passes.
+  /// Screen-reader label of the check on a chosen photo.
   ///
   /// In en, this message translates to:
   /// **'Your photo works'**
@@ -668,12 +656,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Proceed'**
   String get proceed;
-
-  /// Moves on from the first outfit.
-  ///
-  /// In en, this message translates to:
-  /// **'Next'**
-  String get next;
 
   /// No description provided for @done.
   ///

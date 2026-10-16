@@ -74,15 +74,6 @@ class Notice extends StatelessWidget {
     message: context.translated.everyLookSeen(day.name),
   );
 
-  /// The chosen photo is not full length.
-  factory Notice.notFullLength({required BuildContext context, Key? key}) =>
-      Notice(
-        key: key,
-        icon: InVogueIcons.warning,
-        alert: true,
-        message: context.translated.notFullLength,
-      );
-
   final IconData icon;
 
   final String message;

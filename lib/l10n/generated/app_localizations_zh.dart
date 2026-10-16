@@ -254,9 +254,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get notFullLength => '这张照片没有拍到你的全身。';
-
-  @override
   String get photoUnreadable => '无法打开这张照片，请换一张。';
 
   @override
@@ -264,9 +261,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get bodyPhotoWhy => '我们会用这张照片为你换上每套搭配。';
-
-  @override
-  String get chooseAnotherPhoto => '选择另一张照片';
 
   @override
   String get chooseDifferentPhoto => '换一张照片';
@@ -383,9 +377,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proceed => '继续';
-
-  @override
-  String get next => '下一步';
 
   @override
   String get done => '完成';

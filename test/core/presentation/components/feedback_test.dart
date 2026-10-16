@@ -107,9 +107,7 @@ void main() {
       expect(notice.right - button.right, 16);
     });
 
-    testWidgets('offline, every look seen and not full length read plainly', (
-      tester,
-    ) async {
+    testWidgets('offline and every look seen read plainly', (tester) async {
       await pumpInVogue(
         tester,
         Builder(
@@ -120,7 +118,6 @@ void main() {
                 savedAt: 'Thu 16 Oct at 9:12 pm',
               ),
               Notice.everyLookSeen(context: context, day: ForecastDay.today),
-              Notice.notFullLength(context: context),
             ],
           ),
         ),
@@ -135,10 +132,6 @@ void main() {
         find.text(
           'You’ve seen every outfit that suits today. New pieces arrive soon.',
         ),
-        findsOneWidget,
-      );
-      expect(
-        find.text('This photo doesn’t show you head to toe.'),
         findsOneWidget,
       );
       expect(find.byType(InVogueButton), findsNothing);

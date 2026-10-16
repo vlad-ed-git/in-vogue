@@ -131,7 +131,7 @@ void main() {
       expect(button.top - caption.bottom, 24);
     });
 
-    testWidgets('a passing photo: check badge, Continue and choose again', (
+    testWidgets('a chosen photo: check badge, Continue and choose again', (
       tester,
     ) async {
       var next = 0;
@@ -152,27 +152,6 @@ void main() {
       await tester.tap(find.text('Continue'));
       await tester.tap(findLink('Choose a different photo'));
       expect((next, chose), (1, 1));
-    });
-
-    testWidgets('a rejected photo explains why and offers another', (
-      tester,
-    ) async {
-      var chose = 0;
-      await pumpInVogue(
-        tester,
-        PhotoPicker(
-          kind: PhotoKind.body,
-          example: testImage,
-          chosen: testImage,
-          check: PhotoCheck.notFullLength,
-          onChoose: () => chose++,
-        ),
-      );
-      expect(find.byType(Notice), findsOneWidget);
-      expect(find.text('Head to toe'), findsNothing);
-      expect(find.byType(CheckBadge), findsNothing);
-      await tester.tap(find.text('Choose another photo'));
-      expect(chose, 1);
     });
 
     testWidgets('a face photo has its own checklist and no privacy line', (

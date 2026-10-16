@@ -258,9 +258,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get notFullLength => 'This photo doesn’t show you head to toe.';
-
-  @override
   String get photoUnreadable =>
       'We couldn’t open this photo. Choose another one.';
 
@@ -269,9 +266,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bodyPhotoWhy => 'We dress this photo in each outfit.';
-
-  @override
-  String get chooseAnotherPhoto => 'Choose another photo';
 
   @override
   String get chooseDifferentPhoto => 'Choose a different photo';
@@ -418,9 +412,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proceed => 'Proceed';
-
-  @override
-  String get next => 'Next';
 
   @override
   String get done => 'Done';

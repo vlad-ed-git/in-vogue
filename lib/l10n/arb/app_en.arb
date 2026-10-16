@@ -286,7 +286,6 @@
       }
     }
   },
-  "notFullLength": "This photo doesn’t show you head to toe.",
   "photoUnreadable": "We couldn’t open this photo. Choose another one.",
   "@photoUnreadable": {
     "description": "A chosen photo could not be read."
@@ -299,7 +298,6 @@
   "@bodyPhotoWhy": {
     "description": "Why setup step 2 needs the photo."
   },
-  "chooseAnotherPhoto": "Choose another photo",
   "chooseDifferentPhoto": "Choose a different photo",
   "chooseFromPhotos": "Choose from Photos",
   "@chooseFromPhotos": {
@@ -320,7 +318,7 @@
   },
   "photoPasses": "Your photo works",
   "@photoPasses": {
-    "description": "Screen-reader label of the check on a photo that passes."
+    "description": "Screen-reader label of the check on a chosen photo."
   },
   "photoHeadToToe": "Head to toe",
   "photoStanding": "Standing, facing forward",
@@ -407,10 +405,6 @@
     }
   },
   "proceed": "Proceed",
-  "next": "Next",
-  "@next": {
-    "description": "Moves on from the first outfit."
-  },
   "done": "Done",
   "buyAt": "Buy at {brand}",
   "@buyAt": {

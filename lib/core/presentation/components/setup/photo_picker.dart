@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/components/actions/in_vogue_button.dart';
 import 'package:in_vogue/core/presentation/components/actions/text_link.dart';
-import 'package:in_vogue/core/presentation/components/feedback/notice.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/kicker.dart';
@@ -16,14 +15,10 @@ import 'package:in_vogue/l10n/generated/app_localizations.dart';
 /// The kind of photo a [PhotoPicker] asks for.
 enum PhotoKind { body, face }
 
-/// The check result of a chosen photo.
-enum PhotoCheck { passed, notFullLength }
-
 /// An example photo beside a checklist, with a button that opens the
 /// system photo picker.
 ///
-/// With a [chosen] photo that passed, it offers Continue and a link to
-/// choose again; a rejected photo shows why, with a button to choose again.
+/// With a [chosen] photo, it offers Continue and a link to choose again.
 /// An [optional] photo has a Rose choose button and no Continue, for a
 /// screen whose step forward is its own.
 class PhotoPicker extends StatelessWidget {
@@ -32,7 +27,6 @@ class PhotoPicker extends StatelessWidget {
     required this.example,
     required this.onChoose,
     this.chosen,
-    this.check = PhotoCheck.passed,
     this.onContinue,
     this.optional = false,
     super.key,
@@ -44,9 +38,6 @@ class PhotoPicker extends StatelessWidget {
   /// Opens the system photo picker.
   final VoidCallback onChoose;
   final ImageProvider? chosen;
-
-  /// Result for [chosen]; ignored without a chosen photo.
-  final PhotoCheck check;
   final VoidCallback? onContinue;
 
   /// Whether the photo can be left out; see [PhotoPicker].
@@ -77,8 +68,6 @@ class PhotoPicker extends StatelessWidget {
         ? l10n.chooseFromPhotos
         : l10n.chooseFromGallery;
     final hasPhoto = chosen != null;
-    final rejected = hasPhoto && check == PhotoCheck.notFullLength;
-    final passed = hasPhoto && !rejected;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -96,7 +85,7 @@ class PhotoPicker extends StatelessWidget {
                         : (kind == PhotoKind.body
                               ? l10n.exampleBodySpoken
                               : l10n.exampleFaceSpoken),
-                    overlay: passed
+                    overlay: hasPhoto
                         ? CheckBadgeOverlay(semanticLabel: l10n.photoPasses)
                         : null,
                   ),
@@ -106,15 +95,11 @@ class PhotoPicker extends StatelessWidget {
               ),
             ),
             const SizedBox(width: InVogueLayout.gutter),
-            Expanded(
-              child: rejected
-                  ? Notice.notFullLength(context: context)
-                  : _Checklist(items: _checklist(l10n)),
-            ),
+            Expanded(child: _Checklist(items: _checklist(l10n))),
           ],
         ),
         const SizedBox(height: actionsGap),
-        if (passed) ...[
+        if (hasPhoto) ...[
           if (!optional) ...[
             InVogueButton.primary(
               label: l10n.continueAction,
@@ -128,13 +113,13 @@ class PhotoPicker extends StatelessWidget {
           ),
         ] else if (optional)
           InVogueButton.secondary(
-            label: rejected ? l10n.chooseAnotherPhoto : chooseLabel,
+            label: chooseLabel,
             icon: InVogueIcons.image,
             onPressed: onChoose,
           )
         else
           InVogueButton.primary(
-            label: rejected ? l10n.chooseAnotherPhoto : chooseLabel,
+            label: chooseLabel,
             icon: InVogueIcons.image,
             onPressed: onChoose,
           ),
