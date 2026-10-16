@@ -236,6 +236,7 @@ void main() {
 
   test('a build without the try-on service makes no outfits', () async {
     const repository = UnavailableTryOnRepository();
+    expect(repository.available, isFalse);
     expect(
       await repository.start(_coat, fileId: 'file-1'),
       const Left<Failure, String>(TryOnFailure(TryOnProblem.unavailable)),

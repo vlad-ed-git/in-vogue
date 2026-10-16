@@ -35,6 +35,9 @@ final class TryOnErrored extends TryOnTask {
 
 /// The virtual try-on service.
 abstract interface class TryOnRepository {
+  /// Whether this build can reach the service at all.
+  bool get available;
+
   /// Puts the photo at [path] on the service; its file id.
   Future<Either<Failure, String>> upload(String path);
 

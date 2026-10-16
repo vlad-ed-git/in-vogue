@@ -24,6 +24,9 @@ class TryOnRepositoryImpl implements TryOnRepository {
   final LogMessages _logger;
 
   @override
+  bool get available => true;
+
+  @override
   Future<Either<Failure, String>> upload(String path) async {
     final List<int> bytes;
     try {

@@ -195,6 +195,16 @@ void main() {
     expect(budget.spent, 0);
   });
 
+  test('does nothing at all in a build without try-ons', () async {
+    tryOn.available = false;
+    expect(await make(), [
+      const TryOnFailed(TryOnFailure(TryOnProblem.unavailable)),
+    ]);
+    verifyNever(saveSetup(any));
+    expect(budget.spent, 0);
+    expect(keptJob(), isNull);
+  });
+
   test('needs the body photo', () async {
     photos.body = null;
     expect(await make(), [const TryOnFailed(TryOnFailure(TryOnProblem.photo))]);
@@ -372,6 +382,9 @@ class _FakeOutfits implements OutfitRepository {
 
 /// YouCam on the phone: task N's picture is https://r/task-N.
 class _FakeTryOn implements TryOnRepository {
+  @override
+  bool available = true;
+
   final uploads = <String>[];
   final starts = <({TryOnPass pass, String? fileId, String? pictureUrl})>[];
   final downloads = <String>[];

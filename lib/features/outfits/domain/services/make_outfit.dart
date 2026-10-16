@@ -106,6 +106,10 @@ class MakeOutfit {
     MakeOutfitParams params,
     void Function(TryOnUpdate update) report,
   ) async {
+    // Nothing is chosen, reserved or saved for a try-on that cannot run.
+    if (!_tryOn.available) {
+      return const TryOnFailed(TryOnFailure(TryOnProblem.unavailable));
+    }
     final body = (await _photos.kept(
       PhotoRole.body,
     )).fold<UserPhoto?>((_) => null, (photo) => photo);

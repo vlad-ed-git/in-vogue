@@ -12,6 +12,9 @@ class UnavailableTryOnRepository implements TryOnRepository {
   );
 
   @override
+  bool get available => false;
+
+  @override
   Future<Either<Failure, String>> upload(String path) async => _unavailable;
 
   @override
