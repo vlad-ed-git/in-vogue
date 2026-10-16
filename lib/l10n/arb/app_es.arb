@@ -178,5 +178,9 @@
   "defaultDayTitle": "Inicio se abre en",
   "deleteAccountTitle": "¿Eliminar tu cuenta?",
   "deleteAccountLine": "Se eliminarán tu perfil, tus fotos, tu selección y tus conjuntos. Lo confirmarás con Apple o Google. No se puede deshacer.",
-  "keepAccount": "Conservar mi cuenta"
+  "keepAccount": "Conservar mi cuenta",
+  "makeupFailed": "Esta vez no pudimos crear tu maquillaje. Tu foto está bien.",
+  "makeupPhotoProblem": "No encontramos tu cara en esta foto. Funciona mejor un primer plano, de frente y con luz natural.",
+  "makeupBudgetSpent": "Por ahora no se pueden crear más maquillajes.",
+  "makeupUnavailable": "El maquillaje aún no está disponible en esta versión."
 }

@@ -92,3 +92,26 @@ final class TryOnFailure extends Failure {
   @override
   List<Object?> get props => [problem];
 }
+
+/// Why a makeup look could not be made.
+enum MakeupProblem {
+  /// Making it failed; trying again may work.
+  failed,
+
+  /// The face photo could not be used.
+  photo,
+
+  /// The makeup budget is spent.
+  budgetSpent,
+
+  /// This build cannot make makeup looks.
+  unavailable,
+}
+
+final class MakeupFailure extends Failure {
+  const MakeupFailure(this.problem);
+  final MakeupProblem problem;
+
+  @override
+  List<Object?> get props => [problem];
+}

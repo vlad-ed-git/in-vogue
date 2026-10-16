@@ -743,5 +743,21 @@
   "keepAccount": "Keep my account",
   "@keepAccount": {
     "description": "Closes the delete sheet without deleting."
+  },
+  "makeupFailed": "We couldn’t make your makeup this time. Your photo is fine.",
+  "@makeupFailed": {
+    "description": "Making the makeup look failed; trying again may work."
+  },
+  "makeupPhotoProblem": "We couldn’t find your face in this photo. A close-up, facing forward in daylight, works best.",
+  "@makeupPhotoProblem": {
+    "description": "The makeup service could not use the person's face photo."
+  },
+  "makeupBudgetSpent": "No more makeup looks can be made for now.",
+  "@makeupBudgetSpent": {
+    "description": "The makeup budget is spent; no look is made."
+  },
+  "makeupUnavailable": "Makeup isn’t available in this version yet.",
+  "@makeupUnavailable": {
+    "description": "This build has no access to the makeup service."
   }
 }

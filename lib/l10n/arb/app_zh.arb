@@ -178,5 +178,9 @@
   "defaultDayTitle": "首页打开时显示",
   "deleteAccountTitle": "删除你的账户？",
   "deleteAccountLine": "你的资料、照片、心选和穿搭将被删除。你需要通过 Apple 或 Google 确认。此操作无法撤销。",
-  "keepAccount": "保留我的账户"
+  "keepAccount": "保留我的账户",
+  "makeupFailed": "这次没能为你生成妆容。你的照片没有问题。",
+  "makeupPhotoProblem": "这张照片里找不到你的脸。在自然光下正面拍摄的近照效果最好。",
+  "makeupBudgetSpent": "目前无法再生成新的妆容。",
+  "makeupUnavailable": "此版本暂不提供妆容。"
 }

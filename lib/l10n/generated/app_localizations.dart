@@ -1178,6 +1178,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep my account'**
   String get keepAccount;
+
+  /// Making the makeup look failed; trying again may work.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t make your makeup this time. Your photo is fine.'**
+  String get makeupFailed;
+
+  /// The makeup service could not use the person's face photo.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t find your face in this photo. A close-up, facing forward in daylight, works best.'**
+  String get makeupPhotoProblem;
+
+  /// The makeup budget is spent; no look is made.
+  ///
+  /// In en, this message translates to:
+  /// **'No more makeup looks can be made for now.'**
+  String get makeupBudgetSpent;
+
+  /// This build has no access to the makeup service.
+  ///
+  /// In en, this message translates to:
+  /// **'Makeup isn’t available in this version yet.'**
+  String get makeupUnavailable;
 }
 
 class _AppLocalizationsDelegate

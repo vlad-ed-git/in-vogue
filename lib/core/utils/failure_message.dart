@@ -20,6 +20,12 @@ extension FailureMessage on Failure {
         ForecastDay.tomorrow.name,
       ),
     },
+    MakeupFailure(:final problem) => switch (problem) {
+      MakeupProblem.failed => context.translated.makeupFailed,
+      MakeupProblem.photo => context.translated.makeupPhotoProblem,
+      MakeupProblem.budgetSpent => context.translated.makeupBudgetSpent,
+      MakeupProblem.unavailable => context.translated.makeupUnavailable,
+    },
     LocationFailure(:final needsSettings) =>
       needsSettings
           ? context.translated.locationOff

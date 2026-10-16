@@ -715,4 +715,20 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get keepAccount => 'Conservar mi cuenta';
+
+  @override
+  String get makeupFailed =>
+      'Esta vez no pudimos crear tu maquillaje. Tu foto está bien.';
+
+  @override
+  String get makeupPhotoProblem =>
+      'No encontramos tu cara en esta foto. Funciona mejor un primer plano, de frente y con luz natural.';
+
+  @override
+  String get makeupBudgetSpent =>
+      'Por ahora no se pueden crear más maquillajes.';
+
+  @override
+  String get makeupUnavailable =>
+      'El maquillaje aún no está disponible en esta versión.';
 }

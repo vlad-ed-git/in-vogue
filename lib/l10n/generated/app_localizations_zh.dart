@@ -675,4 +675,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get keepAccount => '保留我的账户';
+
+  @override
+  String get makeupFailed => '这次没能为你生成妆容。你的照片没有问题。';
+
+  @override
+  String get makeupPhotoProblem => '这张照片里找不到你的脸。在自然光下正面拍摄的近照效果最好。';
+
+  @override
+  String get makeupBudgetSpent => '目前无法再生成新的妆容。';
+
+  @override
+  String get makeupUnavailable => '此版本暂不提供妆容。';
 }
