@@ -561,4 +561,32 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get tryOnUnavailable =>
       'Los conjuntos aún no están disponibles en esta versión.';
+
+  @override
+  String get shop => 'Comprar';
+
+  @override
+  String get shopThisOutfit => 'Compra este conjunto';
+
+  @override
+  String get aboutThisOutfit => 'Sobre este conjunto';
+
+  @override
+  String tryOnPiece(int piece, int pieces) {
+    return 'Prenda $piece de $pieces';
+  }
+
+  @override
+  String noOutfitForDay(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': 'No hay conjunto para hoy.',
+      'other': 'No hay conjunto para mañana.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String outfitPhotoSpoken(String about) {
+    return 'Tú, de pies a cabeza, con tu conjunto. $about';
+  }
 }

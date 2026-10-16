@@ -37,6 +37,7 @@ dependencies:
   phosphoricons_flutter: ^1.1.1
   sign_in_with_apple: ^8.2.0
   sqflite: ^2.4.4+2
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

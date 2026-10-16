@@ -521,4 +521,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tryOnUnavailable => '此版本暂不提供穿搭。';
+
+  @override
+  String get shop => '选购';
+
+  @override
+  String get shopThisOutfit => '选购这套穿搭';
+
+  @override
+  String get aboutThisOutfit => '关于这套穿搭';
+
+  @override
+  String tryOnPiece(int piece, int pieces) {
+    return '第 $piece 件，共 $pieces 件';
+  }
+
+  @override
+  String noOutfitForDay(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': '今天没有穿搭。',
+      'other': '明天没有穿搭。',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String outfitPhotoSpoken(String about) {
+    return '你从头到脚穿着这套穿搭。$about';
+  }
 }

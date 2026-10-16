@@ -135,5 +135,11 @@
   "widgetPreviewSpoken": "{weather}你的穿搭正在准备中。",
   "tryOnPhotoProblem": "这张照片无法换装。换一张照片或许可以。",
   "tryOnBudgetSpent": "目前无法再生成新的穿搭。",
-  "tryOnUnavailable": "此版本暂不提供穿搭。"
+  "tryOnUnavailable": "此版本暂不提供穿搭。",
+  "shop": "选购",
+  "shopThisOutfit": "选购这套穿搭",
+  "aboutThisOutfit": "关于这套穿搭",
+  "tryOnPiece": "第 {piece} 件，共 {pieces} 件",
+  "noOutfitForDay": "{day, select, today{今天没有穿搭。} other{明天没有穿搭。}}",
+  "outfitPhotoSpoken": "你从头到脚穿着这套穿搭。{about}"
 }

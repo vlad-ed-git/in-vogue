@@ -525,5 +525,47 @@
   "tryOnUnavailable": "Outfits aren’t available in this version yet.",
   "@tryOnUnavailable": {
     "description": "This build has no access to the try-on service."
+  },
+  "shop": "Shop",
+  "@shop": {
+    "description": "The button under the outfit that opens the pieces to buy."
+  },
+  "shopThisOutfit": "Shop this outfit",
+  "@shopThisOutfit": {
+    "description": "Title of the page listing the outfit's pieces."
+  },
+  "aboutThisOutfit": "About this outfit",
+  "@aboutThisOutfit": {
+    "description": "Heading above the sentence on why the outfit suits the day."
+  },
+  "tryOnPiece": "Piece {piece} of {pieces}",
+  "@tryOnPiece": {
+    "description": "How far the try-on is: the piece being put on.",
+    "placeholders": {
+      "piece": {
+        "type": "int"
+      },
+      "pieces": {
+        "type": "int"
+      }
+    }
+  },
+  "noOutfitForDay": "{day, select, today{There’s no outfit for today.} other{There’s no outfit for tomorrow.}}",
+  "@noOutfitForDay": {
+    "description": "The day shown has no outfit, and none is being made.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "outfitPhotoSpoken": "You, head to toe, in your outfit. {about}",
+  "@outfitPhotoSpoken": {
+    "description": "Screen-reader label of the outfit photo, followed by the sentence about the outfit.",
+    "placeholders": {
+      "about": {
+        "type": "String"
+      }
+    }
   }
 }

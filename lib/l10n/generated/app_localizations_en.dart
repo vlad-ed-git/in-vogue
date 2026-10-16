@@ -561,4 +561,32 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tryOnUnavailable =>
       'Outfits aren’t available in this version yet.';
+
+  @override
+  String get shop => 'Shop';
+
+  @override
+  String get shopThisOutfit => 'Shop this outfit';
+
+  @override
+  String get aboutThisOutfit => 'About this outfit';
+
+  @override
+  String tryOnPiece(int piece, int pieces) {
+    return 'Piece $piece of $pieces';
+  }
+
+  @override
+  String noOutfitForDay(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': 'There’s no outfit for today.',
+      'other': 'There’s no outfit for tomorrow.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String outfitPhotoSpoken(String about) {
+    return 'You, head to toe, in your outfit. $about';
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +23,7 @@ import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home_widget/data/repositories/unavailable_home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
@@ -65,6 +67,9 @@ const _photo = UserPhoto(
   revision: 1,
 );
 
+class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
+    implements HomeBloc {}
+
 void main() {
   late MockPreferencesRepository preferences;
   late MockSetupRepository setup;
@@ -105,6 +110,15 @@ void main() {
           saveSetupToAccount: saveSetup,
         ),
       )
+      ..registerFactory<HomeBloc>(() {
+        final home = _MockHomeBloc();
+        whenListen(
+          home,
+          const Stream<HomeState>.empty(),
+          initialState: const HomeState(),
+        );
+        return home;
+      })
       ..registerFactory<LogOutBloc>(
         () => LogOutBloc(
           logOut: LogOut(auth: auth, profile: profile),

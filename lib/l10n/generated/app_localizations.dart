@@ -920,6 +920,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Outfits aren’t available in this version yet.'**
   String get tryOnUnavailable;
+
+  /// The button under the outfit that opens the pieces to buy.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get shop;
+
+  /// Title of the page listing the outfit's pieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop this outfit'**
+  String get shopThisOutfit;
+
+  /// Heading above the sentence on why the outfit suits the day.
+  ///
+  /// In en, this message translates to:
+  /// **'About this outfit'**
+  String get aboutThisOutfit;
+
+  /// How far the try-on is: the piece being put on.
+  ///
+  /// In en, this message translates to:
+  /// **'Piece {piece} of {pieces}'**
+  String tryOnPiece(int piece, int pieces);
+
+  /// The day shown has no outfit, and none is being made.
+  ///
+  /// In en, this message translates to:
+  /// **'{day, select, today{There’s no outfit for today.} other{There’s no outfit for tomorrow.}}'**
+  String noOutfitForDay(String day);
+
+  /// Screen-reader label of the outfit photo, followed by the sentence about the outfit.
+  ///
+  /// In en, this message translates to:
+  /// **'You, head to toe, in your outfit. {about}'**
+  String outfitPhotoSpoken(String about);
 }
 
 class _AppLocalizationsDelegate

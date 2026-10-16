@@ -15,6 +15,7 @@ import 'package:in_vogue/core/persistence/sqlite_cache.dart';
 import 'package:in_vogue/features/account/di/init.dart' as account_di;
 import 'package:in_vogue/features/auth/di/init.dart' as auth_di;
 import 'package:in_vogue/features/catalog/di/init.dart' as catalog_di;
+import 'package:in_vogue/features/home/di/init.dart' as home_di;
 import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
 import 'package:in_vogue/features/location/di/init.dart' as location_di;
 import 'package:in_vogue/features/outfits/di/init.dart' as outfits_di;
@@ -87,6 +88,7 @@ abstract final class MainInit {
       home_widget_di.init(locator);
       account_di.init(locator);
       outfits_di.init(locator, youCamApiKey: youCamApiKey);
+      home_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
       final setupStep = await locator<GetSetupStep>()(const NoParams());
       _registerErrorHandlers(locator<LogMessages>());

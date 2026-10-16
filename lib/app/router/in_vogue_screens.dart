@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -8,6 +10,10 @@ import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
+import 'package:in_vogue/features/home/presentation/bloc/shop_bloc.dart';
+import 'package:in_vogue/features/home/presentation/screens/home_screen.dart';
+import 'package:in_vogue/features/home/presentation/screens/shop_screen.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
@@ -119,6 +125,39 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
     SetupStep.done => throw ArgumentError.value(step, 'step', 'Has no screen'),
   },
   tab: (tab) => switch (tab) {
+    InVogueTab.home => BlocProvider(
+      create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
+      child: Builder(
+        builder: (context) => HomeScreen(
+          onYourPicks: () => _push(
+            context,
+            (context) => MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) =>
+                      locator<ForecastBloc>()..add(const ForecastRequested()),
+                ),
+                BlocProvider(create: (_) => locator<PicksBloc>()),
+              ],
+              child: PicksScreen(
+                browsing: true,
+                onBack: () => Navigator.of(context).pop(),
+                onProceed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ),
+          onShop: (outfit) => _push(
+            context,
+            (context) => BlocProvider(
+              create: (_) =>
+                  locator<ShopBloc>()
+                    ..add(ShopRequested(outfit.outfit.outsideIn)),
+              child: ShopScreen(onBack: () => Navigator.of(context).pop()),
+            ),
+          ),
+        ),
+      ),
+    ),
     InVogueTab.settings => BlocProvider(
       create: (_) => locator<LogOutBloc>(),
       child: Builder(
@@ -129,6 +168,14 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         ),
       ),
     ),
-    InVogueTab.home || InVogueTab.makeup => const SizedBox.shrink(),
+    InVogueTab.makeup => const SizedBox.shrink(),
   },
+);
+
+/// Opens a full screen over the tabs.
+void _push(BuildContext context, WidgetBuilder builder) => unawaited(
+  Navigator.of(
+    context,
+    rootNavigator: true,
+  ).push(MaterialPageRoute<void>(builder: builder)),
 );

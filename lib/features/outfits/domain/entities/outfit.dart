@@ -48,6 +48,12 @@ class Outfit extends Equatable {
   /// A one-line reason for each knowledge-base cell the outfit suits.
   final Map<String, String> reasons;
 
+  /// Colourway ids of the pieces from the outer layer in: the try-on's
+  /// passes in reverse.
+  List<String> get outsideIn => passes.isEmpty
+      ? pieces.reversed.toList()
+      : [for (final pass in passes.reversed) pass.piece];
+
   @override
   List<Object?> get props => [id, signature, pieces, passes, reasons];
 }
