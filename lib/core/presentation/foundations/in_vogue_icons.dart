@@ -20,6 +20,7 @@ abstract final class InVogueIcons {
   static const IconData plus = PhosphorIconsRegular.plus;
   static const IconData squaresFour = PhosphorIconsRegular.squaresFour;
   static const IconData signOut = PhosphorIconsRegular.signOut;
+  static const IconData language = PhosphorIconsRegular.translate;
   static const IconData trash = PhosphorIconsRegular.trash;
   static const IconData appleLogo = PhosphorIconsRegular.appleLogo;
   static const IconData googleLogo = PhosphorIconsRegular.googleLogo;

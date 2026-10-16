@@ -4,6 +4,7 @@ import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/core/utils/failure_message.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
+import 'package:in_vogue/features/preferences/presentation/widgets/language_button.dart';
 
 /// Setup step 1: who In Vogue is for, and the one permission it needs.
 ///
@@ -55,65 +56,75 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       listener: (context, state) => widget.onLocated(),
       child: Scaffold(
         body: SafeArea(
-          child: CustomScrollView(
-            slivers: [
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: InVogueSpace.s6),
-                    // The logo as a square in the height the text leaves, so
-                    // the button stays in the first view; scrolls below the
-                    // minimum.
-                    Expanded(
-                      child: PageMargin(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            minHeight: _logoMin,
-                          ),
-                          child: Semantics(
-                            image: true,
-                            label: l10n.appName,
-                            child: const DecoratedBox(
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: WelcomeScreen.logo,
-                                  fit: BoxFit.contain,
-                                  alignment: AlignmentDirectional.topStart,
+          child: Stack(
+            children: [
+              CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: InVogueSpace.s6),
+                        // The logo as a square in the height the text leaves, so
+                        // the button stays in the first view; scrolls below the
+                        // minimum.
+                        Expanded(
+                          child: PageMargin(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minHeight: _logoMin,
+                              ),
+                              child: Semantics(
+                                image: true,
+                                label: l10n.appName,
+                                child: const DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: WelcomeScreen.logo,
+                                      fit: BoxFit.contain,
+                                      alignment: AlignmentDirectional.topStart,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
+                        PageMargin(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(height: InVogueSpace.s6),
+                              ScreenTitle(
+                                l10n.tagline,
+                                style: InVogueType.headline,
+                              ),
+                              const SizedBox(height: InVogueSpace.s3),
+                              Text(
+                                l10n.welcomeDescription,
+                                style: InVogueType.body.copyWith(
+                                  color: InVogueColors.graphite,
+                                ),
+                              ),
+                              const SizedBox(height: InVogueSpace.s5),
+                              BlocBuilder<LocationBloc, LocationState>(
+                                builder: (context, state) => _action(state),
+                              ),
+                              const SizedBox(height: InVogueSpace.s4),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    PageMargin(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: InVogueSpace.s6),
-                          ScreenTitle(
-                            l10n.tagline,
-                            style: InVogueType.headline,
-                          ),
-                          const SizedBox(height: InVogueSpace.s3),
-                          Text(
-                            l10n.welcomeDescription,
-                            style: InVogueType.body.copyWith(
-                              color: InVogueColors.graphite,
-                            ),
-                          ),
-                          const SizedBox(height: InVogueSpace.s5),
-                          BlocBuilder<LocationBloc, LocationState>(
-                            builder: (context, state) => _action(state),
-                          ),
-                          const SizedBox(height: InVogueSpace.s4),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+              // In the logo's empty top-right corner, level with its top.
+              PositionedDirectional(
+                top: InVogueSpace.s6 - _languageInset(context),
+                end: context.pageMargin - _languageInset(context),
+                child: const LanguageButton(),
               ),
             ],
           ),
@@ -121,6 +132,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ),
     );
   }
+
+  /// The tap target's margin around the language icon.
+  static double _languageInset(BuildContext context) =>
+      (context.minTapTarget - LanguageButton.iconSize) / 2;
 
   Widget _action(LocationState state) {
     if (state.settingsProblem != null) {

@@ -2,10 +2,12 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
+import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
 import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -13,6 +15,9 @@ import '../../helpers/pump_in_vogue.dart';
 
 class _MockLocationBloc extends MockBloc<LocationEvent, LocationState>
     implements LocationBloc {}
+
+class _MockPreferencesBloc extends MockBloc<PreferencesEvent, PreferencesState>
+    implements PreferencesBloc {}
 
 const _located = LocationState(
   status: LocationStatus.located,
@@ -27,10 +32,23 @@ Finder _button(String label) =>
 
 void main() {
   late _MockLocationBloc bloc;
+  late _MockPreferencesBloc preferences;
   late int located;
+
+  setUpAll(
+    () => registerFallbackValue(
+      const LanguageChanged(SupportedLanguages.english),
+    ),
+  );
 
   setUp(() {
     bloc = _MockLocationBloc();
+    preferences = _MockPreferencesBloc();
+    whenListen(
+      preferences,
+      const Stream<PreferencesState>.empty(),
+      initialState: const PreferencesState(),
+    );
     located = 0;
   });
 
@@ -45,8 +63,11 @@ void main() {
     whenListen(bloc, states, initialState: state);
     await pumpInVogue(
       tester,
-      BlocProvider<LocationBloc>.value(
-        value: bloc,
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<LocationBloc>.value(value: bloc),
+          BlocProvider<PreferencesBloc>.value(value: preferences),
+        ],
         child: WelcomeScreen(onLocated: () => located++),
       ),
       locale: locale,
@@ -56,6 +77,31 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
+
+  testWidgets('changes the language from the icon at the top right', (
+    tester,
+  ) async {
+    await pumpWelcome(tester);
+    final icon = tester.getRect(find.byIcon(InVogueIcons.language));
+    final logo = tester.getRect(find.bySemanticsLabel('In Vogue').first);
+    expect(icon.top, logo.top);
+    expect(icon.right, logo.right);
+    await tester.tap(find.bySemanticsLabel('Language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Español'));
+    await tester.pumpAndSettle();
+    verify(
+      () => preferences.add(
+        any(
+          that: isA<LanguageChanged>().having(
+            (event) => event.language,
+            'language',
+            SupportedLanguages.spanish,
+          ),
+        ),
+      ),
+    ).called(1);
+  });
 
   testWidgets('shows the In Vogue logo, not a photo', (tester) async {
     final handle = tester.ensureSemantics();
