@@ -24,6 +24,8 @@ enum PhotoCheck { passed, notFullLength }
 ///
 /// With a [chosen] photo that passed, it offers Continue and a link to
 /// choose again; a rejected photo shows why, with a button to choose again.
+/// An [optional] photo has a Rose choose button and no Continue, for a
+/// screen whose step forward is its own.
 class PhotoPicker extends StatelessWidget {
   const PhotoPicker({
     required this.kind,
@@ -32,6 +34,7 @@ class PhotoPicker extends StatelessWidget {
     this.chosen,
     this.check = PhotoCheck.passed,
     this.onContinue,
+    this.optional = false,
     super.key,
   });
 
@@ -45,6 +48,9 @@ class PhotoPicker extends StatelessWidget {
   /// Result for [chosen]; ignored without a chosen photo.
   final PhotoCheck check;
   final VoidCallback? onContinue;
+
+  /// Whether the photo can be left out; see [PhotoPicker].
+  final bool optional;
 
   /// Space between the photo row and the buttons.
   static const double actionsGap = InVogueSpace.s6;
@@ -109,16 +115,24 @@ class PhotoPicker extends StatelessWidget {
         ),
         const SizedBox(height: actionsGap),
         if (passed) ...[
-          InVogueButton.primary(
-            label: l10n.continueAction,
-            onPressed: onContinue,
-          ),
-          const SizedBox(height: InVogueSpace.s4),
+          if (!optional) ...[
+            InVogueButton.primary(
+              label: l10n.continueAction,
+              onPressed: onContinue,
+            ),
+            const SizedBox(height: InVogueSpace.s4),
+          ],
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: TextLink(label: l10n.chooseDifferentPhoto, onTap: onChoose),
           ),
-        ] else
+        ] else if (optional)
+          InVogueButton.secondary(
+            label: rejected ? l10n.chooseAnotherPhoto : chooseLabel,
+            icon: InVogueIcons.image,
+            onPressed: onChoose,
+          )
+        else
           InVogueButton.primary(
             label: rejected ? l10n.chooseAnotherPhoto : chooseLabel,
             icon: InVogueIcons.image,

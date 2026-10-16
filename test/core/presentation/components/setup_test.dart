@@ -6,6 +6,46 @@ import '../../../helpers/pump_in_vogue.dart';
 
 void main() {
   group('PhotoPicker', () {
+    testWidgets('an optional photo: a Rose choose button and no Continue', (
+      tester,
+    ) async {
+      var chose = 0;
+      await pumpInVogue(
+        tester,
+        PhotoPicker(
+          kind: PhotoKind.face,
+          example: testImage,
+          optional: true,
+          onChoose: () => chose++,
+        ),
+        platform: TargetPlatform.iOS,
+      );
+      final choose = tester.widget<InVogueButton>(
+        find.ancestor(
+          of: find.text('Choose from Photos'),
+          matching: find.byType(InVogueButton),
+        ),
+      );
+      expect(choose.kind, InVogueButtonKind.secondary);
+      await tester.tap(find.text('Choose from Photos'));
+      expect(chose, 1);
+      await pumpInVogue(
+        tester,
+        PhotoPicker(
+          kind: PhotoKind.face,
+          example: testImage,
+          chosen: otherTestImage,
+          optional: true,
+          onChoose: () => chose++,
+        ),
+        platform: TargetPlatform.iOS,
+      );
+      expect(find.text('Continue'), findsNothing);
+      expect(find.byType(InVogueButton), findsNothing);
+      await tester.tap(findLink('Choose a different photo'));
+      expect(chose, 2);
+    });
+
     testWidgets('before choosing: example, checklist, Choose from Gallery', (
       tester,
     ) async {
