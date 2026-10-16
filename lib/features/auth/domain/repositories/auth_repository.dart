@@ -8,4 +8,7 @@ enum SignInMethod { apple, google }
 abstract interface class AuthRepository {
   /// Signs in with [method]'s account, creating it on first use.
   Future<Either<Failure, Account>> signIn(SignInMethod method);
+
+  /// The signed-in account; null when nobody is signed in.
+  Future<Either<Failure, Account?>> currentAccount();
 }

@@ -11,4 +11,7 @@ class UnavailableAuthRepository implements AuthRepository {
   @override
   Future<Either<Failure, Account>> signIn(SignInMethod method) async =>
       const Left(SignInFailure(SignInProblem.unavailable));
+
+  @override
+  Future<Either<Failure, Account?>> currentAccount() async => const Right(null);
 }

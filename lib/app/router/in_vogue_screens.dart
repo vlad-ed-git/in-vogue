@@ -10,8 +10,10 @@ import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
+import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:in_vogue/features/settings/presentation/screens/settings_screen.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
+import 'package:in_vogue/features/setup/presentation/screens/about_you_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/picks_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/sign_in_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart';
@@ -68,6 +70,24 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         builder: (context) => SignInScreen(
           onBack: () => context.pop(),
           onSignedIn: (_) => context.go(AppRoutes.forStep(SetupStep.profile)),
+        ),
+      ),
+    ),
+    SetupStep.profile => MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => locator<ProfileBloc>()..add(const ProfileLoaded()),
+        ),
+        BlocProvider(
+          create: (_) =>
+              locator<PhotoBloc>(param1: PhotoRole.face)
+                ..add(const PhotoLoaded()),
+        ),
+      ],
+      child: Builder(
+        builder: (context) => AboutYouScreen(
+          onBack: () => context.pop(),
+          onDone: () => context.go(AppRoutes.forStep(SetupStep.widget)),
         ),
       ),
     ),

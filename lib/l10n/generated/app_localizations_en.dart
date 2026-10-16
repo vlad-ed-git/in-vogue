@@ -525,4 +525,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInFailed => 'We couldn’t sign you in. Please try again.';
+
+  @override
+  String get aboutYouTitle => 'What should we call you?';
+
+  @override
+  String get yourName => 'Your name';
+
+  @override
+  String get facePhotoTitle => 'Add a face photo';
+
+  @override
+  String get facePhotoLine => 'Optional. It makes your makeup match you.';
 }

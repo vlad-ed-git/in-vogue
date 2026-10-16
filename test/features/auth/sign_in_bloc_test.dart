@@ -91,5 +91,9 @@ void main() {
       await const UnavailableAuthRepository().signIn(SignInMethod.apple),
       const Left<Failure, Account>(SignInFailure(SignInProblem.unavailable)),
     );
+    expect(
+      await const UnavailableAuthRepository().currentAccount(),
+      const Right<Failure, Account?>(null),
+    );
   });
 }

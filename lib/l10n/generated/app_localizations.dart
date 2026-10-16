@@ -860,6 +860,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn’t sign you in. Please try again.'**
   String get signInFailed;
+
+  /// Title of setup step 5.
+  ///
+  /// In en, this message translates to:
+  /// **'What should we call you?'**
+  String get aboutYouTitle;
+
+  /// Label of the name field.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get yourName;
+
+  /// No description provided for @facePhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a face photo'**
+  String get facePhotoTitle;
+
+  /// No description provided for @facePhotoLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. It makes your makeup match you.'**
+  String get facePhotoLine;
 }
 
 class _AppLocalizationsDelegate

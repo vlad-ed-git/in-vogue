@@ -489,4 +489,16 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get signInFailed => '登录失败，请重试。';
+
+  @override
+  String get aboutYouTitle => '我们该怎么称呼你？';
+
+  @override
+  String get yourName => '你的名字';
+
+  @override
+  String get facePhotoTitle => '添加一张面部照片';
+
+  @override
+  String get facePhotoLine => '可选。让妆容更适合你。';
 }

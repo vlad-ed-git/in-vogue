@@ -17,6 +17,7 @@ import 'package:in_vogue/features/catalog/di/init.dart' as catalog_di;
 import 'package:in_vogue/features/location/di/init.dart' as location_di;
 import 'package:in_vogue/features/outfits/di/init.dart' as outfits_di;
 import 'package:in_vogue/features/photos/di/init.dart' as photos_di;
+import 'package:in_vogue/features/profile/di/init.dart' as profile_di;
 import 'package:in_vogue/features/preferences/di/init.dart' as preferences_di;
 import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart';
 import 'package:in_vogue/features/setup/di/init.dart' as setup_di;
@@ -80,6 +81,7 @@ abstract final class MainInit {
       outfits_di.init(locator);
       catalog_di.init(locator);
       auth_di.init(locator);
+      profile_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
       final setupStep = await locator<GetSetupStep>()(const NoParams());
       _registerErrorHandlers(locator<LogMessages>());

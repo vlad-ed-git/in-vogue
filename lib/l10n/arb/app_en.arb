@@ -492,5 +492,15 @@
     "description": "Under the sign-in title: what carries over, and what comes next."
   },
   "signInUnavailable": "Sign-in isn’t available yet.",
-  "signInFailed": "We couldn’t sign you in. Please try again."
+  "signInFailed": "We couldn’t sign you in. Please try again.",
+  "aboutYouTitle": "What should we call you?",
+  "@aboutYouTitle": {
+    "description": "Title of setup step 5."
+  },
+  "yourName": "Your name",
+  "@yourName": {
+    "description": "Label of the name field."
+  },
+  "facePhotoTitle": "Add a face photo",
+  "facePhotoLine": "Optional. It makes your makeup match you."
 }

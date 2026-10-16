@@ -125,5 +125,9 @@
   "signInTitle": "Inicia sesión",
   "signInLine": "Tu foto y tus favoritos vienen contigo. Luego preparamos tu primer conjunto.",
   "signInUnavailable": "El inicio de sesión aún no está disponible.",
-  "signInFailed": "No pudimos iniciar tu sesión. Inténtalo de nuevo."
+  "signInFailed": "No pudimos iniciar tu sesión. Inténtalo de nuevo.",
+  "aboutYouTitle": "¿Cómo te llamamos?",
+  "yourName": "Tu nombre",
+  "facePhotoTitle": "Añade una foto de tu cara",
+  "facePhotoLine": "Opcional. Así el maquillaje va contigo."
 }
