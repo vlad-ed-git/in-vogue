@@ -29,6 +29,8 @@ void init(GetIt locator) {
     ..registerLazySingleton<LogOut>(
       () => LogOut(auth: locator(), profile: locator()),
     )
-    ..registerFactory<SignInBloc>(() => SignInBloc(signIn: locator()))
+    ..registerFactory<SignInBloc>(
+      () => SignInBloc(signIn: locator(), saveSetupToAccount: locator()),
+    )
     ..registerFactory<LogOutBloc>(() => LogOutBloc(logOut: locator()));
 }

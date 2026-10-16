@@ -2,6 +2,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
@@ -39,13 +40,17 @@ class SignInState extends Equatable {
   List<Object?> get props => [status, account, failure];
 }
 
-/// One sign-in at a time; cancelling is not a failure.
+/// One sign-in at a time; cancelling is not a failure. Saves the phone's
+/// setup on the account before it is signed in; a failed save does not stop
+/// sign-in.
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  SignInBloc({required this._signIn}) : super(const SignInState()) {
+  SignInBloc({required this._signIn, required this._saveSetupToAccount})
+    : super(const SignInState()) {
     on<SignInRequested>(_request, transformer: droppable());
   }
 
   final SignIn _signIn;
+  final SaveSetupToAccount _saveSetupToAccount;
 
   Future<void> _request(
     SignInRequested event,
@@ -53,14 +58,17 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   ) async {
     emit(const SignInState(status: SignInStatus.signingIn));
     final result = await _signIn(event.method);
-    emit(
-      result.fold(
-        (failure) => failure == const SignInFailure(SignInProblem.cancelled)
+    final account = result.fold<Account?>((_) => null, (account) => account);
+    if (account == null) {
+      final failure = result.fold((failure) => failure, (_) => null);
+      return emit(
+        failure == const SignInFailure(SignInProblem.cancelled)
             ? const SignInState()
             : SignInState(failure: failure),
-        (account) =>
-            SignInState(status: SignInStatus.signedIn, account: account),
-      ),
-    );
+      );
+    }
+    // The repository logs a failed save; the try-on saves again first.
+    await _saveSetupToAccount(account.id);
+    emit(SignInState(status: SignInStatus.signedIn, account: account));
   }
 }

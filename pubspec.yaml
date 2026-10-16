@@ -10,12 +10,14 @@ dependencies:
   bloc_concurrency: ^0.3.0
   cached_network_image: ^4.0.3
   clock: ^1.1.2
+  cloud_firestore: ^6.10.0
   crypto: ^3.0.7
   dartz: ^0.10.1
   dio: ^5.11.1
   equatable: ^3.0.0
   firebase_auth: ^6.7.0
   firebase_core: ^4.15.0
+  firebase_storage: ^13.6.0
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1

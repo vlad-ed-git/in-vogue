@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
+import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
 import 'package:in_vogue/features/profile/domain/usecases/get_profile_name.dart';
 import 'package:in_vogue/features/profile/domain/usecases/save_profile_name.dart';
@@ -45,12 +46,15 @@ class ProfileState extends Equatable {
   List<Object?> get props => [status, name, failure];
 }
 
-/// The name In Vogue uses for the person.
+/// The name In Vogue uses for the person. A saved name, and the face photo,
+/// are saved on the signed-in account too; a failed account save does not
+/// stop the person.
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({
     required this._getProfileName,
     required this._saveProfileName,
     required this._getCurrentAccount,
+    required this._saveSetupToAccount,
   }) : super(const ProfileState()) {
     on<ProfileLoaded>(_load);
     on<ProfileNameSaved>(_save, transformer: droppable());
@@ -59,6 +63,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final GetProfileName _getProfileName;
   final SaveProfileName _saveProfileName;
   final GetCurrentAccount _getCurrentAccount;
+  final SaveSetupToAccount _saveSetupToAccount;
 
   Future<void> _load(ProfileLoaded event, Emitter<ProfileState> emit) async {
     final saved = (await _getProfileName(
@@ -78,15 +83,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     if (event.name.trim().isEmpty) return;
     emit(ProfileState(status: ProfileStatus.saving, name: event.name));
     final saved = await _saveProfileName(event.name);
-    emit(
-      saved.fold(
-        (failure) => ProfileState(
+    final name = saved.fold<String?>((_) => null, (name) => name);
+    if (name == null) {
+      return emit(
+        ProfileState(
           status: ProfileStatus.ready,
           name: event.name,
-          failure: failure,
+          failure: saved.fold((failure) => failure, (_) => null),
         ),
-        (name) => ProfileState(status: ProfileStatus.saved, name: name),
-      ),
-    );
+      );
+    }
+    final account = (await _getCurrentAccount(
+      const NoParams(),
+    )).getOrElse(() => null);
+    // The repository logs a failed save; the try-on saves again first.
+    if (account != null) await _saveSetupToAccount(account.id);
+    emit(ProfileState(status: ProfileStatus.saved, name: name));
   }
 }

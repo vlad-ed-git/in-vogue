@@ -91,13 +91,18 @@ void main() {
     final profile = ProfileRepositoryImpl(
       ProfileLocalDataSourceImpl(profileStore),
     );
+    final saveSetup = MockSaveSetupToAccount();
+    when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
     locator = GetIt.asNewInstance()
-      ..registerFactory<SignInBloc>(() => SignInBloc(signIn: SignIn(auth)))
+      ..registerFactory<SignInBloc>(
+        () => SignInBloc(signIn: SignIn(auth), saveSetupToAccount: saveSetup),
+      )
       ..registerFactory<ProfileBloc>(
         () => ProfileBloc(
           getProfileName: GetProfileName(profile),
           saveProfileName: SaveProfileName(profile),
           getCurrentAccount: GetCurrentAccount(auth),
+          saveSetupToAccount: saveSetup,
         ),
       )
       ..registerFactory<LogOutBloc>(

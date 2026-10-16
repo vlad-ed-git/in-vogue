@@ -1,0 +1,141 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:in_vogue/core/network/network_exceptions.dart';
+
+/// The account in Firestore (`users/{uid}`) and its photos in Storage.
+///
+/// Every method throws [NetworkException] or [ServerException].
+abstract interface class AccountRemoteDataSource {
+  /// The account document's fields; null when it does not exist.
+  Future<Map<String, Object?>?> readAccount(String accountId);
+
+  /// Merges [fields] into the account document with the time of the update,
+  /// and the time it was created when [created] is set.
+  Future<void> writeAccount(
+    String accountId,
+    Map<String, Object?> fields, {
+    required bool created,
+  });
+
+  /// Uploads the image [file] to the Storage [path].
+  Future<void> uploadPhoto({
+    required String path,
+    required String file,
+    required String contentType,
+  });
+
+  /// Deletes the Storage object at [path].
+  Future<void> deletePhoto(String path);
+
+  /// Ids of the colourways on the account's wishlist.
+  Future<Set<String>> wishlist(String accountId);
+
+  /// Adds [add] to the wishlist and removes [remove] from it.
+  Future<void> writeWishlist(
+    String accountId, {
+    required Set<String> add,
+    required Set<String> remove,
+  });
+}
+
+class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
+  AccountRemoteDataSourceImpl({
+    required this._firestore,
+    required this._storage,
+  });
+
+  final FirebaseFirestore _firestore;
+  final FirebaseStorage _storage;
+
+  /// Writes per batch, under Firestore's limit of 500.
+  static const batchSize = 400;
+
+  /// Error codes that mean the server could not be reached.
+  static const _offline = {
+    'unavailable',
+    'deadline-exceeded',
+    'network-request-failed',
+    'retry-limit-exceeded',
+  };
+
+  DocumentReference<Map<String, dynamic>> _account(String accountId) =>
+      _firestore.collection('users').doc(accountId);
+
+  CollectionReference<Map<String, dynamic>> _wishlist(String accountId) =>
+      _account(accountId).collection('wishlist');
+
+  @override
+  Future<Map<String, Object?>?> readAccount(String accountId) =>
+      _guard(() async {
+        final snapshot = await _account(accountId).get();
+        return snapshot.exists ? snapshot.data() : null;
+      });
+
+  @override
+  Future<void> writeAccount(
+    String accountId,
+    Map<String, Object?> fields, {
+    required bool created,
+  }) => _guard(
+    () => _account(accountId).set({
+      ...fields,
+      if (created) 'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true)),
+  );
+
+  @override
+  Future<void> uploadPhoto({
+    required String path,
+    required String file,
+    required String contentType,
+  }) => _guard(
+    () => _storage
+        .ref(path)
+        .putFile(File(file), SettableMetadata(contentType: contentType)),
+  );
+
+  @override
+  Future<void> deletePhoto(String path) =>
+      _guard(() => _storage.ref(path).delete());
+
+  @override
+  Future<Set<String>> wishlist(String accountId) => _guard(() async {
+    final saved = await _wishlist(accountId).get();
+    return {for (final document in saved.docs) document.id};
+  });
+
+  @override
+  Future<void> writeWishlist(
+    String accountId, {
+    required Set<String> add,
+    required Set<String> remove,
+  }) => _guard(() async {
+    final collection = _wishlist(accountId);
+    final writes = <void Function(WriteBatch)>[
+      for (final id in add)
+        (batch) => batch.set(collection.doc(id), {
+          'addedAt': FieldValue.serverTimestamp(),
+        }),
+      for (final id in remove) (batch) => batch.delete(collection.doc(id)),
+    ];
+    for (var start = 0; start < writes.length; start += batchSize) {
+      final batch = _firestore.batch();
+      for (final write in writes.skip(start).take(batchSize)) {
+        write(batch);
+      }
+      await batch.commit();
+    }
+  });
+
+  static Future<T> _guard<T>(Future<T> Function() call) async {
+    try {
+      return await call();
+    } on FirebaseException catch (error, stack) {
+      if (_offline.contains(error.code)) throw NetworkException(error, stack);
+      throw ServerException(error, stack);
+    }
+  }
+}

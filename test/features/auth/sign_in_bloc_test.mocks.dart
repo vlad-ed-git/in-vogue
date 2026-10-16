@@ -8,6 +8,8 @@ import 'dart:async' as _i4;
 
 import 'package:dartz/dartz.dart' as _i2;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
+import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart'
+    as _i7;
 import 'package:in_vogue/features/auth/domain/entities/account.dart' as _i6;
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart'
     as _i3;
@@ -78,6 +80,29 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
               _FakeEither_0<_i5.Failure, _i2.Unit>(
                 this,
                 Invocation.method(#signOut, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+}
+
+/// A class which mocks [SaveSetupToAccount].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSaveSetupToAccount extends _i1.Mock
+    implements _i7.SaveSetupToAccount {
+  MockSaveSetupToAccount() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> call(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [accountId]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#call, [accountId]),
               ),
             ),
           )

@@ -60,16 +60,20 @@ void main() {
   group('ProfileBloc', () {
     late MockProfileRepository profile;
     late MockAuthRepository auth;
+    late MockSaveSetupToAccount saveSetup;
 
     ProfileBloc buildBloc() => ProfileBloc(
       getProfileName: GetProfileName(profile),
       saveProfileName: SaveProfileName(profile),
       getCurrentAccount: GetCurrentAccount(auth),
+      saveSetupToAccount: saveSetup,
     );
 
     setUp(() {
       profile = MockProfileRepository();
       auth = MockAuthRepository();
+      saveSetup = MockSaveSetupToAccount();
+      when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
       when(profile.name()).thenAnswer((_) async => const Right(null));
       when(
         auth.currentAccount(),
@@ -120,6 +124,23 @@ void main() {
         const ProfileState(status: ProfileStatus.saving, name: ' Maya '),
         const ProfileState(status: ProfileStatus.saved, name: 'Maya'),
       ],
+      verify: (_) => verify(saveSetup('u')).called(1),
+    );
+
+    blocTest<ProfileBloc, ProfileState>(
+      'moves on when the account cannot be saved',
+      build: () {
+        when(
+          saveSetup(any),
+        ).thenAnswer((_) async => const Left(NetworkFailure()));
+        return buildBloc();
+      },
+      seed: () => const ProfileState(status: ProfileStatus.ready),
+      act: (bloc) => bloc.add(const ProfileNameSaved('Maya')),
+      expect: () => [
+        const ProfileState(status: ProfileStatus.saving, name: 'Maya'),
+        const ProfileState(status: ProfileStatus.saved, name: 'Maya'),
+      ],
     );
 
     blocTest<ProfileBloc, ProfileState>(
@@ -140,6 +161,7 @@ void main() {
           failure: CacheFailure(),
         ),
       ],
+      verify: (_) => verifyNever(saveSetup(any)),
     );
 
     blocTest<ProfileBloc, ProfileState>(
