@@ -8,7 +8,7 @@
 - Use `context.translated` for UI localization. English is the default; also support Spanish and Chinese.
 - Work on feature branches and make small, meaningful commits. Development is the normal demo flavor.
 - Do not add GitHub/Git-hosted workflows or CI/CD setup. Run verification locally; this is an explicit owner instruction.
-- Native builds are slow. Rely on automated tests while working; run native builds once the whole task is complete, unless absolutely necessary (owner instruction).
+- Do not run native builds (APK, iOS, simulator, integration tests) unless the owner asks; rely on automated tests. The owner's device runs are the native check (owner instruction, October 16).
 - The design system lives in `lib/core/presentation/`; `../design-spec/` is its source of truth. One light theme only.
 - Leave `../design-spec/` as is unless the owner explicitly asks otherwise (owner rule). Record newer owner decisions in `../checkpoint.md` instead.
 - Keep code comments concise: say what the code is or does, not where it is used.

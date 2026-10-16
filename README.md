@@ -226,8 +226,8 @@ python3 scripts/export_catalog.py
 python3 scripts/export_outfits.py
 ```
 
-Native builds take minutes. Rely on the checks above while working, and run
-these once when a task is complete, unless a native change truly needs one sooner:
+Native builds take minutes and run only when the owner asks; the owner's
+device runs are the native check. For reference:
 
 ```sh
 flutterN build apk --debug --flavor development -t lib/main_development.dart
