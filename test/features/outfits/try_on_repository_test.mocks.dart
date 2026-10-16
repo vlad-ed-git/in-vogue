@@ -6,10 +6,8 @@
 
 import 'dart:async' as _i3;
 
-import 'package:in_vogue/features/outfits/data/data_sources/you_cam_remote_data_source.dart'
+import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart'
     as _i2;
-import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart'
-    as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i4;
 
@@ -63,30 +61,33 @@ class MockYouCamRemoteDataSource extends _i1.Mock
           as _i3.Future<String>);
 
   @override
-  _i3.Future<String> startClothes(Map<String, Object?>? params) =>
+  _i3.Future<String> start(
+    _i2.YouCamTool? tool,
+    Map<String, Object?>? params,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(#startClothes, [params]),
+            Invocation.method(#start, [tool, params]),
             returnValue: _i3.Future<String>.value(
               _i4.dummyValue<String>(
                 this,
-                Invocation.method(#startClothes, [params]),
+                Invocation.method(#start, [tool, params]),
               ),
             ),
           )
           as _i3.Future<String>);
 
   @override
-  _i3.Future<_i5.TryOnTask> clothesTask(String? taskId) =>
+  _i3.Future<_i2.YouCamTask> task(_i2.YouCamTool? tool, String? taskId) =>
       (super.noSuchMethod(
-            Invocation.method(#clothesTask, [taskId]),
-            returnValue: _i3.Future<_i5.TryOnTask>.value(
-              _i4.dummyValue<_i5.TryOnTask>(
+            Invocation.method(#task, [tool, taskId]),
+            returnValue: _i3.Future<_i2.YouCamTask>.value(
+              _i4.dummyValue<_i2.YouCamTask>(
                 this,
-                Invocation.method(#clothesTask, [taskId]),
+                Invocation.method(#task, [tool, taskId]),
               ),
             ),
           )
-          as _i3.Future<_i5.TryOnTask>);
+          as _i3.Future<_i2.YouCamTask>);
 
   @override
   _i3.Future<List<int>> download(String? url) =>

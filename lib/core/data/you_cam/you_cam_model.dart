@@ -1,5 +1,4 @@
-import 'package:in_vogue/core/domain/errors/failures.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
+import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
 
 /// Where YouCam's File API takes a file's bytes.
 typedef YouCamUpload = ({
@@ -75,20 +74,17 @@ abstract final class YouCamModel {
     _ => null,
   };
 
-  /// How a task stands. A success without a picture is a failure.
-  static TryOnTask taskOf(Object? body) {
+  /// How a task stands.
+  static YouCamTask taskOf(Object? body) {
     final data = dataOf(body);
     return switch (data['task_status']) {
-      'success' => switch (resultUrl(data['results'])) {
-        final String url => TryOnSucceeded(url),
-        null => const TryOnErrored(TryOnProblem.failed),
-      },
-      'error' => TryOnErrored(
+      'success' => YouCamTaskSucceeded(data['results']),
+      'error' => YouCamTaskFailed(
         photoErrors.contains(data['error'])
-            ? TryOnProblem.photo
-            : TryOnProblem.failed,
+            ? YouCamProblem.photo
+            : YouCamProblem.failed,
       ),
-      _ => const TryOnRunning(),
+      _ => const YouCamTaskRunning(),
     };
   }
 
@@ -116,13 +112,13 @@ abstract final class YouCamModel {
 
   /// The problem behind a refused call with HTTP [status] and the answer's
   /// [body].
-  static TryOnProblem refusal(int status, Object? body) {
+  static YouCamProblem refusal(int status, Object? body) {
     final code = switch (body) {
       {'error_code': final Object code} => '$code',
       _ => '',
     };
-    if (code == 'CreditInsufficiency') return TryOnProblem.budgetSpent;
-    if (status == 401) return TryOnProblem.unavailable;
-    return TryOnProblem.failed;
+    if (code == 'CreditInsufficiency') return YouCamProblem.noCredit;
+    if (status == 401) return YouCamProblem.unauthorized;
+    return YouCamProblem.failed;
   }
 }

@@ -1,10 +1,11 @@
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:in_vogue/core/data/you_cam/you_cam_model.dart';
+import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
-import 'package:in_vogue/features/outfits/data/data_sources/you_cam_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/models/outfits_model.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
@@ -52,7 +53,7 @@ class TryOnRepositoryImpl implements TryOnRepository {
     String? pictureUrl,
   }) => _guard(
     'start',
-    () => _remote.startClothes({
+    () => _remote.start(YouCamTool.clothes, {
       'src_file_id': ?fileId,
       'src_file_url': ?pictureUrl,
       'ref_file_url': pass.reference,
@@ -62,9 +63,22 @@ class TryOnRepositoryImpl implements TryOnRepository {
     }),
   );
 
+  /// A success without a picture is a failure.
   @override
   Future<Either<Failure, TryOnTask>> check(String taskId) =>
-      _guard('check', () => _remote.clothesTask(taskId));
+      _guard('check', () async {
+        final task = await _remote.task(YouCamTool.clothes, taskId);
+        if (task case YouCamTaskSucceeded(:final results)) {
+          final url = YouCamModel.resultUrl(results);
+          return url == null
+              ? const TryOnErrored(TryOnProblem.failed)
+              : TryOnSucceeded(url);
+        }
+        return switch (task) {
+          YouCamTaskFailed(:final problem) => TryOnErrored(_problem(problem)),
+          _ => const TryOnRunning(),
+        };
+      });
 
   @override
   Future<Either<Failure, List<int>>> download(String url) =>
@@ -84,12 +98,19 @@ class TryOnRepositoryImpl implements TryOnRepository {
       return Right(await call());
     } on YouCamException catch (error) {
       _log(method, error.cause, error.stackTrace);
-      return Left(TryOnFailure(error.problem));
+      return Left(TryOnFailure(_problem(error.problem)));
     } on NetworkException catch (error) {
       _log(method, error.cause, error.stackTrace);
       return const Left(NetworkFailure());
     }
   }
+
+  static TryOnProblem _problem(YouCamProblem problem) => switch (problem) {
+    YouCamProblem.failed => TryOnProblem.failed,
+    YouCamProblem.photo => TryOnProblem.photo,
+    YouCamProblem.noCredit => TryOnProblem.budgetSpent,
+    YouCamProblem.unauthorized => TryOnProblem.unavailable,
+  };
 
   void _log(String method, Object error, StackTrace stackTrace) =>
       _logger.logError(

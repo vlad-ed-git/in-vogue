@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
-import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/catalog_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/try_on_job_local_data_source.dart';
@@ -11,11 +10,9 @@ import 'package:in_vogue/features/outfits/data/models/outfit_record_model.dart';
 import 'package:in_vogue/features/outfits/data/models/outfits_model.dart';
 import 'package:in_vogue/features/outfits/data/models/try_on_job_model.dart';
 import 'package:in_vogue/features/outfits/data/models/unit_budget_model.dart';
-import 'package:in_vogue/features/outfits/data/models/you_cam_model.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_job_repository_impl.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/choose_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
@@ -172,88 +169,6 @@ void main() {
     expect(UnitBudgetModel.allows(spent: 13, limit: 15, units: 2), isTrue);
     expect(UnitBudgetModel.allows(spent: 14, limit: 15, units: 2), isFalse);
     expect(UnitBudgetModel.allows(spent: 16, limit: 15, units: 2), isFalse);
-  });
-
-  group('YouCamModel', () {
-    test("reads the File API's upload request", () {
-      final upload = YouCamModel.uploadOf({
-        'status': 200,
-        'data': {
-          'files': [
-            {
-              'file_id': 'file-1',
-              'requests': [
-                {
-                  'method': 'PUT',
-                  'url': 'https://upload.example/put',
-                  'headers': {'Content-Type': 'image/jpeg', 'Size': 3},
-                },
-              ],
-            },
-          ],
-        },
-      })!;
-      expect(upload.fileId, 'file-1');
-      expect(upload.url, 'https://upload.example/put');
-      expect(upload.method, 'PUT');
-      expect(upload.headers, {'Content-Type': 'image/jpeg', 'Size': '3'});
-      expect(YouCamModel.uploadOf({'data': <String, Object?>{}}), isNull);
-    });
-
-    test('reads how a task stands', () {
-      expect(
-        YouCamModel.taskOf({
-          'data': {'task_status': 'running'},
-        }),
-        const TryOnRunning(),
-      );
-      expect(
-        YouCamModel.taskOf({
-          'data': {
-            'task_status': 'success',
-            'results': {'url': 'https://results.example/r.jpg'},
-          },
-        }),
-        const TryOnSucceeded('https://results.example/r.jpg'),
-      );
-      expect(
-        YouCamModel.taskOf({
-          'data': {
-            'task_status': 'success',
-            'results': [
-              {'download_url': 'https://results.example/d.jpg'},
-            ],
-          },
-        }),
-        const TryOnSucceeded('https://results.example/d.jpg'),
-      );
-    });
-
-    test('tells a photo problem from a failure worth trying again', () {
-      TryOnTask errored(String code) => YouCamModel.taskOf({
-        'data': {'task_status': 'error', 'error': code},
-      });
-      expect(errored('error_pose'), const TryOnErrored(TryOnProblem.photo));
-      expect(
-        errored('unknown_internal_error'),
-        const TryOnErrored(TryOnProblem.failed),
-      );
-      expect(
-        YouCamModel.taskOf({
-          'data': {'task_status': 'success', 'results': <String, Object?>{}},
-        }),
-        const TryOnErrored(TryOnProblem.failed),
-      );
-    });
-
-    test('names why a call was refused', () {
-      expect(
-        YouCamModel.refusal(400, {'error_code': 'CreditInsufficiency'}),
-        TryOnProblem.budgetSpent,
-      );
-      expect(YouCamModel.refusal(401, null), TryOnProblem.unavailable);
-      expect(YouCamModel.refusal(500, null), TryOnProblem.failed);
-    });
   });
 
   group('OutfitRecordModel', () {

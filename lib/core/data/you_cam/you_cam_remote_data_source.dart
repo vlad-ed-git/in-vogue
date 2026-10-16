@@ -1,19 +1,78 @@
 import 'package:dio/dio.dart';
-import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:equatable/equatable.dart';
+import 'package:in_vogue/core/data/you_cam/you_cam_model.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
-import 'package:in_vogue/features/outfits/data/models/you_cam_model.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
+
+/// YouCam's AI tools, by the path of their tasks.
+enum YouCamTool {
+  /// AI Clothes.
+  clothes('cloth-v4'),
+
+  /// Makeup VTO.
+  makeup('makeup-vto'),
+
+  /// Facial Color Tones Analyzer.
+  skinTone('skin-tone-analysis');
+
+  const YouCamTool(this.path);
+  final String path;
+}
+
+/// Why YouCam refused a call or failed a task.
+enum YouCamProblem {
+  /// Trying again may work.
+  failed,
+
+  /// The engine could not use the photo.
+  photo,
+
+  /// The account's units are spent.
+  noCredit,
+
+  /// The API key was refused.
+  unauthorized,
+}
 
 /// YouCam refused a call; nothing it was asked to start has started.
 class YouCamException implements Exception {
   const YouCamException(this.problem, this.cause, this.stackTrace);
 
-  final TryOnProblem problem;
+  final YouCamProblem problem;
   final Object cause;
   final StackTrace stackTrace;
 }
 
-/// YouCam's AI Clothes (cloth-v4) and File APIs.
+/// How a YouCam task stands.
+sealed class YouCamTask extends Equatable {
+  const YouCamTask();
+
+  @override
+  List<Object?> get props => [];
+}
+
+final class YouCamTaskRunning extends YouCamTask {
+  const YouCamTaskRunning();
+}
+
+/// Finished, with the tool's [results].
+final class YouCamTaskSucceeded extends YouCamTask {
+  const YouCamTaskSucceeded(this.results);
+  final Object? results;
+
+  @override
+  List<Object?> get props => [results];
+}
+
+/// Failed; YouCam charges nothing for it.
+final class YouCamTaskFailed extends YouCamTask {
+  const YouCamTaskFailed(this.problem);
+  final YouCamProblem problem;
+
+  @override
+  List<Object?> get props => [problem];
+}
+
+/// YouCam's task and File APIs.
 ///
 /// Every method throws [YouCamException] when YouCam refuses and
 /// [NetworkException] when it cannot be reached.
@@ -25,11 +84,11 @@ abstract interface class YouCamRemoteDataSource {
     required String name,
   });
 
-  /// Starts a clothes task with [params]; its id.
-  Future<String> startClothes(Map<String, Object?> params);
+  /// Starts a [tool] task with [params]; its id.
+  Future<String> start(YouCamTool tool, Map<String, Object?> params);
 
-  /// How the clothes task [taskId] stands.
-  Future<TryOnTask> clothesTask(String taskId);
+  /// How the [tool] task [taskId] stands.
+  Future<YouCamTask> task(YouCamTool tool, String taskId);
 
   /// The file at [url].
   Future<List<int>> download(String url);
@@ -48,7 +107,7 @@ class YouCamRemoteDataSourceImpl implements YouCamRemoteDataSource {
 
   static const baseUrl = 'https://yce-api-01.makeupar.com';
 
-  static const _clothes = '/s2s/v2.0/task/cloth-v4';
+  static String _tasks(YouCamTool tool) => '/s2s/v2.0/task/${tool.path}';
 
   @override
   Future<String> uploadFile(
@@ -71,7 +130,7 @@ class YouCamRemoteDataSourceImpl implements YouCamRemoteDataSource {
     final upload = YouCamModel.uploadOf(answer.data);
     if (upload == null) {
       throw YouCamException(
-        TryOnProblem.failed,
+        YouCamProblem.failed,
         const FormatException('No upload request'),
         StackTrace.current,
       );
@@ -88,23 +147,24 @@ class YouCamRemoteDataSourceImpl implements YouCamRemoteDataSource {
   });
 
   @override
-  Future<String> startClothes(Map<String, Object?> params) => _guard(() async {
-    final answer = await _api.post<Object?>(_clothes, data: params);
-    final taskId = YouCamModel.taskIdOf(answer.data);
-    if (taskId == null) {
-      throw YouCamException(
-        TryOnProblem.failed,
-        const FormatException('No task id'),
-        StackTrace.current,
-      );
-    }
-    return taskId;
-  });
+  Future<String> start(YouCamTool tool, Map<String, Object?> params) =>
+      _guard(() async {
+        final answer = await _api.post<Object?>(_tasks(tool), data: params);
+        final taskId = YouCamModel.taskIdOf(answer.data);
+        if (taskId == null) {
+          throw YouCamException(
+            YouCamProblem.failed,
+            const FormatException('No task id'),
+            StackTrace.current,
+          );
+        }
+        return taskId;
+      });
 
   @override
-  Future<TryOnTask> clothesTask(String taskId) => _guard(() async {
+  Future<YouCamTask> task(YouCamTool tool, String taskId) => _guard(() async {
     final answer = await _api.get<Object?>(
-      '$_clothes/${Uri.encodeComponent(taskId)}',
+      '${_tasks(tool)}/${Uri.encodeComponent(taskId)}',
     );
     return YouCamModel.taskOf(answer.data);
   });
