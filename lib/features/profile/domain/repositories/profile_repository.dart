@@ -7,4 +7,7 @@ abstract interface class ProfileRepository {
 
   /// Saves [name] trimmed and returns it.
   Future<Either<Failure, String>> saveName(String name);
+
+  /// Forgets the saved name.
+  Future<Either<Failure, Unit>> clearName();
 }

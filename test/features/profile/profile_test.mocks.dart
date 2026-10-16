@@ -66,6 +66,19 @@ class MockProfileRepository extends _i1.Mock implements _i3.ProfileRepository {
             ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, String>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> clearName() =>
+      (super.noSuchMethod(
+            Invocation.method(#clearName, []),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#clearName, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 }
 
 /// A class which mocks [KeyValueStore].
@@ -84,6 +97,15 @@ class MockKeyValueStore extends _i1.Mock implements _i6.KeyValueStore {
   _i4.Future<void> writeString(String? key, String? value) =>
       (super.noSuchMethod(
             Invocation.method(#writeString, [key, value]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> delete(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#delete, [key]),
             returnValue: _i4.Future<void>.value(),
             returnValueForMissingStub: _i4.Future<void>.value(),
           )

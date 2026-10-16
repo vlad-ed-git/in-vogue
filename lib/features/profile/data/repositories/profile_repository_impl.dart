@@ -28,4 +28,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return const Left(CacheFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> clearName() async {
+    try {
+      await _local.deleteName();
+      return const Right(unit);
+    } on CacheException {
+      return const Left(CacheFailure());
+    }
+  }
 }

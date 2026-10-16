@@ -10,7 +10,9 @@ import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
+import 'package:in_vogue/features/auth/domain/usecases/log_out.dart';
 import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
+import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/catalog_asset_data_source.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/picks_local_data_source.dart';
@@ -67,6 +69,8 @@ void main() {
   late MockPreferencesRepository preferences;
   late MockSetupRepository setup;
   late MockLocationRepository location;
+  late MockAuthRepository auth;
+  late MemoryStore profileStore;
   late GetIt locator;
 
   setUp(() {
@@ -80,20 +84,27 @@ void main() {
     when(
       weather.forecastFor(any),
     ).thenAnswer((_) async => const Left(NetworkFailure()));
-    final auth = MockAuthRepository();
+    auth = MockAuthRepository();
     when(auth.currentAccount()).thenAnswer((_) async => const Right(null));
+    when(auth.signOut()).thenAnswer((_) async => const Right(unit));
+    profileStore = MemoryStore();
+    final profile = ProfileRepositoryImpl(
+      ProfileLocalDataSourceImpl(profileStore),
+    );
     locator = GetIt.asNewInstance()
       ..registerFactory<SignInBloc>(() => SignInBloc(signIn: SignIn(auth)))
-      ..registerFactory<ProfileBloc>(() {
-        final profile = ProfileRepositoryImpl(
-          ProfileLocalDataSourceImpl(MemoryStore()),
-        );
-        return ProfileBloc(
+      ..registerFactory<ProfileBloc>(
+        () => ProfileBloc(
           getProfileName: GetProfileName(profile),
           saveProfileName: SaveProfileName(profile),
           getCurrentAccount: GetCurrentAccount(auth),
-        );
-      })
+        ),
+      )
+      ..registerFactory<LogOutBloc>(
+        () => LogOutBloc(
+          logOut: LogOut(auth: auth, profile: profile),
+        ),
+      )
       ..registerSingleton<HomeWidgetRepository>(
         const UnavailableHomeWidgetRepository(),
       )
@@ -226,6 +237,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(InVogueTabBar), findsOneWidget);
     verify(setup.saveStep(SetupStep.done)).called(1);
+  });
+
+  testWidgets('logs out from Settings back to the Sign in step', (
+    tester,
+  ) async {
+    profileStore.values[ProfileLocalDataSourceImpl.nameKey] = 'Maya';
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Log out'));
+    await tester.pumpAndSettle();
+    expect(find.text('4 / 6'), findsOneWidget);
+    expect(find.byType(InVogueTabBar), findsNothing);
+    verify(auth.signOut()).called(1);
+    verify(setup.saveStep(SetupStep.signIn)).called(1);
+    expect(profileStore.values, isNot(contains('profile_name')));
   });
 
   testWidgets('starts in English even when the device language is Spanish', (

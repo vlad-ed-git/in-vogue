@@ -78,8 +78,8 @@ class SettingsRow extends StatelessWidget {
   final IconData? icon;
   final VoidCallback? onTap;
 
-  /// Log out.
-  static SettingsRow logOut(BuildContext context, VoidCallback onTap) =>
+  /// Log out; null [onTap] disables it.
+  static SettingsRow logOut(BuildContext context, VoidCallback? onTap) =>
       SettingsRow.command(
         title: context.translated.logOut,
         icon: InVogueIcons.signOut,

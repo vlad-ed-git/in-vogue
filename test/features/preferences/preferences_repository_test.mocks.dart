@@ -130,6 +130,15 @@ class MockKeyValueStore extends _i1.Mock implements _i8.KeyValueStore {
           as _i5.Future<void>);
 
   @override
+  _i5.Future<void> delete(String? key) =>
+      (super.noSuchMethod(
+            Invocation.method(#delete, [key]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
   _i5.Future<void> close() =>
       (super.noSuchMethod(
             Invocation.method(#close, []),

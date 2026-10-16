@@ -6,6 +6,9 @@ abstract interface class ProfileLocalDataSource {
 
   /// Throws CacheException.
   Future<void> saveName(String name);
+
+  /// Throws CacheException.
+  Future<void> deleteName();
 }
 
 class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
@@ -18,4 +21,7 @@ class ProfileLocalDataSourceImpl implements ProfileLocalDataSource {
 
   @override
   Future<void> saveName(String name) => _store.writeString(nameKey, name);
+
+  @override
+  Future<void> deleteName() => _store.delete(nameKey);
 }

@@ -4,7 +4,9 @@ import 'package:in_vogue/features/auth/data/data_sources/auth_remote_data_source
 import 'package:in_vogue/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
+import 'package:in_vogue/features/auth/domain/usecases/log_out.dart';
 import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
+import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 
 void init(GetIt locator) {
@@ -24,5 +26,9 @@ void init(GetIt locator) {
     ..registerLazySingleton<GetCurrentAccount>(
       () => GetCurrentAccount(locator()),
     )
-    ..registerFactory<SignInBloc>(() => SignInBloc(signIn: locator()));
+    ..registerLazySingleton<LogOut>(
+      () => LogOut(auth: locator(), profile: locator()),
+    )
+    ..registerFactory<SignInBloc>(() => SignInBloc(signIn: locator()))
+    ..registerFactory<LogOutBloc>(() => LogOutBloc(logOut: locator()));
 }

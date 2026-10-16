@@ -11,4 +11,7 @@ abstract interface class AuthRepository {
 
   /// The signed-in account; null when nobody is signed in.
   Future<Either<Failure, Account?>> currentAccount();
+
+  /// Signs out of the account and of its provider.
+  Future<Either<Failure, Unit>> signOut();
 }

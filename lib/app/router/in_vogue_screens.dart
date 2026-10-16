@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:in_vogue/app/router/app_routes.dart';
 import 'package:in_vogue/app/router/app_screens.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
@@ -118,7 +119,16 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
     SetupStep.done => throw ArgumentError.value(step, 'step', 'Has no screen'),
   },
   tab: (tab) => switch (tab) {
-    InVogueTab.settings => const SettingsScreen(),
+    InVogueTab.settings => BlocProvider(
+      create: (_) => locator<LogOutBloc>(),
+      child: Builder(
+        builder: (context) => SettingsScreen(
+          onLoggedOut: () => context.read<SetupBloc>().add(
+            const SetupStepReached(SetupStep.signIn),
+          ),
+        ),
+      ),
+    ),
     InVogueTab.home || InVogueTab.makeup => const SizedBox.shrink(),
   },
 );

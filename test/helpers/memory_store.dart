@@ -12,5 +12,8 @@ class MemoryStore implements KeyValueStore {
       values[key] = value;
 
   @override
+  Future<void> delete(String key) async => values.remove(key);
+
+  @override
   Future<void> close() async {}
 }

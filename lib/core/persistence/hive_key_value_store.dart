@@ -44,5 +44,16 @@ class HiveKeyValueStore implements KeyValueStore {
   }
 
   @override
+  Future<void> delete(String key) async {
+    try {
+      await _box.delete(key);
+    } on HiveError catch (error, stack) {
+      throw CacheException(error, stack);
+    } on Exception catch (error, stack) {
+      throw CacheException(error, stack);
+    }
+  }
+
+  @override
   Future<void> close() => _box.close();
 }

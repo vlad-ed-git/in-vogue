@@ -38,4 +38,20 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, Account?>> currentAccount() async =>
       Right(_remote.currentAccount());
+
+  @override
+  Future<Either<Failure, Unit>> signOut() async {
+    try {
+      await _remote.signOut();
+      return const Right(unit);
+    } on Exception catch (error, stack) {
+      _logger.logError(
+        callerClass: 'AuthRepositoryImpl',
+        callerMethod: 'signOut',
+        error: error,
+        stackTrace: stack,
+      );
+      return const Left(ServerFailure());
+    }
+  }
 }

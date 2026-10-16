@@ -25,6 +25,9 @@ abstract interface class AuthRemoteDataSource {
 
   /// The signed-in account; null when nobody is signed in.
   Account? currentAccount();
+
+  /// Signs out of Firebase, then of Google so it asks for an account again.
+  Future<void> signOut();
 }
 
 /// Firebase Auth, with credentials from Sign in with Apple and Google Sign-In.
@@ -116,6 +119,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Account? currentAccount() {
     final user = _auth.currentUser;
     return user == null ? null : _account(user);
+  }
+
+  @override
+  Future<void> signOut() async {
+    await _auth.signOut();
+    await _googleReady;
+    await GoogleSignIn.instance.signOut();
   }
 
   static Account _account(User user) {
