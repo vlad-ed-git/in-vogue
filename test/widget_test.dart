@@ -9,7 +9,6 @@ import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
-import 'package:in_vogue/features/auth/data/repositories/unavailable_auth_repository.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
 import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
@@ -48,6 +47,7 @@ import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dar
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 import 'package:mockito/mockito.dart';
 
+import 'features/auth/sign_in_bloc_test.mocks.dart';
 import 'features/location/location_repository_test.mocks.dart';
 import 'features/photos/photo_repository_test.mocks.dart';
 import 'features/preferences/preferences_repository_test.mocks.dart';
@@ -80,10 +80,10 @@ void main() {
     when(
       weather.forecastFor(any),
     ).thenAnswer((_) async => const Left(NetworkFailure()));
+    final auth = MockAuthRepository();
+    when(auth.currentAccount()).thenAnswer((_) async => const Right(null));
     locator = GetIt.asNewInstance()
-      ..registerFactory<SignInBloc>(
-        () => SignInBloc(signIn: SignIn(const UnavailableAuthRepository())),
-      )
+      ..registerFactory<SignInBloc>(() => SignInBloc(signIn: SignIn(auth)))
       ..registerFactory<ProfileBloc>(() {
         final profile = ProfileRepositoryImpl(
           ProfileLocalDataSourceImpl(MemoryStore()),
@@ -91,9 +91,7 @@ void main() {
         return ProfileBloc(
           getProfileName: GetProfileName(profile),
           saveProfileName: SaveProfileName(profile),
-          getCurrentAccount: GetCurrentAccount(
-            const UnavailableAuthRepository(),
-          ),
+          getCurrentAccount: GetCurrentAccount(auth),
         );
       })
       ..registerSingleton<HomeWidgetRepository>(

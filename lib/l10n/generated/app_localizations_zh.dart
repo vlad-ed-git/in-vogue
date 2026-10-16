@@ -476,9 +476,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get signInLine => '你的照片和收藏会一起保留。然后我们为你准备第一套穿搭。';
 
   @override
-  String get signInUnavailable => '登录暂不可用。';
-
-  @override
   String get signInFailed => '登录失败，请重试。';
 
   @override

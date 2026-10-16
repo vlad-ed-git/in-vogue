@@ -116,14 +116,21 @@ void main() {
     }
   });
 
-  testWidgets('says when sign-in is not available yet', (tester) async {
+  testWidgets('says when sign-in failed', (tester) async {
     await pumpScreen(
       tester,
-      state: const SignInState(
-        failure: SignInFailure(SignInProblem.unavailable),
-      ),
+      state: const SignInState(failure: SignInFailure(SignInProblem.failed)),
     );
-    expect(find.text('Sign-in isn’t available yet.'), findsOneWidget);
+    expect(
+      find.text('We couldn’t sign you in. Please try again.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('offers only Google on Android', (tester) async {
+    await pumpScreen(tester, platform: TargetPlatform.android);
+    expect(_provider(SignInProvider.google), findsOneWidget);
+    expect(_provider(SignInProvider.apple), findsNothing);
   });
 
   testWidgets('moves on once signed in', (tester) async {

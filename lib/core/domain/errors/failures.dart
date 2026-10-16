@@ -52,9 +52,6 @@ final class PhotoFailure extends Failure {
 
 /// Why signing in did not finish.
 enum SignInProblem {
-  /// Sign-in is not set up yet.
-  unavailable,
-
   /// The person closed the provider's sheet.
   cancelled,
 

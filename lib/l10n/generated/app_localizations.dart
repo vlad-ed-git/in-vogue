@@ -831,12 +831,6 @@ abstract class AppLocalizations {
   /// **'Your photo and picks come with you. Then we make your first outfit.'**
   String get signInLine;
 
-  /// No description provided for @signInUnavailable.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign-in isn’t available yet.'**
-  String get signInUnavailable;
-
   /// No description provided for @signInFailed.
   ///
   /// In en, this message translates to:

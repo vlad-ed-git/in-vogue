@@ -512,9 +512,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your photo and picks come with you. Then we make your first outfit.';
 
   @override
-  String get signInUnavailable => 'Sign-in isn’t available yet.';
-
-  @override
   String get signInFailed => 'We couldn’t sign you in. Please try again.';
 
   @override

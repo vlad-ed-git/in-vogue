@@ -485,7 +485,6 @@
   "@signInLine": {
     "description": "Under the sign-in title: what carries over, and what comes next."
   },
-  "signInUnavailable": "Sign-in isn’t available yet.",
   "signInFailed": "We couldn’t sign you in. Please try again.",
   "aboutYouTitle": "What should we call you?",
   "@aboutYouTitle": {

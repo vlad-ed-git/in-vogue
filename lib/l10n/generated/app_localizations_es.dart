@@ -511,9 +511,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Tu foto y tus favoritos vienen contigo. Luego preparamos tu primer conjunto.';
 
   @override
-  String get signInUnavailable => 'El inicio de sesión aún no está disponible.';
-
-  @override
   String get signInFailed =>
       'No pudimos iniciar tu sesión. Inténtalo de nuevo.';
 

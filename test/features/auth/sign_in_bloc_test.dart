@@ -4,7 +4,6 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
-import 'package:in_vogue/features/auth/data/repositories/unavailable_auth_repository.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
@@ -84,16 +83,5 @@ void main() {
     await bloc.stream.firstWhere((s) => s.status == SignInStatus.signedIn);
     verify(auth.signIn(SignInMethod.apple)).called(1);
     verifyNever(auth.signIn(SignInMethod.google));
-  });
-
-  test('before sign-in is set up, it says sign-in is not available', () async {
-    expect(
-      await const UnavailableAuthRepository().signIn(SignInMethod.apple),
-      const Left<Failure, Account>(SignInFailure(SignInProblem.unavailable)),
-    );
-    expect(
-      await const UnavailableAuthRepository().currentAccount(),
-      const Right<Failure, Account?>(null),
-    );
   });
 }
