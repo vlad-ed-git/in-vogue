@@ -588,28 +588,62 @@
   "@outfitsTab": {
     "description": "Home's tab with the whole collection to pick from."
   },
-  "categoryAll": "All",
-  "@categoryAll": {
-    "description": "Category chip: every piece."
+  "weatherHot": "Hot",
+  "@weatherHot": {
+    "description": "Chip: pieces for hot weather."
   },
-  "categoryOuterwear": "Coats & jackets",
-  "@categoryOuterwear": {
-    "description": "Category chip."
+  "weatherWarm": "Warm",
+  "@weatherWarm": {
+    "description": "Chip: pieces for warm weather."
   },
-  "categoryKnitwear": "Knitwear",
-  "@categoryKnitwear": {
-    "description": "Category chip."
+  "weatherMild": "Mild",
+  "@weatherMild": {
+    "description": "Chip: pieces for mild weather."
   },
-  "categoryTops": "Tops",
-  "@categoryTops": {
-    "description": "Category chip."
+  "weatherCool": "Cool",
+  "@weatherCool": {
+    "description": "Chip: pieces for cool weather."
   },
-  "categoryBottoms": "Trousers & skirts",
-  "@categoryBottoms": {
-    "description": "Category chip: trousers, jeans, skirts and shorts."
+  "weatherCold": "Cold",
+  "@weatherCold": {
+    "description": "Chip: pieces for cold weather."
   },
-  "categoryDresses": "Dresses",
-  "@categoryDresses": {
-    "description": "Category chip."
+  "weatherRain": "Rain",
+  "@weatherRain": {
+    "description": "Chip: pieces documented as water-resistant."
+  },
+  "feelsLikeFrom": "Feels like {low}° and up",
+  "@feelsLikeFrom": {
+    "description": "The warmest group's range.",
+    "placeholders": {
+      "low": {
+        "type": "int"
+      }
+    }
+  },
+  "feelsLikeRange": "Feels like {low}–{high}°",
+  "@feelsLikeRange": {
+    "description": "A group's range.",
+    "placeholders": {
+      "low": {
+        "type": "int"
+      },
+      "high": {
+        "type": "int"
+      }
+    }
+  },
+  "feelsLikeBelow": "Feels like below {high}°",
+  "@feelsLikeBelow": {
+    "description": "The coldest group's range.",
+    "placeholders": {
+      "high": {
+        "type": "int"
+      }
+    }
+  },
+  "waterResistantPieces": "Water-resistant pieces",
+  "@waterResistantPieces": {
+    "description": "Line under the Rain chip; never call them waterproof."
   }
 }

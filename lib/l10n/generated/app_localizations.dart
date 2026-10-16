@@ -987,41 +987,65 @@ abstract class AppLocalizations {
   /// **'Outfits'**
   String get outfitsTab;
 
-  /// Category chip: every piece.
+  /// Chip: pieces for hot weather.
   ///
   /// In en, this message translates to:
-  /// **'All'**
-  String get categoryAll;
+  /// **'Hot'**
+  String get weatherHot;
 
-  /// Category chip.
+  /// Chip: pieces for warm weather.
   ///
   /// In en, this message translates to:
-  /// **'Coats & jackets'**
-  String get categoryOuterwear;
+  /// **'Warm'**
+  String get weatherWarm;
 
-  /// Category chip.
+  /// Chip: pieces for mild weather.
   ///
   /// In en, this message translates to:
-  /// **'Knitwear'**
-  String get categoryKnitwear;
+  /// **'Mild'**
+  String get weatherMild;
 
-  /// Category chip.
+  /// Chip: pieces for cool weather.
   ///
   /// In en, this message translates to:
-  /// **'Tops'**
-  String get categoryTops;
+  /// **'Cool'**
+  String get weatherCool;
 
-  /// Category chip: trousers, jeans, skirts and shorts.
+  /// Chip: pieces for cold weather.
   ///
   /// In en, this message translates to:
-  /// **'Trousers & skirts'**
-  String get categoryBottoms;
+  /// **'Cold'**
+  String get weatherCold;
 
-  /// Category chip.
+  /// Chip: pieces documented as water-resistant.
   ///
   /// In en, this message translates to:
-  /// **'Dresses'**
-  String get categoryDresses;
+  /// **'Rain'**
+  String get weatherRain;
+
+  /// The warmest group's range.
+  ///
+  /// In en, this message translates to:
+  /// **'Feels like {low}° and up'**
+  String feelsLikeFrom(int low);
+
+  /// A group's range.
+  ///
+  /// In en, this message translates to:
+  /// **'Feels like {low}–{high}°'**
+  String feelsLikeRange(int low, int high);
+
+  /// The coldest group's range.
+  ///
+  /// In en, this message translates to:
+  /// **'Feels like below {high}°'**
+  String feelsLikeBelow(int high);
+
+  /// Line under the Rain chip; never call them waterproof.
+  ///
+  /// In en, this message translates to:
+  /// **'Water-resistant pieces'**
+  String get waterResistantPieces;
 }
 
 class _AppLocalizationsDelegate

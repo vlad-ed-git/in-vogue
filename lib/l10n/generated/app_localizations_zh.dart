@@ -566,20 +566,38 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outfitsTab => '穿搭';
 
   @override
-  String get categoryAll => '全部';
+  String get weatherHot => '炎热';
 
   @override
-  String get categoryOuterwear => '大衣与夹克';
+  String get weatherWarm => '温暖';
 
   @override
-  String get categoryKnitwear => '针织';
+  String get weatherMild => '温和';
 
   @override
-  String get categoryTops => '上衣';
+  String get weatherCool => '凉爽';
 
   @override
-  String get categoryBottoms => '裤装与半裙';
+  String get weatherCold => '寒冷';
 
   @override
-  String get categoryDresses => '连衣裙';
+  String get weatherRain => '雨天';
+
+  @override
+  String feelsLikeFrom(int low) {
+    return '体感 $low° 及以上';
+  }
+
+  @override
+  String feelsLikeRange(int low, int high) {
+    return '体感 $low–$high°';
+  }
+
+  @override
+  String feelsLikeBelow(int high) {
+    return '体感低于 $high°';
+  }
+
+  @override
+  String get waterResistantPieces => '防泼水单品';
 }

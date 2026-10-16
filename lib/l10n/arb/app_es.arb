@@ -147,10 +147,14 @@
   "remove": "Quitar",
   "keep": "Conservar",
   "outfitsTab": "Conjuntos",
-  "categoryAll": "Todo",
-  "categoryOuterwear": "Abrigos y chaquetas",
-  "categoryKnitwear": "Punto",
-  "categoryTops": "Tops",
-  "categoryBottoms": "Pantalones y faldas",
-  "categoryDresses": "Vestidos"
+  "weatherHot": "Calor",
+  "weatherWarm": "Cálido",
+  "weatherMild": "Templado",
+  "weatherCool": "Fresco",
+  "weatherCold": "Frío",
+  "weatherRain": "Lluvia",
+  "feelsLikeFrom": "Sensación de {low}° o más",
+  "feelsLikeRange": "Sensación de {low} a {high}°",
+  "feelsLikeBelow": "Sensación por debajo de {high}°",
+  "waterResistantPieces": "Prendas resistentes al agua"
 }

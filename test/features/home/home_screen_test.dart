@@ -27,11 +27,18 @@ class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
 class _MockPicksBloc extends MockBloc<PicksEvent, PicksState>
     implements PicksBloc {}
 
-Piece _piece(String id, String name, PieceCategory category) => Piece(
+Piece _piece(
+  String id,
+  String name,
+  PieceCategory category,
+  Set<WarmthBand> bands, {
+  bool waterResistant = false,
+}) => Piece(
   id: id,
   name: name,
   category: category,
-  bands: const {WarmthBand.cool},
+  bands: bands,
+  waterResistant: waterResistant,
   colourways: [
     Colourway(
       id: 'everlane:$id',
@@ -44,8 +51,14 @@ Piece _piece(String id, String name, PieceCategory category) => Piece(
 );
 
 final _collection = [
-  _piece('mac', 'Oversized Mac Coat', PieceCategory.outerwear),
-  _piece('slip', 'The Satin Slip Dress', PieceCategory.dress),
+  _piece('mac', 'Oversized Mac Coat', PieceCategory.outerwear, {
+    WarmthBand.cool,
+    WarmthBand.cold,
+  }, waterResistant: true),
+  _piece('slip', 'The Satin Slip Dress', PieceCategory.dress, {
+    WarmthBand.warm,
+    WarmthBand.hot,
+  }),
 ];
 
 const _newYork = UserLocation(
@@ -280,30 +293,54 @@ void main() {
     );
   });
 
-  testWidgets('Outfits shows the whole collection to love', (tester) async {
+  testWidgets("Outfits opens on the pieces for the day's weather", (
+    tester,
+  ) async {
     await pumpHome(tester, _state(OutfitShown(_outfit)));
     await tester.tap(find.text('Outfits'));
     await tester.pump();
     expect(find.byType(PhotoStage), findsNothing);
     expect(find.byType(WeatherLine), findsNothing);
+    // Tomorrow feels like 9.6 °C: cool, shown in °F in New York.
+    expect(
+      tester.widget<CategoryChips>(find.byType(CategoryChips)).selectedIndex,
+      3,
+    );
+    expect(find.text('Feels like 46–57°'), findsOneWidget);
     expect(find.text('Oversized Mac Coat'), findsOneWidget);
-    expect(find.text('The Satin Slip Dress'), findsOneWidget);
+    expect(find.text('The Satin Slip Dress'), findsNothing);
     await tester.tap(find.bySemanticsLabel('Love Oversized Mac Coat'));
     verify(
       () => picksBloc.add(const PickToggled('everlane:mac', loved: true)),
     ).called(1);
   });
 
-  testWidgets('Outfits filters by category', (tester) async {
+  testWidgets('Outfits groups pieces by weather, rain included', (
+    tester,
+  ) async {
     await pumpHome(tester, _state(OutfitShown(_outfit)));
     await tester.tap(find.text('Outfits'));
     await tester.pump();
-    await tester.ensureVisible(find.text('Dresses'));
+    expect(tester.widget<CategoryChips>(find.byType(CategoryChips)).labels, [
+      'Hot',
+      'Warm',
+      'Mild',
+      'Cool',
+      'Cold',
+      'Rain',
+    ]);
+    await tester.tap(find.text('Warm'));
     await tester.pump();
-    await tester.tap(find.text('Dresses'));
-    await tester.pump();
-    expect(find.text('Oversized Mac Coat'), findsNothing);
+    expect(find.text('Feels like 68–79°'), findsOneWidget);
     expect(find.text('The Satin Slip Dress'), findsOneWidget);
+    expect(find.text('Oversized Mac Coat'), findsNothing);
+    await tester.ensureVisible(find.text('Rain'));
+    await tester.pump();
+    await tester.tap(find.text('Rain'));
+    await tester.pump();
+    expect(find.text('Water-resistant pieces'), findsOneWidget);
+    expect(find.text('Oversized Mac Coat'), findsOneWidget);
+    expect(find.text('The Satin Slip Dress'), findsNothing);
   });
 
   testWidgets('opens Your picks', (tester) async {

@@ -147,10 +147,14 @@
   "remove": "移除",
   "keep": "保留",
   "outfitsTab": "穿搭",
-  "categoryAll": "全部",
-  "categoryOuterwear": "大衣与夹克",
-  "categoryKnitwear": "针织",
-  "categoryTops": "上衣",
-  "categoryBottoms": "裤装与半裙",
-  "categoryDresses": "连衣裙"
+  "weatherHot": "炎热",
+  "weatherWarm": "温暖",
+  "weatherMild": "温和",
+  "weatherCool": "凉爽",
+  "weatherCold": "寒冷",
+  "weatherRain": "雨天",
+  "feelsLikeFrom": "体感 {low}° 及以上",
+  "feelsLikeRange": "体感 {low}–{high}°",
+  "feelsLikeBelow": "体感低于 {high}°",
+  "waterResistantPieces": "防泼水单品"
 }

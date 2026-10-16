@@ -8,12 +8,12 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/core/utils/failure_message.dart';
-import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/widgets/piece_grid.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/temperature_unit.dart';
+import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/presentation/weather_text.dart';
 
@@ -58,8 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _outfits = false;
   bool _collectionRequested = false;
 
-  /// The chosen category chip; 0 is All.
-  int _category = 0;
+  /// The chosen weather chip; null until one is chosen, which shows the
+  /// band of the day's feels-like.
+  int? _group;
 
   /// The day the weather showed last, to shift towards the new one.
   ForecastDay? _shownDay;
@@ -67,14 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
   /// A fling faster than this, in logical pixels a second, switches tabs.
   static const _swipeSpeed = 300.0;
 
-  /// The categories of the chips after All, in order.
-  static const _categories = [
-    PieceCategory.outerwear,
-    PieceCategory.knitwear,
-    PieceCategory.top,
-    PieceCategory.bottom,
-    PieceCategory.dress,
-  ];
+  /// The weather chips: each feels-like band, warmest first, then rain.
+  static final _rain = WarmthBand.values.length;
 
   @override
   void initState() {
@@ -397,15 +392,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _collection(BuildContext context, HomeState state) {
     final l10n = context.translated;
+    final feelsLike = state.shown.report?.weather.feelsLike;
+    final group =
+        _group ??
+        (feelsLike == null
+                ? WarmthBand.mild
+                : WarmthBand.forFeelsLike(feelsLike))
+            .index;
     return BlocBuilder<PicksBloc, PicksState>(
       builder: (context, picks) {
-        final category = _category == 0 ? null : _categories[_category - 1];
-        final pieces = category == null
-            ? picks.pieces
-            : [
-                for (final piece in picks.pieces)
-                  if (piece.category == category) piece,
-              ];
+        final pieces = [
+          for (final piece in picks.pieces)
+            if (group == _rain
+                ? piece.waterResistant
+                : piece.bands.contains(WarmthBand.values[group]))
+              piece,
+        ];
         return CustomScrollView(
           slivers: [
             SliverToBoxAdapter(
@@ -416,19 +418,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: EdgeInsetsDirectional.only(
                   start: context.pageMargin,
                   top: InVogueSpace.s3,
-                  bottom: InVogueSpace.s3,
                 ),
                 child: CategoryChips(
                   labels: [
-                    l10n.categoryAll,
-                    l10n.categoryOuterwear,
-                    l10n.categoryKnitwear,
-                    l10n.categoryTops,
-                    l10n.categoryBottoms,
-                    l10n.categoryDresses,
+                    l10n.weatherHot,
+                    l10n.weatherWarm,
+                    l10n.weatherMild,
+                    l10n.weatherCool,
+                    l10n.weatherCold,
+                    l10n.weatherRain,
                   ],
-                  selectedIndex: _category,
-                  onSelected: (index) => setState(() => _category = index),
+                  selectedIndex: group,
+                  onSelected: (index) => setState(() => _group = index),
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: PageMargin(
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: InVogueSpace.s2,
+                    bottom: InVogueSpace.s4,
+                  ),
+                  child: Text(
+                    _groupLine(context, state, group),
+                    style: InVogueType.meta.copyWith(
+                      color: InVogueColors.graphite,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -452,5 +469,18 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  /// What the chosen weather chip means, in the place's unit.
+  String _groupLine(BuildContext context, HomeState state, int group) {
+    final l10n = context.translated;
+    if (group == _rain) return l10n.waterResistantPieces;
+    final band = WarmthBand.values[group];
+    final unit = TemperatureUnit.forCountry(state.place?.countryCode);
+    final from = band.from;
+    final below = band.below;
+    if (below == null) return l10n.feelsLikeFrom(unit.degrees(from!));
+    if (from == null) return l10n.feelsLikeBelow(unit.degrees(below));
+    return l10n.feelsLikeRange(unit.degrees(from), unit.degrees(below));
   }
 }

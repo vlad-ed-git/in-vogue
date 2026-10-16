@@ -606,20 +606,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get outfitsTab => 'Outfits';
 
   @override
-  String get categoryAll => 'All';
+  String get weatherHot => 'Hot';
 
   @override
-  String get categoryOuterwear => 'Coats & jackets';
+  String get weatherWarm => 'Warm';
 
   @override
-  String get categoryKnitwear => 'Knitwear';
+  String get weatherMild => 'Mild';
 
   @override
-  String get categoryTops => 'Tops';
+  String get weatherCool => 'Cool';
 
   @override
-  String get categoryBottoms => 'Trousers & skirts';
+  String get weatherCold => 'Cold';
 
   @override
-  String get categoryDresses => 'Dresses';
+  String get weatherRain => 'Rain';
+
+  @override
+  String feelsLikeFrom(int low) {
+    return 'Feels like $low° and up';
+  }
+
+  @override
+  String feelsLikeRange(int low, int high) {
+    return 'Feels like $low–$high°';
+  }
+
+  @override
+  String feelsLikeBelow(int high) {
+    return 'Feels like below $high°';
+  }
+
+  @override
+  String get waterResistantPieces => 'Water-resistant pieces';
 }

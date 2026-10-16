@@ -15,6 +15,24 @@ enum WarmthBand {
   /// Below 8 °C.
   cold;
 
+  /// Lowest feels-like of the band, °C; null for the coldest.
+  double? get from => switch (this) {
+    hot => 26,
+    warm => 20,
+    mild => 14,
+    cool => 8,
+    cold => null,
+  };
+
+  /// Feels-like the band ends below, °C; null for the warmest.
+  double? get below => switch (this) {
+    hot => null,
+    warm => 26,
+    mild => 20,
+    cool => 14,
+    cold => 8,
+  };
+
   /// The band of a feels-like temperature in °C.
   static WarmthBand forFeelsLike(double celsius) => switch (celsius) {
     >= 26 => hot,
