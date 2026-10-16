@@ -25,30 +25,19 @@ flutterN run
 
 ### iOS native configuration
 
-After changing the iOS minimum deployment target or regenerating native
-dependencies, regenerate the Swift Package Manager configuration for both
-flavors before opening/running the app in Xcode:
+Plugins are linked with CocoaPods (`enable-swift-package-manager: false` in
+`pubspec.yaml`); always open `ios/Runner.xcworkspace`, not the project.
+`flutterN run` and `flutterN build ios` run `pod install` when plugins change.
+To run from Xcode, first generate the flavor's configuration:
 
 ```sh
 flutterN build ios --config-only --debug --flavor development -t lib/main_development.dart
 flutterN build ios --config-only --debug --flavor production -t lib/main_production.dart
 ```
 
-This updates Flutter's generated `FlutterGeneratedPluginSwiftPackage` manifest.
-Do not edit that manifest directly: Flutter regenerates it.
-
-if you get this error
-
-```
-ios/SourcePackages/cloud_firestore-6.6.0"
-failed: No such file or directory (2)
-```
-
-Try creating the dir
-
-```
-mkdir -p build/ios/SourcePackages
-```
+`pod install` may save `ios/Runner.xcodeproj/project.pbxproj` in an older file
+format (object version 54 instead of Xcode's 60). Only the formatting changes;
+keep the Xcode-saved version.
 
 Plain `flutterN run` defaults to development. Explicit commands:
 
@@ -57,10 +46,9 @@ flutterN run --flavor development -t lib/main_development.dart
 flutterN run --flavor production -t lib/main_production.dart
 ```
 
-VS Code launch configurations select the matching flavor and entrypoint. On iOS,
-open `ios/Runner.xcworkspace`; generate the matching configuration with the CLI
-before running directly from Xcode. A mismatched entrypoint/flavor fails startup
-before initializing Firebase or storage.
+VS Code launch configurations select the matching flavor and entrypoint. A
+mismatched entrypoint/flavor fails startup before initializing Firebase or
+storage.
 
 | Flavor | Package / bundle ID | Firebase project | Launcher name |
 | --- | --- | --- | --- |
