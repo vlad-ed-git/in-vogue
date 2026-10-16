@@ -90,7 +90,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   /// Apple's credential for Firebase, with the name Apple shared.
-  Future<({AuthCredential credential, String? name})> _appleCredential() async {
+  Future<({AuthCredential credential, String? name, String? appleCode})>
+  _appleCredential() async {
     final rawNonce = _nonce();
     final apple = await SignInWithApple.getAppleIDCredential(
       scopes: [AppleIDAuthorizationScopes.fullName],
@@ -110,11 +111,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ),
       ),
       name: name.isEmpty ? null : name,
+      appleCode: apple.authorizationCode,
     );
   }
 
   /// Google's credential for Firebase.
-  Future<({AuthCredential credential, String? name})>
+  Future<({AuthCredential credential, String? name, String? appleCode})>
   _googleCredential() async {
     await _googleReady;
     final google = await GoogleSignIn.instance.authenticate();
@@ -123,6 +125,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         idToken: google.authentication.idToken,
       ),
       name: null,
+      appleCode: null,
     );
   }
 
@@ -161,10 +164,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       _ => await _googleCredential(),
     };
     await user.reauthenticateWithCredential(credential.credential);
+    _appleCode = credential.appleCode;
   });
+
+  /// Apple's authorization code from the last confirmation, to revoke the
+  /// person's Apple token when the account is deleted.
+  String? _appleCode;
 
   @override
   Future<void> deleteUser() => _translate(() async {
+    final appleCode = _appleCode;
+    if (appleCode != null) {
+      // Apple asks apps to revoke the person's token with the account.
+      await _auth.revokeTokenWithAuthorizationCode(appleCode);
+      _appleCode = null;
+    }
     await _auth.currentUser?.delete();
     await _googleReady;
     await GoogleSignIn.instance.signOut();
