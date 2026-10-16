@@ -236,44 +236,7 @@ void main() {
       );
     });
 
-    testWidgets('a new temperature rolls up and the old one leaves', (
-      tester,
-    ) async {
-      var temperature = 61;
-      await pumpInVogue(
-        tester,
-        StatefulBuilder(
-          builder: (context, setState) => GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => setState(() => temperature = 54),
-            child: WeatherLine(
-              temperature: temperature,
-              feelsLike: 49,
-              condition: 'Showers after 3 pm',
-              glyph: WeatherGlyphType.cloudRain,
-            ),
-          ),
-        ),
-      );
-      await tester.pump(const Duration(seconds: 5));
-      final rest = tester.getTopLeft(find.text('61°')).dy;
-      await tester.tap(find.byType(WeatherLine));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 120));
-      expect(tester.getTopLeft(find.text('61°')).dy, lessThan(rest));
-      expect(tester.getTopLeft(find.text('54°')).dy, greaterThan(rest));
-      // Slow enough to read as one change: still under way at 400 ms.
-      await tester.pump(const Duration(milliseconds: 280));
-      expect(find.text('61°'), findsOneWidget);
-      expect(tester.getTopLeft(find.text('54°')).dy, greaterThan(rest));
-      await tester.pump(const Duration(milliseconds: 260));
-      expect(find.text('61°'), findsNothing);
-      expect(tester.getTopLeft(find.text('54°')).dy, rest);
-    });
-
-    testWidgets('with reduced motion the figures crossfade in place', (
-      tester,
-    ) async {
+    testWidgets('shows new values at once', (tester) async {
       var temperature = 61;
       await pumpInVogue(
         tester,
@@ -289,56 +252,11 @@ void main() {
             ),
           ),
         ),
-        disableAnimations: true,
       );
-      final rest = tester.getTopLeft(find.text('61°')).dy;
       await tester.tap(find.byType(WeatherLine));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 120));
-      expect(tester.getTopLeft(find.text('61°')).dy, rest);
-      expect(tester.getTopLeft(find.text('54°')).dy, rest);
-      await tester.pump(const Duration(milliseconds: 200));
       expect(find.text('61°'), findsNothing);
-    });
-
-    testWidgets('a new condition crossfades and only one glyph moves', (
-      tester,
-    ) async {
-      var sunny = false;
-      await pumpInVogue(
-        tester,
-        StatefulBuilder(
-          builder: (context, setState) => GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => setState(() => sunny = true),
-            child: WeatherLine(
-              temperature: 54,
-              feelsLike: 49,
-              condition: sunny ? 'Sunny all day' : 'Showers after 3 pm',
-              glyph: sunny ? WeatherGlyphType.sun : WeatherGlyphType.cloudRain,
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.byType(WeatherLine));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(
-        find.text('Showers after 3 pm', skipOffstage: false),
-        findsNothing,
-      );
-      expect(find.byType(WeatherGlyph), findsNWidgets(2));
-      final moving = tester
-          .widgetList<CustomPaint>(
-            find.descendant(
-              of: find.byType(WeatherGlyph),
-              matching: find.byType(CustomPaint),
-            ),
-          )
-          .map((p) => (p.painter! as WeatherGlyphPainter).loop.value > 0);
-      expect(moving.where((m) => m), hasLength(1));
-      await tester.pumpAndSettle();
-      expect(find.byType(WeatherGlyph), findsOneWidget);
+      expect(find.text('54°'), findsOneWidget);
     });
   });
 }

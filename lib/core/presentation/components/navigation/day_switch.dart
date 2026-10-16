@@ -10,7 +10,7 @@ import 'package:in_vogue/core/presentation/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
 
-/// Two tabs over a hairline; a 2-point rule slides under the selected one.
+/// Tabs over a hairline; a 2-point rule slides under the selected one.
 /// An optional [date] sits on the right. Read as a tab list.
 class DaySwitch extends StatefulWidget {
   const DaySwitch({
@@ -19,7 +19,7 @@ class DaySwitch extends StatefulWidget {
     required this.onSelected,
     this.date,
     super.key,
-  }) : assert(labels.length == 2, 'a day switch has two tabs');
+  }) : assert(labels.length >= 2, 'a day switch has two tabs or more');
 
   final List<String> labels;
   final int selectedIndex;
@@ -94,13 +94,14 @@ class _DaySwitchState extends State<DaySwitch>
           ),
           child: CustomMultiChildLayout(
             delegate: _DaySwitchLayout(
+              tabs: widget.labels.length,
               selected: widget.selectedIndex,
               from: _from,
               progress: _progress,
               hasDate: widget.date != null,
             ),
             children: [
-              for (var i = 0; i < 2; i++)
+              for (var i = 0; i < widget.labels.length; i++)
                 LayoutId(id: i, child: _tab(context, i)),
               if (widget.date != null)
                 LayoutId(
@@ -160,6 +161,7 @@ class _DaySwitchState extends State<DaySwitch>
 
 class _DaySwitchLayout extends MultiChildLayoutDelegate {
   _DaySwitchLayout({
+    required this.tabs,
     required this.selected,
     required this.from,
     required this.progress,
@@ -170,6 +172,7 @@ class _DaySwitchLayout extends MultiChildLayoutDelegate {
   static const ruleId = 'rule';
   static const gap = InVogueSpace.s6;
 
+  final int tabs;
   final int selected;
   final int from;
   final Animation<double> progress;
@@ -180,7 +183,7 @@ class _DaySwitchLayout extends MultiChildLayoutDelegate {
     final loose = BoxConstraints.loose(size);
     final rects = <Rect>[];
     var x = 0.0;
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < tabs; i++) {
       final tab = layoutChild(i, loose);
       // A tab overhangs the hairline by a point, so its rule covers it.
       final rect = Offset(x, size.height - tab.height) & tab;
@@ -214,6 +217,7 @@ class _DaySwitchLayout extends MultiChildLayoutDelegate {
 
   @override
   bool shouldRelayout(_DaySwitchLayout oldDelegate) =>
+      oldDelegate.tabs != tabs ||
       oldDelegate.selected != selected ||
       oldDelegate.from != from ||
       oldDelegate.hasDate != hasDate ||

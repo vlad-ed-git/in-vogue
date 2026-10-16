@@ -1,17 +1,17 @@
 import 'package:flutter/widgets.dart';
-import 'package:in_vogue/core/presentation/components/weather/rolling_temperature.dart';
 import 'package:in_vogue/core/presentation/components/weather/weather_glyph.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
 import 'package:in_vogue/core/presentation/foundations/marked_text.dart';
+import 'package:in_vogue/core/presentation/foundations/temperature_text.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
-import 'package:in_vogue/core/presentation/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
 /// Temperature, condition with its glyph, and feels-like on one line.
 ///
-/// Read by screen readers as one sentence. Stacks at large text sizes.
+/// Read by screen readers as one sentence. Stacks at large text sizes. New
+/// values show at once; a ShiftSwitcher can move between them.
 class WeatherLine extends StatelessWidget {
   const WeatherLine({
     required this.temperature,
@@ -55,36 +55,14 @@ class WeatherLine extends StatelessWidget {
     // aligns with the text below.
     final numeral = Transform.translate(
       offset: const Offset(-4, 0),
-      child: RollingTemperature(temperature),
+      child: TemperatureText(temperature, style: InVogueType.numeral),
     );
-    final details = AnimatedSwitcher(
-      // At the pace of the figure, so the line changes as one.
-      duration: context.reduceMotion
-          ? InVogueMotion.base
-          : RollingTemperature.enter,
-      switchInCurve: InVogueMotion.standard,
-      switchOutCurve: InVogueMotion.standard,
-      layoutBuilder: (current, previous) => Stack(
-        alignment: AlignmentDirectional.bottomStart,
-        children: [...previous, ?current],
-      ),
-      transitionBuilder: (child, animation) => AnimatedBuilder(
-        animation: animation,
-        child: child,
-        // An outgoing glyph stops at once, so only one loop plays.
-        builder: (context, child) => TickerMode(
-          enabled: animation.status != AnimationStatus.reverse,
-          child: FadeTransition(opacity: animation, child: child),
-        ),
-      ),
-      child: _Details(
-        key: ValueKey((condition, glyph, feelsLike, highlight)),
-        condition: condition,
-        glyph: glyph,
-        feelsLike: feelsLike,
-        highlight: highlight,
-        playKey: playKey,
-      ),
+    final details = _Details(
+      condition: condition,
+      glyph: glyph,
+      feelsLike: feelsLike,
+      highlight: highlight,
+      playKey: playKey,
     );
     return Semantics(
       label: spoken,
@@ -125,7 +103,6 @@ class _Details extends StatelessWidget {
     required this.feelsLike,
     required this.highlight,
     required this.playKey,
-    super.key,
   });
 
   final String condition;

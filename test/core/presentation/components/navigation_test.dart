@@ -183,6 +183,32 @@ void main() {
   });
 
   group('DaySwitch', () {
+    testWidgets('holds a third tab, with the rule under the one chosen', (
+      tester,
+    ) async {
+      final chosen = <int>[];
+      await pumpInVogue(
+        tester,
+        DaySwitch(
+          labels: const ['Today', 'Tomorrow', 'Outfits'],
+          selectedIndex: 2,
+          onSelected: (index) => chosen.add(index),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final rule = tester.getRect(
+        find.descendant(
+          of: find.byType(DaySwitch),
+          matching: find.byWidgetPredicate(
+            (w) => w is ColoredBox && w.color == InVogueColors.ink,
+          ),
+        ),
+      );
+      expect(rule.left, tester.getRect(find.text('Outfits')).left);
+      await tester.tap(find.text('Today'));
+      expect(chosen, [0]);
+    });
+
     Widget daySwitch(int selected, ValueChanged<int> onSelected) => DaySwitch(
       labels: const ['Today', 'Tomorrow'],
       selectedIndex: selected,
