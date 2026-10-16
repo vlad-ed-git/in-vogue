@@ -182,5 +182,18 @@
   "makeupFailed": "Esta vez no pudimos crear tu maquillaje. Tu foto está bien.",
   "makeupPhotoProblem": "No encontramos tu cara en esta foto. Funciona mejor un primer plano, de frente y con luz natural.",
   "makeupBudgetSpent": "Por ahora no se pueden crear más maquillajes.",
-  "makeupUnavailable": "El maquillaje aún no está disponible en esta versión."
+  "makeupUnavailable": "El maquillaje aún no está disponible en esta versión.",
+  "makeupFor": "{day, select, today{Maquillaje para hoy} other{Maquillaje para mañana}}",
+  "makeupStepsArriving": "Cada paso aparece en cuanto está listo.",
+  "getMyMakeup": "Crear mi maquillaje",
+  "getMakeupForOutfit": "Crear maquillaje para este conjunto",
+  "makeupStepCount": "{count, select, three{Tres pasos} four{Cuatro pasos} five{Cinco pasos} six{Seis pasos} other{Los pasos}}",
+  "cheekColour": "{colour, select, soft_pink{rosa suave} peach{melocotón} rose{rosa} terracotta{terracota} other{suave}}",
+  "lipColour": "{colour, select, nude{nude} rosy_nude{rosa nude} rose{rosa} terracotta{terracota} red{rojo} berry{baya} brick{rojo ladrillo} other{suave}}",
+  "lookSentence": "Mejillas en tono {cheeks} y labios en tono {lips}, a juego con {palette, select, warm{tus neutros cálidos} cool{tus neutros fríos} mixed{tus neutros} other{el color que llevas}}.",
+  "makeupWaitsForOutfit": "Tu maquillaje va con tu conjunto, que ya está en camino.",
+  "makeupNeedsOutfit": "{day, select, today{Aún no hay un conjunto de hoy con el que combinar.} other{Aún no hay un conjunto de mañana con el que combinar.}}",
+  "yourLastLook": "Tu último maquillaje",
+  "makeupFacePhotoLine": "Tu maquillaje se crea sobre tu propia cara.",
+  "makeupShadesNeutral": "Para tonos que vayan contigo, usa una foto de tu cara de frente y con luz natural."
 }

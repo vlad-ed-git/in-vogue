@@ -1202,6 +1202,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Makeup isn’t available in this version yet.'**
   String get makeupUnavailable;
+
+  /// Title of the Makeup tab: the day of the outfit on Home.
+  ///
+  /// In en, this message translates to:
+  /// **'{day, select, today{Makeup for today} other{Makeup for tomorrow}}'**
+  String makeupFor(String day);
+
+  /// Below the title while the makeup look is being made.
+  ///
+  /// In en, this message translates to:
+  /// **'Your steps appear as each one is ready.'**
+  String get makeupStepsArriving;
+
+  /// Starts making the first makeup look.
+  ///
+  /// In en, this message translates to:
+  /// **'Get my makeup'**
+  String get getMyMakeup;
+
+  /// Starts making a makeup look for the outfit now on Home.
+  ///
+  /// In en, this message translates to:
+  /// **'Get makeup for this outfit'**
+  String get getMakeupForOutfit;
+
+  /// Heading above the makeup steps; count is the number of steps in words: three, four, five or six.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, select, three{Three steps} four{Four steps} five{Five steps} six{Six steps} other{The steps}}'**
+  String makeupStepCount(String count);
+
+  /// A blush colour, as it starts lookSentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{colour, select, soft_pink{Soft pink} peach{Peach} rose{Rose} terracotta{Terracotta} other{Soft}}'**
+  String cheekColour(String colour);
+
+  /// A lip colour, as it reads inside lookSentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{colour, select, nude{nude} rosy_nude{rosy-nude} rose{rose} terracotta{terracotta} red{red} berry{berry} brick{brick-red} other{soft}}'**
+  String lipColour(String colour);
+
+  /// Ties the makeup look to the outfit's colours. cheeks is cheekColour, lips is lipColour.
+  ///
+  /// In en, this message translates to:
+  /// **'{cheeks} cheeks and {lips} lips, to go with {palette, select, warm{your warm neutrals} cool{your cool neutrals} mixed{your neutrals} other{the colour you’re wearing}}.'**
+  String lookSentence(String cheeks, String lips, String palette);
+
+  /// The outfit on Home is still being made, so no makeup can start.
+  ///
+  /// In en, this message translates to:
+  /// **'Your makeup follows your outfit, which is on its way.'**
+  String get makeupWaitsForOutfit;
+
+  /// The day on Home has no outfit, so no makeup can be made for it.
+  ///
+  /// In en, this message translates to:
+  /// **'{day, select, today{There’s no outfit for today to match yet.} other{There’s no outfit for tomorrow to match yet.}}'**
+  String makeupNeedsOutfit(String day);
+
+  /// Heading above the makeup look made for an earlier outfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last look'**
+  String get yourLastLook;
+
+  /// Why the Makeup tab asks for a face photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Your makeup is made on your own face.'**
+  String get makeupFacePhotoLine;
+
+  /// The face photo was not clear enough to match shades; neutral shades were used.
+  ///
+  /// In en, this message translates to:
+  /// **'For shades that match you, use a face photo taken in daylight, facing forward.'**
+  String get makeupShadesNeutral;
 }
 
 class _AppLocalizationsDelegate

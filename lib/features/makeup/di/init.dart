@@ -19,6 +19,7 @@ import 'package:in_vogue/features/makeup/domain/repositories/makeup_service_repo
 import 'package:in_vogue/features/makeup/domain/services/make_look.dart';
 import 'package:in_vogue/features/makeup/domain/usecases/get_latest_makeup_look.dart';
 import 'package:in_vogue/features/makeup/domain/usecases/get_makeup_look.dart';
+import 'package:in_vogue/features/makeup/presentation/bloc/makeup_bloc.dart';
 import 'package:path/path.dart' as path;
 
 /// Without a YouCam client no makeup look can be made.
@@ -76,6 +77,14 @@ void init(GetIt locator) {
         jobs: locator(),
         photos: locator(),
         saveSetupToAccount: locator(),
+      ),
+    )
+    ..registerFactory<MakeupBloc>(
+      () => MakeupBloc(
+        getCurrentAccount: locator(),
+        getMakeupLook: locator(),
+        getLatestMakeupLook: locator(),
+        makeLook: locator(),
       ),
     );
 }

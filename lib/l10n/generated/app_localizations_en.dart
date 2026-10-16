@@ -729,4 +729,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get makeupUnavailable => 'Makeup isn’t available in this version yet.';
+
+  @override
+  String makeupFor(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': 'Makeup for today',
+      'other': 'Makeup for tomorrow',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get makeupStepsArriving => 'Your steps appear as each one is ready.';
+
+  @override
+  String get getMyMakeup => 'Get my makeup';
+
+  @override
+  String get getMakeupForOutfit => 'Get makeup for this outfit';
+
+  @override
+  String makeupStepCount(String count) {
+    String _temp0 = intl.Intl.selectLogic(count, {
+      'three': 'Three steps',
+      'four': 'Four steps',
+      'five': 'Five steps',
+      'six': 'Six steps',
+      'other': 'The steps',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String cheekColour(String colour) {
+    String _temp0 = intl.Intl.selectLogic(colour, {
+      'soft_pink': 'Soft pink',
+      'peach': 'Peach',
+      'rose': 'Rose',
+      'terracotta': 'Terracotta',
+      'other': 'Soft',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String lipColour(String colour) {
+    String _temp0 = intl.Intl.selectLogic(colour, {
+      'nude': 'nude',
+      'rosy_nude': 'rosy-nude',
+      'rose': 'rose',
+      'terracotta': 'terracotta',
+      'red': 'red',
+      'berry': 'berry',
+      'brick': 'brick-red',
+      'other': 'soft',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String lookSentence(String cheeks, String lips, String palette) {
+    String _temp0 = intl.Intl.selectLogic(palette, {
+      'warm': 'your warm neutrals',
+      'cool': 'your cool neutrals',
+      'mixed': 'your neutrals',
+      'other': 'the colour you’re wearing',
+    });
+    return '$cheeks cheeks and $lips lips, to go with $_temp0.';
+  }
+
+  @override
+  String get makeupWaitsForOutfit =>
+      'Your makeup follows your outfit, which is on its way.';
+
+  @override
+  String makeupNeedsOutfit(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': 'There’s no outfit for today to match yet.',
+      'other': 'There’s no outfit for tomorrow to match yet.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get yourLastLook => 'Your last look';
+
+  @override
+  String get makeupFacePhotoLine => 'Your makeup is made on your own face.';
+
+  @override
+  String get makeupShadesNeutral =>
+      'For shades that match you, use a face photo taken in daylight, facing forward.';
 }

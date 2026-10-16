@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,6 +21,9 @@ import 'package:in_vogue/features/home/presentation/screens/home_screen.dart';
 import 'package:in_vogue/features/home/presentation/screens/shop_screen.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
+import 'package:in_vogue/features/makeup/presentation/bloc/makeup_bloc.dart';
+import 'package:in_vogue/features/makeup/presentation/screens/makeup_screen.dart';
+import 'package:in_vogue/features/makeup/presentation/screens/picture_screen.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
@@ -36,7 +40,7 @@ import 'package:in_vogue/features/setup/presentation/screens/your_photo_screen.d
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 
 /// The app's screens, with their blocs from [locator]. Home's bloc is
-/// shared by the tabs.
+/// shared by the tabs, so Makeup follows Home's day and outfit.
 AppScreens inVogueScreens(GetIt locator) => AppScreens(
   tabs: (tabs) => BlocProvider(
     create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
@@ -194,9 +198,66 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         ),
       ),
     ),
-    InVogueTab.makeup => const SizedBox.shrink(),
+    InVogueTab.makeup => MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => locator<MakeupBloc>()
+            ..add(MakeupDayShown(_makeupDay(context.read<HomeBloc>().state))),
+        ),
+        BlocProvider(
+          create: (_) =>
+              locator<PhotoBloc>(param1: PhotoRole.face)
+                ..add(const PhotoLoaded()),
+        ),
+      ],
+      child: BlocListener<HomeBloc, HomeState>(
+        listenWhen: (previous, current) =>
+            _makeupDay(previous) != _makeupDay(current),
+        listener: (context, home) =>
+            context.read<MakeupBloc>().add(MakeupDayShown(_makeupDay(home))),
+        child: _OnTabShown(
+          tab: InVogueTab.makeup,
+          // The face photo may have been replaced in Settings.
+          onShown: (context) =>
+              context.read<PhotoBloc>().add(const PhotoLoaded()),
+          child: Builder(
+            builder: (context) => MakeupScreen(
+              onPicture: (picture, label) => _push(
+                context,
+                (context) => PictureScreen(
+                  picture: FileImage(File(picture)),
+                  label: label,
+                  onClose: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
   },
 );
+
+/// Home's day, as the Makeup tab follows it.
+MakeupDay _makeupDay(HomeState home) {
+  final shown = home.shown;
+  return MakeupDay(
+    day: home.selected,
+    occasion: shown.report?.weather.occasion,
+    outfit: switch (shown.outfit) {
+      OutfitShown(:final outfit) => outfit,
+      _ => null,
+    },
+    weather: shown.report?.weatherClass,
+    outfitPending: switch (shown.outfit) {
+      OutfitMaking() => true,
+      OutfitLooking() =>
+        home.status == HomeStatus.loading ||
+            (home.status == HomeStatus.ready && !shown.weatherFailed),
+      _ => false,
+    },
+  );
+}
 
 /// Opens a full screen over the tabs.
 void _push(BuildContext context, WidgetBuilder builder) => unawaited(

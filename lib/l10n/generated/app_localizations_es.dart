@@ -731,4 +731,96 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get makeupUnavailable =>
       'El maquillaje aún no está disponible en esta versión.';
+
+  @override
+  String makeupFor(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': 'Maquillaje para hoy',
+      'other': 'Maquillaje para mañana',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get makeupStepsArriving => 'Cada paso aparece en cuanto está listo.';
+
+  @override
+  String get getMyMakeup => 'Crear mi maquillaje';
+
+  @override
+  String get getMakeupForOutfit => 'Crear maquillaje para este conjunto';
+
+  @override
+  String makeupStepCount(String count) {
+    String _temp0 = intl.Intl.selectLogic(count, {
+      'three': 'Tres pasos',
+      'four': 'Cuatro pasos',
+      'five': 'Cinco pasos',
+      'six': 'Seis pasos',
+      'other': 'Los pasos',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String cheekColour(String colour) {
+    String _temp0 = intl.Intl.selectLogic(colour, {
+      'soft_pink': 'rosa suave',
+      'peach': 'melocotón',
+      'rose': 'rosa',
+      'terracotta': 'terracota',
+      'other': 'suave',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String lipColour(String colour) {
+    String _temp0 = intl.Intl.selectLogic(colour, {
+      'nude': 'nude',
+      'rosy_nude': 'rosa nude',
+      'rose': 'rosa',
+      'terracotta': 'terracota',
+      'red': 'rojo',
+      'berry': 'baya',
+      'brick': 'rojo ladrillo',
+      'other': 'suave',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String lookSentence(String cheeks, String lips, String palette) {
+    String _temp0 = intl.Intl.selectLogic(palette, {
+      'warm': 'tus neutros cálidos',
+      'cool': 'tus neutros fríos',
+      'mixed': 'tus neutros',
+      'other': 'el color que llevas',
+    });
+    return 'Mejillas en tono $cheeks y labios en tono $lips, a juego con $_temp0.';
+  }
+
+  @override
+  String get makeupWaitsForOutfit =>
+      'Tu maquillaje va con tu conjunto, que ya está en camino.';
+
+  @override
+  String makeupNeedsOutfit(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': 'Aún no hay un conjunto de hoy con el que combinar.',
+      'other': 'Aún no hay un conjunto de mañana con el que combinar.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get yourLastLook => 'Tu último maquillaje';
+
+  @override
+  String get makeupFacePhotoLine =>
+      'Tu maquillaje se crea sobre tu propia cara.';
+
+  @override
+  String get makeupShadesNeutral =>
+      'Para tonos que vayan contigo, usa una foto de tu cara de frente y con luz natural.';
 }

@@ -687,4 +687,93 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get makeupUnavailable => '此版本暂不提供妆容。';
+
+  @override
+  String makeupFor(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': '今天的妆容',
+      'other': '明天的妆容',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get makeupStepsArriving => '每一步完成后就会出现在这里。';
+
+  @override
+  String get getMyMakeup => '生成我的妆容';
+
+  @override
+  String get getMakeupForOutfit => '为这套穿搭生成妆容';
+
+  @override
+  String makeupStepCount(String count) {
+    String _temp0 = intl.Intl.selectLogic(count, {
+      'three': '三个步骤',
+      'four': '四个步骤',
+      'five': '五个步骤',
+      'six': '六个步骤',
+      'other': '步骤',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String cheekColour(String colour) {
+    String _temp0 = intl.Intl.selectLogic(colour, {
+      'soft_pink': '柔粉色',
+      'peach': '蜜桃色',
+      'rose': '玫瑰色',
+      'terracotta': '赤陶色',
+      'other': '柔和',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String lipColour(String colour) {
+    String _temp0 = intl.Intl.selectLogic(colour, {
+      'nude': '裸色',
+      'rosy_nude': '玫瑰裸色',
+      'rose': '玫瑰色',
+      'terracotta': '赤陶色',
+      'red': '红色',
+      'berry': '莓果色',
+      'brick': '砖红色',
+      'other': '柔和',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String lookSentence(String cheeks, String lips, String palette) {
+    String _temp0 = intl.Intl.selectLogic(palette, {
+      'warm': '你的暖调中性色',
+      'cool': '你的冷调中性色',
+      'mixed': '你的中性色',
+      'other': '你身上的颜色',
+    });
+    return '$cheeks腮红配$lips唇妆，呼应$_temp0。';
+  }
+
+  @override
+  String get makeupWaitsForOutfit => '妆容会搭配你的穿搭，穿搭正在准备中。';
+
+  @override
+  String makeupNeedsOutfit(String day) {
+    String _temp0 = intl.Intl.selectLogic(day, {
+      'today': '今天还没有可搭配的穿搭。',
+      'other': '明天还没有可搭配的穿搭。',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get yourLastLook => '你上一次的妆容';
+
+  @override
+  String get makeupFacePhotoLine => '妆容会画在你自己的脸上。';
+
+  @override
+  String get makeupShadesNeutral => '想让色号更适合你，请使用在自然光下正面拍摄的面部照片。';
 }

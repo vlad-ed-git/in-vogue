@@ -759,5 +759,93 @@
   "makeupUnavailable": "Makeup isn’t available in this version yet.",
   "@makeupUnavailable": {
     "description": "This build has no access to the makeup service."
+  },
+  "makeupFor": "{day, select, today{Makeup for today} other{Makeup for tomorrow}}",
+  "@makeupFor": {
+    "description": "Title of the Makeup tab: the day of the outfit on Home.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "makeupStepsArriving": "Your steps appear as each one is ready.",
+  "@makeupStepsArriving": {
+    "description": "Below the title while the makeup look is being made."
+  },
+  "getMyMakeup": "Get my makeup",
+  "@getMyMakeup": {
+    "description": "Starts making the first makeup look."
+  },
+  "getMakeupForOutfit": "Get makeup for this outfit",
+  "@getMakeupForOutfit": {
+    "description": "Starts making a makeup look for the outfit now on Home."
+  },
+  "makeupStepCount": "{count, select, three{Three steps} four{Four steps} five{Five steps} six{Six steps} other{The steps}}",
+  "@makeupStepCount": {
+    "description": "Heading above the makeup steps; count is the number of steps in words: three, four, five or six.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cheekColour": "{colour, select, soft_pink{Soft pink} peach{Peach} rose{Rose} terracotta{Terracotta} other{Soft}}",
+  "@cheekColour": {
+    "description": "A blush colour, as it starts lookSentence.",
+    "placeholders": {
+      "colour": {
+        "type": "String"
+      }
+    }
+  },
+  "lipColour": "{colour, select, nude{nude} rosy_nude{rosy-nude} rose{rose} terracotta{terracotta} red{red} berry{berry} brick{brick-red} other{soft}}",
+  "@lipColour": {
+    "description": "A lip colour, as it reads inside lookSentence.",
+    "placeholders": {
+      "colour": {
+        "type": "String"
+      }
+    }
+  },
+  "lookSentence": "{cheeks} cheeks and {lips} lips, to go with {palette, select, warm{your warm neutrals} cool{your cool neutrals} mixed{your neutrals} other{the colour you’re wearing}}.",
+  "@lookSentence": {
+    "description": "Ties the makeup look to the outfit's colours. cheeks is cheekColour, lips is lipColour.",
+    "placeholders": {
+      "cheeks": {
+        "type": "String"
+      },
+      "lips": {
+        "type": "String"
+      },
+      "palette": {
+        "type": "String"
+      }
+    }
+  },
+  "makeupWaitsForOutfit": "Your makeup follows your outfit, which is on its way.",
+  "@makeupWaitsForOutfit": {
+    "description": "The outfit on Home is still being made, so no makeup can start."
+  },
+  "makeupNeedsOutfit": "{day, select, today{There’s no outfit for today to match yet.} other{There’s no outfit for tomorrow to match yet.}}",
+  "@makeupNeedsOutfit": {
+    "description": "The day on Home has no outfit, so no makeup can be made for it.",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "yourLastLook": "Your last look",
+  "@yourLastLook": {
+    "description": "Heading above the makeup look made for an earlier outfit."
+  },
+  "makeupFacePhotoLine": "Your makeup is made on your own face.",
+  "@makeupFacePhotoLine": {
+    "description": "Why the Makeup tab asks for a face photo."
+  },
+  "makeupShadesNeutral": "For shades that match you, use a face photo taken in daylight, facing forward.",
+  "@makeupShadesNeutral": {
+    "description": "The face photo was not clear enough to match shades; neutral shades were used."
   }
 }
