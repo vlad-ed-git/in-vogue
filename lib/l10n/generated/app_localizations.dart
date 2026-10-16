@@ -902,6 +902,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{weather} Your outfit is getting ready.'**
   String widgetPreviewSpoken(String weather);
+
+  /// The try-on service could not use the person's body photo.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t dress this photo. A different one may work.'**
+  String get tryOnPhotoProblem;
+
+  /// The try-on budget is spent; no outfit is made.
+  ///
+  /// In en, this message translates to:
+  /// **'No more outfits can be made for now.'**
+  String get tryOnBudgetSpent;
+
+  /// This build has no access to the try-on service.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfits aren’t available in this version yet.'**
+  String get tryOnUnavailable;
 }
 
 class _AppLocalizationsDelegate

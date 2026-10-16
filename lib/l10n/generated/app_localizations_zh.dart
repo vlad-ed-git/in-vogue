@@ -512,4 +512,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String widgetPreviewSpoken(String weather) {
     return '$weather你的穿搭正在准备中。';
   }
+
+  @override
+  String get tryOnPhotoProblem => '这张照片无法换装。换一张照片或许可以。';
+
+  @override
+  String get tryOnBudgetSpent => '目前无法再生成新的穿搭。';
+
+  @override
+  String get tryOnUnavailable => '此版本暂不提供穿搭。';
 }

@@ -513,5 +513,17 @@
         "type": "String"
       }
     }
+  },
+  "tryOnPhotoProblem": "We couldn’t dress this photo. A different one may work.",
+  "@tryOnPhotoProblem": {
+    "description": "The try-on service could not use the person's body photo."
+  },
+  "tryOnBudgetSpent": "No more outfits can be made for now.",
+  "@tryOnBudgetSpent": {
+    "description": "The try-on budget is spent; no outfit is made."
+  },
+  "tryOnUnavailable": "Outfits aren’t available in this version yet.",
+  "@tryOnUnavailable": {
+    "description": "This build has no access to the try-on service."
   }
 }

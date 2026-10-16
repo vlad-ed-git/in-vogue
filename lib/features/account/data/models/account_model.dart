@@ -15,15 +15,6 @@ abstract final class AccountModel {
   static String photoPath(String accountId, UserPhoto photo) =>
       'users/$accountId/photos/${p.basename(photo.path)}';
 
-  /// The image type of the file at [path], from its extension.
-  static String contentType(String path) =>
-      switch (p.extension(path).toLowerCase()) {
-        '.png' => 'image/png',
-        '.heic' || '.heif' => 'image/heic',
-        '.webp' => 'image/webp',
-        _ => 'image/jpeg',
-      };
-
   /// The photos recorded in an account document; unreadable ones are left
   /// out.
   static Map<PhotoRole, AccountPhoto> photosFromJson(Object? json) => {

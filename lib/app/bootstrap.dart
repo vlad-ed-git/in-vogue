@@ -14,15 +14,18 @@ import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 import 'package:in_vogue/main_init.dart';
 
+/// Without a [youCamApiKey] the app makes no outfits.
 Future<void> bootstrap({
   required AppEnvironment environment,
   required FirebaseOptions firebaseOptions,
+  String? youCamApiKey,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     final startup = await MainInit.init(
       environment: environment,
       firebaseOptions: firebaseOptions,
+      youCamApiKey: youCamApiKey,
     );
     runApp(
       InVogueApp(
@@ -46,6 +49,7 @@ Future<void> bootstrap({
         onRetry: () => bootstrap(
           environment: environment,
           firebaseOptions: firebaseOptions,
+          youCamApiKey: youCamApiKey,
         ),
       ),
     );

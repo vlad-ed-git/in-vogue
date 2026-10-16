@@ -132,5 +132,8 @@
   "skip": "跳过",
   "widgetStepsTitle": "在 iPhone 上只需三步",
   "widgetNotReady": "小组件尚未就绪，你可以稍后添加。",
-  "widgetPreviewSpoken": "{weather}你的穿搭正在准备中。"
+  "widgetPreviewSpoken": "{weather}你的穿搭正在准备中。",
+  "tryOnPhotoProblem": "这张照片无法换装。换一张照片或许可以。",
+  "tryOnBudgetSpent": "目前无法再生成新的穿搭。",
+  "tryOnUnavailable": "此版本暂不提供穿搭。"
 }

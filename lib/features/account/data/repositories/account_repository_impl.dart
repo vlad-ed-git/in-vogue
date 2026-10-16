@@ -8,6 +8,7 @@ import 'package:in_vogue/features/account/data/data_sources/account_remote_data_
 import 'package:in_vogue/features/account/data/models/account_model.dart';
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
+import 'package:in_vogue/features/photos/data/photo_content_type.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 
 class AccountRepositoryImpl implements AccountRepository {
@@ -73,7 +74,7 @@ class AccountRepositoryImpl implements AccountRepository {
         await _remote.uploadPhoto(
           path: path,
           file: photo.path,
-          contentType: AccountModel.contentType(photo.path),
+          contentType: photoContentType(photo.path),
         );
         if (previous != null && previous.path != path) {
           replaced.add(previous.path);

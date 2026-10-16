@@ -66,3 +66,29 @@ final class SignInFailure extends Failure {
   @override
   List<Object?> get props => [problem];
 }
+
+/// Why an outfit could not be made.
+enum TryOnProblem {
+  /// The try-on failed; trying again may work.
+  failed,
+
+  /// The try-on could not use the person's photo.
+  photo,
+
+  /// The try-on budget is spent.
+  budgetSpent,
+
+  /// This build cannot make outfits.
+  unavailable,
+
+  /// Every suitable outfit has been shown.
+  everySeen,
+}
+
+final class TryOnFailure extends Failure {
+  const TryOnFailure(this.problem);
+  final TryOnProblem problem;
+
+  @override
+  List<Object?> get props => [problem];
+}

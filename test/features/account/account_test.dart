@@ -15,6 +15,7 @@ import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
+import 'package:in_vogue/features/photos/data/photo_content_type.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -67,10 +68,10 @@ void main() {
     });
 
     test('names the image type from the extension', () {
-      expect(AccountModel.contentType('/a/body-1.jpg'), 'image/jpeg');
-      expect(AccountModel.contentType('/a/body-1.JPEG'), 'image/jpeg');
-      expect(AccountModel.contentType('/a/face-1.png'), 'image/png');
-      expect(AccountModel.contentType('/a/face-1.heic'), 'image/heic');
+      expect(photoContentType('/a/body-1.jpg'), 'image/jpeg');
+      expect(photoContentType('/a/body-1.JPEG'), 'image/jpeg');
+      expect(photoContentType('/a/face-1.png'), 'image/png');
+      expect(photoContentType('/a/face-1.heic'), 'image/heic');
     });
 
     test('gives a new account the demo plan, and only a new one', () {

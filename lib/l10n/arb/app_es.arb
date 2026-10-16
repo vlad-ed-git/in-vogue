@@ -132,5 +132,8 @@
   "skip": "Omitir",
   "widgetStepsTitle": "Tres pasos en el iPhone",
   "widgetNotReady": "El widget aún no está listo. Puedes añadirlo más tarde.",
-  "widgetPreviewSpoken": "{weather} Tu conjunto se está preparando."
+  "widgetPreviewSpoken": "{weather} Tu conjunto se está preparando.",
+  "tryOnPhotoProblem": "No pudimos vestir esta foto. Puede que otra funcione.",
+  "tryOnBudgetSpent": "Por ahora no se pueden crear más conjuntos.",
+  "tryOnUnavailable": "Los conjuntos aún no están disponibles en esta versión."
 }

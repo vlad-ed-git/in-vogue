@@ -550,4 +550,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String widgetPreviewSpoken(String weather) {
     return '$weather Tu conjunto se está preparando.';
   }
+
+  @override
+  String get tryOnPhotoProblem =>
+      'No pudimos vestir esta foto. Puede que otra funcione.';
+
+  @override
+  String get tryOnBudgetSpent => 'Por ahora no se pueden crear más conjuntos.';
+
+  @override
+  String get tryOnUnavailable =>
+      'Los conjuntos aún no están disponibles en esta versión.';
 }

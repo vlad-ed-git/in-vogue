@@ -17,6 +17,7 @@ import 'package:in_vogue/features/auth/di/init.dart' as auth_di;
 import 'package:in_vogue/features/catalog/di/init.dart' as catalog_di;
 import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
 import 'package:in_vogue/features/location/di/init.dart' as location_di;
+import 'package:in_vogue/features/outfits/di/init.dart' as outfits_di;
 import 'package:in_vogue/features/photos/di/init.dart' as photos_di;
 import 'package:in_vogue/features/preferences/di/init.dart' as preferences_di;
 import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart';
@@ -37,6 +38,7 @@ abstract final class MainInit {
   static Future<StartupState> init({
     required AppEnvironment environment,
     required FirebaseOptions firebaseOptions,
+    String? youCamApiKey,
   }) async {
     environment.validate(
       nativeFlavor: appFlavor,
@@ -84,6 +86,7 @@ abstract final class MainInit {
       profile_di.init(locator);
       home_widget_di.init(locator);
       account_di.init(locator);
+      outfits_di.init(locator, youCamApiKey: youCamApiKey);
       final language = await locator<GetLanguage>()(const NoParams());
       final setupStep = await locator<GetSetupStep>()(const NoParams());
       _registerErrorHandlers(locator<LogMessages>());
