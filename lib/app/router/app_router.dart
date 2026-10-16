@@ -27,7 +27,7 @@ class AppRouter {
         _setupRoute(AppRoutes.setupSteps.toList(), screens, root: true),
         StatefulShellRoute.indexedStack(
           pageBuilder: (context, state, shell) =>
-              _page(state, TabShell(shell: shell)),
+              _page(state, screens.tabs(TabShell(shell: shell))),
           branches: [
             for (final tab in InVogueTab.values)
               StatefulShellBranch(

@@ -35,8 +35,13 @@ import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart
 import 'package:in_vogue/features/setup/presentation/screens/your_photo_screen.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 
-/// The app's screens, with their blocs from [locator].
+/// The app's screens, with their blocs from [locator]. Home's bloc is
+/// shared by the tabs.
 AppScreens inVogueScreens(GetIt locator) => AppScreens(
+  tabs: (tabs) => BlocProvider(
+    create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
+    child: tabs,
+  ),
   setup: (step) => switch (step) {
     SetupStep.welcome => BlocProvider(
       create: (_) => locator<LocationBloc>(),
@@ -130,14 +135,11 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
     SetupStep.done => throw ArgumentError.value(step, 'step', 'Has no screen'),
   },
   tab: (tab) => switch (tab) {
-    InVogueTab.home => MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
-        ),
-        BlocProvider(create: (_) => locator<PicksBloc>()),
-      ],
-      child: _ReloadWhenShown(
+    InVogueTab.home => BlocProvider(
+      create: (_) => locator<PicksBloc>(),
+      child: _OnTabShown(
+        tab: InVogueTab.home,
+        onShown: (context) => context.read<HomeBloc>().add(const HomeStarted()),
         child: Builder(
           builder: (context) => HomeScreen(
             onYourPicks: () => _push(
@@ -204,26 +206,32 @@ void _push(BuildContext context, WidgetBuilder builder) => unawaited(
   ).push(MaterialPageRoute<void>(builder: builder)),
 );
 
-/// Reloads Home each time its tab comes back on screen, so changes made in
-/// Settings show there.
-class _ReloadWhenShown extends StatefulWidget {
-  const _ReloadWhenShown({required this.child});
+/// Calls [onShown] each time [tab] comes back on screen, so changes made
+/// on other tabs show there.
+class _OnTabShown extends StatefulWidget {
+  const _OnTabShown({
+    required this.tab,
+    required this.onShown,
+    required this.child,
+  });
 
+  final InVogueTab tab;
+  final void Function(BuildContext context) onShown;
   final Widget child;
 
   @override
-  State<_ReloadWhenShown> createState() => _ReloadWhenShownState();
+  State<_OnTabShown> createState() => _OnTabShownState();
 }
 
-class _ReloadWhenShownState extends State<_ReloadWhenShown> {
+class _OnTabShownState extends State<_OnTabShown> {
   InVogueTab? _tab;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final tab = CurrentTab.of(context);
-    if (_tab != null && _tab != tab && tab == InVogueTab.home) {
-      context.read<HomeBloc>().add(const HomeStarted());
+    if (_tab != null && _tab != tab && tab == widget.tab) {
+      widget.onShown(context);
     }
     _tab = tab;
   }
