@@ -3,8 +3,9 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:path/path.dart' as p;
 
-/// A photo kept on the account: its Storage path and revision.
-typedef AccountPhoto = ({String path, int revision});
+/// A photo kept on the account: its Storage path, revision and download
+/// URL.
+typedef AccountPhoto = ({String path, int revision, String? url});
 
 /// The account document's fields and the account's Storage paths.
 abstract final class AccountModel {
@@ -20,11 +21,17 @@ abstract final class AccountModel {
   static Map<PhotoRole, AccountPhoto> photosFromJson(Object? json) => {
     if (json case {'photos': final Map<Object?, Object?> photos})
       for (final role in PhotoRole.values)
-        if (photos[role.name] case {
-          'path': final String path,
-          'revision': final int revision,
-        })
-          role: (path: path, revision: revision),
+        if (photos[role.name]
+            case {'path': final String path, 'revision': final int revision} &&
+                final Map<Object?, Object?> photo)
+          role: (
+            path: path,
+            revision: revision,
+            url: switch (photo['url']) {
+              final String url => url,
+              _ => null,
+            },
+          ),
   };
 
   /// The fields to merge into the account document. [created] adds the
@@ -45,7 +52,11 @@ abstract final class AccountModel {
     if (photos.isNotEmpty)
       'photos': {
         for (final MapEntry(key: role, value: photo) in photos.entries)
-          role.name: {'path': photo.path, 'revision': photo.revision},
+          role.name: {
+            'path': photo.path,
+            'revision': photo.revision,
+            'url': ?photo.url,
+          },
       },
     if (created) 'plan': demoPlan,
   };

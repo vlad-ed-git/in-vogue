@@ -76,7 +76,11 @@ void main() {
 
     test('gives a new account the demo plan, and only a new one', () {
       final photos = {
-        PhotoRole.body: (path: 'users/u/body-2.jpg', revision: 2),
+        PhotoRole.body: (
+          path: 'users/u/body-2.jpg',
+          revision: 2,
+          url: 'https://storage.example/body-2.jpg',
+        ),
       };
       final created = AccountModel.toJson(
         _setup,
@@ -92,7 +96,11 @@ void main() {
           'longitude': 2.35,
         },
         'photos': {
-          'body': {'path': 'users/u/body-2.jpg', 'revision': 2},
+          'body': {
+            'path': 'users/u/body-2.jpg',
+            'revision': 2,
+            'url': 'https://storage.example/body-2.jpg',
+          },
         },
         'plan': 'pro',
       });
@@ -117,7 +125,7 @@ void main() {
             'face': {'path': 7},
           },
         }),
-        {PhotoRole.body: (path: 'users/u/body-1.jpg', revision: 1)},
+        {PhotoRole.body: (path: 'users/u/body-1.jpg', revision: 1, url: null)},
       );
       expect(AccountModel.photosFromJson(null), isEmpty);
     });
@@ -141,7 +149,14 @@ void main() {
           file: anyNamed('file'),
           contentType: anyNamed('contentType'),
         ),
-      ).thenAnswer((_) async {});
+      ).thenAnswer(
+        (invocation) async =>
+            'https://storage.example/${invocation.namedArguments[#path]}',
+      );
+      when(remote.photoUrl(any)).thenAnswer(
+        (invocation) async =>
+            'https://storage.example/${invocation.positionalArguments.first}',
+      );
       when(
         remote.writeWishlist(
           any,
@@ -181,11 +196,25 @@ void main() {
           remove: <String>{},
         ),
       ).called(1);
-      final written = verify(
-        remote.writeAccount('uid-1', captureAny, created: true),
-      ).captured.single;
+      final written =
+          verify(
+                remote.writeAccount('uid-1', captureAny, created: true),
+              ).captured.single
+              as Map<String, Object?>;
       expect(written, containsPair('plan', 'pro'));
       expect(written, containsPair('name', 'Maya'));
+      expect(written['photos'], {
+        'body': {
+          'path': 'users/uid-1/photos/body-2.jpg',
+          'revision': 2,
+          'url': 'https://storage.example/users/uid-1/photos/body-2.jpg',
+        },
+        'face': {
+          'path': 'users/uid-1/photos/face-1.png',
+          'revision': 1,
+          'url': 'https://storage.example/users/uid-1/photos/face-1.png',
+        },
+      });
       verifyNever(remote.deletePhoto(any));
     });
 
@@ -194,7 +223,11 @@ void main() {
         (_) async => {
           'plan': 'pro',
           'photos': {
-            'body': {'path': 'users/uid-1/photos/body-2.jpg', 'revision': 2},
+            'body': {
+              'path': 'users/uid-1/photos/body-2.jpg',
+              'revision': 2,
+              'url': 'https://kept.example/body-2.jpg',
+            },
             'face': {'path': 'users/uid-1/photos/face-1.png', 'revision': 1},
           },
         },
@@ -220,10 +253,26 @@ void main() {
           remove: anyNamed('remove'),
         ),
       );
-      final written = verify(
-        remote.writeAccount('uid-1', captureAny, created: false),
-      ).captured.single;
+      final written =
+          verify(
+                remote.writeAccount('uid-1', captureAny, created: false),
+              ).captured.single
+              as Map<String, Object?>;
       expect(written, isNot(contains('plan')));
+      // A kept URL stays; one missing from an earlier save is looked up.
+      expect(written['photos'], {
+        'body': {
+          'path': 'users/uid-1/photos/body-2.jpg',
+          'revision': 2,
+          'url': 'https://kept.example/body-2.jpg',
+        },
+        'face': {
+          'path': 'users/uid-1/photos/face-1.png',
+          'revision': 1,
+          'url': 'https://storage.example/users/uid-1/photos/face-1.png',
+        },
+      });
+      verify(remote.photoUrl('users/uid-1/photos/face-1.png')).called(1);
     });
 
     test(

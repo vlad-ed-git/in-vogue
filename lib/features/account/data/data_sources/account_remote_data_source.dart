@@ -19,12 +19,15 @@ abstract interface class AccountRemoteDataSource {
     required bool created,
   });
 
-  /// Uploads the image [file] to the Storage [path].
-  Future<void> uploadPhoto({
+  /// Uploads the image [file] to the Storage [path]; its download URL.
+  Future<String> uploadPhoto({
     required String path,
     required String file,
     required String contentType,
   });
+
+  /// The download URL of the Storage object at [path].
+  Future<String> photoUrl(String path);
 
   /// Deletes the Storage object at [path].
   Future<void> deletePhoto(String path);
@@ -87,15 +90,20 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
   );
 
   @override
-  Future<void> uploadPhoto({
+  Future<String> uploadPhoto({
     required String path,
     required String file,
     required String contentType,
-  }) => _guard(
-    () => _storage
+  }) => _guard(() async {
+    final uploaded = await _storage
         .ref(path)
-        .putFile(File(file), SettableMetadata(contentType: contentType)),
-  );
+        .putFile(File(file), SettableMetadata(contentType: contentType));
+    return uploaded.ref.getDownloadURL();
+  });
+
+  @override
+  Future<String> photoUrl(String path) =>
+      _guard(() => _storage.ref(path).getDownloadURL());
 
   @override
   Future<void> deletePhoto(String path) =>

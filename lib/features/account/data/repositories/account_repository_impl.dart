@@ -70,8 +70,9 @@ class AccountRepositoryImpl implements AccountRepository {
     for (final photo in [setup.body, setup.face].nonNulls) {
       final path = AccountModel.photoPath(accountId, photo);
       final previous = savedPhotos[photo.role];
+      final String url;
       if (previous?.path != path || previous?.revision != photo.revision) {
-        await _remote.uploadPhoto(
+        url = await _remote.uploadPhoto(
           path: path,
           file: photo.path,
           contentType: photoContentType(photo.path),
@@ -79,8 +80,10 @@ class AccountRepositoryImpl implements AccountRepository {
         if (previous != null && previous.path != path) {
           replaced.add(previous.path);
         }
+      } else {
+        url = previous?.url ?? await _remote.photoUrl(path);
       }
-      photos[photo.role] = (path: path, revision: photo.revision);
+      photos[photo.role] = (path: path, revision: photo.revision, url: url);
     }
     final wishlist = await _remote.wishlist(accountId);
     final add = setup.picks.difference(wishlist);
