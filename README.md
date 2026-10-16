@@ -4,8 +4,9 @@ A Flutter mobile app for outfits matched to tomorrow’s weather. It has native
 flavors, Firebase initialization, local persistence, localization, the design
 system and the six-screen setup flow: Welcome (location), Your photo, tomorrow’s
 weather with pieces to pick, Sign in, About you and the home-screen widget.
-Sign-in, the widget and the try-on run behind contracts whose stand-ins say
-plainly that they are not available yet. Home, Makeup and Settings are next.
+Sign-in and the widget run behind contracts whose stand-ins say plainly that
+they are not available yet. Settings has the language row; Home, Makeup and
+the rest of Settings are next.
 
 ## Run
 
@@ -102,7 +103,7 @@ lib/
     presentation/          # Design system: tokens, theme, shared widgets
     network/               # Server and network exceptions
     ui/                    # Startup-failure screen
-    utils/                 # context.translated, Either and locale helpers
+    utils/                 # context.translated, failure messages, locales
   features/                # Each: domain/ data/ presentation/ di/
     setup/                 # Saved setup step and the six setup screens
     location/              # Coarse location (geolocator, geocoding)
@@ -112,7 +113,6 @@ lib/
     auth/                  # Apple and Google sign-in contract
     profile/               # The person's name
     home_widget/           # Placing the home-screen widget
-    outfits/               # Try-on contract, used after sign-in
     preferences/           # Language
     settings/              # Settings tab
   l10n/arb/                # English source, Spanish and Simplified Chinese
@@ -138,9 +138,9 @@ outfit ledger. Both stores are
 isolated by flavor and closed by `GetIt.reset()` in tests. Keep private images,
 provider keys, and auth tokens out of this generic cache.
 
-`context.translated.tagline`, `context.color`, and `context.txtTheme` follow the
-Utano style. English is the explicit initial default, regardless of device locale.
-The saved choice loads before the first app frame. Rapid changes are serialized;
+`context.translated.tagline` and `context.color` follow the Utano style. English
+is the explicit initial default, regardless of device locale. The saved choice
+loads before the first app frame. Rapid changes are serialized;
 failed writes retain the previous language and show a localized message.
 
 ## Design system
@@ -210,9 +210,12 @@ names, xcconfigs and default entrypoints), English fallback and language restore
 Mockito repository failures, BLoC ordering, real Hive reopen/isolation, real SQLite
 expiry/upserts, complete ARB catalogs, UI language switching/failure recovery,
 320px screens at 200% text whatever the phone's appearance, the design tokens,
-theme and every design-system widget, and the launcher icon sets. The device
-integration test additionally
-initializes real native Firebase/Hive/SQLite and reloads persisted preferences.
+theme and every design-system widget, and the launcher icon sets. For setup they
+cover the routes and resuming at the saved step, each of the six screens, the
+location, forecast and day-weather rules, photo picking and keeping, the bundled
+collection and picks, and the sign-in, name and widget contracts. The device
+integration test additionally initializes real native Firebase/Hive/SQLite and
+reloads persisted preferences.
 Use a test installation: it changes the language and clears its disposable cache.
 Verification is local. Do not add Git-hosted workflows or CI/CD setup; this is an explicit owner requirement.
 
