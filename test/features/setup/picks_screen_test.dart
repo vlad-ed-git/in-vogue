@@ -126,6 +126,7 @@ void main() {
     PicksState pieces = const PicksState(),
     Size size = const Size(390, 844),
     double textScale = 1,
+    bool browsing = false,
   }) async {
     whenListen(forecast, states, initialState: state);
     whenListen(picks, const Stream<PicksState>.empty(), initialState: pieces);
@@ -139,6 +140,7 @@ void main() {
         child: PicksScreen(
           onBack: () => backs++,
           onProceed: () => proceeds++,
+          browsing: browsing,
           imageFor: (_) => testImage,
         ),
       ),
@@ -168,6 +170,14 @@ void main() {
     await tester.tap(_button('Proceed'));
     expect(proceeds, 1);
     handle.dispose();
+  });
+
+  testWidgets('outside setup: no step folio, and Done', (tester) async {
+    await pumpScreen(tester, _ready(), browsing: true);
+    expect(find.text('3 / 6'), findsNothing);
+    expect(_button('Proceed'), findsNothing);
+    await tester.tap(_button('Done'));
+    expect(proceeds, 1);
   });
 
   testWidgets('shows pieces for the weather to pick from', (tester) async {

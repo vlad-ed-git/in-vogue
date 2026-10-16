@@ -14,16 +14,22 @@ import 'package:in_vogue/features/weather/presentation/widgets/day_weather_heade
 
 /// Setup step 3: tomorrow's weather, then pieces that suit it to love, so
 /// outfits lean towards the person's taste. Zero picks is fine.
+///
+/// [browsing] shows the same pieces outside setup, with Done.
 class PicksScreen extends StatelessWidget {
   const PicksScreen({
     required this.onBack,
     required this.onProceed,
+    this.browsing = false,
     this.imageFor = networkImage,
     super.key,
   });
 
   final VoidCallback onBack;
   final VoidCallback onProceed;
+
+  /// Outside setup: no step folio, and Done instead of Proceed.
+  final bool browsing;
 
   /// The image at a URL.
   final ImageProvider Function(String url) imageFor;
@@ -66,7 +72,7 @@ class PicksScreen extends StatelessWidget {
                   children: [
                     BackBar(
                       onBack: onBack,
-                      step: SetupStep.picks.folio,
+                      step: browsing ? null : SetupStep.picks.folio,
                       total: SetupStepFolio.total,
                     ),
                     BlocBuilder<ForecastBloc, ForecastState>(
@@ -90,7 +96,7 @@ class PicksScreen extends StatelessWidget {
             previous.picks.length != current.picks.length,
         builder: (context, state) => PicksBar(
           count: state.picks.length,
-          action: PicksBarAction.proceed,
+          action: browsing ? PicksBarAction.done : PicksBarAction.proceed,
           onPressed: onProceed,
         ),
       ),
