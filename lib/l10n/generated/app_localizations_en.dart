@@ -556,7 +556,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn’t dress this photo. A different one may work.';
 
   @override
-  String get tryOnBudgetSpent => 'No more outfits can be made for now.';
+  String get tryOnNoCredit => 'No more outfits can be made for now.';
 
   @override
   String get tryOnUnavailable =>
@@ -725,7 +725,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn’t find your face in this photo. A close-up, facing forward in daylight, works best.';
 
   @override
-  String get makeupBudgetSpent => 'No more makeup looks can be made for now.';
+  String get makeupNoCredit => 'No more makeup looks can be made for now.';
 
   @override
   String get makeupUnavailable => 'Makeup isn’t available in this version yet.';

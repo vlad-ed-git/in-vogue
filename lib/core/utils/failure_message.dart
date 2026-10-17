@@ -14,7 +14,7 @@ extension FailureMessage on Failure {
     TryOnFailure(:final problem) => switch (problem) {
       TryOnProblem.failed => context.translated.tryOnFailed,
       TryOnProblem.photo => context.translated.tryOnPhotoProblem,
-      TryOnProblem.budgetSpent => context.translated.tryOnBudgetSpent,
+      TryOnProblem.noCredit => context.translated.tryOnNoCredit,
       TryOnProblem.unavailable => context.translated.tryOnUnavailable,
       TryOnProblem.everySeen => context.translated.everyLookSeen(
         ForecastDay.tomorrow.name,
@@ -23,7 +23,7 @@ extension FailureMessage on Failure {
     MakeupFailure(:final problem) => switch (problem) {
       MakeupProblem.failed => context.translated.makeupFailed,
       MakeupProblem.photo => context.translated.makeupPhotoProblem,
-      MakeupProblem.budgetSpent => context.translated.makeupBudgetSpent,
+      MakeupProblem.noCredit => context.translated.makeupNoCredit,
       MakeupProblem.unavailable => context.translated.makeupUnavailable,
     },
     LocationFailure(:final needsSettings) =>

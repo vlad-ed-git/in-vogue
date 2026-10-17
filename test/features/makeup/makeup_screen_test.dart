@@ -322,7 +322,7 @@ void main() {
   testWidgets('says plainly when no more looks can be made', (tester) async {
     await pumpScreen(
       tester,
-      state: ready(failure: const MakeupFailure(MakeupProblem.budgetSpent)),
+      state: ready(failure: const MakeupFailure(MakeupProblem.noCredit)),
     );
     expect(
       find.text('No more makeup looks can be made for now.'),

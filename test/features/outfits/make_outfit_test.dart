@@ -14,7 +14,6 @@ import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/unit_budget_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
@@ -85,7 +84,6 @@ const _dress = Outfit(
 void main() {
   late _FakeOutfits outfits;
   late _FakeTryOn tryOn;
-  late _FakeBudget budget;
   late MemoryStore store;
   late TryOnJobRepositoryImpl jobs;
   late _FakePhotos photos;
@@ -96,7 +94,6 @@ void main() {
   }) => MakeOutfit(
     outfits: outfits,
     tryOn: tryOn,
-    budget: budget,
     jobs: jobs,
     photos: photos,
     picks: _FakePicks(),
@@ -113,7 +110,6 @@ void main() {
   setUp(() {
     outfits = _FakeOutfits([_coat, _dress]);
     tryOn = _FakeTryOn();
-    budget = _FakeBudget();
     store = MemoryStore();
     jobs = TryOnJobRepositoryImpl(TryOnJobLocalDataSourceImpl(store));
     photos = _FakePhotos();
@@ -138,7 +134,6 @@ void main() {
         (pass: _coat.passes[2], fileId: null, pictureUrl: 'https://r/task-2'),
       ]);
       expect(tryOn.downloads, ['https://r/task-3']);
-      expect(budget.spent, 6);
     },
   );
 
@@ -161,7 +156,7 @@ void main() {
     outfits.shown.add(_coat.signature);
     await make();
     expect(outfits.recorded.single.outfit, _dress);
-    expect(budget.spent, 2);
+    expect(tryOn.starts, hasLength(1));
   });
 
   test(
@@ -172,41 +167,13 @@ void main() {
         const TryOnFailed(TryOnFailure(TryOnProblem.everySeen)),
       ]);
       expect(tryOn.starts, isEmpty);
-      expect(budget.spent, 0);
     },
   );
-
-  test('starts no try-on the budget cannot finish', () async {
-    budget.limit = 4;
-    final updates = await make();
-    expect(
-      updates.last,
-      const TryOnFailed(TryOnFailure(TryOnProblem.budgetSpent)),
-    );
-    expect(tryOn.starts, isEmpty);
-    expect(budget.spent, 0);
-    expect(outfits.recorded, isEmpty);
-  });
-
-  test('stops when units run out on the way, keeping what is made', () async {
-    budget
-      ..limit = 6
-      ..othersSpend = 2;
-    final updates = await make();
-    expect(
-      updates.last,
-      const TryOnFailed(TryOnFailure(TryOnProblem.budgetSpent)),
-    );
-    expect(tryOn.starts, hasLength(2));
-    expect(keptJob()!.tasks, ['task-1', 'task-2']);
-    expect(outfits.recorded, isEmpty);
-  });
 
   test('makes no try-on when the setup cannot be saved', () async {
     when(saveSetup(any)).thenAnswer((_) async => const Left(NetworkFailure()));
     expect(await make(), [const TryOnFailed(NetworkFailure())]);
     expect(tryOn.uploads, isEmpty);
-    expect(budget.spent, 0);
   });
 
   test('does nothing at all in a build without try-ons', () async {
@@ -215,39 +182,42 @@ void main() {
       const TryOnFailed(TryOnFailure(TryOnProblem.unavailable)),
     ]);
     verifyNever(saveSetup(any));
-    expect(budget.spent, 0);
+    expect(tryOn.uploads, isEmpty);
     expect(keptJob(), isNull);
   });
 
   test('needs the body photo', () async {
     photos.body = null;
     expect(await make(), [const TryOnFailed(TryOnFailure(TryOnProblem.photo))]);
-    expect(budget.spent, 0);
-  });
-
-  test('gives the units back when the service refuses a pass', () async {
-    tryOn.refuseStart = 2;
-    final updates = await make();
-    expect(updates.last, const TryOnFailed(TryOnFailure(TryOnProblem.failed)));
-    expect(budget.spent, 2);
-    expect(keptJob()!.tasks, ['task-1']);
-    expect(keptJob()!.reservedPass, isNull);
+    expect(tryOn.uploads, isEmpty);
   });
 
   test(
-    'gives the units back when a pass fails, and tries it again next time',
+    'stops when the service refuses a pass, keeping the passes made',
+    () async {
+      tryOn.refuseStart = 2;
+      final updates = await make();
+      expect(
+        updates.last,
+        const TryOnFailed(TryOnFailure(TryOnProblem.failed)),
+      );
+      expect(keptJob()!.tasks, ['task-1']);
+    },
+  );
+
+  test(
+    'tries a failed pass again next time, keeping the passes before it',
     () async {
       tryOn.failTask = 'task-2';
       final first = await make();
       expect(first.last, const TryOnFailed(TryOnFailure(TryOnProblem.photo)));
-      expect(budget.spent, 2);
       expect(keptJob()!.tasks, ['task-1']);
 
       tryOn.failTask = null;
       final again = await make();
       expect(again.last, isA<TryOnDone>());
-      // Pass 1 was not paid for twice.
-      expect(budget.spent, 6);
+      // Pass 1 was not made twice.
+      expect(tryOn.starts, hasLength(4));
       expect(tryOn.uploads, hasLength(1));
       expect(tryOn.starts.skip(2).map((start) => start.pictureUrl), [
         'https://r/task-1',
@@ -256,21 +226,19 @@ void main() {
     },
   );
 
-  test(
-    'keeps the units when a pass may have started but nobody knows',
-    () async {
-      tryOn.lostStart = 2;
-      final first = await make();
-      expect(first.last, const TryOnFailed(NetworkFailure()));
-      expect(budget.spent, 4);
-      expect(keptJob()!.reservedPass, 1);
+  test('starts a pass again when nobody knows whether it started', () async {
+    tryOn.lostStart = 2;
+    final first = await make();
+    expect(first.last, const TryOnFailed(NetworkFailure()));
+    expect(keptJob()!.tasks, ['task-1']);
 
-      tryOn.lostStart = null;
-      expect((await make()).last, isA<TryOnDone>());
-      // The reserved units paid for the pass on the next attempt.
-      expect(budget.spent, 6);
-    },
-  );
+    tryOn.lostStart = null;
+    expect((await make()).last, isA<TryOnDone>());
+    expect(tryOn.starts.skip(2).map((start) => start.pass), [
+      _coat.passes[1],
+      _coat.passes[2],
+    ]);
+  });
 
   test('goes on where a cut-short try-on stopped', () async {
     await jobs.save(
@@ -289,7 +257,6 @@ void main() {
     expect(updates.last, isA<TryOnDone>());
     expect(tryOn.uploads, isEmpty);
     expect(tryOn.starts.single.pictureUrl, 'https://r/old-2');
-    expect(budget.spent, 2);
     verifyNever(saveSetup(any));
   });
 
@@ -311,7 +278,6 @@ void main() {
         expect((await make()).last, isA<TryOnDone>());
       });
       expect(tryOn.starts, hasLength(3));
-      expect(budget.spent, 6);
     },
   );
 
@@ -319,7 +285,6 @@ void main() {
     tryOn.runForever = true;
     final updates = await make(makeOutfit(passTimeLimit: Duration.zero));
     expect(updates.last, const TryOnFailed(ServerFailure()));
-    expect(budget.spent, 2);
     expect(keptJob()!.tasks, ['task-1']);
   });
 
@@ -338,7 +303,6 @@ void main() {
       expect(b.first, const TryOnProgress(piece: 1, pieces: 3));
       expect(b.last, a.last);
       expect(tryOn.uploads, hasLength(1));
-      expect(budget.spent, 6);
     },
   );
 }
@@ -458,34 +422,6 @@ class _FakeTryOn implements TryOnRepository {
 
   @override
   Future<void> discard(String taskId) async => discarded.add(taskId);
-}
-
-class _FakeBudget implements UnitBudgetRepository {
-  int limit = 15;
-  int spent = 0;
-
-  /// Units someone else spends once the first reservation is made.
-  int othersSpend = 0;
-
-  @override
-  Future<Either<Failure, Unit>> reserve(int units) async {
-    if (spent + units > limit) {
-      return const Left(TryOnFailure(TryOnProblem.budgetSpent));
-    }
-    spent += units + othersSpend;
-    othersSpend = 0;
-    return const Right(unit);
-  }
-
-  @override
-  Future<Either<Failure, int>> left() async =>
-      Right(spent >= limit ? 0 : limit - spent);
-
-  @override
-  Future<Either<Failure, Unit>> release(int units) async {
-    spent -= units;
-    return const Right(unit);
-  }
 }
 
 class _FakePhotos implements PhotoRepository {

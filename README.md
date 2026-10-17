@@ -58,10 +58,7 @@ outfits. Create the file from `secrets/youcam_api.txt`:
 python3 scripts/write_development_defines.py
 ```
 
-The development launch configuration passes it. Every try-on pass costs 2
-units: the Firestore document `usage/youcam` (`unitsSpent`, `unitLimit` 30)
-reserves them before each call and gives them back when YouCam charges
-nothing, and no try-on starts past the limit. Tests never call YouCam.
+The development launch configuration passes it. Tests never call YouCam.
 
 VS Code launch configurations select the matching flavor and entrypoint. A
 mismatched entrypoint/flavor fails startup before initializing Firebase or
@@ -97,9 +94,8 @@ No backend rules, functions, auth providers, or paid API calls are deployed by s
 ### Firestore and Storage rules
 
 `firestore.rules` and `storage.rules` let each person read and write only
-`users/{uid}/**` (uploads: images under 10 MB), and let signed-in people
-reserve units in `usage/youcam` without passing or changing its limit of 30.
-Deploy them to development with an admin service account:
+`users/{uid}/**` (uploads: images under 10 MB). Deploy them to development
+with an admin service account:
 
 ```sh
 GOOGLE_APPLICATION_CREDENTIALS=secrets/<service-account>.json \

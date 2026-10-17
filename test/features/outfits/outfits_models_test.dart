@@ -9,7 +9,6 @@ import 'package:in_vogue/features/outfits/data/data_sources/try_on_job_local_dat
 import 'package:in_vogue/features/outfits/data/models/outfit_record_model.dart';
 import 'package:in_vogue/features/outfits/data/models/outfits_model.dart';
 import 'package:in_vogue/features/outfits/data/models/try_on_job_model.dart';
-import 'package:in_vogue/features/outfits/data/models/unit_budget_model.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_job_repository_impl.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
@@ -164,13 +163,6 @@ void main() {
     });
   });
 
-  test('the unit budget allows units up to its limit, never past it', () {
-    expect(UnitBudgetModel.allows(spent: 0, limit: 15, units: 2), isTrue);
-    expect(UnitBudgetModel.allows(spent: 13, limit: 15, units: 2), isTrue);
-    expect(UnitBudgetModel.allows(spent: 14, limit: 15, units: 2), isFalse);
-    expect(UnitBudgetModel.allows(spent: 16, limit: 15, units: 2), isFalse);
-  });
-
   group('OutfitRecordModel', () {
     test('keeps pictures under the account by signature and type', () {
       expect(
@@ -217,7 +209,6 @@ void main() {
       photoRevision: 2,
       updatedAt: DateTime.utc(2026, 10, 16, 15),
       tasks: const ['task-1'],
-      reservedPass: 1,
     );
 
     test('are kept as JSON and read back', () {
@@ -239,9 +230,6 @@ void main() {
     test('record each step', () {
       final at = DateTime.utc(2026, 10, 16, 16);
       expect(job.started('task-2', at).tasks, ['task-1', 'task-2']);
-      expect(job.started('task-2', at).reservedPass, isNull);
-      expect(job.reserving(1, at).reservedPass, 1);
-      expect(job.unreserved(at).reservedPass, isNull);
       expect(job.started('task-2', at).keeping(1, at).tasks, ['task-1']);
     });
   });

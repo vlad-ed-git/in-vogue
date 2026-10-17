@@ -352,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Notice.everyLookSeen(context: context, day: day),
       OutfitFailed(
         failure: TryOnFailure(
-              problem: TryOnProblem.budgetSpent ||
+              problem: TryOnProblem.noCredit ||
                   TryOnProblem.unavailable ||
                   TryOnProblem.photo,
             ) &&

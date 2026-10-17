@@ -8,16 +8,13 @@ import 'package:in_vogue/features/outfits/data/data_sources/outfit_asset_data_so
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/try_on_job_local_data_source.dart';
-import 'package:in_vogue/features/outfits/data/data_sources/unit_budget_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/repositories/outfit_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_job_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/unavailable_try_on_repository.dart';
-import 'package:in_vogue/features/outfits/data/repositories/unit_budget_repository_impl.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/unit_budget_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart';
 import 'package:path/path.dart' as path;
@@ -47,15 +44,6 @@ void init(GetIt locator) {
         logMessages: locator(),
       ),
     )
-    ..registerLazySingleton<UnitBudgetRemoteDataSource>(
-      () => UnitBudgetRemoteDataSourceImpl(FirebaseFirestore.instance),
-    )
-    ..registerLazySingleton<UnitBudgetRepository>(
-      () => UnitBudgetRepositoryImpl(
-        remoteDataSource: locator(),
-        logMessages: locator(),
-      ),
-    )
     ..registerLazySingleton<TryOnJobLocalDataSource>(
       () => TryOnJobLocalDataSourceImpl(locator()),
     )
@@ -75,7 +63,6 @@ void init(GetIt locator) {
       () => MakeOutfit(
         outfits: locator(),
         tryOn: locator(),
-        budget: locator(),
         jobs: locator(),
         photos: locator(),
         picks: locator(),

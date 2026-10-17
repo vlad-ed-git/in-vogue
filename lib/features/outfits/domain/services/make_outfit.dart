@@ -14,7 +14,6 @@ import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/unit_budget_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/choose_outfit.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
@@ -50,16 +49,13 @@ class MakeOutfitParams extends Equatable {
 /// chooses an outfit not shown before, tries it on piece by piece, keeps
 /// its picture and records it.
 ///
-/// Nothing starts that the budget cannot finish. Every pass reserves its
-/// units first and gives them back when the service charges nothing.
-/// Progress is kept after each step, so a try-on cut short goes on where it
+/// Progress is kept after each pass, so a try-on cut short goes on where it
 /// stopped. One making per day and occasion runs at a time; asking again
 /// follows it.
 class MakeOutfit {
   MakeOutfit({
     required this._outfits,
     required this._tryOn,
-    required this._budget,
     required this._jobs,
     required this._photos,
     required this._picks,
@@ -70,16 +66,12 @@ class MakeOutfit {
 
   final OutfitRepository _outfits;
   final TryOnRepository _tryOn;
-  final UnitBudgetRepository _budget;
   final TryOnJobRepository _jobs;
   final PhotoRepository _photos;
   final PicksRepository _picks;
   final SaveSetupToAccount _saveSetupToAccount;
   final Duration _checkEvery;
   final Duration _passTimeLimit;
-
-  /// Units one try-on pass costs.
-  static const unitsPerPass = 2;
 
   /// How long the service keeps a pass's picture downloadable.
   static const pictureLifetime = Duration(hours: 2);
@@ -108,7 +100,7 @@ class MakeOutfit {
     MakeOutfitParams params,
     void Function(TryOnUpdate update) report,
   ) async {
-    // Nothing is chosen, reserved or saved for a try-on that cannot run.
+    // Nothing is chosen or saved for a try-on that cannot run.
     if (!_tryOn.available) {
       return const TryOnFailed(TryOnFailure(TryOnProblem.unavailable));
     }
@@ -145,37 +137,16 @@ class MakeOutfit {
 
     String? pictureUrl;
     final passes = outfit.passes;
-    // Nothing starts that the budget cannot finish.
-    final unpaid =
-        passes.length - job.tasks.length - (job.reservedPass == null ? 0 : 1);
-    if (unpaid > 0) {
-      final left = await _budget.left();
-      if (left case Left(value: final failure)) return TryOnFailed(failure);
-      if (left.getOrElse(() => 0) < unpaid * unitsPerPass) {
-        return const TryOnFailed(TryOnFailure(TryOnProblem.budgetSpent));
-      }
-    }
     for (var index = 0; index < passes.length; index++) {
       report(TryOnProgress(piece: index + 1, pieces: passes.length));
       final String task;
       if (index < job!.tasks.length) {
         task = job.tasks[index];
       } else {
-        if (job.reservedPass != index) {
-          final reserved = await _budget.reserve(unitsPerPass);
-          if (reserved case Left(value: final failure)) {
-            return TryOnFailed(failure);
-          }
-          job = job.reserving(index, clock.now());
-          await _jobs.save(job);
-        }
         String? fileId;
         if (pictureUrl == null) {
           final uploaded = await _tryOn.upload(body.path);
           if (uploaded case Left(value: final failure)) {
-            // Nothing starts without the photo.
-            await _budget.release(unitsPerPass);
-            await _jobs.save(job.unreserved(clock.now()));
             return TryOnFailed(failure);
           }
           fileId = uploaded.getOrElse(() => throw StateError('uploaded'));
@@ -186,12 +157,6 @@ class MakeOutfit {
           pictureUrl: pictureUrl,
         );
         if (started case Left(value: final failure)) {
-          // A refusal starts nothing; any other failure may have started
-          // the task, so its units stay reserved for the next attempt.
-          if (failure is TryOnFailure) {
-            await _budget.release(unitsPerPass);
-            await _jobs.save(job.unreserved(clock.now()));
-          }
           return TryOnFailed(failure);
         }
         task = started.getOrElse(() => throw StateError('started'));
@@ -200,9 +165,8 @@ class MakeOutfit {
       }
       final finished = await _finish(task);
       if (finished case Left(value: final failure)) {
-        // A failed task is not charged: its pass is tried again next time.
+        // A failed pass is tried again next time.
         if (failure is TryOnFailure) {
-          await _budget.release(unitsPerPass);
           await _jobs.save(job.keeping(index, clock.now()));
         }
         return TryOnFailed(failure);

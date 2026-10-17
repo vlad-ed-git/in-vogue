@@ -7,12 +7,10 @@ abstract final class MakeupJobModel {
     'outfitSignature': job.outfitSignature,
     'faceRevision': job.faceRevision,
     'before': job.before,
-    'analysisReserved': job.analysisReserved,
     'analysisTask': job.analysisTask,
     'recipeKey': job.recipeKey,
     'tasks': job.tasks,
     'pictures': job.pictures,
-    'reservedStep': job.reservedStep,
     'updatedAt': job.updatedAt.toUtc().toIso8601String(),
   };
 
@@ -23,12 +21,10 @@ abstract final class MakeupJobModel {
       'outfitSignature': final String outfitSignature,
       'faceRevision': final int faceRevision,
       'before': final String? before,
-      'analysisReserved': final bool analysisReserved,
       'analysisTask': final String? analysisTask,
       'recipeKey': final String? recipeKey,
       'tasks': final List<Object?> tasks,
       'pictures': final List<Object?> pictures,
-      'reservedStep': final int? reservedStep,
       'updatedAt': final String updatedAt,
     } =>
       MakeupJob(
@@ -36,12 +32,10 @@ abstract final class MakeupJobModel {
         outfitSignature: outfitSignature,
         faceRevision: faceRevision,
         before: before,
-        analysisReserved: analysisReserved,
         analysisTask: analysisTask,
         recipeKey: recipeKey,
         tasks: tasks.cast<String>(),
         pictures: pictures.cast<String>(),
-        reservedStep: reservedStep,
         updatedAt: DateTime.parse(updatedAt),
       ),
     _ => throw const FormatException('Not a makeup job'),

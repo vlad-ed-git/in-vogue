@@ -126,7 +126,7 @@ void main() {
     );
     expect(
       await service.startStep('file-2', _effects),
-      const Left<Failure, String>(MakeupFailure(MakeupProblem.budgetSpent)),
+      const Left<Failure, String>(MakeupFailure(MakeupProblem.noCredit)),
     );
     when(
       remote.task(YouCamTool.skinTone, 'task-1'),

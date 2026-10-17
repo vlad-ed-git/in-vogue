@@ -181,7 +181,7 @@ class MakeupScreen extends StatelessWidget {
             context.read<PhotoBloc>().add(const PhotoChooseRequested()),
       ),
       MakeupFailure(
-        problem: MakeupProblem.budgetSpent || MakeupProblem.unavailable,
+        problem: MakeupProblem.noCredit || MakeupProblem.unavailable,
       ) =>
         null,
       _ => InVogueButton.secondary(

@@ -75,8 +75,8 @@ enum TryOnProblem {
   /// The try-on could not use the person's photo.
   photo,
 
-  /// The try-on budget is spent.
-  budgetSpent,
+  /// YouCam's units are spent.
+  noCredit,
 
   /// This build cannot make outfits.
   unavailable,
@@ -101,8 +101,8 @@ enum MakeupProblem {
   /// The face photo could not be used.
   photo,
 
-  /// The makeup budget is spent.
-  budgetSpent,
+  /// YouCam's units are spent.
+  noCredit,
 
   /// This build cannot make makeup looks.
   unavailable,

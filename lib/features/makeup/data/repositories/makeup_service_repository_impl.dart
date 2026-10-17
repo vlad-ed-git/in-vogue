@@ -129,7 +129,7 @@ class MakeupServiceRepositoryImpl implements MakeupServiceRepository {
   static MakeupProblem _problem(YouCamProblem problem) => switch (problem) {
     YouCamProblem.failed => MakeupProblem.failed,
     YouCamProblem.photo => MakeupProblem.photo,
-    YouCamProblem.noCredit => MakeupProblem.budgetSpent,
+    YouCamProblem.noCredit => MakeupProblem.noCredit,
     YouCamProblem.unauthorized => MakeupProblem.unavailable,
   };
 

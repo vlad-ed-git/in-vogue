@@ -11,33 +11,25 @@ import '../../helpers/memory_store.dart';
 void main() {
   test('a makeup job never drops a running analysis or its progress', () {
     final at = DateTime.utc(2026, 10, 17, 8);
-    final job =
-        MakeupJob(
-              accountId: 'uid-1',
-              outfitSignature: 'coat+tee',
-              faceRevision: 2,
-              updatedAt: at,
-            )
-            .reservingAnalysis(at)
-            .analysing('analysis-1', at)
-            .withBefore('before.png', at);
+    final job = MakeupJob(
+      accountId: 'uid-1',
+      outfitSignature: 'coat+tee',
+      faceRevision: 2,
+      updatedAt: at,
+    ).analysing('analysis-1', at).withBefore('before.png', at);
     expect(job.analysisTask, 'analysis-1');
-    expect(job.analysisReserved, isFalse);
     expect(job.before, 'before.png');
 
     final steps = job
         .analysed(at)
         .withRecipe('work|cool_neutral|light|high|none', at)
-        .reservingStep(0, at)
         .started('step-1', at)
-        .kept('step-1.jpg', at)
-        .reservingStep(1, at);
+        .kept('step-1.jpg', at);
     expect(steps.analysisTask, isNull);
     expect(steps.tasks, ['step-1']);
     expect(steps.pictures, ['step-1.jpg']);
-    expect(steps.reservedStep, 1);
     expect(steps.recipeKey, 'work|cool_neutral|light|high|none');
-    expect(steps.started('step-2', at).reservedStep, isNull);
+    expect(steps.started('step-2', at).tasks, ['step-1', 'step-2']);
     expect(steps.keeping(0, at).tasks, isEmpty);
     expect(steps.key, 'uid-1|coat+tee');
   });

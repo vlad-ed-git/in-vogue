@@ -18,7 +18,6 @@ import 'package:in_vogue/features/makeup/domain/services/makeup_rules.dart';
 import 'package:in_vogue/features/makeup/domain/services/skin_rules.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/unit_budget_repository.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -51,16 +50,12 @@ class MakeLookParams extends Equatable {
 /// each step on the picture of the step before, keeps every picture and
 /// records the look. A look already made is never made again.
 ///
-/// Nothing starts that the budget cannot finish. The analysis and every
-/// step reserve their units first and give them back when the service
-/// charges nothing. Progress is kept after each step, so a look cut short
-/// goes on where it stopped. One making per look runs at a time; asking
-/// again follows it.
+/// Progress is kept after each step, so a look cut short goes on where it
+/// stopped. One making per look runs at a time; asking again follows it.
 class MakeLook {
   MakeLook({
     required this._looks,
     required this._service,
-    required this._budget,
     required this._jobs,
     required this._photos,
     required this._saveSetupToAccount,
@@ -70,18 +65,11 @@ class MakeLook {
 
   final MakeupRepository _looks;
   final MakeupServiceRepository _service;
-  final UnitBudgetRepository _budget;
   final MakeupJobRepository _jobs;
   final PhotoRepository _photos;
   final SaveSetupToAccount _saveSetupToAccount;
   final Duration _checkEvery;
   final Duration _taskTimeLimit;
-
-  /// Units an analysis costs.
-  static const unitsPerAnalysis = 20;
-
-  /// Units a step costs.
-  static const unitsPerStep = 1;
 
   /// How long the service keeps a task's result.
   static const resultLifetime = Duration(hours: 2);
@@ -118,7 +106,7 @@ class MakeLook {
     MakeLookParams params,
     void Function(MakeupUpdate update) report,
   ) async {
-    // Nothing is reserved or kept for a look that cannot be made.
+    // Nothing is kept for a look that cannot be made.
     if (!_service.available) {
       return const MakeupFailed(MakeupFailure(MakeupProblem.unavailable));
     }
@@ -187,54 +175,19 @@ class MakeLook {
     final known = await _looks.faceColours(accountId, face.path);
     if (known case Left(value: final failure)) return MakeupFailed(failure);
     var colours = known.getOrElse(() => null);
-    // Nothing starts that the budget cannot finish: the recipe has as many
-    // steps whatever the face's colours.
-    final analysisUnpaid =
-        colours == null && job.analysisTask == null && !job.analysisReserved;
-    final stepsUnpaid =
-        recipe.steps.length -
-        job.tasks.length -
-        (job.reservedStep == null ? 0 : 1);
-    final needed =
-        (analysisUnpaid ? unitsPerAnalysis : 0) +
-        (stepsUnpaid > 0 ? stepsUnpaid * unitsPerStep : 0);
-    if (needed > 0) {
-      final left = await _budget.left();
-      if (left case Left(value: final failure)) return MakeupFailed(failure);
-      if (left.getOrElse(() => 0) < needed) {
-        return const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent));
-      }
-    }
     if (colours == null) {
       final String task;
       if (job.analysisTask case final String started) {
         task = started;
       } else {
-        if (!job.analysisReserved) {
-          final reserved = await _budget.reserve(unitsPerAnalysis);
-          if (reserved case Left(value: final failure)) {
-            return MakeupFailed(_asMakeup(failure));
-          }
-          job = job.reservingAnalysis(clock.now());
-          await _jobs.save(job);
-        }
         final uploaded = await _service.upload(before);
         if (uploaded case Left(value: final failure)) {
-          // Nothing starts without the photo.
-          await _budget.release(unitsPerAnalysis);
-          await _jobs.save(job = job.unreservedAnalysis(clock.now()));
           return MakeupFailed(failure);
         }
         final started = await _service.startAnalysis(
           uploaded.getOrElse(() => throw StateError('uploaded')),
         );
         if (started case Left(value: final failure)) {
-          // A refusal starts nothing; any other failure may have started
-          // the task, so its units stay reserved for the next attempt.
-          if (failure is MakeupFailure) {
-            await _budget.release(unitsPerAnalysis);
-            await _jobs.save(job = job.unreservedAnalysis(clock.now()));
-          }
           return MakeupFailed(failure);
         }
         task = started.getOrElse(() => throw StateError('started'));
@@ -242,9 +195,8 @@ class MakeLook {
       }
       final analysed = await _finish(() => _service.checkAnalysis(task));
       if (analysed case Left(value: final failure)) {
-        // A failed task is not charged.
+        // A failed analysis starts again next time.
         if (failure is MakeupFailure) {
-          await _budget.release(unitsPerAnalysis);
           await _jobs.save(job = job.analysed(clock.now()));
         }
         return MakeupFailed(failure);
@@ -284,19 +236,10 @@ class MakeLook {
       if (index < job.tasks.length) {
         task = job.tasks[index];
       } else {
-        if (job.reservedStep != index) {
-          final reserved = await _budget.reserve(unitsPerStep);
-          if (reserved case Left(value: final failure)) {
-            return MakeupFailed(_asMakeup(failure));
-          }
-          await _jobs.save(job = job.reservingStep(index, clock.now()));
-        }
         final uploaded = await _service.upload(
           index == 0 ? before : steps[index - 1].picture!,
         );
         if (uploaded case Left(value: final failure)) {
-          await _budget.release(unitsPerStep);
-          await _jobs.save(job = job.unreservedStep(clock.now()));
           return MakeupFailed(failure);
         }
         final started = await _service.startStep(
@@ -304,10 +247,6 @@ class MakeLook {
           MakeupRules.effectsFor(recipe.steps[index], profile),
         );
         if (started case Left(value: final failure)) {
-          if (failure is MakeupFailure) {
-            await _budget.release(unitsPerStep);
-            await _jobs.save(job = job.unreservedStep(clock.now()));
-          }
           return MakeupFailed(failure);
         }
         task = started.getOrElse(() => throw StateError('started'));
@@ -315,9 +254,8 @@ class MakeLook {
       }
       final finished = await _finish(() => _service.checkStep(task));
       if (finished case Left(value: final failure)) {
-        // A failed task is not charged: its step is tried again next time.
+        // A failed step is tried again next time.
         if (failure is MakeupFailure) {
-          await _budget.release(unitsPerStep);
           await _jobs.save(job = job.keeping(index, clock.now()));
         }
         return MakeupFailed(failure);
@@ -398,14 +336,6 @@ class MakeLook {
     await _jobs.clear(job.key);
     return null;
   }
-
-  /// The budget's failures as makeup failures.
-  static Failure _asMakeup(Failure failure) => switch (failure) {
-    TryOnFailure(problem: TryOnProblem.budgetSpent) => const MakeupFailure(
-      MakeupProblem.budgetSpent,
-    ),
-    _ => failure,
-  };
 
   /// Waits for a task through [check]; its result. A [MakeupFailure] when
   /// the task failed; a [ServerFailure] when it takes too long to say.

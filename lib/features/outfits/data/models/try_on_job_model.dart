@@ -11,7 +11,6 @@ abstract final class TryOnJobModel {
     'outfitId': job.outfitId,
     'photoRevision': job.photoRevision,
     'tasks': job.tasks,
-    'reservedPass': job.reservedPass,
     'updatedAt': job.updatedAt.toUtc().toIso8601String(),
   };
 
@@ -25,7 +24,6 @@ abstract final class TryOnJobModel {
       'outfitId': final String outfitId,
       'photoRevision': final int photoRevision,
       'tasks': final List<Object?> tasks,
-      'reservedPass': final int? reservedPass,
       'updatedAt': final String updatedAt,
     } =>
       TryOnJob(
@@ -38,7 +36,6 @@ abstract final class TryOnJobModel {
         outfitId: outfitId,
         photoRevision: photoRevision,
         tasks: tasks.cast<String>(),
-        reservedPass: reservedPass,
         updatedAt: DateTime.parse(updatedAt),
       ),
     _ => throw const FormatException('Not a try-on job'),

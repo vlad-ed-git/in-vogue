@@ -17,7 +17,6 @@ import 'package:in_vogue/features/makeup/domain/repositories/makeup_service_repo
 import 'package:in_vogue/features/makeup/domain/services/make_look.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/unit_budget_repository.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -121,7 +120,6 @@ String _step(int number) => '/phone/coat+tee/step-$number.jpg';
 void main() {
   late _FakeLooks looks;
   late _FakeService service;
-  late _FakeBudget budget;
   late MemoryStore store;
   late MakeupJobRepositoryImpl jobs;
   late _FakePhotos photos;
@@ -131,7 +129,6 @@ void main() {
       MakeLook(
         looks: looks,
         service: service,
-        budget: budget,
         jobs: jobs,
         photos: photos,
         saveSetupToAccount: saveSetup,
@@ -148,7 +145,6 @@ void main() {
   setUp(() {
     looks = _FakeLooks();
     service = _FakeService();
-    budget = _FakeBudget();
     store = MemoryStore();
     jobs = MakeupJobRepositoryImpl(MakeupJobLocalDataSourceImpl(store));
     photos = _FakePhotos();
@@ -174,7 +170,6 @@ void main() {
         [for (final start in service.steps) start.fileId],
         ['file-2', 'file-3', 'file-4'],
       );
-      expect(budget.spent, MakeLook.unitsPerAnalysis + 3);
       expect(looks.colours[_face.path], _colours);
     },
   );
@@ -228,7 +223,7 @@ void main() {
     looks.colours[_face.path] = _colours;
     expect((await make()).last, isA<MakeupDone>());
     expect(service.analyses, isEmpty);
-    expect(budget.spent, 3);
+    expect(service.steps, hasLength(3));
   });
 
   test('never makes a look twice', () async {
@@ -236,7 +231,8 @@ void main() {
     service.uploads.clear();
     expect(await make(), [made]);
     expect(service.uploads, isEmpty);
-    expect(budget.spent, MakeLook.unitsPerAnalysis + 3);
+    expect(service.analyses, hasLength(1));
+    expect(service.steps, hasLength(3));
   });
 
   test('uses neutral colours when the photo was not clear', () async {
@@ -262,54 +258,13 @@ void main() {
     expect(updates.last, isA<MakeupDone>());
   });
 
-  test('starts no look the budget cannot finish', () async {
-    budget.limit = MakeLook.unitsPerAnalysis + 2;
-    expect(
-      (await make()).last,
-      const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent)),
-    );
-    expect(service.uploads, isEmpty);
-    expect(budget.spent, 0);
-    looks.colours[_face.path] = _colours;
-    budget.limit = 2;
-    expect(
-      (await make()).last,
-      const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent)),
-    );
-    expect(service.steps, isEmpty);
-  });
-
-  test('stops when units run out on the way, keeping what is made', () async {
-    budget
-      ..limit = MakeLook.unitsPerAnalysis + 3
-      ..othersSpend = 2;
-    final updates = await make();
-    expect(
-      updates.last,
-      const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent)),
-    );
-    expect(service.steps, hasLength(1));
-    expect(keptJob()!.pictures, ['step-1.jpg']);
-    expect(looks.recorded, isEmpty);
-  });
-
-  test('starts no analysis the budget cannot pay for', () async {
-    budget.limit = MakeLook.unitsPerAnalysis - 1;
-    expect(
-      (await make()).last,
-      const MakeupFailed(MakeupFailure(MakeupProblem.budgetSpent)),
-    );
-    expect(service.uploads, isEmpty);
-    expect(budget.spent, 0);
-  });
-
   test('does nothing at all in a build without makeup', () async {
     service.available = false;
     expect(await make(), [
       const MakeupFailed(MakeupFailure(MakeupProblem.unavailable)),
     ]);
     verifyNever(saveSetup(any));
-    expect(budget.spent, 0);
+    expect(service.uploads, isEmpty);
     expect(keptJob(), isNull);
   });
 
@@ -318,66 +273,62 @@ void main() {
     expect(await make(), [
       const MakeupFailed(MakeupFailure(MakeupProblem.photo)),
     ]);
-    expect(budget.spent, 0);
-  });
-
-  test('gives the units back when the face cannot be analysed', () async {
-    service.analysisProblem = MakeupProblem.photo;
-    expect(
-      (await make()).last,
-      const MakeupFailed(MakeupFailure(MakeupProblem.photo)),
-    );
-    expect(budget.spent, 0);
-    expect(keptJob()!.analysisTask, isNull);
-    expect(looks.colours, isEmpty);
-  });
-
-  test('gives the unit back when the service refuses a step', () async {
-    service.refuseStep = 2;
-    expect(
-      (await make()).last,
-      const MakeupFailed(MakeupFailure(MakeupProblem.failed)),
-    );
-    expect(budget.spent, MakeLook.unitsPerAnalysis + 1);
-    expect(keptJob()!.tasks, ['step-1']);
-    expect(keptJob()!.pictures, ['step-1.jpg']);
-    expect(keptJob()!.reservedStep, isNull);
+    expect(service.uploads, isEmpty);
   });
 
   test(
-    "gives a failed step's unit back, and tries the step again next time",
+    'says the face cannot be used, and analyses it again next time',
+    () async {
+      service.analysisProblem = MakeupProblem.photo;
+      expect(
+        (await make()).last,
+        const MakeupFailed(MakeupFailure(MakeupProblem.photo)),
+      );
+      expect(keptJob()!.analysisTask, isNull);
+      expect(looks.colours, isEmpty);
+    },
+  );
+
+  test(
+    'stops when the service refuses a step, keeping the steps made',
+    () async {
+      service.refuseStep = 2;
+      expect(
+        (await make()).last,
+        const MakeupFailed(MakeupFailure(MakeupProblem.failed)),
+      );
+      expect(keptJob()!.tasks, ['step-1']);
+      expect(keptJob()!.pictures, ['step-1.jpg']);
+    },
+  );
+
+  test(
+    'tries a failed step again next time, keeping the steps before it',
     () async {
       service.failTask = 'step-2';
       expect(
         (await make()).last,
         const MakeupFailed(MakeupFailure(MakeupProblem.photo)),
       );
-      expect(budget.spent, MakeLook.unitsPerAnalysis + 1);
       expect(keptJob()!.tasks, ['step-1']);
 
       service.failTask = null;
       expect((await make()).last, isA<MakeupDone>());
-      // Neither the analysis nor step 1 was paid for twice.
-      expect(budget.spent, MakeLook.unitsPerAnalysis + 3);
+      // Neither the analysis nor step 1 was made twice.
       expect(service.analyses, hasLength(1));
       expect(service.uploads.skip(3), [_step(1), _step(2)]);
     },
   );
 
-  test(
-    'keeps the unit when a step may have started but nobody knows',
-    () async {
-      service.lostStep = 2;
-      expect((await make()).last, const MakeupFailed(NetworkFailure()));
-      expect(budget.spent, MakeLook.unitsPerAnalysis + 2);
-      expect(keptJob()!.reservedStep, 1);
+  test('starts a step again when nobody knows whether it started', () async {
+    service.lostStep = 2;
+    expect((await make()).last, const MakeupFailed(NetworkFailure()));
+    expect(keptJob()!.tasks, ['step-1']);
 
-      service.lostStep = null;
-      expect((await make()).last, isA<MakeupDone>());
-      // The reserved unit paid for the step on the next attempt.
-      expect(budget.spent, MakeLook.unitsPerAnalysis + 3);
-    },
-  );
+    service.lostStep = null;
+    expect((await make()).last, isA<MakeupDone>());
+    expect(service.steps, hasLength(4));
+  });
 
   test('goes on where a cut-short look stopped', () async {
     looks
@@ -399,24 +350,26 @@ void main() {
     expect(updates.last, isA<MakeupDone>());
     expect(_made(updates[1] as MakeupProgress), [true, false, false]);
     expect(service.uploads, [_step(1), _step(2)]);
-    expect(budget.spent, 2);
+    expect(service.steps, hasLength(2));
   });
 
-  test('waits for an analysis already started, without paying again', () async {
-    await jobs.save(
-      MakeupJob(
-        accountId: 'uid-1',
-        outfitSignature: _signature,
-        faceRevision: 1,
-        updatedAt: clock.now(),
-        analysisTask: 'analysis-0',
-      ),
-    );
-    expect((await make()).last, isA<MakeupDone>());
-    expect(service.analyses, isEmpty);
-    expect(service.discarded.first, 'analysis-0');
-    expect(budget.spent, 3);
-  });
+  test(
+    'waits for an analysis already started, without starting another',
+    () async {
+      await jobs.save(
+        MakeupJob(
+          accountId: 'uid-1',
+          outfitSignature: _signature,
+          faceRevision: 1,
+          updatedAt: clock.now(),
+          analysisTask: 'analysis-0',
+        ),
+      );
+      expect((await make()).last, isA<MakeupDone>());
+      expect(service.analyses, isEmpty);
+      expect(service.discarded.first, 'analysis-0');
+    },
+  );
 
   test(
     'starts again when a kept job is too old or for another face photo',
@@ -455,7 +408,6 @@ void main() {
     service.runForever = true;
     final updates = await make(makeLook(taskTimeLimit: Duration.zero));
     expect(updates.last, const MakeupFailed(ServerFailure()));
-    expect(budget.spent, 1);
     expect(keptJob()!.tasks, ['step-1']);
     expect(await makeLook().underway(_params), isTrue);
   });
@@ -474,7 +426,7 @@ void main() {
     expect(b.first, isA<MakeupProgress>());
     expect(b.last, a.last);
     expect(service.analyses, hasLength(1));
-    expect(budget.spent, MakeLook.unitsPerAnalysis + 3);
+    expect(service.steps, hasLength(3));
   });
 }
 
@@ -641,34 +593,6 @@ class _FakeService implements MakeupServiceRepository {
 
   @override
   Future<void> discard(String taskId) async => discarded.add(taskId);
-}
-
-class _FakeBudget implements UnitBudgetRepository {
-  int limit = 30;
-  int spent = 0;
-
-  /// Units someone else spends once the first reservation is made.
-  int othersSpend = 0;
-
-  @override
-  Future<Either<Failure, Unit>> reserve(int units) async {
-    if (spent + units > limit) {
-      return const Left(TryOnFailure(TryOnProblem.budgetSpent));
-    }
-    spent += units + othersSpend;
-    othersSpend = 0;
-    return const Right(unit);
-  }
-
-  @override
-  Future<Either<Failure, int>> left() async =>
-      Right(spent >= limit ? 0 : limit - spent);
-
-  @override
-  Future<Either<Failure, Unit>> release(int units) async {
-    spent -= units;
-    return const Right(unit);
-  }
 }
 
 class _FakePhotos implements PhotoRepository {

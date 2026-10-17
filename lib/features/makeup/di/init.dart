@@ -73,7 +73,6 @@ void init(GetIt locator) {
       () => MakeLook(
         looks: locator(),
         service: locator(),
-        budget: locator(),
         jobs: locator(),
         photos: locator(),
         saveSetupToAccount: locator(),

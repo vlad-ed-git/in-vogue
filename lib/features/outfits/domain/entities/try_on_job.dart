@@ -13,7 +13,6 @@ class TryOnJob extends Equatable {
     required this.photoRevision,
     required this.updatedAt,
     this.tasks = const [],
-    this.reservedPass,
   });
 
   final String accountId;
@@ -31,9 +30,6 @@ class TryOnJob extends Equatable {
 
   /// The try-on task of each pass started, in order.
   final List<String> tasks;
-
-  /// A pass whose units are reserved but whose task may not have started.
-  final int? reservedPass;
   final DateTime updatedAt;
 
   String get key => keyFor(accountId, date, occasion);
@@ -48,13 +44,6 @@ class TryOnJob extends Equatable {
       '${date.month.toString().padLeft(2, '0')}-'
       '${date.day.toString().padLeft(2, '0')}';
 
-  /// Units for [pass] are reserved.
-  TryOnJob reserving(int pass, DateTime at) =>
-      _copy(tasks: tasks, reservedPass: pass, at: at);
-
-  /// The reservation was given back.
-  TryOnJob unreserved(DateTime at) => _copy(tasks: tasks, at: at);
-
   /// The next pass started as [task].
   TryOnJob started(String task, DateTime at) =>
       _copy(tasks: [...tasks, task], at: at);
@@ -63,21 +52,17 @@ class TryOnJob extends Equatable {
   TryOnJob keeping(int count, DateTime at) =>
       _copy(tasks: tasks.take(count).toList(), at: at);
 
-  TryOnJob _copy({
-    required List<String> tasks,
-    required DateTime at,
-    int? reservedPass,
-  }) => TryOnJob(
-    accountId: accountId,
-    date: date,
-    occasion: occasion,
-    cell: cell,
-    outfitId: outfitId,
-    photoRevision: photoRevision,
-    updatedAt: at,
-    tasks: tasks,
-    reservedPass: reservedPass,
-  );
+  TryOnJob _copy({required List<String> tasks, required DateTime at}) =>
+      TryOnJob(
+        accountId: accountId,
+        date: date,
+        occasion: occasion,
+        cell: cell,
+        outfitId: outfitId,
+        photoRevision: photoRevision,
+        updatedAt: at,
+        tasks: tasks,
+      );
 
   @override
   List<Object?> get props => [
@@ -88,7 +73,6 @@ class TryOnJob extends Equatable {
     outfitId,
     photoRevision,
     tasks,
-    reservedPass,
     updatedAt,
   ];
 }

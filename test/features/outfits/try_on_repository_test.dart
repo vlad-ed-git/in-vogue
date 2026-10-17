@@ -114,7 +114,7 @@ void main() {
       );
       expect(
         await repository.start(_coat, fileId: 'file-1'),
-        const Left<Failure, String>(TryOnFailure(TryOnProblem.budgetSpent)),
+        const Left<Failure, String>(TryOnFailure(TryOnProblem.noCredit)),
       );
       when(remote.start(any, any)).thenThrow(
         YouCamException(

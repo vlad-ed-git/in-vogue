@@ -517,7 +517,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tryOnPhotoProblem => '这张照片无法换装。换一张照片或许可以。';
 
   @override
-  String get tryOnBudgetSpent => '目前无法再生成新的穿搭。';
+  String get tryOnNoCredit => '目前无法再生成新的穿搭。';
 
   @override
   String get tryOnUnavailable => '此版本暂不提供穿搭。';
@@ -683,7 +683,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get makeupPhotoProblem => '这张照片里找不到你的脸。在自然光下正面拍摄的近照效果最好。';
 
   @override
-  String get makeupBudgetSpent => '目前无法再生成新的妆容。';
+  String get makeupNoCredit => '目前无法再生成新的妆容。';
 
   @override
   String get makeupUnavailable => '此版本暂不提供妆容。';

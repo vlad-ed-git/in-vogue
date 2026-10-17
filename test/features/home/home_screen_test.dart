@@ -235,12 +235,12 @@ void main() {
     verify(() => bloc.add(const HomeRetried())).called(1);
   });
 
-  testWidgets('says when the budget is spent, with nothing to retry', (
+  testWidgets("says when YouCam's units are spent, with nothing to retry", (
     tester,
   ) async {
     await pumpHome(
       tester,
-      _state(const OutfitFailed(TryOnFailure(TryOnProblem.budgetSpent))),
+      _state(const OutfitFailed(TryOnFailure(TryOnProblem.noCredit))),
     );
     expect(find.text('No more outfits can be made for now.'), findsOneWidget);
     expect(find.text('Try again'), findsNothing);
