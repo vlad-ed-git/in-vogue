@@ -10,6 +10,7 @@ class AccountSetup extends Equatable {
     this.body,
     this.face,
     this.picks = const {},
+    this.syncedPicks = const {},
   });
 
   /// Null before the person chooses one.
@@ -21,6 +22,10 @@ class AccountSetup extends Equatable {
   /// Ids of the loved colourways.
   final Set<String> picks;
 
+  /// The picks this phone last saved on the account: only these can be
+  /// removed from it.
+  final Set<String> syncedPicks;
+
   @override
-  List<Object?> get props => [name, location, body, face, picks];
+  List<Object?> get props => [name, location, body, face, picks, syncedPicks];
 }

@@ -4,9 +4,14 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:path/path.dart' as p;
 
-/// A photo kept on the account: its Storage path, revision and download
-/// URL.
-typedef AccountPhoto = ({String path, int revision, String? url});
+/// A photo kept on the account: its Storage path, revision, download URL
+/// and the SHA-256 of its content.
+typedef AccountPhoto = ({
+  String path,
+  int revision,
+  String? url,
+  String? sha256,
+});
 
 /// The account document's fields and the account's Storage paths.
 abstract final class AccountModel {
@@ -38,6 +43,10 @@ abstract final class AccountModel {
               final String url => url,
               _ => null,
             },
+            sha256: switch (photo['sha256']) {
+              final String sha256 => sha256,
+              _ => null,
+            },
           ),
   };
 
@@ -63,6 +72,7 @@ abstract final class AccountModel {
             'path': photo.path,
             'revision': photo.revision,
             'url': ?photo.url,
+            'sha256': ?photo.sha256,
           },
       },
     if (created) 'plan': demoPlan,

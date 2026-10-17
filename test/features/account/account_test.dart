@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
@@ -49,7 +53,11 @@ const _setup = AccountSetup(
   body: _body,
   face: _face,
   picks: {'everlane:a', 'everlane:b'},
+  syncedPicks: {'everlane:b', 'everlane:c'},
 );
+
+String _sha256(String content) =>
+    sha256.convert(utf8.encode(content)).toString();
 
 @GenerateMocks([
   AccountRemoteDataSource,
@@ -81,6 +89,7 @@ void main() {
           path: 'users/u/body-2.jpg',
           revision: 2,
           url: 'https://storage.example/body-2.jpg',
+          sha256: 'b2',
         ),
       };
       final created = AccountModel.toJson(
@@ -101,6 +110,7 @@ void main() {
             'path': 'users/u/body-2.jpg',
             'revision': 2,
             'url': 'https://storage.example/body-2.jpg',
+            'sha256': 'b2',
           },
         },
         'plan': 'pro',
@@ -133,7 +143,34 @@ void main() {
             'face': {'path': 7},
           },
         }),
-        {PhotoRole.body: (path: 'users/u/body-1.jpg', revision: 1, url: null)},
+        {
+          PhotoRole.body: (
+            path: 'users/u/body-1.jpg',
+            revision: 1,
+            url: null,
+            sha256: null,
+          ),
+        },
+      );
+      expect(
+        AccountModel.photosFromJson({
+          'photos': {
+            'face': {
+              'path': 'users/u/face-2.png',
+              'revision': 2,
+              'url': 'https://storage.example/face-2.png',
+              'sha256': 'f2',
+            },
+          },
+        }),
+        {
+          PhotoRole.face: (
+            path: 'users/u/face-2.png',
+            revision: 2,
+            url: 'https://storage.example/face-2.png',
+            sha256: 'f2',
+          ),
+        },
       );
       expect(AccountModel.photosFromJson(null), isEmpty);
     });
@@ -142,8 +179,36 @@ void main() {
   group('AccountRepositoryImpl', () {
     late MockAccountRemoteDataSource remote;
     late AccountRepositoryImpl repository;
+    late UserPhoto body;
+    late UserPhoto face;
+    late AccountSetup setup;
+    final bodySha = _sha256('body two');
+    final faceSha = _sha256('face one');
 
     setUp(() {
+      final phone = Directory.systemTemp.createTempSync('photos');
+      addTearDown(() => phone.deleteSync(recursive: true));
+      body = UserPhoto(
+        role: PhotoRole.body,
+        path: (File(
+          '${phone.path}/body-2.jpg',
+        )..writeAsStringSync('body two')).path,
+        revision: 2,
+      );
+      face = UserPhoto(
+        role: PhotoRole.face,
+        path: (File(
+          '${phone.path}/face-1.png',
+        )..writeAsStringSync('face one')).path,
+        revision: 1,
+      );
+      setup = AccountSetup(
+        name: 'Maya',
+        location: _paris,
+        body: body,
+        face: face,
+        picks: const {'everlane:a', 'everlane:b'},
+      );
       remote = MockAccountRemoteDataSource();
       repository = AccountRepositoryImpl(
         remoteDataSource: remote,
@@ -178,22 +243,36 @@ void main() {
       when(remote.deletePhoto(any)).thenAnswer((_) async {});
     });
 
+    void verifyNoUpload() => verifyNever(
+      remote.uploadPhoto(
+        path: anyNamed('path'),
+        file: anyNamed('file'),
+        contentType: anyNamed('contentType'),
+      ),
+    );
+
+    Map<String, Object?> written({required bool created}) =>
+        verify(
+              remote.writeAccount('uid-1', captureAny, created: created),
+            ).captured.single
+            as Map<String, Object?>;
+
     test('creates a new account with its photos, picks and plan', () async {
       expect(
-        await repository.save('uid-1', _setup),
+        await repository.save('uid-1', setup),
         const Right<Failure, Unit>(unit),
       );
       verify(
         remote.uploadPhoto(
           path: 'users/uid-1/photos/body-2.jpg',
-          file: '/support/photos/body-2.jpg',
+          file: body.path,
           contentType: 'image/jpeg',
         ),
       ).called(1);
       verify(
         remote.uploadPhoto(
           path: 'users/uid-1/photos/face-1.png',
-          file: '/support/photos/face-1.png',
+          file: face.path,
           contentType: 'image/png',
         ),
       ).called(1);
@@ -204,23 +283,21 @@ void main() {
           remove: <String>{},
         ),
       ).called(1);
-      final written =
-          verify(
-                remote.writeAccount('uid-1', captureAny, created: true),
-              ).captured.single
-              as Map<String, Object?>;
-      expect(written, containsPair('plan', 'pro'));
-      expect(written, containsPair('name', 'Maya'));
-      expect(written['photos'], {
+      final account = written(created: true);
+      expect(account, containsPair('plan', 'pro'));
+      expect(account, containsPair('name', 'Maya'));
+      expect(account['photos'], {
         'body': {
           'path': 'users/uid-1/photos/body-2.jpg',
           'revision': 2,
           'url': 'https://storage.example/users/uid-1/photos/body-2.jpg',
+          'sha256': bodySha,
         },
         'face': {
           'path': 'users/uid-1/photos/face-1.png',
           'revision': 1,
           'url': 'https://storage.example/users/uid-1/photos/face-1.png',
+          'sha256': faceSha,
         },
       });
       verifyNever(remote.deletePhoto(any));
@@ -235,8 +312,14 @@ void main() {
               'path': 'users/uid-1/photos/body-2.jpg',
               'revision': 2,
               'url': 'https://kept.example/body-2.jpg',
+              'sha256': bodySha,
             },
-            'face': {'path': 'users/uid-1/photos/face-1.png', 'revision': 1},
+            // A photo restored on this phone keeps its place and number.
+            'face': {
+              'path': 'users/uid-1/photos/face-3.png',
+              'revision': 3,
+              'sha256': faceSha,
+            },
           },
         },
       );
@@ -244,16 +327,10 @@ void main() {
         remote.wishlist(any),
       ).thenAnswer((_) async => {'everlane:a', 'everlane:b'});
       expect(
-        await repository.save('uid-1', _setup),
+        await repository.save('uid-1', setup),
         const Right<Failure, Unit>(unit),
       );
-      verifyNever(
-        remote.uploadPhoto(
-          path: anyNamed('path'),
-          file: anyNamed('file'),
-          contentType: anyNamed('contentType'),
-        ),
-      );
+      verifyNoUpload();
       verifyNever(
         remote.writeWishlist(
           any,
@@ -261,43 +338,83 @@ void main() {
           remove: anyNamed('remove'),
         ),
       );
-      final written =
-          verify(
-                remote.writeAccount('uid-1', captureAny, created: false),
-              ).captured.single
-              as Map<String, Object?>;
-      expect(written, isNot(contains('plan')));
+      final account = written(created: false);
+      expect(account, isNot(contains('plan')));
       // A kept URL stays; one missing from an earlier save is looked up.
-      expect(written['photos'], {
+      expect(account['photos'], {
         'body': {
           'path': 'users/uid-1/photos/body-2.jpg',
           'revision': 2,
           'url': 'https://kept.example/body-2.jpg',
+          'sha256': bodySha,
         },
         'face': {
-          'path': 'users/uid-1/photos/face-1.png',
-          'revision': 1,
-          'url': 'https://storage.example/users/uid-1/photos/face-1.png',
+          'path': 'users/uid-1/photos/face-3.png',
+          'revision': 3,
+          'url': 'https://storage.example/users/uid-1/photos/face-3.png',
+          'sha256': faceSha,
         },
       });
-      verify(remote.photoUrl('users/uid-1/photos/face-1.png')).called(1);
+      verifyNever(remote.deletePhoto(any));
+    });
+
+    test('replaces a photo whose content changed, even under the same name, '
+        'as after a reinstall', () async {
+      when(remote.readAccount(any)).thenAnswer(
+        (_) async => {
+          'photos': {
+            'body': {
+              'path': 'users/uid-1/photos/body-2.jpg',
+              'revision': 2,
+              'sha256': _sha256('an older body photo'),
+            },
+          },
+        },
+      );
+      await repository.save('uid-1', AccountSetup(body: body));
+      verify(
+        remote.uploadPhoto(
+          path: 'users/uid-1/photos/body-2.jpg',
+          file: body.path,
+          contentType: 'image/jpeg',
+        ),
+      ).called(1);
+      verifyNever(remote.deletePhoto(any));
+    });
+
+    test('uploads once a photo saved before fingerprints', () async {
+      when(remote.readAccount(any)).thenAnswer(
+        (_) async => {
+          'photos': {
+            'body': {'path': 'users/uid-1/photos/body-2.jpg', 'revision': 2},
+          },
+        },
+      );
+      await repository.save('uid-1', AccountSetup(body: body));
+      final photos =
+          written(created: false)['photos']! as Map<Object?, Object?>;
+      expect(photos['body'], containsPair('sha256', bodySha));
     });
 
     test(
-      'replaces a photo of another revision and deletes the old one',
+      'replaces a photo under another name and deletes the old one',
       () async {
         when(remote.readAccount(any)).thenAnswer(
           (_) async => {
             'photos': {
-              'body': {'path': 'users/uid-1/photos/body-1.jpg', 'revision': 1},
+              'body': {
+                'path': 'users/uid-1/photos/body-1.jpg',
+                'revision': 1,
+                'sha256': _sha256('an older body photo'),
+              },
             },
           },
         );
-        await repository.save('uid-1', const AccountSetup(body: _body));
+        await repository.save('uid-1', AccountSetup(body: body));
         verifyInOrder([
           remote.uploadPhoto(
             path: 'users/uid-1/photos/body-2.jpg',
-            file: '/support/photos/body-2.jpg',
+            file: body.path,
             contentType: 'image/jpeg',
           ),
           remote.writeAccount('uid-1', any, created: false),
@@ -306,17 +423,34 @@ void main() {
       },
     );
 
-    test('mirrors the picks: adds new ones, removes unloved ones', () async {
+    test('adds new picks, and removes only those this phone unloved', () async {
       when(
         remote.wishlist(any),
-      ).thenAnswer((_) async => {'everlane:b', 'everlane:c'});
-      await repository.save('uid-1', _setup);
+      ).thenAnswer((_) async => {'everlane:b', 'everlane:c', 'everlane:d'});
+      await repository.save(
+        'uid-1',
+        const AccountSetup(
+          picks: {'everlane:a', 'everlane:b'},
+          syncedPicks: {'everlane:b', 'everlane:c'},
+        ),
+      );
       verify(
         remote.writeWishlist(
           'uid-1',
           add: {'everlane:a'},
           remove: {'everlane:c'},
         ),
+      ).called(1);
+    });
+
+    test('never removes a favourite from a phone that has not saved it, as '
+        'after a reinstall', () async {
+      when(
+        remote.wishlist(any),
+      ).thenAnswer((_) async => {'everlane:b', 'everlane:c'});
+      await repository.save('uid-1', const AccountSetup(picks: {'everlane:a'}));
+      verify(
+        remote.writeWishlist('uid-1', add: {'everlane:a'}, remove: <String>{}),
       ).called(1);
     });
 
@@ -332,9 +466,26 @@ void main() {
         remote.deletePhoto(any),
       ).thenThrow(ServerException(Exception('gone'), StackTrace.current));
       expect(
-        await repository.save('uid-1', const AccountSetup(body: _body)),
+        await repository.save('uid-1', AccountSetup(body: body)),
         const Right<Failure, Unit>(unit),
       );
+    });
+
+    test('says when a photo cannot be read on the phone', () async {
+      expect(
+        await repository.save(
+          'uid-1',
+          const AccountSetup(
+            body: UserPhoto(
+              role: PhotoRole.body,
+              path: '/nowhere/body-9.jpg',
+              revision: 9,
+            ),
+          ),
+        ),
+        const Left<Failure, Unit>(CacheFailure()),
+      );
+      verifyNever(remote.writeAccount(any, any, created: anyNamed('created')));
     });
 
     test('knows whether the account has been saved', () async {
@@ -354,14 +505,14 @@ void main() {
         remote.readAccount(any),
       ).thenThrow(NetworkException(Exception('offline'), StackTrace.current));
       expect(
-        await repository.save('uid-1', _setup),
+        await repository.save('uid-1', setup),
         const Left<Failure, Unit>(NetworkFailure()),
       );
       when(
         remote.readAccount(any),
       ).thenThrow(ServerException(Exception('denied'), StackTrace.current));
       expect(
-        await repository.save('uid-1', _setup),
+        await repository.save('uid-1', setup),
         const Left<Failure, Unit>(ServerFailure()),
       );
     });
@@ -402,13 +553,31 @@ void main() {
         picks.picks(),
       ).thenAnswer((_) async => const Right({'everlane:a', 'everlane:b'}));
       when(
+        picks.synced('uid-1'),
+      ).thenAnswer((_) async => const Right({'everlane:b', 'everlane:c'}));
+      when(
+        picks.markSynced(any, any),
+      ).thenAnswer((_) async => const Right(unit));
+      when(
         account.save(any, any),
       ).thenAnswer((_) async => const Right<Failure, Unit>(unit));
     });
 
-    test('saves what the phone keeps on the account', () async {
+    test('saves what the phone keeps on the account, and records the picks '
+        'saved', () async {
       expect(await save('uid-1'), const Right<Failure, Unit>(unit));
-      verify(account.save('uid-1', _setup)).called(1);
+      verifyInOrder([
+        account.save('uid-1', _setup),
+        picks.markSynced('uid-1', {'everlane:a', 'everlane:b'}),
+      ]);
+    });
+
+    test('records no picks as saved when the save fails', () async {
+      when(
+        account.save(any, any),
+      ).thenAnswer((_) async => const Left<Failure, Unit>(NetworkFailure()));
+      expect(await save('uid-1'), const Left<Failure, Unit>(NetworkFailure()));
+      verifyNever(picks.markSynced(any, any));
     });
 
     test(
@@ -426,6 +595,7 @@ void main() {
               location: _paris,
               body: _body,
               picks: {'everlane:a', 'everlane:b'},
+              syncedPicks: {'everlane:b', 'everlane:c'},
             ),
           ),
         ).called(1);

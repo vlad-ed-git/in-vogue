@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
@@ -100,6 +102,9 @@ class AccountRepositoryImpl implements AccountRepository {
     } on ServerException catch (error) {
       _log(error.cause, error.stackTrace);
       return const Left(ServerFailure());
+    } on FileSystemException catch (error, stack) {
+      _log(error, stack);
+      return const Left(CacheFailure());
     }
   }
 
@@ -109,26 +114,41 @@ class AccountRepositoryImpl implements AccountRepository {
     final photos = <PhotoRole, AccountPhoto>{};
     final replaced = <String>[];
     for (final photo in [setup.body, setup.face].nonNulls) {
-      final path = AccountModel.photoPath(accountId, photo);
+      final sha256 = await _fingerprint(photo.path);
       final previous = savedPhotos[photo.role];
-      final String url;
-      if (previous?.path != path || previous?.revision != photo.revision) {
-        url = await _remote.uploadPhoto(
-          path: path,
-          file: photo.path,
-          contentType: photoContentType(photo.path),
+      if (previous != null && previous.sha256 == sha256) {
+        // The account holds this very photo, wherever it keeps it.
+        photos[photo.role] = (
+          path: previous.path,
+          revision: previous.revision,
+          url: previous.url ?? await _remote.photoUrl(previous.path),
+          sha256: sha256,
         );
-        if (previous != null && previous.path != path) {
-          replaced.add(previous.path);
-        }
-      } else {
-        url = previous?.url ?? await _remote.photoUrl(path);
+        continue;
       }
-      photos[photo.role] = (path: path, revision: photo.revision, url: url);
+      final path = AccountModel.photoPath(accountId, photo);
+      final url = await _remote.uploadPhoto(
+        path: path,
+        file: photo.path,
+        contentType: photoContentType(photo.path),
+      );
+      if (previous != null && previous.path != path) {
+        replaced.add(previous.path);
+      }
+      photos[photo.role] = (
+        path: path,
+        revision: photo.revision,
+        url: url,
+        sha256: sha256,
+      );
     }
     final wishlist = await _remote.wishlist(accountId);
     final add = setup.picks.difference(wishlist);
-    final remove = wishlist.difference(setup.picks);
+    // Only a favourite this phone unloved since it last saved goes; one
+    // the phone never had stays, as after a reinstall.
+    final remove = setup.syncedPicks
+        .difference(setup.picks)
+        .intersection(wishlist);
     if (add.isNotEmpty || remove.isNotEmpty) {
       await _remote.writeWishlist(accountId, add: add, remove: remove);
     }
@@ -147,6 +167,9 @@ class AccountRepositoryImpl implements AccountRepository {
       }
     }
   }
+
+  static Future<String> _fingerprint(String path) async =>
+      sha256.convert(await File(path).readAsBytes()).toString();
 
   void _log(Object error, StackTrace stackTrace) => _logger.logError(
     callerClass: 'AccountRepositoryImpl',

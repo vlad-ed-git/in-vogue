@@ -11,7 +11,8 @@ import 'package:in_vogue/features/profile/domain/repositories/profile_repository
 
 /// Saves the name, location, photos and picks kept on the phone on the
 /// account with the given id. Saves nothing when the phone's setup cannot
-/// be read, so a read failure never empties the account.
+/// be read, so a read failure never empties the account. The picks saved
+/// are recorded, so a pick unloved later is removed from the account too.
 class SaveSetupToAccount implements UseCase<Unit, String> {
   const SaveSetupToAccount({
     required this._account,
@@ -34,20 +35,25 @@ class SaveSetupToAccount implements UseCase<Unit, String> {
     final body = await _photos.kept(PhotoRole.body);
     final face = await _photos.kept(PhotoRole.face);
     final picks = await _picks.picks();
-    final failure = [name, location, body, face, picks]
+    final synced = await _picks.synced(accountId);
+    final failure = [name, location, body, face, picks, synced]
         .map((read) => read.fold<Failure?>((failure) => failure, (_) => null))
         .nonNulls
         .firstOrNull;
     if (failure != null) return Left(failure);
-    return _account.save(
+    final saving = picks.getOrElse(() => const {});
+    final saved = await _account.save(
       accountId,
       AccountSetup(
         name: name.getOrElse(() => null),
         location: location.getOrElse(() => null),
         body: body.getOrElse(() => null),
         face: face.getOrElse(() => null),
-        picks: picks.getOrElse(() => const {}),
+        picks: saving,
+        syncedPicks: synced.getOrElse(() => const {}),
       ),
     );
+    if (saved is Right) await _picks.markSynced(accountId, saving);
+    return saved;
   }
 }
