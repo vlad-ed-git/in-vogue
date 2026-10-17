@@ -8,8 +8,7 @@
       "program": "lib/main_development.dart",
       "toolArgs": [
         "--flavor",
-        "development",
-        "--dart-define-from-file=secrets/development.json"
+        "development"
       ]
     },
     {

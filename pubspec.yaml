@@ -76,6 +76,10 @@ flutter:
     - assets/outfits/
     - assets/makeup/
     - assets/images/
+    # Development builds only: the YouCam key (git-ignored).
+    - path: assets/development/
+      flavors:
+        - development
   # Sofia Sans in two widths (SIL OFL, see assets/fonts/OFL.txt). Variable
   # fonts: every style selects its weight through FontVariation('wght').
   fonts:

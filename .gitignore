@@ -28,3 +28,7 @@ missing_translations.json
 
 # Local API keys and secrets.
 secrets/
+
+# The YouCam key development builds bundle; only the folder is kept.
+assets/development/*
+!assets/development/.gitkeep
