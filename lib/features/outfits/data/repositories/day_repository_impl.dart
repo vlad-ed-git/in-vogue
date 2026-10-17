@@ -80,6 +80,20 @@ class DayRepositoryImpl implements DayRepository {
   ) => _guard('suggested', () => _remote.suggested(accountId, signatures));
 
   @override
+  Future<Either<Failure, Unit>> refuse(
+    String accountId,
+    String signature,
+    String piece,
+  ) => _guard('refuse', () async {
+    await _remote.refuse(accountId, signature, piece);
+    return unit;
+  });
+
+  @override
+  Future<Either<Failure, Set<String>>> refusedPieces(String accountId) =>
+      _guard('refusedPieces', () => _remote.refusedPieces(accountId));
+
+  @override
   Future<Either<Failure, DayClaim>> claim(
     String accountId, {
     required DateTime date,

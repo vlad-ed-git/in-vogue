@@ -269,15 +269,25 @@ class MakeOutfit {
         ]);
         if (seen case Left(value: final failure)) return Left(failure);
         suggested = seen.getOrElse(() => const {});
+        final refused = await _days.refusedPieces(params.accountId);
+        if (refused case Left(value: final failure)) return Left(failure);
         final picks = (await _picks.picks()).getOrElse(() => const {});
         final outfit = ChooseOutfit.from(
           outfits,
           suggested: suggested,
           picks: picks,
+          refused: refused.getOrElse(() => const {}),
         );
-        // No outfit in this build suits the day's weather.
         if (outfit == null) {
-          return const Left(TryOnFailure(TryOnProblem.unavailable));
+          // No outfit in this build suits the day's weather, or every one
+          // has a piece whose photo the try-on refused.
+          return Left(
+            TryOnFailure(
+              outfits.isEmpty
+                  ? TryOnProblem.unavailable
+                  : TryOnProblem.reference,
+            ),
+          );
         }
         proposal = Day(
           date: params.date,

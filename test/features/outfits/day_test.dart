@@ -307,6 +307,24 @@ void main() {
       expect(found.containsKey('sig-39'), isFalse);
     });
 
+    test("remembers a refused piece on its outfit's suggestion, and lists "
+        "the account's refused pieces", () async {
+      await claim('phone-a', proposal: _outfit('o1'));
+      await settled(days.refuse('uid-1', 'sig-o1', 'everlane:tee'));
+      final suggestion = await record('suggestions/sig-o1');
+      expect(suggestion?['refusedPiece'], 'everlane:tee');
+      expect(suggestion?['times'], 1, reason: 'the rest stays');
+      await settled(days.refuse('uid-1', 'sig-o9', 'everlane:coat'));
+      await firestore.doc('users/uid-1/suggestions/sig-o2').set({'times': 1});
+      await firestore.doc('users/uid-2/suggestions/sig-o3').set({
+        'refusedPiece': 'everlane:dress',
+      });
+      expect((await days.refusedPieces('uid-1')).getOrElse(() => const {}), {
+        'everlane:tee',
+        'everlane:coat',
+      });
+    });
+
     test('lets only the phone making a day change it', () async {
       final claimed =
           await claim('phone-a', proposal: _outfit('o1')) as DayClaimed;

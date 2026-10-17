@@ -20,7 +20,13 @@ final _ranked = [
 String? _choose({
   Map<String, DateTime?> suggested = const {},
   Set<String> picks = const {},
-}) => ChooseOutfit.from(_ranked, suggested: suggested, picks: picks)?.id;
+  Set<String> refused = const {},
+}) => ChooseOutfit.from(
+  _ranked,
+  suggested: suggested,
+  picks: picks,
+  refused: refused,
+)?.id;
 
 void main() {
   test('takes the best outfit never suggested', () {
@@ -66,10 +72,27 @@ void main() {
     );
   });
 
-  test('has nothing only when there is nothing to choose from', () {
+  test('never takes an outfit with a piece whose photo was refused', () {
+    expect(_choose(refused: {'p2'}), 'b');
+    expect(_choose(refused: {'p2'}, picks: {'p1', 'p2'}), 'b');
+    final all = {
+      for (final (index, outfit) in _ranked.indexed)
+        outfit.signature: DateTime.utc(2026, 10, 10 - index),
+    };
+    expect(_choose(suggested: all, refused: {'p10'}), 'd');
+  });
+
+  test('has nothing when there is nothing to choose from, or every outfit '
+      'has a refused piece', () {
     expect(
-      ChooseOutfit.from(const [], suggested: const {}, picks: const {}),
+      ChooseOutfit.from(
+        const [],
+        suggested: const {},
+        picks: const {},
+        refused: const {},
+      ),
       isNull,
     );
+    expect(_choose(refused: {'p1', 'p3', 'p5', 'p7', 'p9'}), isNull);
   });
 }

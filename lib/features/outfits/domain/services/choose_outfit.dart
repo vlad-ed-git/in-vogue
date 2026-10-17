@@ -10,19 +10,22 @@ abstract final class ChooseOutfit {
   static const picksWeight = 0.2;
 
   /// The best of [ranked] (best first) never [suggested]: loved pieces in
-  /// [picks] lift an outfit, but never rule one out. When every outfit was
-  /// suggested, the one suggested longest ago; a time still being written
-  /// counts as now. Null only when [ranked] is empty.
+  /// [picks] lift an outfit, but never rule one out. An outfit with a piece
+  /// in [refused] is never taken. When every other outfit was suggested,
+  /// the one suggested longest ago; a time still being written counts as
+  /// now. Null when there is none to take.
   static Outfit? from(
     List<Outfit> ranked, {
     required Map<String, DateTime?> suggested,
     required Set<String> picks,
+    required Set<String> refused,
   }) {
-    if (ranked.isEmpty) return null;
     final scored = [
       for (final (index, outfit) in ranked.indexed)
-        (outfit: outfit, score: _score(outfit, index, ranked.length, picks)),
+        if (!outfit.pieces.any(refused.contains))
+          (outfit: outfit, score: _score(outfit, index, ranked.length, picks)),
     ];
+    if (scored.isEmpty) return null;
     final fresh = [
       for (final option in scored)
         if (!suggested.containsKey(option.outfit.signature)) option,

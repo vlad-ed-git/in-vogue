@@ -261,6 +261,23 @@ void main() {
     },
   );
 
+  test('never chooses an outfit with a piece whose photo was refused; says so '
+      'when every outfit has one', () async {
+    await firestore.doc('users/uid-1/suggestions/other').set({
+      'refusedPiece': 'everlane:tee',
+    });
+    await make();
+    expect((await record())?['outfitId'], 'o2');
+
+    await firestore.doc('users/uid-1/suggestions/another').set({
+      'refusedPiece': 'everlane:dress',
+    });
+    expect(await make(params: _params(_tomorrow)), [
+      const TryOnFailed(TryOnFailure(TryOnProblem.reference)),
+    ]);
+    expect(await record(_tomorrow), isNull);
+  });
+
   test('shows a day another phone made, without trying anything on', () async {
     await setDay(
       dayOf(_dress, 'phone-b').readyAt('users/uid-1/days/2026-10-17_work.jpg'),

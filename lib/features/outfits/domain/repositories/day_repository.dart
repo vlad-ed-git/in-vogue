@@ -27,6 +27,17 @@ abstract interface class DayRepository {
     List<String> signatures,
   );
 
+  /// Records that the try-on refused the photo of [piece] in the outfit
+  /// [signature], so no outfit with it is chosen again.
+  Future<Either<Failure, Unit>> refuse(
+    String accountId,
+    String signature,
+    String piece,
+  );
+
+  /// The pieces whose photo the try-on refused for [accountId].
+  Future<Either<Failure, Set<String>>> refusedPieces(String accountId);
+
   /// Claims the day of [date] and [occasion] for [device]: [proposal] gives
   /// a new day its outfit, recorded as suggested unless [suggested] (what
   /// the chooser saw) is out of date.

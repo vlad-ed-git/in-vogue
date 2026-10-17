@@ -247,6 +247,38 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
           as _i4.Future<_i2.Either<_i5.Failure, Map<String, DateTime?>>>);
 
   @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> refuse(
+    String? accountId,
+    String? signature,
+    String? piece,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#refuse, [accountId, signature, piece]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#refuse, [accountId, signature, piece]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, Set<String>>> refusedPieces(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#refusedPieces, [accountId]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, Set<String>>>.value(
+              _FakeEither_0<_i5.Failure, Set<String>>(
+                this,
+                Invocation.method(#refusedPieces, [accountId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, Set<String>>>);
+
+  @override
   _i4.Future<_i2.Either<_i5.Failure, _i10.DayClaim>> claim(
     String? accountId, {
     required DateTime? date,
