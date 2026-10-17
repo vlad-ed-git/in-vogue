@@ -196,6 +196,14 @@ void main() {
     );
   });
 
+  test('keeps the day the person prefers Home to open on', () async {
+    expect((await started()).state.preferred, ForecastDay.tomorrow);
+    when(
+      defaultDay(any),
+    ).thenAnswer((_) async => const Right(ForecastDay.today));
+    expect((await started()).state.preferred, ForecastDay.today);
+  });
+
   test('follows both days on opening, the day on screen first', () async {
     final bloc = await started();
     expect(followed(), [

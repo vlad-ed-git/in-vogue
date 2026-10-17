@@ -136,6 +136,7 @@ class HomeState extends Equatable {
     this.place,
     this.photo,
     this.selected = ForecastDay.tomorrow,
+    this.preferred = ForecastDay.tomorrow,
     this.days = const {},
   });
 
@@ -147,6 +148,9 @@ class HomeState extends Equatable {
 
   /// The day on screen.
   final ForecastDay selected;
+
+  /// The day Home opens on: tomorrow with the morning rule, or always today.
+  final ForecastDay preferred;
   final Map<ForecastDay, HomeDay> days;
 
   HomeDay day(ForecastDay day) => days[day] ?? const HomeDay();
@@ -158,6 +162,7 @@ class HomeState extends Equatable {
     place: place,
     photo: photo,
     selected: selected,
+    preferred: preferred,
     days: {...days, day: value},
   );
 
@@ -166,11 +171,12 @@ class HomeState extends Equatable {
     place: place,
     photo: photo,
     selected: day,
+    preferred: preferred,
     days: days,
   );
 
   @override
-  List<Object?> get props => [status, place, photo, selected, days];
+  List<Object?> get props => [status, place, photo, selected, preferred, days];
 }
 
 /// Home's two days, today and tomorrow, each with its weather and outfit.
@@ -249,6 +255,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       place: place,
       photo: photo?.path,
       selected: firstLoad ? shownDay : state.selected,
+      preferred: preferred,
       days: state.days,
     );
     for (final (day, report) in [(shownDay, first), (otherDay, other)]) {

@@ -20,6 +20,8 @@ import 'package:in_vogue/features/home/presentation/bloc/shop_bloc.dart';
 import 'package:in_vogue/features/home/presentation/screens/home_screen.dart';
 import 'package:in_vogue/features/home/presentation/screens/shop_screen.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
+import 'package:in_vogue/features/home_widget/presentation/bloc/home_widget_bloc.dart';
+import 'package:in_vogue/features/home_widget/presentation/widgets/home_widget_sync.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/makeup/presentation/bloc/makeup_bloc.dart';
 import 'package:in_vogue/features/makeup/presentation/screens/makeup_screen.dart';
@@ -42,9 +44,14 @@ import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 /// The app's screens, with their blocs from [locator]. Home's bloc is
 /// shared by the tabs, so Makeup follows Home's day and outfit.
 AppScreens inVogueScreens(GetIt locator) => AppScreens(
-  tabs: (tabs) => BlocProvider(
-    create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
-    child: tabs,
+  tabs: (tabs) => MultiBlocProvider(
+    providers: [
+      BlocProvider(
+        create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
+      ),
+      BlocProvider(create: (_) => locator<HomeWidgetBloc>()),
+    ],
+    child: HomeWidgetSync(child: tabs),
   ),
   setup: (step) => switch (step) {
     SetupStep.welcome => BlocProvider(
