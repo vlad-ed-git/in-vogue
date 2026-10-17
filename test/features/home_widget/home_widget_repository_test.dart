@@ -11,6 +11,7 @@ import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart';
 import 'package:in_vogue/features/home_widget/data/repositories/home_widget_repository_impl.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -113,6 +114,25 @@ void main() {
       const Left<Failure, Unit>(CacheFailure()),
     );
     verifyNever(widget.update());
+  });
+
+  test('tells which day a tap on the widget opened, the tap that started '
+      'the app first, and skips links it cannot read', () async {
+    when(widget.launchedWith()).thenAnswer(
+      (_) async => Uri.parse('invogue://home?date=2026-10-18&occasion=casual'),
+    );
+    when(widget.clicks()).thenAnswer(
+      (_) => Stream.fromIterable([
+        Uri.parse('invogue://home?date=2026-10-19&occasion=goingOut'),
+        Uri.parse('invogue://home?date=someday&occasion=work'),
+        Uri.parse('https://example.com/home?date=2026-10-19&occasion=work'),
+        null,
+      ]),
+    );
+    expect(await repository.taps().toList(), [
+      WidgetTap(date: DateTime.utc(2026, 10, 18), occasion: Occasion.casual),
+      WidgetTap(date: DateTime.utc(2026, 10, 19), occasion: Occasion.goingOut),
+    ]);
   });
 
   test('asks the launcher to place the widget when it can', () async {

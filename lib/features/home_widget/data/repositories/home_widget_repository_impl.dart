@@ -8,6 +8,7 @@ import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart';
 import 'package:in_vogue/features/home_widget/data/models/widget_content_model.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.dart';
 
@@ -51,6 +52,20 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
     await _widget.save(HomeWidgetDataSourceImpl.contentKey, null);
     await _widget.update();
   });
+
+  @override
+  Stream<WidgetTap> taps() async* {
+    Uri? first;
+    try {
+      first = await _widget.launchedWith();
+    } on CacheException catch (error) {
+      _log('taps', error);
+    }
+    if (WidgetContentModel.tapOf(first) case final tap?) yield tap;
+    await for (final link in _widget.clicks()) {
+      if (WidgetContentModel.tapOf(link) case final tap?) yield tap;
+    }
+  }
 
   Future<Either<Failure, Unit>> _guard(
     String method,

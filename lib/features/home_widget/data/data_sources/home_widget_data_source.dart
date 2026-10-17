@@ -20,6 +20,12 @@ abstract interface class HomeWidgetDataSource {
 
   /// Asks the launcher to place the widget.
   Future<void> pin();
+
+  /// The link of the widget tap that started the app; null otherwise.
+  Future<Uri?> launchedWith();
+
+  /// The links of widget taps while the app runs.
+  Stream<Uri?> clicks();
 }
 
 class HomeWidgetDataSourceImpl implements HomeWidgetDataSource {
@@ -53,6 +59,13 @@ class HomeWidgetDataSourceImpl implements HomeWidgetDataSource {
   @override
   Future<void> pin() =>
       _guard(() => HomeWidget.requestPinWidget(qualifiedAndroidName: provider));
+
+  @override
+  Future<Uri?> launchedWith() =>
+      _guard(HomeWidget.initiallyLaunchedFromHomeWidget);
+
+  @override
+  Stream<Uri?> clicks() => HomeWidget.widgetClicked;
 
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {

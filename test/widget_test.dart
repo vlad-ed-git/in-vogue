@@ -27,6 +27,9 @@ import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home_widget/data/repositories/unavailable_home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
+import 'package:in_vogue/features/home_widget/domain/usecases/publish_widget.dart';
+import 'package:in_vogue/features/home_widget/domain/usecases/watch_widget_taps.dart';
+import 'package:in_vogue/features/home_widget/presentation/bloc/home_widget_bloc.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/locate_user.dart';
@@ -168,6 +171,14 @@ void main() {
       )
       ..registerSingleton<HomeWidgetRepository>(
         const UnavailableHomeWidgetRepository(),
+      )
+      ..registerFactory<HomeWidgetBloc>(
+        () => HomeWidgetBloc(
+          publishWidget: const PublishWidget(UnavailableHomeWidgetRepository()),
+          watchWidgetTaps: const WatchWidgetTaps(
+            UnavailableHomeWidgetRepository(),
+          ),
+        ),
       )
       ..registerFactory<PicksBloc>(() {
         final picks = PicksRepositoryImpl(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +8,7 @@ import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/presentation/bloc/home_widget_bloc.dart';
 import 'package:in_vogue/features/home_widget/presentation/widgets/home_widget_sync.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
@@ -79,7 +82,9 @@ final _ready = HomeState(
 void main() {
   late _MockHomeBloc home;
   late _MockHomeWidgetBloc widget;
+  late int homeOpened;
 
+  setUpAll(() => registerFallbackValue(const HomeStarted()));
   setUpAll(
     () => registerFallbackValue(
       const HomeWidgetContentChanged(
@@ -91,11 +96,7 @@ void main() {
   setUp(() {
     home = _MockHomeBloc();
     widget = _MockHomeWidgetBloc();
-    whenListen(
-      widget,
-      const Stream<HomeWidgetState>.empty(),
-      initialState: const HomeWidgetState(),
-    );
+    homeOpened = 0;
   });
 
   Future<void> pump(
@@ -103,7 +104,9 @@ void main() {
     Stream<HomeState> states, {
     String language = 'es',
     HomeState initial = const HomeState(),
+    Stream<HomeWidgetState> taps = const Stream.empty(),
   }) async {
+    whenListen(widget, taps, initialState: const HomeWidgetState());
     whenListen(home, states, initialState: initial);
     await pumpInVogue(
       tester,
@@ -112,7 +115,10 @@ void main() {
           BlocProvider<HomeBloc>.value(value: home),
           BlocProvider<HomeWidgetBloc>.value(value: widget),
         ],
-        child: const HomeWidgetSync(child: SizedBox()),
+        child: HomeWidgetSync(
+          onOpenHome: (_) => homeOpened++,
+          child: const SizedBox(),
+        ),
       ),
       locale: Locale(language),
     );
@@ -145,6 +151,42 @@ void main() {
                 as HomeWidgetContentChanged)
             .content;
     expect(content.days.first.today, '今天');
+  });
+
+  testWidgets('a tap on the widget opens Home on its day and occasion', (
+    tester,
+  ) async {
+    final tap = WidgetTap(date: _tomorrow, occasion: Occasion.goingOut);
+    await pump(
+      tester,
+      const Stream.empty(),
+      initial: _ready,
+      taps: Stream.value(HomeWidgetState(opened: tap, opens: 1)),
+    );
+    expect(homeOpened, 1);
+    verifyInOrder([
+      () => home.add(const HomeDaySelected(ForecastDay.tomorrow)),
+      () => home.add(const HomeOccasionChanged(Occasion.goingOut)),
+    ]);
+  });
+
+  testWidgets('a tap that starts the app waits for Home to be ready', (
+    tester,
+  ) async {
+    final tap = WidgetTap(date: _today, occasion: Occasion.casual);
+    final states = StreamController<HomeState>();
+    addTearDown(states.close);
+    await pump(
+      tester,
+      states.stream,
+      taps: Stream.value(HomeWidgetState(opened: tap, opens: 1)),
+    );
+    expect(homeOpened, 1);
+    verifyNever(() => home.add(any()));
+    states.add(_ready);
+    await tester.pump();
+    verify(() => home.add(const HomeDaySelected(ForecastDay.today))).called(1);
+    verifyNever(() => home.add(const HomeOccasionChanged(Occasion.casual)));
   });
 
   testWidgets('gives the widget nothing until Home is ready', (tester) async {

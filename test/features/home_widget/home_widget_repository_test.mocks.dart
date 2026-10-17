@@ -77,4 +77,20 @@ class MockHomeWidgetDataSource extends _i1.Mock
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<Uri?> launchedWith() =>
+      (super.noSuchMethod(
+            Invocation.method(#launchedWith, []),
+            returnValue: _i3.Future<Uri?>.value(),
+          )
+          as _i3.Future<Uri?>);
+
+  @override
+  _i3.Stream<Uri?> clicks() =>
+      (super.noSuchMethod(
+            Invocation.method(#clicks, []),
+            returnValue: _i3.Stream<Uri?>.empty(),
+          )
+          as _i3.Stream<Uri?>);
 }

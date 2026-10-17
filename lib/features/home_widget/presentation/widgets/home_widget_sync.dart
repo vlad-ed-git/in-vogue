@@ -5,14 +5,22 @@ import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/presentation/bloc/home_widget_bloc.dart';
 import 'package:in_vogue/features/home_widget/presentation/widget_content_text.dart';
 
 /// Gives the home-screen widget Home's days whenever they change, and
-/// their words again when the language does.
+/// their words again when the language does. A tap on the widget opens
+/// Home on the day it showed, once Home is ready.
 class HomeWidgetSync extends StatefulWidget {
-  const HomeWidgetSync({required this.child, super.key});
+  const HomeWidgetSync({
+    required this.onOpenHome,
+    required this.child,
+    super.key,
+  });
 
+  /// Shows the Home tab.
+  final void Function(BuildContext context) onOpenHome;
   final Widget child;
 
   @override
@@ -21,6 +29,9 @@ class HomeWidgetSync extends StatefulWidget {
 
 class _HomeWidgetSyncState extends State<HomeWidgetSync> {
   SupportedLanguages? _language;
+
+  /// A tap that came before Home was ready.
+  WidgetTap? _pending;
 
   @override
   void didChangeDependencies() {
@@ -59,15 +70,53 @@ class _HomeWidgetSyncState extends State<HomeWidgetSync> {
     );
   }
 
+  void _open(WidgetTap tap) {
+    widget.onOpenHome(context);
+    final home = context.read<HomeBloc>();
+    if (home.state.status == HomeStatus.ready) {
+      _show(home, tap);
+    } else {
+      _pending = tap;
+    }
+  }
+
+  /// Selects the day of [tap] in its occasion; nothing when Home no longer
+  /// has that date.
+  static void _show(HomeBloc home, WidgetTap tap) {
+    final day = ForecastDay.values
+        .where((day) => home.state.day(day).report?.weather.date == tap.date)
+        .firstOrNull;
+    if (day == null) return;
+    home.add(HomeDaySelected(day));
+    if (home.state.day(day).report?.weather.occasion != tap.occasion) {
+      home.add(HomeOccasionChanged(tap.occasion));
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => BlocListener<HomeBloc, HomeState>(
-    listenWhen: (before, after) =>
-        before.status != after.status ||
-        before.days != after.days ||
-        before.photo != after.photo ||
-        before.place != after.place ||
-        before.preferred != after.preferred,
-    listener: (context, state) => _publish(state),
+  Widget build(BuildContext context) => MultiBlocListener(
+    listeners: [
+      BlocListener<HomeBloc, HomeState>(
+        listenWhen: (before, after) =>
+            before.status != after.status ||
+            before.days != after.days ||
+            before.photo != after.photo ||
+            before.place != after.place ||
+            before.preferred != after.preferred,
+        listener: (context, state) {
+          _publish(state);
+          if (state.status == HomeStatus.ready && _pending != null) {
+            _show(context.read<HomeBloc>(), _pending!);
+            _pending = null;
+          }
+        },
+      ),
+      BlocListener<HomeWidgetBloc, HomeWidgetState>(
+        listenWhen: (before, after) =>
+            after.opened != null && before.opens != after.opens,
+        listener: (context, state) => _open(state.opened!),
+      ),
+    ],
     child: widget.child,
   );
 }

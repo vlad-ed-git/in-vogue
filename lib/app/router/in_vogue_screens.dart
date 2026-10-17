@@ -49,9 +49,15 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
       BlocProvider(
         create: (_) => locator<HomeBloc>()..add(const HomeStarted()),
       ),
-      BlocProvider(create: (_) => locator<HomeWidgetBloc>()),
+      BlocProvider(
+        create: (_) =>
+            locator<HomeWidgetBloc>()..add(const HomeWidgetStarted()),
+      ),
     ],
-    child: HomeWidgetSync(child: tabs),
+    child: HomeWidgetSync(
+      onOpenHome: (context) => context.go(AppRoutes.home),
+      child: tabs,
+    ),
   ),
   setup: (step) => switch (step) {
     SetupStep.welcome => BlocProvider(

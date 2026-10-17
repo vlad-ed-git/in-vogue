@@ -1,4 +1,6 @@
+import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
 
 /// The widget's content as the native widget reads it.
@@ -16,6 +18,18 @@ abstract final class WidgetContentModel {
   static String link(WidgetSnapshot day) =>
       'invogue://home?date=${TryOnJob.dateKey(day.date)}'
       '&occasion=${day.occasion.name}';
+
+  /// The tap a widget [link] stands for; null when it isn't one.
+  static WidgetTap? tapOf(Uri? link) {
+    if (link == null || link.scheme != 'invogue' || link.host != 'home') {
+      return null;
+    }
+    final date = DateTime.tryParse('${link.queryParameters['date']}T00:00:00Z');
+    final occasion = Occasion.values
+        .asNameMap()[link.queryParameters['occasion']];
+    if (date == null || occasion == null) return null;
+    return WidgetTap(date: date, occasion: occasion);
+  }
 
   static Map<String, Object?> _day(WidgetSnapshot day) => {
     'date': TryOnJob.dateKey(day.date),

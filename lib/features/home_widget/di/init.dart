@@ -5,6 +5,7 @@ import 'package:in_vogue/features/home_widget/data/repositories/home_widget_repo
 import 'package:in_vogue/features/home_widget/data/repositories/unavailable_home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/usecases/publish_widget.dart';
+import 'package:in_vogue/features/home_widget/domain/usecases/watch_widget_taps.dart';
 import 'package:in_vogue/features/home_widget/presentation/bloc/home_widget_bloc.dart';
 
 void init(GetIt locator) {
@@ -19,7 +20,9 @@ void init(GetIt locator) {
           : const UnavailableHomeWidgetRepository(),
     )
     ..registerLazySingleton<PublishWidget>(() => PublishWidget(locator()))
+    ..registerLazySingleton<WatchWidgetTaps>(() => WatchWidgetTaps(locator()))
     ..registerFactory<HomeWidgetBloc>(
-      () => HomeWidgetBloc(publishWidget: locator()),
+      () =>
+          HomeWidgetBloc(publishWidget: locator(), watchWidgetTaps: locator()),
     );
 }
