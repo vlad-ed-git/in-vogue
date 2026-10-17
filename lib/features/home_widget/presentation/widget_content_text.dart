@@ -6,14 +6,9 @@ import 'package:in_vogue/core/presentation/foundations/in_vogue_format.dart';
 import 'package:in_vogue/core/presentation/foundations/kicker.dart';
 import 'package:in_vogue/core/utils/occasion_l10n.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
-import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/temperature_unit.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/presentation/weather_text.dart';
 import 'package:in_vogue/l10n/generated/app_localizations.dart';
-
-/// A day for the widget: its weather and its outfit once made.
-typedef WidgetDay = ({WeatherReport report, DayOutfit? outfit});
 
 /// The widget's words for [WidgetDay]s, in the person's language.
 abstract final class WidgetContentText {

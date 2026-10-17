@@ -5,6 +5,7 @@ import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/presentation/bloc/home_widget_bloc.dart';
 import 'package:in_vogue/features/home_widget/presentation/widget_content_text.dart';
@@ -66,6 +67,20 @@ class _HomeWidgetSyncState extends State<HomeWidgetSync> {
           language: context.language,
           now: clock.now(),
         ),
+        refresh: switch (state.place) {
+          final place? => WidgetRefreshContext(
+            place: place,
+            language: context.language,
+            preferred: state.preferred,
+            bodyPhoto: state.photo,
+            occasions: {
+              for (final day in state.days.values)
+                if (day.report?.weather case final weather?)
+                  weather.date: weather.occasion,
+            },
+          ),
+          null => null,
+        },
       ),
     );
   }

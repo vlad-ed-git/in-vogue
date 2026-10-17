@@ -16,6 +16,17 @@ void main() {
     expect(WidgetSchedule.dayAt(ForecastDay.today, at(23)), ForecastDay.today);
   });
 
+  test('refreshes in the background at 05:30, before the morning change', () {
+    expect(
+      WidgetSchedule.untilRefresh(DateTime(2026, 10, 18, 5)),
+      const Duration(minutes: 30),
+    );
+    expect(
+      WidgetSchedule.untilRefresh(DateTime(2026, 10, 18, 7)),
+      const Duration(hours: 22, minutes: 30),
+    );
+  });
+
   test('changes at 06:00, 09:00 and midnight, two days ahead', () {
     expect(WidgetSchedule.changesAfter(DateTime(2026, 10, 18, 7, 30)), [
       DateTime(2026, 10, 18, 9),

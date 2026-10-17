@@ -1,6 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
+import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
+import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
+
+/// A day for the widget: its weather and its outfit once made.
+typedef WidgetDay = ({WeatherReport report, DayOutfit? outfit});
 
 /// A day as the home-screen widget shows it, its words already in the
 /// person's language.

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:in_vogue/app/widget_refresh.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/di/init.dart' as core_di;
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
@@ -17,6 +18,7 @@ import 'package:in_vogue/features/account/di/init.dart' as account_di;
 import 'package:in_vogue/features/auth/di/init.dart' as auth_di;
 import 'package:in_vogue/features/catalog/di/init.dart' as catalog_di;
 import 'package:in_vogue/features/home/di/init.dart' as home_di;
+import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
 import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
 import 'package:in_vogue/features/location/di/init.dart' as location_di;
 import 'package:in_vogue/features/makeup/di/init.dart' as makeup_di;
@@ -91,6 +93,12 @@ abstract final class MainInit {
       catalog_di.init(locator);
       auth_di.init(locator);
       profile_di.init(locator);
+      locator.registerLazySingleton<WidgetRefreshScheduler>(
+        () => WorkmanagerWidgetRefreshScheduler(
+          widgetRefreshDispatcher,
+          environment: environment.name,
+        ),
+      );
       home_widget_di.init(locator);
       account_di.init(locator);
       outfits_di.init(locator);

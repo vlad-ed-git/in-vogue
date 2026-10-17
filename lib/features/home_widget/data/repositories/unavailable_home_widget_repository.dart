@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 
@@ -13,8 +14,10 @@ class UnavailableHomeWidgetRepository implements HomeWidgetRepository {
   Future<bool> requestPin() async => false;
 
   @override
-  Future<Either<Failure, Unit>> publish(WidgetContent content) async =>
-      const Right(unit);
+  Future<Either<Failure, Unit>> publish(
+    WidgetContent content, {
+    WidgetRefreshContext? refresh,
+  }) async => const Right(unit);
 
   @override
   Future<Either<Failure, Unit>> clear() async => const Right(unit);

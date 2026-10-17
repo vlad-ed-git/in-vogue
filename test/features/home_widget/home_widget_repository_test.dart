@@ -6,13 +6,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
+import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart';
+import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
 import 'package:in_vogue/features/home_widget/data/repositories/home_widget_repository_impl.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.dart';
+import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -40,18 +44,23 @@ final _content = WidgetContent(
   savedLine: 'Saved Sun 18 Oct at 9:12 pm',
 );
 
-@GenerateMocks([HomeWidgetDataSource])
+@GenerateMocks([HomeWidgetDataSource, WidgetRefreshScheduler])
 void main() {
   late MockHomeWidgetDataSource widget;
+  late MockWidgetRefreshScheduler scheduler;
   late HomeWidgetRepositoryImpl repository;
   final now = DateTime(2026, 10, 18, 21, 12);
 
   setUp(() {
     widget = MockHomeWidgetDataSource();
+    scheduler = MockWidgetRefreshScheduler();
     repository = HomeWidgetRepositoryImpl(
       dataSource: widget,
+      scheduler: scheduler,
+      environment: 'development',
       logMessages: LogMessagesImpl(),
     );
+    when(scheduler.schedule(any)).thenAnswer((_) async {});
     when(widget.save(any, any)).thenAnswer((_) async {});
     when(widget.update()).thenAnswer((_) async {});
     when(widget.schedule(any)).thenAnswer((_) async {});
@@ -96,6 +105,53 @@ void main() {
       ],
     });
   });
+
+  test(
+    'keeps what the morning refresh needs, and has it run at 05:30',
+    () async {
+      final refresh = WidgetRefreshContext(
+        place: const UserLocation(
+          latitude: 48.86,
+          longitude: 2.35,
+          city: 'Paris',
+          countryCode: 'FR',
+        ),
+        language: SupportedLanguages.spanish,
+        preferred: ForecastDay.today,
+        bodyPhoto: '/photos/body-1.jpg',
+        occasions: {DateTime.utc(2026, 10, 19): Occasion.goingOut},
+      );
+      await withClock(
+        Clock.fixed(now),
+        () => repository.publish(_content, refresh: refresh),
+      );
+      final saved =
+          verify(
+                widget.save(HomeWidgetDataSourceImpl.refreshKey, captureAny),
+              ).captured.single
+              as String;
+      expect(jsonDecode(saved), {
+        'version': 1,
+        'environment': 'development',
+        'latitude': 48.86,
+        'longitude': 2.35,
+        'city': 'Paris',
+        'countryCode': 'FR',
+        'language': 'es',
+        'preferred': 'today',
+        'bodyPhoto': '/photos/body-1.jpg',
+        'occasions': {'2026-10-19': 'goingOut'},
+      });
+      verify(scheduler.schedule(WidgetSchedule.untilRefresh(now))).called(1);
+
+      when(
+        widget.read(HomeWidgetDataSourceImpl.refreshKey),
+      ).thenAnswer((_) async => saved);
+      final read = await repository.savedRefresh();
+      expect(read?.environment, 'development');
+      expect(read?.context, refresh);
+    },
+  );
 
   test('forgets the days and redraws the widget empty', () async {
     expect(await repository.clear(), const Right<Failure, Unit>(unit));

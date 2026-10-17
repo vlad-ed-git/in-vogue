@@ -2,6 +2,7 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/domain/usecases/publish_widget.dart';
 import 'package:in_vogue/features/home_widget/domain/usecases/watch_widget_taps.dart';
@@ -20,11 +21,14 @@ final class HomeWidgetStarted extends HomeWidgetEvent {
 
 /// What the widget should show changed.
 final class HomeWidgetContentChanged extends HomeWidgetEvent {
-  const HomeWidgetContentChanged(this.content);
+  const HomeWidgetContentChanged(this.content, {this.refresh});
   final WidgetContent content;
 
+  /// What the morning refresh needs; null when not known.
+  final WidgetRefreshContext? refresh;
+
   @override
-  List<Object?> get props => [content];
+  List<Object?> get props => [content, refresh];
 }
 
 class HomeWidgetState extends Equatable {
@@ -63,6 +67,6 @@ class HomeWidgetBloc extends Bloc<HomeWidgetEvent, HomeWidgetState> {
     Emitter<HomeWidgetState> emit,
   ) async {
     // A widget that cannot be written keeps what it showed.
-    await _publishWidget(event.content);
+    await _publishWidget((content: event.content, refresh: event.refresh));
   }
 }

@@ -6,22 +6,32 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart';
+import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
 import 'package:in_vogue/features/home_widget/data/models/widget_content_model.dart';
+import 'package:in_vogue/features/home_widget/data/models/widget_refresh_context_model.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.dart';
 
 /// The Android home-screen widget: it shows the content kept for it and
-/// picks its day itself, redrawn at each turn of the day.
+/// picks its day itself, redrawn at each turn of the day and refreshed each
+/// morning in the background.
 class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
   HomeWidgetRepositoryImpl({
     required HomeWidgetDataSource dataSource,
+    required this._scheduler,
+    required this._environment,
     required LogMessages logMessages,
   }) : _widget = dataSource,
        _logger = logMessages;
 
   final HomeWidgetDataSource _widget;
+  final WidgetRefreshScheduler _scheduler;
+
+  /// The flavor's name, kept for the morning refresh's Firebase.
+  final String _environment;
   final LogMessages _logger;
 
   @override
@@ -37,15 +47,43 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> publish(WidgetContent content) =>
-      _guard('publish', () async {
-        await _widget.save(
-          HomeWidgetDataSourceImpl.contentKey,
-          jsonEncode(WidgetContentModel.toJson(content)),
-        );
-        await _widget.update();
-        await _widget.schedule(WidgetSchedule.changesAfter(clock.now()));
-      });
+  Future<Either<Failure, Unit>> publish(
+    WidgetContent content, {
+    WidgetRefreshContext? refresh,
+  }) => _guard('publish', () async {
+    await _widget.save(
+      HomeWidgetDataSourceImpl.contentKey,
+      jsonEncode(WidgetContentModel.toJson(content)),
+    );
+    await _widget.update();
+    final now = clock.now();
+    await _widget.schedule(WidgetSchedule.changesAfter(now));
+    if (refresh == null) return;
+    await _widget.save(
+      HomeWidgetDataSourceImpl.refreshKey,
+      jsonEncode(
+        WidgetRefreshContextModel.toJson(refresh, environment: _environment),
+      ),
+    );
+    await _scheduler.schedule(WidgetSchedule.untilRefresh(now));
+  });
+
+  /// What the morning refresh needs and the flavor that kept it; null
+  /// before the app kept it.
+  Future<({String environment, WidgetRefreshContext context})?>
+  savedRefresh() async {
+    try {
+      final json = await _widget.read(HomeWidgetDataSourceImpl.refreshKey);
+      return json == null
+          ? null
+          : WidgetRefreshContextModel.fromJson(jsonDecode(json));
+    } on CacheException catch (error) {
+      _log('savedRefresh', error);
+      return null;
+    } on FormatException {
+      return null;
+    }
+  }
 
   @override
   Future<Either<Failure, Unit>> clear() => _guard('clear', () async {

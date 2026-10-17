@@ -128,10 +128,16 @@ void main() {
   testWidgets("gives the widget Home's days in the person's language, each "
       'with its picture or the photo waiting for it', (tester) async {
     await pump(tester, Stream.value(_ready));
-    final content =
-        (verify(() => widget.add(captureAny())).captured.single
-                as HomeWidgetContentChanged)
-            .content;
+    final event =
+        verify(() => widget.add(captureAny())).captured.single
+            as HomeWidgetContentChanged;
+    final content = event.content;
+    expect(event.refresh?.place, _paris);
+    expect(event.refresh?.bodyPhoto, '/photos/body-1.jpg');
+    expect(event.refresh?.occasions, {
+      _today: Occasion.casual,
+      _tomorrow: Occasion.work,
+    });
     expect(content.preferred, ForecastDay.tomorrow);
     expect([for (final day in content.days) day.date], [_today, _tomorrow]);
     expect(content.days.first.picture, _outfit.picture);

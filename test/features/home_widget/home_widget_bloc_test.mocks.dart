@@ -10,8 +10,10 @@ import 'package:dartz/dartz.dart' as _i2;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart'
     as _i6;
-import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart'
     as _i7;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
+    as _i8;
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart'
     as _i3;
 import 'package:mockito/mockito.dart' as _i1;
@@ -55,14 +57,15 @@ class MockHomeWidgetRepository extends _i1.Mock
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> publish(
-    _i6.WidgetContent? content,
-  ) =>
+    _i6.WidgetContent? content, {
+    _i7.WidgetRefreshContext? refresh,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#publish, [content]),
+            Invocation.method(#publish, [content], {#refresh: refresh}),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
               _FakeEither_0<_i5.Failure, _i2.Unit>(
                 this,
-                Invocation.method(#publish, [content]),
+                Invocation.method(#publish, [content], {#refresh: refresh}),
               ),
             ),
           )
@@ -82,10 +85,10 @@ class MockHomeWidgetRepository extends _i1.Mock
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 
   @override
-  _i4.Stream<_i7.WidgetTap> taps() =>
+  _i4.Stream<_i8.WidgetTap> taps() =>
       (super.noSuchMethod(
             Invocation.method(#taps, []),
-            returnValue: _i4.Stream<_i7.WidgetTap>.empty(),
+            returnValue: _i4.Stream<_i8.WidgetTap>.empty(),
           )
-          as _i4.Stream<_i7.WidgetTap>);
+          as _i4.Stream<_i8.WidgetTap>);
 }

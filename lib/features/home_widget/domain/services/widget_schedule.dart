@@ -9,6 +9,16 @@ abstract final class WidgetSchedule {
       ? ForecastDay.today
       : ForecastDay.shownAt(time);
 
+  /// How long from [time] until the next background refresh, at 05:30, so
+  /// the 06:00 change shows fresh weather.
+  static Duration untilRefresh(DateTime time) {
+    var next = DateTime(time.year, time.month, time.day, 5, 30);
+    if (!next.isAfter(time)) {
+      next = DateTime(time.year, time.month, time.day + 1, 5, 30);
+    }
+    return next.difference(time);
+  }
+
   /// The next six local times after [time] when the day shown can change:
   /// 06:00, 09:00 and midnight.
   static List<DateTime> changesAfter(DateTime time) => [

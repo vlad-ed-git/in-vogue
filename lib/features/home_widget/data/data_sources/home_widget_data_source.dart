@@ -9,6 +9,9 @@ abstract interface class HomeWidgetDataSource {
   /// Keeps [value] under [key] where the widget reads it; null removes it.
   Future<void> save(String key, String? value);
 
+  /// What is kept under [key]; null when nothing is.
+  Future<String?> read(String key);
+
   /// Redraws every placed widget.
   Future<void> update();
 
@@ -34,6 +37,9 @@ class HomeWidgetDataSourceImpl implements HomeWidgetDataSource {
   /// Where the widget's content is kept, as JSON.
   static const contentKey = 'in_vogue_widget';
 
+  /// Where what the morning refresh needs is kept, as JSON.
+  static const refreshKey = 'in_vogue_widget_refresh';
+
   /// The widget's provider; qualified, because the development flavor's
   /// package name differs from the code's.
   static const provider = 'com.invogue.app.InVogueWidgetProvider';
@@ -41,6 +47,10 @@ class HomeWidgetDataSourceImpl implements HomeWidgetDataSource {
   @override
   Future<void> save(String key, String? value) =>
       _guard(() => HomeWidget.saveWidgetData<String>(key, value));
+
+  @override
+  Future<String?> read(String key) =>
+      _guard(() => HomeWidget.getWidgetData<String>(key));
 
   @override
   Future<void> update() =>

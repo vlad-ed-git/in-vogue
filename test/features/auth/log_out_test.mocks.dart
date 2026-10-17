@@ -16,8 +16,10 @@ import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart'
     as _i3;
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart'
     as _i19;
-import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart'
     as _i20;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
+    as _i21;
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart'
     as _i18;
 import 'package:in_vogue/features/makeup/domain/entities/makeup_job.dart'
@@ -705,14 +707,15 @@ class MockHomeWidgetRepository extends _i1.Mock
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> publish(
-    _i19.WidgetContent? content,
-  ) =>
+    _i19.WidgetContent? content, {
+    _i20.WidgetRefreshContext? refresh,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#publish, [content]),
+            Invocation.method(#publish, [content], {#refresh: refresh}),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
               _FakeEither_0<_i5.Failure, _i2.Unit>(
                 this,
-                Invocation.method(#publish, [content]),
+                Invocation.method(#publish, [content], {#refresh: refresh}),
               ),
             ),
           )
@@ -732,10 +735,10 @@ class MockHomeWidgetRepository extends _i1.Mock
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 
   @override
-  _i4.Stream<_i20.WidgetTap> taps() =>
+  _i4.Stream<_i21.WidgetTap> taps() =>
       (super.noSuchMethod(
             Invocation.method(#taps, []),
-            returnValue: _i4.Stream<_i20.WidgetTap>.empty(),
+            returnValue: _i4.Stream<_i21.WidgetTap>.empty(),
           )
-          as _i4.Stream<_i20.WidgetTap>);
+          as _i4.Stream<_i21.WidgetTap>);
 }
