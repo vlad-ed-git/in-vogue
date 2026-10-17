@@ -56,6 +56,80 @@ void main() {
       final avatar = tester.getRect(find.byType(PhotoSlot));
       expect(avatar.size, const Size.square(56));
       expect(tester.getTopLeft(find.text('Maya')).dx - avatar.right, 12);
+      expect(find.text('M'), findsNothing, reason: 'the photo wins');
+    });
+
+    testWidgets('without a face photo, the profile row shows the initial in '
+        'white on Rouge, set like the logo', (tester) async {
+      await pumpInVogue(
+        tester,
+        const SettingsRow.profile(title: 'maya', avatar: null),
+      );
+      expect(find.byType(PhotoSlot), findsNothing);
+      final square = find.byWidgetPredicate(
+        (widget) =>
+            widget is ColoredBox && widget.color == InVogueColors.signal,
+      );
+      final box = tester.getRect(square);
+      expect(box.size, const Size.square(56));
+      final letter = find.descendant(of: square, matching: find.text('M'));
+      expect(tester.widget<Text>(letter).style!.color, InVogueColors.onSignal);
+      expect(tester.getTopLeft(letter).dx - box.left, 12, reason: 'flush left');
+      final painter = TextPainter(
+        text: TextSpan(text: 'M', style: tester.widget<Text>(letter).style),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final baseline = painter.computeDistanceToActualBaseline(
+        TextBaseline.alphabetic,
+      );
+      painter.dispose();
+      expect(
+        box.bottom - (tester.getTopLeft(letter).dy + baseline),
+        4,
+        reason: 'sits low, like the logo\'s "In"',
+      );
+      expect(tester.getTopLeft(find.text('maya')).dx - box.right, 12);
+    });
+
+    testWidgets('the initial is the first character, so Chinese names and '
+        'emoji work', (tester) async {
+      for (final (name, initial) in [
+        ('王芳', '王'),
+        ('👩🏽‍💻 Kim', '👩🏽‍💻'),
+        ('  élodie', 'É'),
+      ]) {
+        await pumpInVogue(
+          tester,
+          SettingsRow.profile(title: name, avatar: null),
+        );
+        expect(find.text(initial), findsOneWidget, reason: name);
+      }
+    });
+
+    testWidgets('a blank name keeps the empty Rose slot', (tester) async {
+      await pumpInVogue(
+        tester,
+        const SettingsRow.profile(title: ' ', avatar: null),
+      );
+      final slot = find.descendant(
+        of: find.byType(PhotoSlot),
+        matching: find.byType(ColoredBox),
+      );
+      expect(fillOf(tester, slot), InVogueColors.accent);
+    });
+
+    testWidgets('the initial keeps its size at 200% and screen readers skip '
+        'it', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await pumpInVogue(
+        tester,
+        const SettingsRow.profile(title: 'Maya', avatar: null),
+        textScale: 2,
+      );
+      expect(tester.getSize(find.text('M')).height, 38);
+      expect(find.bySemanticsLabel('M'), findsNothing);
+      expect(find.bySemanticsLabel('Maya'), findsOneWidget);
+      semantics.dispose();
     });
 
     testWidgets('log out and delete are whole-row ink commands', (

@@ -43,7 +43,8 @@ class SettingsRow extends StatelessWidget {
        icon = null,
        onTap = null;
 
-  /// A row led by a 56-point square photo; Rose when [avatar] is null.
+  /// A row led by a 56-point square photo. Without [avatar] it shows
+  /// [title]'s first letter on Rouge, or Rose when [title] is blank.
   const SettingsRow.profile({
     required this.title,
     required this.avatar,
@@ -94,6 +95,12 @@ class SettingsRow extends StatelessWidget {
         onTap: onTap,
       );
 
+  /// [title]'s first letter, upper-cased; null when [title] is blank.
+  String? get _initial {
+    final name = title.trim();
+    return name.isEmpty ? null : name.characters.first.toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final text = Column(
@@ -141,7 +148,10 @@ class SettingsRow extends StatelessWidget {
               if (showAvatar) ...[
                 SizedBox.square(
                   dimension: 56,
-                  child: PhotoSlot(image: avatar, aspectRatio: 1),
+                  child: switch ((avatar, _initial)) {
+                    (null, final String letter) => _Initial(letter),
+                    _ => PhotoSlot(image: avatar, aspectRatio: 1),
+                  },
                 ),
                 const SizedBox(width: InVogueSpace.s3),
               ],
@@ -164,4 +174,34 @@ class SettingsRow extends StatelessWidget {
       builder: (context, state) => row,
     );
   }
+}
+
+/// A Rouge square with [letter] in white, set like the logo's "In": the
+/// logo's type on its square scaled to 56, flush left and low.
+class _Initial extends StatelessWidget {
+  const _Initial(this.letter);
+
+  final String letter;
+
+  @override
+  Widget build(BuildContext context) => ExcludeSemantics(
+    child: ClipRect(
+      child: ColoredBox(
+        color: InVogueColors.signal,
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(start: InVogueSpace.s3),
+          child: Baseline(
+            baseline: 56 - InVogueSpace.s1,
+            baselineType: TextBaseline.alphabetic,
+            child: Text(
+              letter,
+              maxLines: 1,
+              textScaler: TextScaler.noScaling,
+              style: InVogueType.title.copyWith(color: InVogueColors.onSignal),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }
