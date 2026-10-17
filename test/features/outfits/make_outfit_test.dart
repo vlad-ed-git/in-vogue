@@ -587,4 +587,14 @@ class _FakePicks implements PicksRepository {
     String colourwayId, {
     required bool loved,
   }) => throw UnimplementedError();
+
+  @override
+  Future<Either<Failure, Set<String>>> synced(String accountId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Either<Failure, Unit>> markSynced(
+    String accountId,
+    Set<String> picks,
+  ) => throw UnimplementedError();
 }

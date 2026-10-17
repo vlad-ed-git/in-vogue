@@ -5,8 +5,14 @@ abstract interface class PicksRepository {
   /// Ids of the loved colourways.
   Future<Either<Failure, Set<String>>> picks();
 
-  /// Forgets every pick.
+  /// Forgets every pick, and which ones an account holds.
   Future<Either<Failure, Unit>> clear();
+
+  /// The picks this phone last saved on [accountId]'s account.
+  Future<Either<Failure, Set<String>>> synced(String accountId);
+
+  /// Records [picks] as saved on [accountId]'s account.
+  Future<Either<Failure, Unit>> markSynced(String accountId, Set<String> picks);
 
   /// Loves or unloves a colourway; returns every pick after the change.
   Future<Either<Failure, Set<String>>> setPick(

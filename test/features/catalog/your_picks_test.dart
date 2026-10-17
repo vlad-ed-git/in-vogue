@@ -73,6 +73,16 @@ class _Picks implements PicksRepository {
     loved ? this.loved.add(colourwayId) : this.loved.remove(colourwayId);
     return Right({...this.loved});
   }
+
+  @override
+  Future<Either<Failure, Set<String>>> synced(String accountId) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Either<Failure, Unit>> markSynced(
+    String accountId,
+    Set<String> picks,
+  ) => throw UnimplementedError();
 }
 
 void main() {

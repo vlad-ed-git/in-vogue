@@ -106,6 +106,35 @@ class MockPicksRepository extends _i1.Mock implements _i7.PicksRepository {
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 
   @override
+  _i4.Future<_i2.Either<_i5.Failure, Set<String>>> synced(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#synced, [accountId]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, Set<String>>>.value(
+              _FakeEither_0<_i5.Failure, Set<String>>(
+                this,
+                Invocation.method(#synced, [accountId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, Set<String>>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> markSynced(
+    String? accountId,
+    Set<String>? picks,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#markSynced, [accountId, picks]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#markSynced, [accountId, picks]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
   _i4.Future<_i2.Either<_i5.Failure, Set<String>>> setPick(
     String? colourwayId, {
     required bool? loved,

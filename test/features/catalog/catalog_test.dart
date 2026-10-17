@@ -161,6 +161,31 @@ void main() {
       store.values['picks'] = 'not json';
       expect(picks.picks(), isEmpty);
     });
+
+    test('remembers the picks last saved on one account only', () async {
+      final store = MemoryStore();
+      final picks = PicksLocalDataSourceImpl(store);
+      expect(picks.synced('uid-1'), isEmpty);
+      await picks.saveSynced('uid-1', {'a-1', 'b-2'});
+      expect(PicksLocalDataSourceImpl(store).synced('uid-1'), {'a-1', 'b-2'});
+      expect(picks.synced('uid-2'), isEmpty);
+      store.values['picks_synced'] = 'not json';
+      expect(picks.synced('uid-1'), isEmpty);
+      await picks.saveSynced('uid-1', {'a-1'});
+      await picks.forgetSynced();
+      expect(picks.synced('uid-1'), isEmpty);
+    });
+  });
+
+  test('clearing forgets the picks and which ones an account holds', () async {
+    final repository = PicksRepositoryImpl(
+      PicksLocalDataSourceImpl(MemoryStore()),
+    );
+    await repository.setPick('a-1', loved: true);
+    await repository.markSynced('uid-1', {'a-1'});
+    await repository.clear();
+    expect((await repository.picks()).getOrElse(() => {'x'}), isEmpty);
+    expect((await repository.synced('uid-1')).getOrElse(() => {'x'}), isEmpty);
   });
 
   test('saves a pick and returns all of them', () async {

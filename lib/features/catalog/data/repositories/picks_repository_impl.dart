@@ -22,6 +22,29 @@ class PicksRepositoryImpl implements PicksRepository {
   Future<Either<Failure, Unit>> clear() async {
     try {
       await _local.save(const {});
+      await _local.forgetSynced();
+      return const Right(unit);
+    } on CacheException {
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Set<String>>> synced(String accountId) async {
+    try {
+      return Right(_local.synced(accountId));
+    } on CacheException {
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> markSynced(
+    String accountId,
+    Set<String> picks,
+  ) async {
+    try {
+      await _local.saveSynced(accountId, picks);
       return const Right(unit);
     } on CacheException {
       return const Left(CacheFailure());
