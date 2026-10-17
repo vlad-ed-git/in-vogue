@@ -60,7 +60,7 @@ void main() {
     });
 
     testWidgets('without a face photo, the profile row shows the initial in '
-        'white on Rouge, set like the logo', (tester) async {
+        'white on Rouge, centred', (tester) async {
       await pumpInVogue(
         tester,
         const SettingsRow.profile(title: 'maya', avatar: null),
@@ -74,20 +74,7 @@ void main() {
       expect(box.size, const Size.square(56));
       final letter = find.descendant(of: square, matching: find.text('M'));
       expect(tester.widget<Text>(letter).style!.color, InVogueColors.onSignal);
-      expect(tester.getTopLeft(letter).dx - box.left, 12, reason: 'flush left');
-      final painter = TextPainter(
-        text: TextSpan(text: 'M', style: tester.widget<Text>(letter).style),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      final baseline = painter.computeDistanceToActualBaseline(
-        TextBaseline.alphabetic,
-      );
-      painter.dispose();
-      expect(
-        box.bottom - (tester.getTopLeft(letter).dy + baseline),
-        4,
-        reason: 'sits low, like the logo\'s "In"',
-      );
+      expect(tester.getCenter(letter), box.center);
       expect(tester.getTopLeft(find.text('maya')).dx - box.right, 12);
     });
 

@@ -176,8 +176,7 @@ class SettingsRow extends StatelessWidget {
   }
 }
 
-/// A Rouge square with [letter] in white, set like the logo's "In": the
-/// logo's type on its square scaled to 56, flush left and low.
+/// A Rouge square with [letter] centred in white, in the logo's type.
 class _Initial extends StatelessWidget {
   const _Initial(this.letter);
 
@@ -188,17 +187,13 @@ class _Initial extends StatelessWidget {
     child: ClipRect(
       child: ColoredBox(
         color: InVogueColors.signal,
-        child: Padding(
-          padding: const EdgeInsetsDirectional.only(start: InVogueSpace.s3),
-          child: Baseline(
-            baseline: 56 - InVogueSpace.s1,
-            baselineType: TextBaseline.alphabetic,
-            child: Text(
-              letter,
-              maxLines: 1,
-              textScaler: TextScaler.noScaling,
-              style: InVogueType.title.copyWith(color: InVogueColors.onSignal),
-            ),
+        child: Center(
+          child: Text(
+            letter,
+            maxLines: 1,
+            textAlign: TextAlign.center,
+            textScaler: TextScaler.noScaling,
+            style: InVogueType.title.copyWith(color: InVogueColors.onSignal),
           ),
         ),
       ),
