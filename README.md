@@ -1,13 +1,19 @@
 # In Vogue
 
-A Flutter mobile app for outfits matched to tomorrow’s weather. It has native
-flavors, Firebase initialization, local persistence, localization, the design
-system and the six-screen setup flow: Welcome (location), Your photo, tomorrow’s
-weather with pieces to pick, Sign in, About you and the home-screen widget.
-Sign-in is Sign in with Apple (on Apple platforms only) and Google, through
-Firebase Auth. The widget runs behind a contract whose stand-in says plainly
-that it is not available yet. Settings has the language row; Home, Makeup and
-the rest of Settings are next.
+A weather app that shows the person, head to toe, wearing a real outfit chosen
+for the day’s weather and plans, with makeup to match and a link to buy each
+piece. It is a Flutter app with two flavors (development and production),
+Firebase (Auth, Firestore and Storage), Hive and SQLite on the phone, and
+YouCam (Perfect Corp) for the try-ons and the makeup.
+
+Setup is six screens: Welcome (location), Your photo, tomorrow’s weather with
+pieces to pick, Sign in (Apple on Apple platforms, and Google), About you, and
+the home-screen widget, a stand-in that says plainly it isn’t available yet.
+Then come the Home, Makeup and Settings tabs, in English, Spanish and
+Simplified Chinese.
+
+What is built, what is left, the rules and the system design are in
+**`AGENTS.md`**.
 
 ## Run
 
@@ -49,10 +55,11 @@ flutterN run --flavor production -t lib/main_production.dart
 
 ### The YouCam key (development only)
 
-Try-ons call YouCam from the app for now. The key is read only by the
-development entrypoint, from the git-ignored `secrets/development.json`;
-the production entrypoint never reads it, and a build without it makes no
-outfits. Create the file from `secrets/youcam_api.txt`:
+Try-ons and makeup call YouCam from the app, and only after sign-in. The key
+is read only by the development entrypoint, from the git-ignored
+`secrets/development.json`; the production entrypoint never reads it, and a
+build without it makes no outfits or makeup. Create the file from
+`secrets/youcam_api.txt`:
 
 ```sh
 python3 scripts/write_development_defines.py
@@ -94,10 +101,13 @@ No backend rules, functions, auth providers, or paid API calls are deployed by s
 ### Firestore and Storage rules
 
 `firestore.rules` and `storage.rules` let each person read and write only
-`users/{uid}/**` (uploads: images under 10 MB). Deploy them to development
-with an admin service account:
+`users/{uid}/**` (uploads: images under 10 MB), and nobody can change their own
+account's `plan`. Check a Firestore rules change on the emulator first (it
+needs Java 21), then deploy to development with an admin service account:
 
 ```sh
+JAVA_HOME=<a Java 21 home> firebase emulators:exec --only firestore \
+  --project demo-in-vogue "python3 scripts/check_firestore_rules.py"
 GOOGLE_APPLICATION_CREDENTIALS=secrets/<service-account>.json \
   firebase deploy --only firestore:rules,storage --project in-vogue-dev
 ```
@@ -121,7 +131,7 @@ lib/
     router/                # go_router routes, setup resume, tab shell, screens
   core/
     config/                # Environment identity and validation
-    domain/                # Pure Dart languages, failures, use-case contracts
+    domain/                # Pure Dart languages, texts, failures, use cases
     data/                  # Local diagnostic implementation
     persistence/           # Hive key/value store and SQLite cache
     di/                    # Initialized core resources and disposal
@@ -137,10 +147,12 @@ lib/
     catalog/               # Bundled collection and picks
     auth/                  # Sign in with Apple and Google, Firebase Auth
     account/               # The setup saved on users/{uid} and in Storage
-    outfits/               # Choosing, trying on and recording outfits
+    outfits/               # Choosing, trying on and recording each day's outfit
+    home/                  # Home tab: the day, the occasion, the outfit, Shop
+    makeup/                # Makeup tab: face colours, recipes and looks
     profile/               # The person's name
     home_widget/           # Placing the home-screen widget
-    preferences/           # Language
+    preferences/           # Language and default day
     settings/              # Settings tab
   l10n/arb/                # English source, Spanish and Simplified Chinese
   l10n/generated/          # Generated, checked-in translations
@@ -157,9 +169,11 @@ every route gives an explicit `flutter/material` page so the app's theme styles
 it. Setup routes nest, so the saved step reopens with the earlier screens beneath
 it for Back.
 
-Hive stores the language, the setup step, the location, picks, the name and photo
-records. Photos themselves live in the app's support folder, saved by file name
-because iOS moves app folders on updates. SQLite provides a versioned, disposable
+Hive stores small values: the language, the default day, the setup step, the
+location, the picks and those last saved on the account, the name, the photo
+records, the install id and unfinished try-on and makeup jobs. Photos themselves
+live in the app's support folder, saved by file name because iOS moves app
+folders on updates. SQLite provides a versioned, disposable
 text cache with expiry (forecasts for two days); it is not the authoritative
 outfit ledger. Both stores are
 isolated by flavor and closed by `GetIt.reset()` in tests. Keep private images,
@@ -168,7 +182,9 @@ provider keys, and auth tokens out of this generic cache.
 `context.translated.tagline` and `context.color` follow the Utano style. English
 is the explicit initial default, regardless of device locale. The saved choice
 loads before the first app frame. Rapid changes are serialized;
-failed writes retain the previous language and show a localized message.
+failed writes retain the previous language and show a localized message. The
+knowledge base's texts (outfit reasons and makeup steps) come in the bundled
+data in all three languages, and screens pick theirs with `context.language`.
 
 ## Design system
 
@@ -202,8 +218,8 @@ Everyday checks are fast and need no native build:
 
 ```sh
 flutterN gen-l10n
-dart run build_runner build
-dart format --output=none --set-exit-if-changed lib test integration_test
+dart run build_runner build --delete-conflicting-outputs
+dart format --output=none --set-exit-if-changed lib test integration_test test_visual
 flutterN analyze
 flutterN test --coverage
 ```
@@ -214,12 +230,14 @@ bloc_test's `MockBloc` for screens, sqflite_common_ffi for SQLite and
 http_mock_adapter for dio. Where a package documents nothing, the tests cover our
 code around it.
 
-The picks collection and the knowledge base's outfits are bundled from
-`../resources/`:
+The collection, the outfits and the makeup recipes are bundled from
+`../resources/`. Export them in this order; the last two stop if
+`../resources/kb/translations.v1.json` lacks a Spanish or Chinese text:
 
 ```sh
 python3 scripts/export_catalog.py
 python3 scripts/export_outfits.py
+python3 scripts/export_makeup.py
 ```
 
 Native builds take minutes and run only when the owner asks; the owner's
@@ -239,12 +257,14 @@ names, xcconfigs and default entrypoints), English fallback and language restore
 Mockito repository failures, BLoC ordering, real Hive reopen/isolation, real SQLite
 expiry/upserts, complete ARB catalogs, UI language switching/failure recovery,
 320px screens at 200% text whatever the phone's appearance, the design tokens,
-theme and every design-system widget, and the launcher icon sets. For setup they
-cover the routes and resuming at the saved step, each of the six screens, the
-location, forecast and day-weather rules, photo picking and keeping, the bundled
-collection and picks, and the sign-in, name and widget contracts. The device
-integration test additionally initializes real native Firebase/Hive/SQLite and
-reloads persisted preferences.
+theme and every design-system widget, and the launcher icon sets. For the app they
+cover the routes and resuming setup at the saved step, every screen, the location,
+forecast and day-weather rules, the photo rules, the bundled collection, outfits
+and recipes (every text in three languages), choosing and claiming days across
+phones, making outfits and makeup against scripted YouCam fakes, saving, restoring
+and deleting the account, log out, and the rules' plan lock kept in step with the
+app. The device integration test additionally initializes real native
+Firebase/Hive/SQLite and reloads persisted preferences.
 Use a test installation: it changes the language and clears its disposable cache.
 Verification is local. Do not add Git-hosted workflows or CI/CD setup; this is an explicit owner requirement.
 
