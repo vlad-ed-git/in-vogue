@@ -186,8 +186,6 @@
   "makeupUnavailable": "此版本暂不提供妆容。",
   "makeupFor": "{day, select, today{今天的妆容} other{明天的妆容}}",
   "makeupStepsArriving": "每一步完成后就会出现在这里。",
-  "getMyMakeup": "生成我的妆容",
-  "getMakeupForOutfit": "为这套穿搭生成妆容",
   "makeupStepCount": "{count, select, three{三个步骤} four{四个步骤} five{五个步骤} six{六个步骤} other{步骤}}",
   "cheekColour": "{colour, select, soft_pink{柔粉色} peach{蜜桃色} rose{玫瑰色} terracotta{赤陶色} other{柔和}}",
   "lipColour": "{colour, select, nude{裸色} rosy_nude{玫瑰裸色} rose{玫瑰色} terracotta{赤陶色} red{红色} berry{莓果色} brick{砖红色} other{柔和}}",

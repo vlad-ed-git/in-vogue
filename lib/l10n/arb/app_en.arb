@@ -768,14 +768,6 @@
   "@makeupStepsArriving": {
     "description": "Below the title while the makeup look is being made."
   },
-  "getMyMakeup": "Get my makeup",
-  "@getMyMakeup": {
-    "description": "Starts making the first makeup look."
-  },
-  "getMakeupForOutfit": "Get makeup for this outfit",
-  "@getMakeupForOutfit": {
-    "description": "Starts making a makeup look for the outfit now on Home."
-  },
   "makeupStepCount": "{count, select, three{Three steps} four{Four steps} five{Five steps} six{Six steps} other{The steps}}",
   "@makeupStepCount": {
     "description": "Heading above the makeup steps; count is the number of steps in words: three, four, five or six.",

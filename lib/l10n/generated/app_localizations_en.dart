@@ -733,12 +733,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get makeupStepsArriving => 'Your steps appear as each one is ready.';
 
   @override
-  String get getMyMakeup => 'Get my makeup';
-
-  @override
-  String get getMakeupForOutfit => 'Get makeup for this outfit';
-
-  @override
   String makeupStepCount(String count) {
     String _temp0 = intl.Intl.selectLogic(count, {
       'three': 'Three steps',

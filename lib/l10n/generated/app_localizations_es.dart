@@ -735,12 +735,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get makeupStepsArriving => 'Cada paso aparece en cuanto está listo.';
 
   @override
-  String get getMyMakeup => 'Crear mi maquillaje';
-
-  @override
-  String get getMakeupForOutfit => 'Crear maquillaje para este conjunto';
-
-  @override
   String makeupStepCount(String count) {
     String _temp0 = intl.Intl.selectLogic(count, {
       'three': 'Tres pasos',

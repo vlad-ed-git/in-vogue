@@ -186,8 +186,6 @@
   "makeupUnavailable": "El maquillaje aún no está disponible en esta versión.",
   "makeupFor": "{day, select, today{Maquillaje para hoy} other{Maquillaje para mañana}}",
   "makeupStepsArriving": "Cada paso aparece en cuanto está listo.",
-  "getMyMakeup": "Crear mi maquillaje",
-  "getMakeupForOutfit": "Crear maquillaje para este conjunto",
   "makeupStepCount": "{count, select, three{Tres pasos} four{Cuatro pasos} five{Cinco pasos} six{Seis pasos} other{Los pasos}}",
   "cheekColour": "{colour, select, soft_pink{rosa suave} peach{melocotón} rose{rosa} terracotta{terracota} other{suave}}",
   "lipColour": "{colour, select, nude{nude} rosy_nude{rosa nude} rose{rosa} terracotta{terracota} red{rojo} berry{baya} brick{rojo ladrillo} other{suave}}",

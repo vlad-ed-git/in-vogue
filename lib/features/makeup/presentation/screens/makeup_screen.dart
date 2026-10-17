@@ -14,11 +14,12 @@ import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/photos/presentation/widgets/photo_notices.dart';
 
 /// The Makeup tab: the look for the outfit of the day shown, with its
-/// steps on the person's own face; or the face photo and a way to get the
-/// look, with the last look below.
+/// steps on the person's own face; or the face photo, or the way to add
+/// one, with the last look below.
 ///
-/// Its [PhotoBloc] is the face photo's: Get my makeup keeps a chosen photo
-/// first, then asks for the look.
+/// Its [PhotoBloc] is the face photo's: a photo chosen here is kept at
+/// once, and a face photo newly kept, here or elsewhere, asks for the
+/// look.
 class MakeupScreen extends StatelessWidget {
   const MakeupScreen({required this.onPicture, super.key});
 
@@ -31,13 +32,27 @@ class MakeupScreen extends StatelessWidget {
   static const _faceAlignment = Alignment(0, -0.4);
 
   @override
-  Widget build(BuildContext context) => BlocListener<PhotoBloc, PhotoState>(
-    listenWhen: (previous, current) => previous.status != current.status,
-    listener: (context, photo) {
-      if (photo.status == PhotoStatus.confirmed) {
-        context.read<MakeupBloc>().add(const MakeupRequested());
-      }
-    },
+  Widget build(BuildContext context) => MultiBlocListener(
+    listeners: [
+      BlocListener<PhotoBloc, PhotoState>(
+        listenWhen: (previous, current) =>
+            current.status == PhotoStatus.chosen &&
+            !current.isKept &&
+            !current.busy &&
+            current.failure == null &&
+            previous != current,
+        listener: (context, photo) =>
+            context.read<PhotoBloc>().add(const PhotoConfirmed()),
+      ),
+      BlocListener<PhotoBloc, PhotoState>(
+        listenWhen: (previous, current) =>
+            current.isKept &&
+            current.path != null &&
+            (!previous.isKept || previous.path != current.path),
+        listener: (context, photo) =>
+            context.read<MakeupBloc>().add(const MakeupRequested()),
+      ),
+    ],
     child: BlocBuilder<MakeupBloc, MakeupState>(
       builder: (context, state) => BlocBuilder<PhotoBloc, PhotoState>(
         builder: (context, photo) => SafeArea(
@@ -148,18 +163,6 @@ class MakeupScreen extends StatelessWidget {
         ),
       ],
       PhotoNotices(photo),
-      if (day.outfit != null && path != null)
-        Padding(
-          padding: const EdgeInsets.only(top: InVogueSpace.s6),
-          child: InVogueButton.primary(
-            label: state.lastLook == null
-                ? l10n.getMyMakeup
-                : l10n.getMakeupForOutfit,
-            onPressed: photo.busy
-                ? null
-                : () => context.read<PhotoBloc>().add(const PhotoConfirmed()),
-          ),
-        ),
       if (state.failure case final failure?) _gap(_failed(context, failure)),
     ];
   }

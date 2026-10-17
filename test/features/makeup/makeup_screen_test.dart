@@ -213,30 +213,26 @@ void main() {
     );
     expect(find.text('Preparing'), findsNWidgets(2));
     expect(find.text('Before'), findsNothing);
-    expect(find.text('Get my makeup'), findsNothing);
+    expect(find.byType(InVogueButton), findsNothing);
   });
 
-  testWidgets('asks for a face photo, then Get my makeup keeps it', (
-    tester,
-  ) async {
+  testWidgets('asks for a face photo', (tester) async {
     await pumpScreen(tester, state: ready(), faceState: const PhotoState());
     expect(find.text('Add a face photo'), findsOneWidget);
     expect(find.text('Your makeup is made on your own face.'), findsOneWidget);
-    expect(find.text('Get my makeup'), findsNothing);
     await _tapInView(tester, _button('Choose from Photos'));
     verify(() => face.add(const PhotoChooseRequested())).called(1);
   });
 
-  testWidgets('keeps a chosen photo on Get my makeup', (tester) async {
+  testWidgets('keeps a chosen face photo at once', (tester) async {
     await pumpScreen(
       tester,
       state: ready(),
-      faceState: const PhotoState(
-        status: PhotoStatus.chosen,
-        path: '/tmp/face.jpg',
+      faceState: const PhotoState(),
+      faceStates: Stream.value(
+        const PhotoState(status: PhotoStatus.chosen, path: '/tmp/face.jpg'),
       ),
     );
-    await _tapInView(tester, _button('Get my makeup'));
     verify(() => face.add(const PhotoConfirmed())).called(1);
     verifyNever(() => makeup.add(any()));
   });
@@ -271,6 +267,29 @@ void main() {
     );
   });
 
+  testWidgets('asks for the look when a face photo added elsewhere shows', (
+    tester,
+  ) async {
+    await pumpScreen(
+      tester,
+      state: ready(),
+      faceState: const PhotoState(),
+      faceStates: Stream.value(_keptFace),
+    );
+    verify(() => makeup.add(const MakeupRequested())).called(1);
+  });
+
+  testWidgets('asks nothing again when the same face photo shows again', (
+    tester,
+  ) async {
+    await pumpScreen(
+      tester,
+      state: ready(),
+      faceStates: Stream.value(_keptFace),
+    );
+    verifyNever(() => makeup.add(any()));
+  });
+
   testWidgets('asks for the look once the face photo is kept', (tester) async {
     await pumpScreen(
       tester,
@@ -290,15 +309,14 @@ void main() {
     verify(() => makeup.add(const MakeupRequested())).called(1);
   });
 
-  testWidgets('offers makeup for a new outfit above the last look', (
+  testWidgets('shows the last look below the face photo, with no button', (
     tester,
   ) async {
     await pumpScreen(
       tester,
       state: ready(lastLook: _look(date: DateTime.utc(2026, 10, 16))),
     );
-    expect(find.text('Get makeup for this outfit'), findsOneWidget);
-    expect(find.text('Get my makeup'), findsNothing);
+    expect(find.byType(InVogueButton), findsNothing);
     expect(find.text('Your last look'), findsOneWidget);
     expect(find.text('Work · Fri 16 Oct'), findsOneWidget);
     expect(find.text('Three steps'), findsOneWidget);

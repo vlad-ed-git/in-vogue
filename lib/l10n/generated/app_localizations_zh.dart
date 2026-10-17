@@ -692,12 +692,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get makeupStepsArriving => '每一步完成后就会出现在这里。';
 
   @override
-  String get getMyMakeup => '生成我的妆容';
-
-  @override
-  String get getMakeupForOutfit => '为这套穿搭生成妆容';
-
-  @override
   String makeupStepCount(String count) {
     String _temp0 = intl.Intl.selectLogic(count, {
       'three': '三个步骤',

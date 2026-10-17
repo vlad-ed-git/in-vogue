@@ -1221,18 +1221,6 @@ abstract class AppLocalizations {
   /// **'Your steps appear as each one is ready.'**
   String get makeupStepsArriving;
 
-  /// Starts making the first makeup look.
-  ///
-  /// In en, this message translates to:
-  /// **'Get my makeup'**
-  String get getMyMakeup;
-
-  /// Starts making a makeup look for the outfit now on Home.
-  ///
-  /// In en, this message translates to:
-  /// **'Get makeup for this outfit'**
-  String get getMakeupForOutfit;
-
   /// Heading above the makeup steps; count is the number of steps in words: three, four, five or six.
   ///
   /// In en, this message translates to:
