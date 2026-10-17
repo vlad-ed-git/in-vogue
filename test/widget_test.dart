@@ -166,6 +166,7 @@ void main() {
             days: MockDayRepository(),
             makeup: MockMakeupRepository(),
             makeupJobs: MockMakeupJobRepository(),
+            widget: const UnavailableHomeWidgetRepository(),
           ),
         ),
       )

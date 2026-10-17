@@ -9,6 +9,7 @@ import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
+import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
 import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
 import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
@@ -35,6 +36,7 @@ const _done = Right<Failure, Unit>(unit);
   TryOnJobRepository,
   MakeupRepository,
   MakeupJobRepository,
+  HomeWidgetRepository,
 ])
 void main() {
   late MockAuthRepository auth;
@@ -47,6 +49,7 @@ void main() {
   late MockTryOnJobRepository jobs;
   late MockMakeupRepository makeup;
   late MockMakeupJobRepository makeupJobs;
+  late MockHomeWidgetRepository widget;
   late DeleteAccount delete;
 
   setUp(() {
@@ -60,6 +63,7 @@ void main() {
     jobs = MockTryOnJobRepository();
     makeup = MockMakeupRepository();
     makeupJobs = MockMakeupJobRepository();
+    widget = MockHomeWidgetRepository();
     delete = DeleteAccount(
       auth: auth,
       account: account,
@@ -71,6 +75,7 @@ void main() {
       jobs: jobs,
       makeup: makeup,
       makeupJobs: makeupJobs,
+      widget: widget,
     );
     when(
       auth.currentAccount(),
@@ -86,6 +91,7 @@ void main() {
     when(jobs.clearAccount(any)).thenAnswer((_) async => _done);
     when(makeup.forgetPictures(any)).thenAnswer((_) async => _done);
     when(makeupJobs.clearAccount(any)).thenAnswer((_) async => _done);
+    when(widget.clear()).thenAnswer((_) async => _done);
   });
 
   void verifyPhoneKept() {
@@ -95,6 +101,7 @@ void main() {
     verifyNever(location.forget());
     verifyNever(days.forgetPictures(any));
     verifyNever(makeup.forgetPictures(any));
+    verifyNever(widget.clear());
   }
 
   test(
@@ -114,6 +121,7 @@ void main() {
         jobs.clearAccount('uid-1'),
         makeup.forgetPictures('uid-1'),
         makeupJobs.clearAccount('uid-1'),
+        widget.clear(),
       ]);
     },
   );

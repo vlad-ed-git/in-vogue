@@ -24,6 +24,12 @@ import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart'
     as _i3;
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart'
     as _i16;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart'
+    as _i32;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
+    as _i33;
+import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart'
+    as _i31;
 import 'package:in_vogue/features/location/domain/entities/user_location.dart'
     as _i19;
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart'
@@ -1115,4 +1121,58 @@ class MockMakeupJobRepository extends _i1.Mock
             ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+}
+
+/// A class which mocks [HomeWidgetRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockHomeWidgetRepository extends _i1.Mock
+    implements _i31.HomeWidgetRepository {
+  MockHomeWidgetRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<bool> requestPin() =>
+      (super.noSuchMethod(
+            Invocation.method(#requestPin, []),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> publish(
+    _i32.WidgetContent? content,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#publish, [content]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#publish, [content]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> clear() =>
+      (super.noSuchMethod(
+            Invocation.method(#clear, []),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#clear, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Stream<_i33.WidgetTap> taps() =>
+      (super.noSuchMethod(
+            Invocation.method(#taps, []),
+            returnValue: _i4.Stream<_i33.WidgetTap>.empty(),
+          )
+          as _i4.Stream<_i33.WidgetTap>);
 }

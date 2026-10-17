@@ -61,6 +61,7 @@ void init(GetIt locator) {
         jobs: locator(),
         makeup: locator(),
         makeupJobs: locator(),
+        widget: locator(),
       ),
     )
     ..registerFactory<DeleteAccountBloc>(

@@ -14,6 +14,12 @@ import 'package:in_vogue/features/auth/domain/entities/sign_in_method.dart'
     as _i7;
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart'
     as _i3;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart'
+    as _i19;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
+    as _i20;
+import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart'
+    as _i18;
 import 'package:in_vogue/features/makeup/domain/entities/makeup_job.dart'
     as _i17;
 import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart'
@@ -678,4 +684,58 @@ class MockMakeupJobRepository extends _i1.Mock
             ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+}
+
+/// A class which mocks [HomeWidgetRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockHomeWidgetRepository extends _i1.Mock
+    implements _i18.HomeWidgetRepository {
+  MockHomeWidgetRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<bool> requestPin() =>
+      (super.noSuchMethod(
+            Invocation.method(#requestPin, []),
+            returnValue: _i4.Future<bool>.value(false),
+          )
+          as _i4.Future<bool>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> publish(
+    _i19.WidgetContent? content,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#publish, [content]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#publish, [content]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> clear() =>
+      (super.noSuchMethod(
+            Invocation.method(#clear, []),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#clear, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Stream<_i20.WidgetTap> taps() =>
+      (super.noSuchMethod(
+            Invocation.method(#taps, []),
+            returnValue: _i4.Stream<_i20.WidgetTap>.empty(),
+          )
+          as _i4.Stream<_i20.WidgetTap>);
 }

@@ -33,6 +33,7 @@ void init(GetIt locator) {
         days: locator(),
         makeup: locator(),
         makeupJobs: locator(),
+        widget: locator(),
       ),
     )
     ..registerFactory<SignInBloc>(

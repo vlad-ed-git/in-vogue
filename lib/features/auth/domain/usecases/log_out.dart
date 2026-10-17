@@ -3,14 +3,15 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
+import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
 import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
 
 /// Signs out, then forgets what the phone keeps for the account: its outfit
-/// and makeup pictures, and its name, so the next account brings its own.
-/// The body and face photos and the picks stay.
+/// and makeup pictures, what the widget shows, and its name, so the next
+/// account brings its own. The body and face photos and the picks stay.
 class LogOut implements UseCase<Unit, NoParams> {
   const LogOut({
     required this._auth,
@@ -18,6 +19,7 @@ class LogOut implements UseCase<Unit, NoParams> {
     required this._days,
     required this._makeup,
     required this._makeupJobs,
+    required this._widget,
   });
 
   final AuthRepository _auth;
@@ -25,6 +27,7 @@ class LogOut implements UseCase<Unit, NoParams> {
   final DayRepository _days;
   final MakeupRepository _makeup;
   final MakeupJobRepository _makeupJobs;
+  final HomeWidgetRepository _widget;
 
   @override
   Future<Either<Failure, Unit>> call(NoParams params) async {
@@ -40,6 +43,7 @@ class LogOut implements UseCase<Unit, NoParams> {
       await _days.forgetPictures(account.id);
       await _makeup.forgetPictures(account.id);
       await _makeupJobs.clearAccount(account.id);
+      await _widget.clear();
     }
     return _profile.clearName();
   }
