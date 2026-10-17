@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `feat/skip_refused_outfit`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `fix/favourites_across_phones`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -105,7 +105,7 @@ At the end of every task:
 
 ## 2. What is built
 
-Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 761 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 764 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
 
 ### 2.1 What a person can do today
 
@@ -126,7 +126,7 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 - **Outfits.** 1,749 ready-made outfits from the knowledge base are bundled in the app, sorted into 96 *cells* (a weather class combined with an occasion). For each day the app picks one: outfits never suggested come first, scored 80% on the knowledge base's rank and 20% on how many of the pieces you loved; after that, the one suggested longest ago. It then *claims* the day in Firestore in an all-or-nothing write (a transaction), so two phones, or today and tomorrow, never clash. YouCam then dresses the person **piece by piece**: bottom, then top, then outer layer; a dress goes in one pass. Progress is saved after each piece. Another phone takes over if nothing changes for 10 minutes, and an interrupted job resumes within 2 hours. If YouCam refuses a piece's photo (`error_invalid_ref`), that piece is recorded on the outfit's suggestion, no outfit with it is chosen again, and the day switches to another outfit in the same claim transaction; after 3 refused outfits in one making, or with none left, the day shows the failure, and Try again takes another outfit (added October 17). The finished picture is kept on the phone and in Firebase Storage.
 - **Makeup.** YouCam reads the face's colours once per face photo, and the result is kept in Firestore under the photo's fingerprint. The app turns those colours into a skin profile (shade group and contrast) and picks one of 720 recipes, chosen by occasion, outfit palette, shade, contrast and weather. YouCam then applies each step on top of the previous step's picture. Skin smoothing is always off.
 - **Photo rules.** Every chosen photo is checked. If it's too small, the app asks for another. If it isn't JPEG or PNG, it is converted to PNG and the app shows a note. If it's too big, it is scaled down. There is no face or body detection.
-- **Account.** The profile, favourites, photos and records live in Firestore (Firebase's database) and Storage (Firebase's file store) under `users/{uid}`. Each person can reach only their own data, and nobody can change their own `plan`: a new account starts with no plan or the demo plan, and only the console changes it (October 17). The rules are deployed to `in-vogue-dev`. A returning person gets their name, face photo and favourites back at sign-in. Saving never wipes favourites, and photos are replaced only when their content changes. **Every new account is created on the Pro plan** (set in `features/account/data/models/account_model.dart`).
+- **Account.** The profile, favourites, photos and records live in Firestore (Firebase's database) and Storage (Firebase's file store) under `users/{uid}`. Each person can reach only their own data, and nobody can change their own `plan`: a new account starts with no plan or the demo plan, and only the console changes it (October 17). The rules are deployed to `in-vogue-dev`. A returning person gets their name, face photo and favourites back at sign-in. Saving never wipes favourites, and photos are replaced only when their content changes. Favourites follow the account across phones: each save merges with what that phone last saved, so a favourite unloved on one phone stays gone on the others, and each phone picks up the others' loves and unloves at its next save (sign-in or a new day's outfit; added October 17). **Every new account is created on the Pro plan** (set in `features/account/data/models/account_model.dart`).
 - **Weather.** Open-Meteo (no key), cached for 2 days. Offline, the app shows the saved forecast with a note. °F in the US, °C elsewhere.
 - **Foundation.** Two flavors: development uses `in-vogue-dev` and production uses `in-vogue`, with a startup check that the flavor and project match. Hive and SQLite on the phone. The design system in `lib/core/presentation/` (tokens, theme, 28 components) matches the spec, including the curtain reveal of a new outfit. Launcher icons are made from the logo. Errors are logged only in debug builds (`LogMessagesImpl`), so release builds report nothing yet.
 - **Data tools.** These live outside the app, in `resources/`: the Everlane catalog pull (from Shopify's Global Catalog), the knowledge base (weather, occasions, styling, outfits, skin, makeup, YouCam reference) and their Python builders. `in-vogue/scripts/export_*.py` copies what the app needs into `assets/`.
@@ -141,7 +141,8 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `feat/settings_profile_initial` | Everything in `feat/makeup`, plus Settings' default profile picture | Not merged, not pushed |
 | `feat/logout_clears_pictures` | Everything in `feat/settings_profile_initial`, plus log out clearing the phone's outfit and makeup pictures | Not merged, not pushed |
 | `fix/plan_rules` | Everything in `feat/logout_clears_pictures`, plus Firestore rules that stop a person changing their own plan (deployed to `in-vogue-dev`) | Not merged, not pushed |
-| **`feat/skip_refused_outfit`** (current) | Everything in `fix/plan_rules`, plus switching to another outfit when YouCam refuses a piece's photo | Not merged, not pushed |
+| `feat/skip_refused_outfit` | Everything in `fix/plan_rules`, plus switching to another outfit when YouCam refuses a piece's photo | Not merged, not pushed |
+| **`fix/favourites_across_phones`** (current) | Everything in `feat/skip_refused_outfit`, plus favourites that stay unloved across phones | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -170,7 +171,6 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 - [ ] **"Other outfits" on Home** (Pro: up to 3 more outfits a day; tapping one swaps it in at once). *Blocked on an owner decision.* Home's switch became Today / Tomorrow / Outfits on October 16, and each extra outfit is a full try-on (4–6 units).
 - [ ] **Translate the knowledge base's texts** (makeup step titles, how-tos and product kinds, and outfit reasons) into Spanish and Chinese. *Pending; owner to-do from October 17.*
 - [ ] **Holiday and evening occasions.** *Blocked on owner input.* Public holidays should count as casual days, which needs a dated holiday list for each supported country. Still open: whether evenings default to Staying in (Monday to Thursday) and Going out (Friday to Sunday).
-- [ ] **Favourites across phones.** A favourite removed on one phone can come back from another. *Pending, low priority.*
 - [ ] **Trim the on-screen wording.** *The owner leads this;* they find the copy too wordy.
 
 **Production readiness**
