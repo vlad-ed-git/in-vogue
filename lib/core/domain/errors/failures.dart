@@ -45,6 +45,18 @@ final class LocationFailure extends Failure {
   List<Object?> get props => [problem];
 }
 
+/// Why a photo cannot be used.
+enum PhotoProblem {
+  /// It could not be chosen or opened.
+  unreadable,
+
+  /// It is smaller than YouCam needs.
+  tooSmall,
+
+  /// It could not be read, or changed to a format YouCam takes.
+  unusable,
+}
+
 /// A photo could not be chosen or read.
 final class PhotoFailure extends Failure {
   const PhotoFailure();

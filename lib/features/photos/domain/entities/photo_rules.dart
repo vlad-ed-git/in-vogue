@@ -23,7 +23,12 @@ abstract final class PhotoRules {
     };
   }
 
-  /// Whether a [width] × [height] photo of [bytes] is within the limits.
-  static bool fits(int width, int height, int bytes) =>
-      math.max(width, height) <= maxSide && bytes < maxBytes;
+  /// Whether a [width] × [height] photo of [bytes] is within the limits,
+  /// staying under [byteLimit].
+  static bool fits(
+    int width,
+    int height,
+    int bytes, {
+    int byteLimit = maxBytes,
+  }) => math.max(width, height) <= maxSide && bytes < byteLimit;
 }
