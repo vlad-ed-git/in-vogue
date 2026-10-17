@@ -56,7 +56,7 @@ class SettingsRow extends StatelessWidget {
        icon = null,
        onTap = null;
 
-  /// A whole-row action with an ink icon, such as Log out.
+  /// A whole-row action in Rouge with its icon, such as Log out.
   const SettingsRow.command({
     required this.title,
     required IconData this.icon,
@@ -87,7 +87,7 @@ class SettingsRow extends StatelessWidget {
         onTap: onTap,
       );
 
-  /// Delete account, in the ink alert colour.
+  /// Delete account.
   static SettingsRow deleteAccount(BuildContext context, VoidCallback onTap) =>
       SettingsRow.command(
         title: context.translated.deleteAccount,
@@ -109,12 +109,12 @@ class SettingsRow extends StatelessWidget {
         if (icon != null)
           Row(
             children: [
-              Icon(icon!, size: 20, color: InVogueColors.alert),
+              Icon(icon!, size: 20, color: InVogueColors.signal),
               const SizedBox(width: 6),
               Flexible(
                 child: Text(
                   title,
-                  style: InVogueType.item.copyWith(color: InVogueColors.alert),
+                  style: InVogueType.item.copyWith(color: InVogueColors.signal),
                 ),
               ),
             ],

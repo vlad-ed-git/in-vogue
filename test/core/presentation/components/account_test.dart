@@ -119,7 +119,7 @@ void main() {
       semantics.dispose();
     });
 
-    testWidgets('log out and delete are whole-row ink commands', (
+    testWidgets('log out and delete are whole-row Rouge commands', (
       tester,
     ) async {
       final taps = <String>[];
@@ -134,16 +134,15 @@ void main() {
           ),
         ),
       );
-      expect(findIcon(InVogueIcons.signOut), findsOneWidget);
-      expect(
-        tester.widget<Icon>(findIcon(InVogueIcons.trash)).color,
-        InVogueColors.ink,
-        reason: 'no red',
-      );
-      expect(
-        tester.widget<Text>(find.text('Delete account')).style!.color,
-        InVogueColors.ink,
-      );
+      for (final icon in [InVogueIcons.signOut, InVogueIcons.trash]) {
+        expect(tester.widget<Icon>(findIcon(icon)).color, InVogueColors.signal);
+      }
+      for (final title in ['Log out', 'Delete account']) {
+        expect(
+          tester.widget<Text>(find.text(title)).style!.color,
+          InVogueColors.signal,
+        );
+      }
       await tester.tap(find.byType(SettingsRow).first);
       await tester.tapAt(
         tester.getCenter(find.byType(SettingsRow).last) + const Offset(120, 0),
