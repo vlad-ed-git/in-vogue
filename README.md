@@ -256,7 +256,7 @@ and remain separate from simulator/debug build verification.
 
 ## Workspace references
 
-Rules, status, what's left and the system design are in **`../AGENTS.md`**. Existing
+Rules, status, what's left and the system design are in **`AGENTS.md`**. Existing
 catalog, knowledge base, and their Python tools live under **`../resources/`** and
 are not part of the Flutter package or this app-local Git repository. Utano was
 studied as a read-only reference; its data and credentials were not copied.
