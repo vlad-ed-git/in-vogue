@@ -12,7 +12,7 @@ import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.d
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
 import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
 import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
+import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -31,7 +31,7 @@ const _done = Right<Failure, Unit>(unit);
   PicksRepository,
   ProfileRepository,
   LocationRepository,
-  OutfitRepository,
+  DayRepository,
   TryOnJobRepository,
   MakeupRepository,
   MakeupJobRepository,
@@ -43,7 +43,7 @@ void main() {
   late MockPicksRepository picks;
   late MockProfileRepository profile;
   late MockLocationRepository location;
-  late MockOutfitRepository outfits;
+  late MockDayRepository days;
   late MockTryOnJobRepository jobs;
   late MockMakeupRepository makeup;
   late MockMakeupJobRepository makeupJobs;
@@ -56,7 +56,7 @@ void main() {
     picks = MockPicksRepository();
     profile = MockProfileRepository();
     location = MockLocationRepository();
-    outfits = MockOutfitRepository();
+    days = MockDayRepository();
     jobs = MockTryOnJobRepository();
     makeup = MockMakeupRepository();
     makeupJobs = MockMakeupJobRepository();
@@ -67,7 +67,7 @@ void main() {
       picks: picks,
       profile: profile,
       location: location,
-      outfits: outfits,
+      days: days,
       jobs: jobs,
       makeup: makeup,
       makeupJobs: makeupJobs,
@@ -82,7 +82,7 @@ void main() {
     when(picks.clear()).thenAnswer((_) async => _done);
     when(profile.clearName()).thenAnswer((_) async => _done);
     when(location.forget()).thenAnswer((_) async => _done);
-    when(outfits.forgetPictures(any)).thenAnswer((_) async => _done);
+    when(days.forgetPictures(any)).thenAnswer((_) async => _done);
     when(jobs.clearAccount(any)).thenAnswer((_) async => _done);
     when(makeup.forgetPictures(any)).thenAnswer((_) async => _done);
     when(makeupJobs.clearAccount(any)).thenAnswer((_) async => _done);
@@ -93,6 +93,7 @@ void main() {
     verifyNever(picks.clear());
     verifyNever(profile.clearName());
     verifyNever(location.forget());
+    verifyNever(days.forgetPictures(any));
     verifyNever(makeup.forgetPictures(any));
   }
 
@@ -109,7 +110,7 @@ void main() {
         picks.clear(),
         profile.clearName(),
         location.forget(),
-        outfits.forgetPictures('uid-1'),
+        days.forgetPictures('uid-1'),
         jobs.clearAccount('uid-1'),
         makeup.forgetPictures('uid-1'),
         makeupJobs.clearAccount('uid-1'),

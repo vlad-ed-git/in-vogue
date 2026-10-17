@@ -8,7 +8,7 @@ import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.d
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
 import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
 import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
+import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -26,7 +26,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     required this._picks,
     required this._profile,
     required this._location,
-    required this._outfits,
+    required this._days,
     required this._jobs,
     required this._makeup,
     required this._makeupJobs,
@@ -38,7 +38,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
   final PicksRepository _picks;
   final ProfileRepository _profile;
   final LocationRepository _location;
-  final OutfitRepository _outfits;
+  final DayRepository _days;
   final TryOnJobRepository _jobs;
   final MakeupRepository _makeup;
   final MakeupJobRepository _makeupJobs;
@@ -66,7 +66,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     await _picks.clear();
     await _profile.clearName();
     await _location.forget();
-    await _outfits.forgetPictures(signedIn.id);
+    await _days.forgetPictures(signedIn.id);
     await _jobs.clearAccount(signedIn.id);
     await _makeup.forgetPictures(signedIn.id);
     await _makeupJobs.clearAccount(signedIn.id);

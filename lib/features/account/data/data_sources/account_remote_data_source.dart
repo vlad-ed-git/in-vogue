@@ -145,7 +145,8 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
   /// Collections under an account document.
   static const _collections = [
     'wishlist',
-    'outfits',
+    'days',
+    'suggestions',
     'makeupLooks',
     'colorProfiles',
   ];
@@ -153,10 +154,13 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
   @override
   Future<void> deleteAccount(String accountId) => _guard(() async {
     for (final name in _collections) {
-      final documents = await _account(accountId).collection(name).get();
-      for (var start = 0; start < documents.docs.length; start += batchSize) {
+      final collection = _account(accountId).collection(name);
+      // A page at a time, however many documents there are.
+      while (true) {
+        final page = await collection.limit(batchSize).get();
+        if (page.docs.isEmpty) break;
         final batch = _firestore.batch();
-        for (final document in documents.docs.skip(start).take(batchSize)) {
+        for (final document in page.docs) {
           batch.delete(document.reference);
         }
         await batch.commit();

@@ -42,7 +42,7 @@ void init(GetIt locator) {
         picks: locator(),
         profile: locator(),
         location: locator(),
-        outfits: locator(),
+        days: locator(),
         jobs: locator(),
         makeup: locator(),
         makeupJobs: locator(),
