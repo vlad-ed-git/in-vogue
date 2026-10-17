@@ -248,7 +248,7 @@ reloads persisted preferences.
 Use a test installation: it changes the language and clears its disposable cache.
 Verification is local. Do not add Git-hosted workflows or CI/CD setup; this is an explicit owner requirement.
 
-Development release APKs can use the debug key for demos. Production releases
+Development release APKs can use the debug key. Production releases
 remain unsigned until you create the ignored `android/key.properties` (see
 `android/key.properties.example`) pointing to your release keystore. iOS device
 signing and TestFlight distribution require the owner’s Apple team/provisioning
@@ -256,7 +256,7 @@ and remain separate from simulator/debug build verification.
 
 ## Workspace references
 
-The resumable product/engineering checkpoint is **`../checkpoint.md`**. Existing
+Rules, status, what's left and the system design are in **`../AGENTS.md`**. Existing
 catalog, knowledge base, and their Python tools live under **`../resources/`** and
 are not part of the Flutter package or this app-local Git repository. Utano was
 studied as a read-only reference; its data and credentials were not copied.
