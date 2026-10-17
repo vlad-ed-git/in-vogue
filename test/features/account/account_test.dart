@@ -13,8 +13,10 @@ import 'package:in_vogue/features/account/data/models/account_model.dart';
 import 'package:in_vogue/features/account/data/repositories/account_repository_impl.dart';
 import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart';
+import 'package:in_vogue/features/account/domain/entities/saved_account.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
 import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
+import 'package:in_vogue/features/account/domain/usecases/restore_from_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
@@ -27,6 +29,7 @@ import 'package:in_vogue/features/photos/domain/repositories/photo_repository.da
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:path/path.dart' as p;
 
 import '../auth/sign_in_bloc_test.mocks.dart';
 import 'account_test.mocks.dart';
@@ -209,9 +212,12 @@ void main() {
         face: face,
         picks: const {'everlane:a', 'everlane:b'},
       );
+      final downloads = Directory.systemTemp.createTempSync('downloads');
+      addTearDown(() => downloads.deleteSync(recursive: true));
       remote = MockAccountRemoteDataSource();
       repository = AccountRepositoryImpl(
         remoteDataSource: remote,
+        downloadsDirectory: downloads.path,
         logMessages: LogMessagesImpl(),
       );
       when(remote.readAccount(any)).thenAnswer((_) async => null);
@@ -488,6 +494,51 @@ void main() {
       verifyNever(remote.writeAccount(any, any, created: anyNamed('created')));
     });
 
+    test('reads what a returning person can take back', () async {
+      expect(
+        await repository.saved('uid-1'),
+        const Right<Failure, SavedAccount?>(null),
+      );
+      when(remote.readAccount(any)).thenAnswer(
+        (_) async => {
+          'name': 'Maya',
+          'photos': {
+            'face': {'path': 'users/uid-1/photos/face-2.png', 'revision': 2},
+          },
+        },
+      );
+      when(remote.wishlist(any)).thenAnswer((_) async => {'everlane:c'});
+      expect(
+        await repository.saved('uid-1'),
+        const Right<Failure, SavedAccount?>(
+          SavedAccount(
+            name: 'Maya',
+            face: 'users/uid-1/photos/face-2.png',
+            favourites: {'everlane:c'},
+          ),
+        ),
+      );
+    });
+
+    test('downloads an account photo onto the phone', () async {
+      when(
+        remote.downloadPhoto('users/uid-1/photos/face-2.png'),
+      ).thenAnswer((_) async => utf8.encode('face two'));
+      final downloaded = await repository.downloadPhoto(
+        'users/uid-1/photos/face-2.png',
+      );
+      final file = downloaded.getOrElse(() => throw StateError('$downloaded'));
+      expect(p.basename(file), 'face-2.png');
+      expect(File(file).readAsStringSync(), 'face two');
+      when(
+        remote.downloadPhoto(any),
+      ).thenThrow(NetworkException(Exception('offline'), StackTrace.current));
+      expect(
+        await repository.downloadPhoto('users/uid-1/photos/face-2.png'),
+        const Left<Failure, String>(NetworkFailure()),
+      );
+    });
+
     test('knows whether the account has been saved', () async {
       expect(
         await repository.exists('uid-1'),
@@ -609,6 +660,120 @@ void main() {
       expect(await save('uid-1'), const Left<Failure, Unit>(CacheFailure()));
       verifyNever(account.save(any, any));
     });
+  });
+
+  group('RestoreFromAccount', () {
+    late MockAccountRepository account;
+    late MockProfileRepository profile;
+    late MockPhotoRepository photos;
+    late MockPicksRepository picks;
+    late RestoreFromAccount restore;
+    const favourites = {'everlane:c', 'everlane:d'};
+
+    setUp(() {
+      account = MockAccountRepository();
+      profile = MockProfileRepository();
+      photos = MockPhotoRepository();
+      picks = MockPicksRepository();
+      restore = RestoreFromAccount(
+        account: account,
+        profile: profile,
+        photos: photos,
+        picks: picks,
+      );
+      when(account.saved('uid-1')).thenAnswer(
+        (_) async => const Right(
+          SavedAccount(
+            name: 'Maya',
+            face: 'users/uid-1/photos/face-2.png',
+            favourites: favourites,
+          ),
+        ),
+      );
+      when(
+        account.downloadPhoto(any),
+      ).thenAnswer((_) async => const Right('/downloads/face-2.png'));
+      when(profile.name()).thenAnswer((_) async => const Right(null));
+      when(profile.saveName(any)).thenAnswer(
+        (invocation) async =>
+            Right(invocation.positionalArguments.first as String),
+      );
+      when(
+        photos.kept(PhotoRole.face),
+      ).thenAnswer((_) async => const Right(null));
+      when(photos.keep(any, any)).thenAnswer((_) async => const Right(_face));
+      when(
+        picks.addPicks(any),
+      ).thenAnswer((_) async => const Right({'everlane:a', ...favourites}));
+      when(
+        picks.synced('uid-1'),
+      ).thenAnswer((_) async => const Right({'everlane:a'}));
+      when(
+        picks.markSynced(any, any),
+      ).thenAnswer((_) async => const Right(unit));
+    });
+
+    test(
+      "brings back a returning person's name, face photo and favourites",
+      () async {
+        expect(await restore('uid-1'), const Right<Failure, Unit>(unit));
+        verify(profile.saveName('Maya')).called(1);
+        verifyInOrder([
+          account.downloadPhoto('users/uid-1/photos/face-2.png'),
+          photos.keep('/downloads/face-2.png', PhotoRole.face),
+        ]);
+        verify(picks.addPicks(favourites)).called(1);
+        // The favourites are on the account, as are the picks saved before.
+        verify(
+          picks.markSynced('uid-1', {'everlane:a', ...favourites}),
+        ).called(1);
+      },
+    );
+
+    test('keeps the name and face photo already on the phone', () async {
+      when(profile.name()).thenAnswer((_) async => const Right('May'));
+      when(
+        photos.kept(PhotoRole.face),
+      ).thenAnswer((_) async => const Right(_face));
+      await restore('uid-1');
+      verifyNever(profile.saveName(any));
+      verifyNever(account.downloadPhoto(any));
+      verifyNever(photos.keep(any, any));
+      verify(picks.addPicks(favourites)).called(1);
+    });
+
+    test('changes nothing for a new account', () async {
+      when(account.saved(any)).thenAnswer((_) async => const Right(null));
+      expect(await restore('uid-1'), const Right<Failure, Unit>(unit));
+      verifyNever(profile.saveName(any));
+      verifyNever(photos.keep(any, any));
+      verifyNever(picks.addPicks(any));
+    });
+
+    test('says when the account cannot be read, changing nothing', () async {
+      when(
+        account.saved(any),
+      ).thenAnswer((_) async => const Left(NetworkFailure()));
+      expect(
+        await restore('uid-1'),
+        const Left<Failure, Unit>(NetworkFailure()),
+      );
+      verifyNever(profile.saveName(any));
+      verifyNever(picks.addPicks(any));
+    });
+
+    test(
+      'brings back the rest when the face photo cannot be downloaded',
+      () async {
+        when(
+          account.downloadPhoto(any),
+        ).thenAnswer((_) async => const Left(NetworkFailure()));
+        expect(await restore('uid-1'), const Right<Failure, Unit>(unit));
+        verifyNever(photos.keep(any, any));
+        verify(profile.saveName('Maya')).called(1);
+        verify(picks.addPicks(favourites)).called(1);
+      },
+    );
   });
 
   group('EnsureAccount', () {

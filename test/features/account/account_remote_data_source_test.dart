@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -84,5 +87,24 @@ void main() {
     expect((await someoneElse.get()).exists, isTrue);
     verify(photo.delete()).called(1);
     verify(picture.delete()).called(1);
+  });
+
+  test('downloads a photo, or says there is none', () async {
+    final face = MockReference();
+    when(storage.ref('users/uid-1/photos/face-2.png')).thenReturn(face);
+    when(
+      face.getData(any),
+    ).thenAnswer((_) async => Uint8List.fromList([1, 2, 3]));
+    expect(await remote.downloadPhoto('users/uid-1/photos/face-2.png'), [
+      1,
+      2,
+      3,
+    ]);
+    verify(face.getData(AccountRemoteDataSourceImpl.maxPhotoBytes)).called(1);
+    when(face.getData(any)).thenAnswer((_) async => null);
+    await expectLater(
+      remote.downloadPhoto('users/uid-1/photos/face-2.png'),
+      throwsA(isA<ServerException>()),
+    );
   });
 }

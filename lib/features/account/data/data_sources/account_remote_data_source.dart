@@ -32,6 +32,9 @@ abstract interface class AccountRemoteDataSource {
   /// Deletes the Storage object at [path].
   Future<void> deletePhoto(String path);
 
+  /// The bytes of the Storage object at [path].
+  Future<List<int>> downloadPhoto(String path);
+
   /// Ids of the colourways on the account's wishlist.
   Future<Set<String>> wishlist(String accountId);
 
@@ -58,6 +61,9 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
 
   /// Writes per batch, under Firestore's limit of 500.
   static const batchSize = 400;
+
+  /// The largest photo downloaded.
+  static const maxPhotoBytes = 10 * 1024 * 1024;
 
   /// Error codes that mean the server could not be reached.
   static const _offline = {
@@ -112,6 +118,18 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
   @override
   Future<void> deletePhoto(String path) =>
       _guard(() => _storage.ref(path).delete());
+
+  @override
+  Future<List<int>> downloadPhoto(String path) => _guard(() async {
+    final photo = await _storage.ref(path).getData(maxPhotoBytes);
+    if (photo == null) {
+      throw ServerException(
+        StateError('No photo at the path'),
+        StackTrace.current,
+      );
+    }
+    return photo;
+  });
 
   @override
   Future<Set<String>> wishlist(String accountId) => _guard(() async {

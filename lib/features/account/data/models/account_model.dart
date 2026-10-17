@@ -22,6 +22,12 @@ abstract final class AccountModel {
   static String photoPath(String accountId, UserPhoto photo) =>
       'users/$accountId/photos/${p.basename(photo.path)}';
 
+  /// The name recorded in an account document; null when there is none.
+  static String? nameFromJson(Object? json) => switch (json) {
+    {'name': final String name} when name.trim().isNotEmpty => name.trim(),
+    _ => null,
+  };
+
   /// The plan recorded in an account document; null when there is none.
   static AccountPlan? planFromJson(Object? json) => switch (json) {
     {'plan': final String plan} => AccountPlan.values.asNameMap()[plan],

@@ -7,12 +7,14 @@
 import 'dart:async' as _i4;
 
 import 'package:dartz/dartz.dart' as _i2;
-import 'package:in_vogue/core/domain/entities/occasion.dart' as _i21;
+import 'package:in_vogue/core/domain/entities/occasion.dart' as _i22;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
 import 'package:in_vogue/features/account/domain/entities/account_plan.dart'
     as _i9;
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart'
     as _i10;
+import 'package:in_vogue/features/account/domain/entities/saved_account.dart'
+    as _i11;
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart'
     as _i8;
 import 'package:in_vogue/features/auth/domain/entities/account.dart' as _i6;
@@ -21,40 +23,40 @@ import 'package:in_vogue/features/auth/domain/entities/sign_in_method.dart'
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart'
     as _i3;
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart'
-    as _i15;
-import 'package:in_vogue/features/location/domain/entities/user_location.dart'
-    as _i18;
-import 'package:in_vogue/features/location/domain/repositories/location_repository.dart'
-    as _i17;
-import 'package:in_vogue/features/makeup/domain/entities/makeup_job.dart'
-    as _i29;
-import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart'
-    as _i27;
-import 'package:in_vogue/features/makeup/domain/entities/makeup_recipe.dart'
-    as _i25;
-import 'package:in_vogue/features/makeup/domain/entities/skin_profile.dart'
-    as _i26;
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart'
-    as _i28;
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart'
-    as _i24;
-import 'package:in_vogue/features/outfits/domain/entities/day.dart' as _i20;
-import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart'
-    as _i23;
-import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart'
-    as _i19;
-import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart'
-    as _i22;
-import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart'
-    as _i12;
-import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
-    as _i13;
-import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
-    as _i14;
-import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart'
-    as _i11;
-import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart'
     as _i16;
+import 'package:in_vogue/features/location/domain/entities/user_location.dart'
+    as _i19;
+import 'package:in_vogue/features/location/domain/repositories/location_repository.dart'
+    as _i18;
+import 'package:in_vogue/features/makeup/domain/entities/makeup_job.dart'
+    as _i30;
+import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart'
+    as _i28;
+import 'package:in_vogue/features/makeup/domain/entities/makeup_recipe.dart'
+    as _i26;
+import 'package:in_vogue/features/makeup/domain/entities/skin_profile.dart'
+    as _i27;
+import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart'
+    as _i29;
+import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart'
+    as _i25;
+import 'package:in_vogue/features/outfits/domain/entities/day.dart' as _i21;
+import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart'
+    as _i24;
+import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart'
+    as _i20;
+import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart'
+    as _i23;
+import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart'
+    as _i13;
+import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
+    as _i14;
+import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
+    as _i15;
+import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart'
+    as _i12;
+import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart'
+    as _i17;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -219,67 +221,96 @@ class MockAccountRepository extends _i1.Mock implements _i8.AccountRepository {
             ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i11.SavedAccount?>> saved(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#saved, [accountId]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i11.SavedAccount?>>.value(
+                  _FakeEither_0<_i5.Failure, _i11.SavedAccount?>(
+                    this,
+                    Invocation.method(#saved, [accountId]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i11.SavedAccount?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, String>> downloadPhoto(String? path) =>
+      (super.noSuchMethod(
+            Invocation.method(#downloadPhoto, [path]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, String>>.value(
+              _FakeEither_0<_i5.Failure, String>(
+                this,
+                Invocation.method(#downloadPhoto, [path]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, String>>);
 }
 
 /// A class which mocks [PhotoRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPhotoRepository extends _i1.Mock implements _i11.PhotoRepository {
+class MockPhotoRepository extends _i1.Mock implements _i12.PhotoRepository {
   MockPhotoRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i12.ChosenPhoto?>> choose(
-    _i13.PhotoRole? role,
+  _i4.Future<_i2.Either<_i5.Failure, _i13.ChosenPhoto?>> choose(
+    _i14.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#choose, [role]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i12.ChosenPhoto?>>.value(
-                  _FakeEither_0<_i5.Failure, _i12.ChosenPhoto?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i13.ChosenPhoto?>>.value(
+                  _FakeEither_0<_i5.Failure, _i13.ChosenPhoto?>(
                     this,
                     Invocation.method(#choose, [role]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i12.ChosenPhoto?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i13.ChosenPhoto?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i14.UserPhoto>> keep(
+  _i4.Future<_i2.Either<_i5.Failure, _i15.UserPhoto>> keep(
     String? path,
-    _i13.PhotoRole? role,
+    _i14.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#keep, [path, role]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i14.UserPhoto>>.value(
-                  _FakeEither_0<_i5.Failure, _i14.UserPhoto>(
+                _i4.Future<_i2.Either<_i5.Failure, _i15.UserPhoto>>.value(
+                  _FakeEither_0<_i5.Failure, _i15.UserPhoto>(
                     this,
                     Invocation.method(#keep, [path, role]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i14.UserPhoto>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i15.UserPhoto>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i14.UserPhoto?>> kept(
-    _i13.PhotoRole? role,
+  _i4.Future<_i2.Either<_i5.Failure, _i15.UserPhoto?>> kept(
+    _i14.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#kept, [role]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i14.UserPhoto?>>.value(
-                  _FakeEither_0<_i5.Failure, _i14.UserPhoto?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i15.UserPhoto?>>.value(
+                  _FakeEither_0<_i5.Failure, _i15.UserPhoto?>(
                     this,
                     Invocation.method(#kept, [role]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i14.UserPhoto?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i15.UserPhoto?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> forget(_i13.PhotoRole? role) =>
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> forget(_i14.PhotoRole? role) =>
       (super.noSuchMethod(
             Invocation.method(#forget, [role]),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
@@ -295,7 +326,7 @@ class MockPhotoRepository extends _i1.Mock implements _i11.PhotoRepository {
 /// A class which mocks [PicksRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPicksRepository extends _i1.Mock implements _i15.PicksRepository {
+class MockPicksRepository extends _i1.Mock implements _i16.PicksRepository {
   MockPicksRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -356,6 +387,21 @@ class MockPicksRepository extends _i1.Mock implements _i15.PicksRepository {
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 
   @override
+  _i4.Future<_i2.Either<_i5.Failure, Set<String>>> addPicks(
+    Set<String>? colourwayIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#addPicks, [colourwayIds]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, Set<String>>>.value(
+              _FakeEither_0<_i5.Failure, Set<String>>(
+                this,
+                Invocation.method(#addPicks, [colourwayIds]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, Set<String>>>);
+
+  @override
   _i4.Future<_i2.Either<_i5.Failure, Set<String>>> setPick(
     String? colourwayId, {
     required bool? loved,
@@ -375,7 +421,7 @@ class MockPicksRepository extends _i1.Mock implements _i15.PicksRepository {
 /// A class which mocks [ProfileRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProfileRepository extends _i1.Mock implements _i16.ProfileRepository {
+class MockProfileRepository extends _i1.Mock implements _i17.ProfileRepository {
   MockProfileRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -424,13 +470,13 @@ class MockProfileRepository extends _i1.Mock implements _i16.ProfileRepository {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockLocationRepository extends _i1.Mock
-    implements _i17.LocationRepository {
+    implements _i18.LocationRepository {
   MockLocationRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i18.UserLocation>> locate({
+  _i4.Future<_i2.Either<_i5.Failure, _i19.UserLocation>> locate({
     required bool? askPermission,
     required String? languageCode,
   }) =>
@@ -440,8 +486,8 @@ class MockLocationRepository extends _i1.Mock
               #languageCode: languageCode,
             }),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i18.UserLocation>>.value(
-                  _FakeEither_0<_i5.Failure, _i18.UserLocation>(
+                _i4.Future<_i2.Either<_i5.Failure, _i19.UserLocation>>.value(
+                  _FakeEither_0<_i5.Failure, _i19.UserLocation>(
                     this,
                     Invocation.method(#locate, [], {
                       #askPermission: askPermission,
@@ -450,21 +496,21 @@ class MockLocationRepository extends _i1.Mock
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i18.UserLocation>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i19.UserLocation>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i18.UserLocation?>> savedLocation() =>
+  _i4.Future<_i2.Either<_i5.Failure, _i19.UserLocation?>> savedLocation() =>
       (super.noSuchMethod(
             Invocation.method(#savedLocation, []),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i18.UserLocation?>>.value(
-                  _FakeEither_0<_i5.Failure, _i18.UserLocation?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i19.UserLocation?>>.value(
+                  _FakeEither_0<_i5.Failure, _i19.UserLocation?>(
                     this,
                     Invocation.method(#savedLocation, []),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i18.UserLocation?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i19.UserLocation?>>);
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> forget() =>
@@ -492,16 +538,16 @@ class MockLocationRepository extends _i1.Mock
 /// A class which mocks [DayRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
+class MockDayRepository extends _i1.Mock implements _i20.DayRepository {
   MockDayRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Stream<_i2.Either<_i5.Failure, _i20.Day?>> watch(
+  _i4.Stream<_i2.Either<_i5.Failure, _i21.Day?>> watch(
     String? accountId, {
     required DateTime? date,
-    required _i21.Occasion? occasion,
+    required _i22.Occasion? occasion,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -509,15 +555,15 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
               [accountId],
               {#date: date, #occasion: occasion},
             ),
-            returnValue: _i4.Stream<_i2.Either<_i5.Failure, _i20.Day?>>.empty(),
+            returnValue: _i4.Stream<_i2.Either<_i5.Failure, _i21.Day?>>.empty(),
           )
-          as _i4.Stream<_i2.Either<_i5.Failure, _i20.Day?>>);
+          as _i4.Stream<_i2.Either<_i5.Failure, _i21.Day?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i20.Day?>> day(
+  _i4.Future<_i2.Either<_i5.Failure, _i21.Day?>> day(
     String? accountId, {
     required DateTime? date,
-    required _i21.Occasion? occasion,
+    required _i22.Occasion? occasion,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -525,8 +571,8 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
               [accountId],
               {#date: date, #occasion: occasion},
             ),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i20.Day?>>.value(
-              _FakeEither_0<_i5.Failure, _i20.Day?>(
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i21.Day?>>.value(
+              _FakeEither_0<_i5.Failure, _i21.Day?>(
                 this,
                 Invocation.method(
                   #day,
@@ -536,7 +582,7 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
               ),
             ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i20.Day?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i21.Day?>>);
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, Map<String, DateTime?>>> suggested(
@@ -558,11 +604,11 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
           as _i4.Future<_i2.Either<_i5.Failure, Map<String, DateTime?>>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i20.DayClaim>> claim(
+  _i4.Future<_i2.Either<_i5.Failure, _i21.DayClaim>> claim(
     String? accountId, {
     required DateTime? date,
-    required _i21.Occasion? occasion,
-    required _i20.Day? proposal,
+    required _i22.Occasion? occasion,
+    required _i21.Day? proposal,
     required Map<String, DateTime?>? suggested,
     required String? device,
   }) =>
@@ -579,8 +625,8 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
               },
             ),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i20.DayClaim>>.value(
-                  _FakeEither_0<_i5.Failure, _i20.DayClaim>(
+                _i4.Future<_i2.Either<_i5.Failure, _i21.DayClaim>>.value(
+                  _FakeEither_0<_i5.Failure, _i21.DayClaim>(
                     this,
                     Invocation.method(
                       #claim,
@@ -596,12 +642,12 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i20.DayClaim>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i21.DayClaim>>);
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, bool>> progress(
     String? accountId,
-    _i20.Day? day, {
+    _i21.Day? day, {
     required int? piece,
     required int? pieces,
     required String? device,
@@ -628,7 +674,7 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
   @override
   _i4.Future<_i2.Either<_i5.Failure, String?>> finish(
     String? accountId,
-    _i20.Day? day,
+    _i21.Day? day,
     List<int>? picture, {
     required String? device,
   }) =>
@@ -654,7 +700,7 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
   @override
   _i4.Future<_i2.Either<_i5.Failure, bool>> fail(
     String? accountId,
-    _i20.Day? day,
+    _i21.Day? day,
     _i5.TryOnProblem? problem, {
     required String? device,
   }) =>
@@ -680,7 +726,7 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
   @override
   _i4.Future<_i2.Either<_i5.Failure, String>> picture(
     String? accountId,
-    _i20.Day? day,
+    _i21.Day? day,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#picture, [accountId, day]),
@@ -713,27 +759,27 @@ class MockDayRepository extends _i1.Mock implements _i19.DayRepository {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTryOnJobRepository extends _i1.Mock
-    implements _i22.TryOnJobRepository {
+    implements _i23.TryOnJobRepository {
   MockTryOnJobRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i23.TryOnJob?>> job(String? key) =>
+  _i4.Future<_i2.Either<_i5.Failure, _i24.TryOnJob?>> job(String? key) =>
       (super.noSuchMethod(
             Invocation.method(#job, [key]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i23.TryOnJob?>>.value(
-                  _FakeEither_0<_i5.Failure, _i23.TryOnJob?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i24.TryOnJob?>>.value(
+                  _FakeEither_0<_i5.Failure, _i24.TryOnJob?>(
                     this,
                     Invocation.method(#job, [key]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i23.TryOnJob?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i24.TryOnJob?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> save(_i23.TryOnJob? job) =>
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> save(_i24.TryOnJob? job) =>
       (super.noSuchMethod(
             Invocation.method(#save, [job]),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
@@ -777,47 +823,47 @@ class MockTryOnJobRepository extends _i1.Mock
 /// A class which mocks [MakeupRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMakeupRepository extends _i1.Mock implements _i24.MakeupRepository {
+class MockMakeupRepository extends _i1.Mock implements _i25.MakeupRepository {
   MockMakeupRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i25.MakeupRecipe?>> recipe(String? key) =>
+  _i4.Future<_i2.Either<_i5.Failure, _i26.MakeupRecipe?>> recipe(String? key) =>
       (super.noSuchMethod(
             Invocation.method(#recipe, [key]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i25.MakeupRecipe?>>.value(
-                  _FakeEither_0<_i5.Failure, _i25.MakeupRecipe?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i26.MakeupRecipe?>>.value(
+                  _FakeEither_0<_i5.Failure, _i26.MakeupRecipe?>(
                     this,
                     Invocation.method(#recipe, [key]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i25.MakeupRecipe?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i26.MakeupRecipe?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i26.FaceColours?>> faceColours(
+  _i4.Future<_i2.Either<_i5.Failure, _i27.FaceColours?>> faceColours(
     String? accountId,
     String? facePhoto,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#faceColours, [accountId, facePhoto]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i26.FaceColours?>>.value(
-                  _FakeEither_0<_i5.Failure, _i26.FaceColours?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i27.FaceColours?>>.value(
+                  _FakeEither_0<_i5.Failure, _i27.FaceColours?>(
                     this,
                     Invocation.method(#faceColours, [accountId, facePhoto]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i26.FaceColours?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i27.FaceColours?>>);
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> saveFaceColours(
     String? accountId,
     String? facePhoto,
-    _i26.FaceColours? colours,
+    _i27.FaceColours? colours,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#saveFaceColours, [
@@ -894,7 +940,7 @@ class MockMakeupRepository extends _i1.Mock implements _i24.MakeupRepository {
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> record(
     String? accountId,
-    _i27.MakeupLook? look,
+    _i28.MakeupLook? look,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#record, [accountId, look]),
@@ -908,37 +954,37 @@ class MockMakeupRepository extends _i1.Mock implements _i24.MakeupRepository {
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>> look(
+  _i4.Future<_i2.Either<_i5.Failure, _i28.MakeupLook?>> look(
     String? accountId,
     String? outfitSignature,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#look, [accountId, outfitSignature]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>>.value(
-                  _FakeEither_0<_i5.Failure, _i27.MakeupLook?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i28.MakeupLook?>>.value(
+                  _FakeEither_0<_i5.Failure, _i28.MakeupLook?>(
                     this,
                     Invocation.method(#look, [accountId, outfitSignature]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i28.MakeupLook?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>> latestLook(
+  _i4.Future<_i2.Either<_i5.Failure, _i28.MakeupLook?>> latestLook(
     String? accountId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#latestLook, [accountId]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>>.value(
-                  _FakeEither_0<_i5.Failure, _i27.MakeupLook?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i28.MakeupLook?>>.value(
+                  _FakeEither_0<_i5.Failure, _i28.MakeupLook?>(
                     this,
                     Invocation.method(#latestLook, [accountId]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i27.MakeupLook?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i28.MakeupLook?>>);
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> forgetPictures(
@@ -960,27 +1006,27 @@ class MockMakeupRepository extends _i1.Mock implements _i24.MakeupRepository {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockMakeupJobRepository extends _i1.Mock
-    implements _i28.MakeupJobRepository {
+    implements _i29.MakeupJobRepository {
   MockMakeupJobRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i29.MakeupJob?>> job(String? key) =>
+  _i4.Future<_i2.Either<_i5.Failure, _i30.MakeupJob?>> job(String? key) =>
       (super.noSuchMethod(
             Invocation.method(#job, [key]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i29.MakeupJob?>>.value(
-                  _FakeEither_0<_i5.Failure, _i29.MakeupJob?>(
+                _i4.Future<_i2.Either<_i5.Failure, _i30.MakeupJob?>>.value(
+                  _FakeEither_0<_i5.Failure, _i30.MakeupJob?>(
                     this,
                     Invocation.method(#job, [key]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i29.MakeupJob?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i30.MakeupJob?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> save(_i29.MakeupJob? job) =>
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> save(_i30.MakeupJob? job) =>
       (super.noSuchMethod(
             Invocation.method(#save, [job]),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(

@@ -1,14 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/repositories/account_repository_impl.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
 import 'package:in_vogue/features/account/domain/usecases/delete_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/get_plan.dart';
+import 'package:in_vogue/features/account/domain/usecases/restore_from_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
+import 'package:path/path.dart' as path;
 
 void init(GetIt locator) {
   locator
@@ -21,7 +24,19 @@ void init(GetIt locator) {
     ..registerLazySingleton<AccountRepository>(
       () => AccountRepositoryImpl(
         remoteDataSource: locator(),
+        downloadsDirectory: path.join(
+          locator<AppDirectory>().path,
+          'downloads',
+        ),
         logMessages: locator(),
+      ),
+    )
+    ..registerLazySingleton<RestoreFromAccount>(
+      () => RestoreFromAccount(
+        account: locator(),
+        profile: locator(),
+        photos: locator(),
+        picks: locator(),
       ),
     )
     ..registerLazySingleton<SaveSetupToAccount>(

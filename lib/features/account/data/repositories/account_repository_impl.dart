@@ -10,103 +10,80 @@ import 'package:in_vogue/features/account/data/data_sources/account_remote_data_
 import 'package:in_vogue/features/account/data/models/account_model.dart';
 import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart';
+import 'package:in_vogue/features/account/domain/entities/saved_account.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
 import 'package:in_vogue/features/photos/data/photo_content_type.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
+import 'package:path/path.dart' as p;
 
 class AccountRepositoryImpl implements AccountRepository {
   AccountRepositoryImpl({
     required AccountRemoteDataSource remoteDataSource,
+    required String downloadsDirectory,
     required LogMessages logMessages,
   }) : _remote = remoteDataSource,
+       _downloads = downloadsDirectory,
        _logger = logMessages;
 
   final AccountRemoteDataSource _remote;
+
+  /// Where downloaded photos are written on the phone.
+  final String _downloads;
   final LogMessages _logger;
 
-  /// How long a save may take before it counts as offline.
+  /// How long a call to the account may take before it counts as offline.
   static const timeLimit = Duration(seconds: 30);
-
-  @override
-  Future<Either<Failure, bool>> exists(String accountId) async {
-    try {
-      return Right(
-        await _remote.readAccount(accountId).timeout(timeLimit) != null,
-      );
-    } on TimeoutException catch (error, stack) {
-      _log(error, stack);
-      return const Left(NetworkFailure());
-    } on NetworkException catch (error) {
-      _log(error.cause, error.stackTrace);
-      return const Left(NetworkFailure());
-    } on ServerException catch (error) {
-      _log(error.cause, error.stackTrace);
-      return const Left(ServerFailure());
-    }
-  }
-
-  @override
-  Future<Either<Failure, AccountPlan?>> plan(String accountId) async {
-    try {
-      return Right(
-        AccountModel.planFromJson(
-          await _remote.readAccount(accountId).timeout(timeLimit),
-        ),
-      );
-    } on TimeoutException catch (error, stack) {
-      _log(error, stack);
-      return const Left(NetworkFailure());
-    } on NetworkException catch (error) {
-      _log(error.cause, error.stackTrace);
-      return const Left(NetworkFailure());
-    } on ServerException catch (error) {
-      _log(error.cause, error.stackTrace);
-      return const Left(ServerFailure());
-    }
-  }
 
   /// How long deleting an account may take before it counts as offline.
   static const deleteTimeLimit = Duration(minutes: 1);
 
   @override
-  Future<Either<Failure, Unit>> delete(String accountId) async {
-    try {
-      await _remote.deleteAccount(accountId).timeout(deleteTimeLimit);
-      return const Right(unit);
-    } on TimeoutException catch (error, stack) {
-      _log(error, stack);
-      return const Left(NetworkFailure());
-    } on NetworkException catch (error) {
-      _log(error.cause, error.stackTrace);
-      return const Left(NetworkFailure());
-    } on ServerException catch (error) {
-      _log(error.cause, error.stackTrace);
-      return const Left(ServerFailure());
-    }
-  }
+  Future<Either<Failure, bool>> exists(String accountId) => _guard(
+    'exists',
+    () async => await _remote.readAccount(accountId) != null,
+  );
 
   @override
-  Future<Either<Failure, Unit>> save(
-    String accountId,
-    AccountSetup setup,
-  ) async {
-    try {
-      await _save(accountId, setup).timeout(timeLimit);
-      return const Right(unit);
-    } on TimeoutException catch (error, stack) {
-      _log(error, stack);
-      return const Left(NetworkFailure());
-    } on NetworkException catch (error) {
-      _log(error.cause, error.stackTrace);
-      return const Left(NetworkFailure());
-    } on ServerException catch (error) {
-      _log(error.cause, error.stackTrace);
-      return const Left(ServerFailure());
-    } on FileSystemException catch (error, stack) {
-      _log(error, stack);
-      return const Left(CacheFailure());
-    }
-  }
+  Future<Either<Failure, AccountPlan?>> plan(String accountId) => _guard(
+    'plan',
+    () async => AccountModel.planFromJson(await _remote.readAccount(accountId)),
+  );
+
+  @override
+  Future<Either<Failure, Unit>> delete(String accountId) =>
+      _guard('delete', () async {
+        await _remote.deleteAccount(accountId);
+        return unit;
+      }, limit: deleteTimeLimit);
+
+  @override
+  Future<Either<Failure, Unit>> save(String accountId, AccountSetup setup) =>
+      _guard('save', () async {
+        await _save(accountId, setup);
+        return unit;
+      });
+
+  @override
+  Future<Either<Failure, SavedAccount?>> saved(String accountId) =>
+      _guard('saved', () async {
+        final saved = await _remote.readAccount(accountId);
+        if (saved == null) return null;
+        return SavedAccount(
+          name: AccountModel.nameFromJson(saved),
+          face: AccountModel.photosFromJson(saved)[PhotoRole.face]?.path,
+          favourites: await _remote.wishlist(accountId),
+        );
+      });
+
+  @override
+  Future<Either<Failure, String>> downloadPhoto(String path) =>
+      _guard('downloadPhoto', () async {
+        final photo = await _remote.downloadPhoto(path);
+        final file = File(p.join(_downloads, p.basename(path)));
+        await file.parent.create(recursive: true);
+        await file.writeAsBytes(photo, flush: true);
+        return file.path;
+      });
 
   Future<void> _save(String accountId, AccountSetup setup) async {
     final saved = await _remote.readAccount(accountId);
@@ -163,7 +140,7 @@ class AccountRepositoryImpl implements AccountRepository {
       try {
         await _remote.deletePhoto(path);
       } on Exception catch (error, stack) {
-        _log(error, stack);
+        _log('save', error, stack);
       }
     }
   }
@@ -171,10 +148,33 @@ class AccountRepositoryImpl implements AccountRepository {
   static Future<String> _fingerprint(String path) async =>
       sha256.convert(await File(path).readAsBytes()).toString();
 
-  void _log(Object error, StackTrace stackTrace) => _logger.logError(
-    callerClass: 'AccountRepositoryImpl',
-    callerMethod: 'save',
-    error: error,
-    stackTrace: stackTrace,
-  );
+  Future<Either<Failure, T>> _guard<T>(
+    String method,
+    Future<T> Function() call, {
+    Duration limit = timeLimit,
+  }) async {
+    try {
+      return Right(await call().timeout(limit));
+    } on TimeoutException catch (error, stack) {
+      _log(method, error, stack);
+      return const Left(NetworkFailure());
+    } on NetworkException catch (error) {
+      _log(method, error.cause, error.stackTrace);
+      return const Left(NetworkFailure());
+    } on ServerException catch (error) {
+      _log(method, error.cause, error.stackTrace);
+      return const Left(ServerFailure());
+    } on FileSystemException catch (error, stack) {
+      _log(method, error, stack);
+      return const Left(CacheFailure());
+    }
+  }
+
+  void _log(String method, Object error, StackTrace stackTrace) =>
+      _logger.logError(
+        callerClass: 'AccountRepositoryImpl',
+        callerMethod: method,
+        error: error,
+        stackTrace: stackTrace,
+      );
 }
