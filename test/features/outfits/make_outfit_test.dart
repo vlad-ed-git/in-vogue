@@ -96,6 +96,20 @@ const _dress = Outfit(
   ],
 );
 
+/// A one-piece outfit.
+Outfit _top(String id) => Outfit(
+  id: id,
+  signature: 'top-$id',
+  pieces: ['everlane:$id'],
+  passes: [
+    TryOnPass(
+      category: GarmentCategory.upperBody,
+      piece: 'everlane:$id',
+      reference: 'https://cdn.example/$id.jpg',
+    ),
+  ],
+);
+
 void main() {
   late DateTime time;
   late FakeFirebaseFirestore firestore;
@@ -329,6 +343,75 @@ void main() {
     expect((await record())?['status'], 'making');
   });
 
+  test("when YouCam refuses a piece's photo, remembers the piece and goes on "
+      'with another outfit', () async {
+    tryOn.referenceTasks = {'task-2'};
+    final updates = await make();
+    expect(updates, [
+      const TryOnProgress(piece: 1, pieces: 3),
+      const TryOnProgress(piece: 2, pieces: 3),
+      const TryOnProgress(piece: 1, pieces: 1),
+      isA<TryOnDone>(),
+    ]);
+    expect((updates.last as TryOnDone).outfit.outfit, _dress);
+    final day = await record();
+    expect(day?['status'], 'ready');
+    expect(day?['outfitId'], 'o2');
+    Future<Map<String, Object?>?> suggestion(Outfit outfit) async =>
+        (await firestore
+                .doc('users/uid-1/suggestions/${outfit.signature}')
+                .get())
+            .data();
+    expect((await suggestion(_coat))?['refusedPiece'], 'everlane:tee');
+    expect((await suggestion(_dress))?['times'], 1);
+    expect(tryOn.discarded, unorderedEquals(['task-1', 'task-2', 'task-3']));
+    expect(keptJob(), isNull);
+  });
+
+  test('gives up after three outfits refused in a row, keeping the refusal '
+      'on the day for every phone', () async {
+    outfits = _FakeOutfits([_coat, _dress, _top('o3'), _top('o4')]);
+    tryOn.referenceTasks = {'task-1', 'task-2', 'task-3', 'task-4'};
+    final updates = await make();
+    expect(
+      updates.last,
+      const TryOnFailed(TryOnFailure(TryOnProblem.reference)),
+    );
+    expect(tryOn.starts, hasLength(3));
+    final day = await record();
+    expect(day?['status'], 'failed');
+    expect(day?['problem'], 'reference');
+    expect(day?['outfitId'], 'o3');
+  });
+
+  test('keeps the refusal on the day when no outfit is left to try', () async {
+    tryOn.referenceTasks = {'task-1', 'task-2'};
+    final updates = await make();
+    expect(
+      updates.last,
+      const TryOnFailed(TryOnFailure(TryOnProblem.reference)),
+    );
+    final day = await record();
+    expect(day?['status'], 'failed');
+    expect(day?['problem'], 'reference');
+  });
+
+  test(
+    "makes a day that failed on a piece's photo with another outfit",
+    () async {
+      await setDay(dayOf(_coat, 'phone-b').failedWith(TryOnProblem.reference));
+      await firestore.doc('users/uid-1/suggestions/${_coat.signature}').set({
+        'lastAt': Timestamp.fromDate(time),
+        'refusedPiece': 'everlane:tee',
+      });
+      expect((await make()).last, isA<TryOnDone>());
+      final day = await record();
+      expect(day?['status'], 'ready');
+      expect(day?['outfitId'], 'o2');
+      verifyNever(saveSetup(any));
+    },
+  );
+
   test("keeps YouCam's refusal on the day for every phone", () async {
     tryOn.refuseStart = 2;
     final updates = await make();
@@ -524,6 +607,9 @@ class _FakeTryOn implements TryOnRepository {
 
   /// The task that fails with a photo problem.
   String? failTask;
+
+  /// Tasks refused for their reference photo.
+  Set<String> referenceTasks = {};
   bool runForever = false;
   Future<void>? gate;
 
@@ -558,6 +644,9 @@ class _FakeTryOn implements TryOnRepository {
     if (runForever) return const Right(TryOnRunning());
     if (taskId == failTask) {
       return const Right(TryOnErrored(TryOnProblem.photo));
+    }
+    if (referenceTasks.contains(taskId)) {
+      return const Right(TryOnErrored(TryOnProblem.reference));
     }
     return Right(TryOnSucceeded('https://r/$taskId'));
   }

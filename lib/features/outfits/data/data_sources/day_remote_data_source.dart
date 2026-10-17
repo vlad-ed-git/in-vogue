@@ -37,9 +37,9 @@ abstract interface class DayRemoteDataSource {
   Future<Set<String>> refusedPieces(String accountId);
 
   /// Claims the day [key] for [device] at [now] in one transaction, as
-  /// [DayRules.claim] says. A [proposal] that makes a new day records its
-  /// outfit as suggested too, unless the outfit was suggested since the
-  /// chooser [seen] it: then nothing is written.
+  /// [DayRules.claim] says. A [proposal] the day takes records its outfit
+  /// as suggested too, unless the outfit was suggested since the chooser
+  /// [seen] it: then nothing is written.
   Future<DayClaim> claim(
     String accountId,
     String key, {
@@ -47,6 +47,7 @@ abstract interface class DayRemoteDataSource {
     required SuggestionSeen seen,
     required String device,
     required DateTime now,
+    String? replacing,
   });
 
   /// Writes [change] of the day [key] when [device] is making it; whether
@@ -152,33 +153,37 @@ class DayRemoteDataSourceImpl implements DayRemoteDataSource {
     required SuggestionSeen seen,
     required String device,
     required DateTime now,
+    String? replacing,
   }) => _guard(
     () => _firestore.runTransaction((transaction) async {
       final dayRef = _day(accountId, key);
       final current = _read(await transaction.get(dayRef));
-      DocumentSnapshot<Map<String, dynamic>>? suggestion;
-      if (current == null && proposal != null) {
-        suggestion = await transaction.get(
-          _suggestions(accountId).doc(proposal.signature),
-        );
-        final lastAt = _time(suggestion.data()?['lastAt']);
-        final unchanged = seen.known
-            ? suggestion.exists && lastAt == seen.lastAt
-            : !suggestion.exists;
-        if (!unchanged) return const DayConflict();
-      }
+      final suggestion = proposal == null
+          ? null
+          : await transaction.get(
+              _suggestions(accountId).doc(proposal.signature),
+            );
       final decided = DayRules.claim(
         current: current,
         proposal: proposal,
         device: device,
         now: now,
+        replacing: replacing,
       );
       final write = decided.write;
+      final proposed = proposal != null && write == proposal.makingBy(device);
+      if (proposed) {
+        final lastAt = _time(suggestion!.data()?['lastAt']);
+        final unchanged = seen.known
+            ? suggestion.exists && lastAt == seen.lastAt
+            : !suggestion.exists;
+        if (!unchanged) return const DayConflict();
+      }
       if (write != null) {
         transaction.set(dayRef, _write(write));
-        if (suggestion != null) {
+        if (proposed) {
           // Counted from the copy this transaction read.
-          final before = suggestion.data();
+          final before = suggestion!.data();
           transaction.set(suggestion.reference, {
             'outfitId': write.outfitId,
             'lastForDate': TryOnJob.dateKey(write.date),

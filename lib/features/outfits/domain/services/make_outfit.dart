@@ -19,6 +19,7 @@ import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/choose_outfit.dart';
+import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -59,8 +60,10 @@ class MakeOutfitParams extends Equatable {
 /// each piece reported on the day, and the picture kept with the day.
 ///
 /// Progress is kept after each piece, so a try-on cut short goes on where
-/// it stopped. Days are claimed one at a time, and one making per day runs
-/// at a time; asking again follows it.
+/// it stopped. When the try-on refuses a piece's photo, the piece is never
+/// chosen again and the day goes on with another outfit. Days are claimed
+/// one at a time, and one making per day runs at a time; asking again
+/// follows it.
 class MakeOutfit {
   MakeOutfit({
     required this._outfits,
@@ -91,6 +94,10 @@ class MakeOutfit {
 
   /// Times choosing starts again when the outfit chosen was taken meanwhile.
   static const claimAttempts = 3;
+
+  /// Outfits one making tries before the refusal of a piece's photo stays
+  /// on the day.
+  static const outfitAttempts = 3;
 
   final _making = <String, LatestUpdates<TryOnUpdate>>{};
 
@@ -133,19 +140,57 @@ class MakeOutfit {
     if (body == null) {
       return const TryOnFailed(TryOnFailure(TryOnProblem.photo));
     }
-    final claimed = await _oneAtATime(() => _claim(params));
-    if (claimed case Left(value: final failure)) return TryOnFailed(failure);
-    final Day day;
-    switch (claimed.getOrElse(() => const DayConflict())) {
-      case DayKept(day: final kept) when kept.status == DayStatus.ready:
-        return _shown(params, kept);
-      case DayKept(day: final kept):
-        return TryOnElsewhere(kept);
-      case DayClaimed(day: final mine):
-        day = mine;
-      case DayConflict():
-        return const TryOnFailed(ServerFailure());
+    Day? refused;
+    for (var tried = 1; ; tried++) {
+      final claimed = await _oneAtATime(
+        () => _claim(params, replacing: refused?.outfitId),
+      );
+      if (claimed case Left(value: final failure)) {
+        // With no outfit to go on with, the refusal stays on the day.
+        if (refused != null) {
+          await _days.fail(
+            params.accountId,
+            refused,
+            TryOnProblem.reference,
+            device: _device,
+          );
+        }
+        return TryOnFailed(failure);
+      }
+      final Day day;
+      switch (claimed.getOrElse(() => const DayConflict())) {
+        case DayKept(day: final kept) when kept.status == DayStatus.ready:
+          return _shown(params, kept);
+        case DayKept(day: final kept):
+          return TryOnElsewhere(kept);
+        case DayClaimed(day: final mine):
+          day = mine;
+        case DayConflict():
+          return const TryOnFailed(ServerFailure());
+      }
+      final made = await _makeDay(params, day, body, report);
+      if (made case TryOnFailed(
+        failure: final TryOnFailure failure,
+      ) when failure.problem == TryOnProblem.reference) {
+        if (tried < outfitAttempts) {
+          refused = day;
+          continue;
+        }
+        return _failed(params, day, failure);
+      }
+      return made;
     }
+  }
+
+  /// Tries [day]'s outfit on [body], piece by piece. A piece's photo the
+  /// try-on refuses is remembered, and the making ends without marking the
+  /// day, so another outfit can take its place.
+  Future<TryOnUpdate> _makeDay(
+    MakeOutfitParams params,
+    Day day,
+    UserPhoto body,
+    void Function(TryOnUpdate update) report,
+  ) async {
     final outfit = (await _outfits.outfit(
       day.outfitId,
     )).fold<Outfit?>((_) => null, (outfit) => outfit);
@@ -205,6 +250,15 @@ class MakeOutfit {
       }
       final finished = await _finish(task);
       if (finished case Left(value: final failure)) {
+        if (failure case TryOnFailure(problem: TryOnProblem.reference)) {
+          await _days.refuse(
+            params.accountId,
+            day.signature,
+            passes[index].piece,
+          );
+          await _drop(job);
+          return TryOnFailed(failure);
+        }
         // A failed pass is tried again next time.
         if (failure is TryOnFailure) {
           await _jobs.save(job.keeping(index, clock.now()));
@@ -225,10 +279,7 @@ class MakeOutfit {
     if (kept case Left(value: final failure)) return TryOnFailed(failure);
     final file = kept.getOrElse(() => null);
     if (file == null) return TryOnElsewhere(day);
-    await _jobs.clear(job!.key);
-    for (final task in job.tasks) {
-      unawaited(_tryOn.discard(task));
-    }
+    await _drop(job!);
     return TryOnDone(
       DayOutfit(
         outfit: outfit,
@@ -247,8 +298,12 @@ class MakeOutfit {
     return claimed;
   }
 
-  /// Claims [params]'s day: with a new outfit chosen when it has none.
-  Future<Either<Failure, DayClaim>> _claim(MakeOutfitParams params) async {
+  /// Claims [params]'s day: with a new outfit chosen when it needs one, or
+  /// in place of the outfit this phone is [replacing].
+  Future<Either<Failure, DayClaim>> _claim(
+    MakeOutfitParams params, {
+    String? replacing,
+  }) async {
     for (var attempt = 0; attempt < claimAttempts; attempt++) {
       final current = await _days.day(
         params.accountId,
@@ -256,11 +311,14 @@ class MakeOutfit {
         occasion: params.occasion,
       );
       if (current case Left(value: final failure)) return Left(failure);
+      final known = current.getOrElse(() => null);
       Day? proposal;
       var suggested = const <String, DateTime?>{};
-      if (current.getOrElse(() => null) == null) {
-        final saved = await _saveSetupToAccount(params.accountId);
-        if (saved case Left(value: final failure)) return Left(failure);
+      if (known == null || replacing != null || DayRules.replaceable(known)) {
+        if (known == null) {
+          final saved = await _saveSetupToAccount(params.accountId);
+          if (saved case Left(value: final failure)) return Left(failure);
+        }
         final ranked = await _outfits.outfitsFor(params.cell);
         if (ranked case Left(value: final failure)) return Left(failure);
         final outfits = ranked.getOrElse(() => const []);
@@ -306,6 +364,7 @@ class MakeOutfit {
         proposal: proposal,
         suggested: suggested,
         device: _device,
+        replacing: replacing,
       );
       if (claim case Left(value: final failure)) return Left(failure);
       final result = claim.getOrElse(() => const DayConflict());
@@ -351,6 +410,14 @@ class MakeOutfit {
       await _days.fail(params.accountId, day, problem, device: _device);
     }
     return TryOnFailed(failure);
+  }
+
+  /// Forgets [job] and lets the service delete its tasks.
+  Future<void> _drop(TryOnJob job) async {
+    await _jobs.clear(job.key);
+    for (final task in job.tasks) {
+      unawaited(_tryOn.discard(task));
+    }
   }
 
   /// The kept job of [params] when it can go on: for the day's outfit and

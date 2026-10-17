@@ -643,6 +643,7 @@ class MockDayRepository extends _i1.Mock implements _i20.DayRepository {
     required _i21.Day? proposal,
     required Map<String, DateTime?>? suggested,
     required String? device,
+    String? replacing,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -654,6 +655,7 @@ class MockDayRepository extends _i1.Mock implements _i20.DayRepository {
                 #proposal: proposal,
                 #suggested: suggested,
                 #device: device,
+                #replacing: replacing,
               },
             ),
             returnValue:
@@ -669,6 +671,7 @@ class MockDayRepository extends _i1.Mock implements _i20.DayRepository {
                         #proposal: proposal,
                         #suggested: suggested,
                         #device: device,
+                        #replacing: replacing,
                       },
                     ),
                   ),

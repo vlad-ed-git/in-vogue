@@ -39,8 +39,9 @@ abstract interface class DayRepository {
   Future<Either<Failure, Set<String>>> refusedPieces(String accountId);
 
   /// Claims the day of [date] and [occasion] for [device]: [proposal] gives
-  /// a new day its outfit, recorded as suggested unless [suggested] (what
-  /// the chooser saw) is out of date.
+  /// a day that needs one its outfit, recorded as suggested unless
+  /// [suggested] (what the chooser saw) is out of date. With [replacing],
+  /// [device]'s making of that outfit takes [proposal] instead.
   Future<Either<Failure, DayClaim>> claim(
     String accountId, {
     required DateTime date,
@@ -48,6 +49,7 @@ abstract interface class DayRepository {
     required Day? proposal,
     required Map<String, DateTime?> suggested,
     required String device,
+    String? replacing,
   });
 
   /// Records that [device] is putting on [piece] of [pieces]; false when

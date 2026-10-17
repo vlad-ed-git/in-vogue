@@ -101,6 +101,7 @@ class DayRepositoryImpl implements DayRepository {
     required Day? proposal,
     required Map<String, DateTime?> suggested,
     required String device,
+    String? replacing,
   }) => _guard(
     'claim',
     () => _remote.claim(
@@ -115,6 +116,7 @@ class DayRepositoryImpl implements DayRepository {
             ),
       device: device,
       now: clock.now(),
+      replacing: replacing,
     ),
   );
 

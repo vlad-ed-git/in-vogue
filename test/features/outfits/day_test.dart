@@ -126,6 +126,63 @@ void main() {
       expect(kept.claim, DayKept(made));
     });
 
+    test("gives a day that failed on a piece's photo the proposed outfit", () {
+      final refused = making('phone-b').failedWith(TryOnProblem.reference);
+      final claim = DayRules.claim(
+        current: refused,
+        proposal: _outfit('o2'),
+        device: 'phone-a',
+        now: now,
+      );
+      expect(claim.write?.outfitId, 'o2');
+      expect(claim.write?.device, 'phone-a');
+      expect(claim.write?.status, DayStatus.making);
+      expect(claim.claim, DayClaimed(claim.write!));
+      expect(
+        DayRules.claim(
+          current: refused,
+          proposal: null,
+          device: 'phone-a',
+          now: now,
+        ).claim,
+        const DayConflict(),
+      );
+    });
+
+    test('replaces the outfit of its own making when asked, and only that '
+        'outfit', () {
+      final replaced = DayRules.claim(
+        current: making('phone-a'),
+        proposal: _outfit('o2'),
+        device: 'phone-a',
+        now: now,
+        replacing: 'o1',
+      );
+      expect(replaced.write?.outfitId, 'o2');
+      expect(replaced.write?.piece, 0);
+      expect(replaced.claim, DayClaimed(replaced.write!));
+
+      final elsewhere = DayRules.claim(
+        current: making('phone-b'),
+        proposal: _outfit('o2'),
+        device: 'phone-a',
+        now: now,
+        replacing: 'o1',
+      );
+      expect(elsewhere.write, isNull);
+      expect(elsewhere.claim, isA<DayKept>());
+
+      final moved = DayRules.claim(
+        current: making('phone-a'),
+        proposal: _outfit('o3'),
+        device: 'phone-a',
+        now: now,
+        replacing: 'o9',
+      );
+      expect(moved.write, isNull);
+      expect(moved.claim, DayClaimed(making('phone-a')));
+    });
+
     test('counts a making stale only once the server has its time', () {
       expect(
         DayRules.stale(making('phone-b', ago: const Duration(hours: 1)), now),
@@ -185,6 +242,7 @@ void main() {
       Day? proposal,
       Map<String, DateTime?> suggested = const {},
       DateTime? date,
+      String? replacing,
     }) => settled(
       withClock(
         Clock(() => time),
@@ -195,6 +253,7 @@ void main() {
           proposal: proposal,
           suggested: suggested,
           device: device,
+          replacing: replacing,
         )).getOrElse(() => throw StateError('claim')),
       ),
     );
@@ -291,6 +350,18 @@ void main() {
         const DayConflict(),
       );
       expect((await record('suggestions/sig-o1'))?['times'], 2);
+    });
+
+    test('replaces the outfit of its own making, recording the new one as '
+        'suggested', () async {
+      await claim('phone-a', proposal: _outfit('o1'));
+      final replaced =
+          await claim('phone-a', proposal: _outfit('o2'), replacing: 'o1')
+              as DayClaimed;
+      expect(replaced.day.outfitId, 'o2');
+      expect((await record('days/2026-10-18_work'))?['outfitId'], 'o2');
+      expect((await record('suggestions/sig-o1'))?['times'], 1);
+      expect((await record('suggestions/sig-o2'))?['times'], 1);
     });
 
     test('finds suggestions thirty at a time', () async {
