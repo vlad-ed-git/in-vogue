@@ -108,6 +108,7 @@ class TryOnRepositoryImpl implements TryOnRepository {
   static TryOnProblem _problem(YouCamProblem problem) => switch (problem) {
     YouCamProblem.failed => TryOnProblem.failed,
     YouCamProblem.photo => TryOnProblem.photo,
+    YouCamProblem.reference => TryOnProblem.reference,
     YouCamProblem.noCredit => TryOnProblem.noCredit,
     YouCamProblem.unauthorized => TryOnProblem.unavailable,
   };

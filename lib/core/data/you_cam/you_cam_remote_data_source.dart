@@ -26,6 +26,9 @@ enum YouCamProblem {
   /// The engine could not use the photo.
   photo,
 
+  /// The engine could not use the reference photo; another may work.
+  reference,
+
   /// The account's units are spent.
   noCredit,
 

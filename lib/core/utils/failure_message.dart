@@ -15,7 +15,8 @@ extension FailureMessage on Failure {
     },
     SignInFailure() => context.translated.signInFailed,
     TryOnFailure(:final problem) => switch (problem) {
-      TryOnProblem.failed => context.translated.tryOnFailed,
+      TryOnProblem.failed ||
+      TryOnProblem.reference => context.translated.tryOnFailed,
       TryOnProblem.photo => context.translated.tryOnPhotoProblem,
       TryOnProblem.noCredit => context.translated.tryOnNoCredit,
       TryOnProblem.unavailable => context.translated.tryOnUnavailable,

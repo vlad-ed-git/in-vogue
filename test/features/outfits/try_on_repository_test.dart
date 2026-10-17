@@ -154,6 +154,13 @@ void main() {
         await repository.check('task-3'),
         const Right<Failure, TryOnTask>(TryOnErrored(TryOnProblem.photo)),
       );
+      when(remote.task(YouCamTool.clothes, 'task-4')).thenAnswer(
+        (_) async => const YouCamTaskFailed(YouCamProblem.reference),
+      );
+      expect(
+        await repository.check('task-4'),
+        const Right<Failure, TryOnTask>(TryOnErrored(TryOnProblem.reference)),
+      );
     });
 
     test('says the photo is the problem when it cannot be read', () async {

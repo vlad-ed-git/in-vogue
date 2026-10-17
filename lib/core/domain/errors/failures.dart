@@ -91,6 +91,9 @@ enum TryOnProblem {
   /// The try-on could not use the person's photo.
   photo,
 
+  /// The try-on could not use a piece's photo; another outfit may work.
+  reference,
+
   /// YouCam's units are spent.
   noCredit,
 

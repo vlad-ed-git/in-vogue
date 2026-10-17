@@ -210,11 +210,16 @@ void main() {
       expect(YouCamModel.resultUrl(<String, Object?>{}), isNull);
     });
 
-    test('tells a photo problem from a failure worth trying again', () {
+    test('tells a photo problem and a refused reference from a failure '
+        'worth trying again', () {
       YouCamTask failed(String code) => YouCamModel.taskOf({
         'data': {'task_status': 'error', 'error': code},
       });
       expect(failed('error_pose'), const YouCamTaskFailed(YouCamProblem.photo));
+      expect(
+        failed('error_invalid_ref'),
+        const YouCamTaskFailed(YouCamProblem.reference),
+      );
       expect(
         failed('unknown_internal_error'),
         const YouCamTaskFailed(YouCamProblem.failed),

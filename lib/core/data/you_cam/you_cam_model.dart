@@ -30,6 +30,9 @@ abstract final class YouCamModel {
     'error_nsfw_content_detected',
   };
 
+  /// Engine errors caused by the reference photo.
+  static const referenceErrors = {'error_invalid_ref'};
+
   /// The `data` object of an answer; empty when there is none.
   static Map<String, Object?> dataOf(Object? body) => switch (body) {
     {'data': final Map<String, Object?> data} => data,
@@ -79,11 +82,13 @@ abstract final class YouCamModel {
     final data = dataOf(body);
     return switch (data['task_status']) {
       'success' => YouCamTaskSucceeded(data['results']),
-      'error' => YouCamTaskFailed(
-        photoErrors.contains(data['error'])
-            ? YouCamProblem.photo
-            : YouCamProblem.failed,
-      ),
+      'error' => YouCamTaskFailed(switch (data['error']) {
+        final Object error when photoErrors.contains(error) =>
+          YouCamProblem.photo,
+        final Object error when referenceErrors.contains(error) =>
+          YouCamProblem.reference,
+        _ => YouCamProblem.failed,
+      }),
       _ => const YouCamTaskRunning(),
     };
   }
