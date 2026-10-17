@@ -15,13 +15,19 @@ import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart'
 import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart'
     as _i9;
 import 'package:in_vogue/features/makeup/domain/entities/makeup_update.dart'
-    as _i12;
+    as _i15;
 import 'package:in_vogue/features/makeup/domain/services/make_look.dart'
-    as _i11;
+    as _i14;
 import 'package:in_vogue/features/makeup/domain/usecases/get_latest_makeup_look.dart'
     as _i10;
 import 'package:in_vogue/features/makeup/domain/usecases/get_makeup_look.dart'
     as _i8;
+import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
+    as _i13;
+import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
+    as _i12;
+import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart'
+    as _i11;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -120,24 +126,49 @@ class MockGetLatestMakeupLook extends _i1.Mock
           as _i4.Future<_i2.Either<_i5.Failure, _i9.MakeupLook?>>);
 }
 
+/// A class which mocks [GetKeptPhoto].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockGetKeptPhoto extends _i1.Mock implements _i11.GetKeptPhoto {
+  MockGetKeptPhoto() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i12.UserPhoto?>> call(
+    _i13.PhotoRole? role,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [role]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i12.UserPhoto?>>.value(
+                  _FakeEither_0<_i5.Failure, _i12.UserPhoto?>(
+                    this,
+                    Invocation.method(#call, [role]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i12.UserPhoto?>>);
+}
+
 /// A class which mocks [MakeLook].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMakeLook extends _i1.Mock implements _i11.MakeLook {
+class MockMakeLook extends _i1.Mock implements _i14.MakeLook {
   MockMakeLook() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Stream<_i12.MakeupUpdate> call(_i11.MakeLookParams? params) =>
+  _i4.Stream<_i15.MakeupUpdate> call(_i14.MakeLookParams? params) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
-            returnValue: _i4.Stream<_i12.MakeupUpdate>.empty(),
+            returnValue: _i4.Stream<_i15.MakeupUpdate>.empty(),
           )
-          as _i4.Stream<_i12.MakeupUpdate>);
+          as _i4.Stream<_i15.MakeupUpdate>);
 
   @override
-  _i4.Future<bool> underway(_i11.MakeLookParams? params) =>
+  _i4.Future<bool> underway(_i14.MakeLookParams? params) =>
       (super.noSuchMethod(
             Invocation.method(#underway, [params]),
             returnValue: _i4.Future<bool>.value(false),

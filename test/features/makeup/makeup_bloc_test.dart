@@ -17,6 +17,9 @@ import 'package:in_vogue/features/makeup/domain/usecases/get_makeup_look.dart';
 import 'package:in_vogue/features/makeup/presentation/bloc/makeup_bloc.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
+import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
+import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:mockito/annotations.dart';
@@ -76,6 +79,12 @@ MakeupLook _look(String signature) => MakeupLook(
   matched: true,
 );
 
+const _face = UserPhoto(
+  role: PhotoRole.face,
+  path: '/support/photos/face-1.jpg',
+  revision: 1,
+);
+
 const _pending = [
   LookStep(title: 'Even base', howTo: 'Blend it in.', products: []),
 ];
@@ -92,18 +101,21 @@ const _halfMade = [
   GetCurrentAccount,
   GetMakeupLook,
   GetLatestMakeupLook,
+  GetKeptPhoto,
   MakeLook,
 ])
 void main() {
   late MockGetCurrentAccount getCurrentAccount;
   late MockGetMakeupLook getMakeupLook;
   late MockGetLatestMakeupLook getLatestMakeupLook;
+  late MockGetKeptPhoto getKeptPhoto;
   late MockMakeLook makeLook;
 
   MakeupBloc build() => MakeupBloc(
     getCurrentAccount: getCurrentAccount,
     getMakeupLook: getMakeupLook,
     getLatestMakeupLook: getLatestMakeupLook,
+    getKeptPhoto: getKeptPhoto,
     makeLook: makeLook,
   );
 
@@ -126,9 +138,14 @@ void main() {
     getCurrentAccount = MockGetCurrentAccount();
     getMakeupLook = MockGetMakeupLook();
     getLatestMakeupLook = MockGetLatestMakeupLook();
+    getKeptPhoto = MockGetKeptPhoto();
     makeLook = MockMakeLook();
     provideDummy<Either<Failure, Account?>>(const Right(null));
     provideDummy<Either<Failure, MakeupLook?>>(const Right(null));
+    provideDummy<Either<Failure, UserPhoto?>>(const Right(null));
+    when(
+      getKeptPhoto(PhotoRole.face),
+    ).thenAnswer((_) async => const Right(_face));
     when(
       getCurrentAccount(any),
     ).thenAnswer((_) async => const Right(Account(id: 'uid-1')));
@@ -159,14 +176,54 @@ void main() {
   );
 
   blocTest<MakeupBloc, MakeupState>(
-    'shows the last look below when the outfit has none, and makes none',
+    'makes the look by itself once there is a face photo and an outfit',
     build: () {
+      when(
+        getLatestMakeupLook('uid-1'),
+      ).thenAnswer((_) async => Right(_look('dress')));
+      when(makeLook(any)).thenAnswer(
+        (_) => Stream.fromIterable([
+          const MakeupProgress(_halfMade),
+          MakeupDone(_look('coat+tee')),
+        ]),
+      );
+      return build();
+    },
+    act: (bloc) => bloc.add(MakeupDayShown(_tomorrow)),
+    expect: () => [
+      MakeupState(day: _tomorrow),
+      ready(_tomorrow, lastLook: _look('dress')),
+      ready(_tomorrow, lastLook: _look('dress'), making: const []),
+      ready(_tomorrow, lastLook: _look('dress'), making: _halfMade),
+      ready(_tomorrow, look: _look('coat+tee')),
+    ],
+    verify: (_) => verify(
+      makeLook(
+        MakeLookParams(
+          accountId: 'uid-1',
+          outfit: _tomorrow.outfit!,
+          weather: _wet,
+        ),
+      ),
+    ).called(1),
+  );
+
+  blocTest<MakeupBloc, MakeupState>(
+    'shows the last look below, and makes none, without a face photo',
+    build: () {
+      when(
+        getKeptPhoto(PhotoRole.face),
+      ).thenAnswer((_) async => const Right(null));
       when(
         getLatestMakeupLook('uid-1'),
       ).thenAnswer((_) async => Right(_look('dress')));
       return build();
     },
-    act: (bloc) => bloc.add(MakeupDayShown(_tomorrow)),
+    act: (bloc) async {
+      bloc.add(MakeupDayShown(_tomorrow));
+      await pumpEventQueue();
+      bloc.add(const MakeupRequested());
+    },
     expect: () => [
       MakeupState(day: _tomorrow),
       ready(_tomorrow, lastLook: _look('dress')),
@@ -206,7 +263,7 @@ void main() {
   );
 
   blocTest<MakeupBloc, MakeupState>(
-    'makes the look when asked, filling in each step',
+    'makes the look once the face photo is kept, filling in each step',
     build: () {
       when(makeLook(any)).thenAnswer(
         (_) => Stream.fromIterable([
@@ -253,6 +310,16 @@ void main() {
       ready(_tomorrow, making: const []),
       ready(_tomorrow, look: _look('coat+tee')),
     ],
+  );
+
+  blocTest<MakeupBloc, MakeupState>(
+    'makes nothing by itself again after a failure',
+    build: build,
+    seed: () =>
+        ready(_tomorrow, failure: const MakeupFailure(MakeupProblem.failed)),
+    act: (bloc) => bloc.add(MakeupDayShown(_tomorrow)),
+    expect: () => <MakeupState>[],
+    verify: (_) => verifyNever(makeLook(any)),
   );
 
   blocTest<MakeupBloc, MakeupState>(
@@ -319,7 +386,12 @@ void main() {
     build: () {
       final making = StreamController<MakeupUpdate>();
       addTearDown(making.close);
-      when(makeLook(any)).thenAnswer((_) => making.stream);
+      when(makeLook(any)).thenAnswer((invocation) {
+        final params = invocation.positionalArguments.first as MakeLookParams;
+        return params.outfit == _tomorrow.outfit
+            ? making.stream
+            : const Stream.empty();
+      });
       when(getMakeupLook(any)).thenAnswer((invocation) async {
         // Updates for tomorrow's look arrive once today is shown.
         making
@@ -339,6 +411,7 @@ void main() {
       ready(_tomorrow, making: const []),
       MakeupState(day: _today),
       ready(_today),
+      ready(_today, making: const []),
     ],
   );
 }

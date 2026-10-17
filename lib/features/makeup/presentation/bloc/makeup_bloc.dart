@@ -14,6 +14,8 @@ import 'package:in_vogue/features/makeup/domain/services/make_look.dart';
 import 'package:in_vogue/features/makeup/domain/usecases/get_latest_makeup_look.dart';
 import 'package:in_vogue/features/makeup/domain/usecases/get_makeup_look.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
+import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
+import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 
 /// The day an outfit is shown for, and the outfit, when there is one.
@@ -58,7 +60,7 @@ final class MakeupDayShown extends MakeupEvent {
   List<Object?> get props => [day];
 }
 
-/// The person asked for the look of the outfit shown, or to try again.
+/// A face photo was kept, or the person asked to try again.
 final class MakeupRequested extends MakeupEvent {
   const MakeupRequested();
 }
@@ -116,14 +118,16 @@ class MakeupState extends Equatable {
 }
 
 /// The makeup look for the outfit of the day shown: the look made for it,
-/// or the face photo and a way to make one, with the last look below.
-/// A look is made only when asked for, and one cut short goes on by
-/// itself.
+/// or the one being made, with the last look below until then.
+/// A look is made by itself once there is a face photo and an outfit,
+/// and one cut short goes on; one that failed is made again only when
+/// asked.
 class MakeupBloc extends Bloc<MakeupEvent, MakeupState> {
   MakeupBloc({
     required this._getCurrentAccount,
     required this._getMakeupLook,
     required this._getLatestMakeupLook,
+    required this._getKeptPhoto,
     required this._makeLook,
   }) : super(const MakeupState()) {
     on<MakeupDayShown>(_show, transformer: restartable());
@@ -134,6 +138,7 @@ class MakeupBloc extends Bloc<MakeupEvent, MakeupState> {
   final GetCurrentAccount _getCurrentAccount;
   final GetMakeupLook _getMakeupLook;
   final GetLatestMakeupLook _getLatestMakeupLook;
+  final GetKeptPhoto _getKeptPhoto;
   final MakeLook _makeLook;
 
   String? _accountId;
@@ -141,6 +146,10 @@ class MakeupBloc extends Bloc<MakeupEvent, MakeupState> {
   Future<String?> _account() async => _accountId ??= (await _getCurrentAccount(
     const NoParams(),
   )).fold<Account?>((_) => null, (account) => account)?.id;
+
+  Future<bool> _hasFace() async => (await _getKeptPhoto(
+    PhotoRole.face,
+  )).fold((_) => false, (photo) => photo != null);
 
   MakeLookParams _params(String accountId, DayOutfit outfit) => MakeLookParams(
     accountId: accountId,
@@ -210,7 +219,9 @@ class MakeupBloc extends Bloc<MakeupEvent, MakeupState> {
     );
     if (outfit != null && look == null) {
       final params = _params(accountId, outfit);
-      if (await _makeLook.underway(params)) add(_MakingFollowed(params));
+      if (await _makeLook.underway(params) || await _hasFace()) {
+        add(_MakingFollowed(params));
+      }
     }
   }
 
@@ -224,7 +235,8 @@ class MakeupBloc extends Bloc<MakeupEvent, MakeupState> {
         accountId == null ||
         state.status != MakeupStatus.ready ||
         state.look != null ||
-        state.making != null) {
+        state.making != null ||
+        !await _hasFace()) {
       return;
     }
     add(_MakingFollowed(_params(accountId, outfit)));

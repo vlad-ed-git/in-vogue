@@ -83,6 +83,7 @@ void init(GetIt locator) {
         getCurrentAccount: locator(),
         getMakeupLook: locator(),
         getLatestMakeupLook: locator(),
+        getKeptPhoto: locator(),
         makeLook: locator(),
       ),
     );
