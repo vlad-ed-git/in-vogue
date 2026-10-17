@@ -54,6 +54,12 @@ dev_dependencies:
   image_picker_platform_interface: ^2.11.2
   geocoding_platform_interface: ^5.0.0
   mocktail: ^1.0.5
+  fake_cloud_firestore: ^4.3.0
+
+# fake_cloud_firestore declares equatable ^2.1.0 but works with 3: it only
+# uses props, stringify, == and hashCode, which 3.0 kept.
+dependency_overrides:
+  equatable: ^3.0.0
 
 flutter:
   uses-material-design: true
