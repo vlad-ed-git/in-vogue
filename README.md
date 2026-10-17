@@ -151,7 +151,7 @@ lib/
     home/                  # Home tab: the day, the occasion, the outfit, Shop
     makeup/                # Makeup tab: face colours, recipes and looks
     profile/               # The person's name
-    home_widget/           # Placing the home-screen widget
+    home_widget/           # The widget: content, taps, morning refresh (Android)
     preferences/           # Language and default day
     settings/              # Settings tab
   l10n/arb/                # English source, Spanish and Simplified Chinese

@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 18, 2026** (branch `feat/youcam_key_bundled`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 18, 2026** (branch `feat/android_widget`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -47,6 +47,7 @@ Run every Flutter and Dart command from `in-vogue/` through an interactive zsh, 
 | Deploy rules (development only) | `GOOGLE_APPLICATION_CREDENTIALS="$PWD/secrets/in-vogue-dev-firebase-adminsdk-fbsvc-517e1ce146.json" firebase deploy --only firestore:rules,storage --project in-vogue-dev --non-interactive` |
 | Native Firebase files | `scripts/configure_firebase.sh development` (or `production`) |
 | Launcher icons | `scripts/generate_app_icons.sh` |
+| Widget glyphs (Android drawables from the spec paths) | `python3 scripts/generate_widget_glyphs.py` |
 
 A task is **done** only when analyze says "No issues found!" and every test passes.
 
@@ -105,18 +106,19 @@ At the end of every task:
 
 ## 2. What is built
 
-Checked on October 18, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 788 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+Checked on October 18, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 809 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
 
 ### 2.1 What a person can do today
 
 | Part | What works |
 | --- | --- |
-| **Setup**: six screens that reopen where you left off | **1 Welcome:** the logo, "Use my location" (approximate location only) and a language icon. **2 Your photo:** a full-body photo from the gallery. **3** Tomorrow's weather, plus a few pieces you like (hearts). **4** Sign in with Apple (iPhone only) or Google. **5 About you:** your name (filled in when Apple, Google or your old account knows it) and an optional face photo. **6 Add the widget:** a *stand-in*, because the widget isn't built. Android's button says it isn't ready, and iPhone shows the three steps. |
+| **Setup**: six screens that reopen where you left off | **1 Welcome:** the logo, "Use my location" (approximate location only) and a language icon. **2 Your photo:** a full-body photo from the gallery. **3** Tomorrow's weather, plus a few pieces you like (hearts). **4** Sign in with Apple (iPhone only) or Google. **5 About you:** your name (filled in when Apple, Google or your old account knows it) and an optional face photo. **6 Add the widget:** on Android, the launcher's "Add to home screen?" dialog places it, or the step says how where the launcher can't; iPhone shows the three steps, and its widget waits for WidgetKit. |
 | **Home tab** | City and ♡ Your picks at the top, then a Today / Tomorrow / Outfits switch (tap or swipe). The weather that matters: temperature, feels-like, rain timing and strong wind. The occasion (Work, Casual, Going out, Staying in) with Change. Then the person wearing the day's outfit, or "Getting your outfit ready… Piece n of N", or why it failed, with Try again. Below that, Shop and "About this outfit". **Outfits** shows the whole collection grouped by weather (Hot, Warm, Mild, Cool, Cold, Rain), with hearts. |
 | **Shop** | Every piece of the outfit: photo, colour, name, material and "Buy at Everlane", which opens that exact item on Everlane's site. No prices. |
 | **Your picks** | Only the pieces you loved. Removing one asks first. |
 | **Makeup tab** | It follows Home's day and occasion. Once there is a face photo and an outfit, the look starts by itself: Before / After, one sentence tying it to the outfit, and 3–6 numbered steps showing your face after each step (tap to zoom). Steps appear as they finish. |
 | **Settings** | Profile (face photo, name, how you signed in, edit name; without a face photo, the name's first letter centred in white on a Rouge square, owner October 18), replace the body or face photo, membership (shows Pro or Free; display only), location (Change), default day (tomorrow with the morning rule, or always today), language, Log out (it also clears the account's outfit and makeup pictures from this phone, keeping the body and face photos and the picks; added October 17), and Delete account, which removes the account's data from Firebase and from this phone. Log out and Delete account are Rouge, text and icon (owner, October 18). |
+| **Home-screen widget** (Android) | The day's weather on a Rouge slab beside the person in the day's outfit, in Small (weather only), Medium and Large. It picks the day as Home does, switching at 06:00, 09:00 and midnight, shows the person's photo faded under "Getting ready" until the outfit is made and the saved time when it has nothing newer, and a tap opens Home on that day and occasion. A morning job refreshes it (October 18). Log out and Delete account clear it. Built October 18; not yet built or checked on a phone (§3). |
 | **Languages** | English (the default), Spanish and Simplified Chinese, including the knowledge base's texts: makeup steps (titles, how-tos, product kinds) and outfit reasons (added October 17). A makeup look saved before then stays in English. |
 
 The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when it opens on today. The occasion defaults to **Work Monday to Friday and Casual on Saturday and Sunday**; a changed occasion stays with its own date only (fixed October 18: a reload had carried the selected day's occasion onto the other day, so Sunday showed Workday).
@@ -127,6 +129,7 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 - **Makeup.** YouCam reads the face's colours once per face photo, and the result is kept in Firestore under the photo's fingerprint. The app turns those colours into a skin profile (shade group and contrast) and picks one of 720 recipes, chosen by occasion, outfit palette, shade, contrast and weather. YouCam then applies each step on top of the previous step's picture. Skin smoothing is always off.
 - **Photo rules.** Every chosen photo is checked. If it's too small, the app asks for another. If it isn't JPEG or PNG, it is converted to PNG and the app shows a note. If it's too big, it is scaled down. There is no face or body detection.
 - **Account.** The profile, favourites, photos and records live in Firestore (Firebase's database) and Storage (Firebase's file store) under `users/{uid}`. Each person can reach only their own data, and nobody can change their own `plan`: a new account starts with no plan or the demo plan, and only the console changes it (October 17). The rules are deployed to `in-vogue-dev`. A returning person gets their name, face photo and favourites back at sign-in. Saving never wipes favourites, and photos are replaced only when their content changes. Favourites follow the account across phones: each save merges with what that phone last saved, so a favourite unloved on one phone stays gone on the others, and each phone picks up the others' loves and unloves at its next save (sign-in or a new day's outfit; added October 17). **Every new account is created on the Pro plan** (set in `features/account/data/models/account_model.dart`).
+- **Widget.** Owner decision, October 18: the app updates the widget, plus a morning refresh. Home's days become snapshots with their words already in the person's language, saved through `home_widget` with the pictures' paths; the Kotlin provider picks the day with Home's rule and redraws at 06:00, 09:00 and midnight through scheduled updates. A WorkManager job, daily from 05:30, fetches the weather again and the pictures of days already made (on another phone too) for the account signed in on the phone. It never calls YouCam. The `building-home-widgets` skill holds the details.
 - **Weather.** Open-Meteo (no key), cached for 2 days. Offline, the app shows the saved forecast with a note. °F in the US, °C elsewhere.
 - **Foundation.** Two flavors: development uses `in-vogue-dev` and production uses `in-vogue`, with a startup check that the flavor and project match. Hive and SQLite on the phone. The design system in `lib/core/presentation/` (tokens, theme, 28 components) matches the spec, including the curtain reveal of a new outfit. Launcher icons are made from the logo. Errors are logged only in debug builds (`LogMessagesImpl`), so release builds report nothing yet.
 - **Data tools.** These live outside the app, in `resources/`: the Everlane catalog pull (from Shopify's Global Catalog), the knowledge base (weather, occasions, styling, outfits, skin, makeup, YouCam reference) and their Python builders. `in-vogue/scripts/export_*.py` copies what the app needs into `assets/`.
@@ -149,8 +152,8 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `fix/settings_initial_centred` | Everything in `feat/android_widget`, plus the centred initial | Not merged, not pushed |
 | `fix/settings_log_out_delete_rouge` | Everything in `fix/settings_initial_centred`, plus Rouge Log out and Delete account | Not merged, not pushed |
 | `fix/home_occasion_on_resume` | Everything in `fix/settings_log_out_delete_rouge`, plus the fix for a day taking another day's occasion | Not merged, not pushed |
-| `feat/android_widget` (paused) | Everything in `fix/home_occasion_on_resume`, plus widget steps 9a–9b | Not merged, not pushed |
-| **`feat/youcam_key_bundled`** (current) | Everything in `feat/android_widget`, plus the YouCam key bundled in development builds | Not merged, not pushed |
+| `feat/youcam_key_bundled` | Everything in `fix/home_occasion_on_resume`, plus widget steps 9a–9b and the YouCam key bundled in development builds | Not merged, not pushed |
+| **`feat/android_widget`** (current) | Everything in `feat/youcam_key_bundled`, plus the Android widget: publishing from Home, taps, clearing, the native provider and layouts, the morning refresh | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -159,6 +162,7 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 - Confirmed by the owner on October 16: Google sign-in works, and an Apple sign-in saved the profile, both photos and 4 favourites to Firebase.
 - **Not yet checked against the real YouCam API.** The last record (October 17) says no real call had been made: try-on and makeup have only run on test fakes. If the owner has run them since, update this line.
 - The October 17 work (two-day outfits, photo rules, returning users, makeup by itself) is waiting for the owner's device run.
+- The Android widget (October 18) hasn't been built or run on a phone yet.
 - October 18: the owner tested the development build with the bundled YouCam key (no flag), the occasion fix and the Settings changes (centred initial, Rouge Log out and Delete account) on a device and reported "test went well".
 
 ---
@@ -171,13 +175,7 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 
 **App features**
 
-- [ ] **Home-screen widget for Android.** *In progress (October 18).* The widget is the product's front door. It shows the day's outfit picture and weather in the Large, Medium and Small layouts of `design-spec/components/HomeWidget`: a print, with a Rouge slab and the full-height portrait running edge to edge, never a rounded card (the owner rejected one). It opens Home on tap, and setup step 6 then really places it. Native builds are the owner's.
-  - **Owner decision (October 18): the app updates the widget, plus a morning refresh.** Whenever Home has a day's weather or outfit, the app saves today's and tomorrow's snapshots (texts already in the person's language, the picture file) for the widget, and the widget picks the day itself with Home's rule (tomorrow, today from 06:00 to 08:59, or always today), switching at 06:00, 09:00 and midnight. Once a day a background job (WorkManager) refreshes the weather and downloads a picture another phone already made. It never calls YouCam.
-  - 9a. Packages `home_widget` and `workmanager`; the snapshot model and the day rule in Dart (tested).
-  - 9b. The texts of a snapshot from Home's days (all three languages) and saving them with the pictures; `HomeWidgetRepositoryImpl` on Android, iPhone keeps the stand-in until WidgetKit.
-  - 9c. Publishing from Home whenever its days change; setup step 6 places the widget; tapping it opens Home on that day.
-  - 9d. The native Android widget: provider, Small/Medium/Large layouts per the spec (Rouge slab, edge-to-edge portrait), fonts, weather glyphs, the day rule mirrored in Kotlin, refreshes at 06:00, 09:00 and midnight. Static tests for the manifest and widget info.
-  - 9e. The morning refresh job. 9f. Docs and the `building-home-widgets` skill.
+- [ ] **Build and check the Android widget on a phone.** *Owner.* The native side is checked only by static tests until it's built. Place it from setup step 6 or the launcher; check Large, Medium and Small, the switch at 06:00, 09:00 and midnight, a tap opening Home on that day, the waiting and stale states, and the morning refresh (about 05:30, network on).
 - [ ] **Home-screen widget for iPhone (WidgetKit).** *Blocked on the owner's Xcode setup* (widget extension target, App Group, signing). The AI writes the code and gives the owner the exact steps.
 - [ ] **Membership rules for the MVP.** *Blocked on an owner decision.* The plan so far (October 14): Free gives 14 outfits and 3 makeup looks over the account's whole life, never reset, and one outfit a day. Pro is shown at $7.99 a month or $59.99 a year. Go Pro adds the person to a waiting list, with no payments. Today every new account is created Pro. Confirm these rules for production, including whether Pro takes real payments.
 - [ ] **Free-plan limits.** *Pending, after the decision above.* Count outfits shown and makeup looks made; an outfit counts once however many YouCam calls it took, and replacing a photo resets nothing. When they run out, the last outfit stays on screen with Go Pro. Lock the counters in `firestore.rules` so the app can only raise them, and add cases to `scripts/check_firestore_rules.py`. Without a server they can't be fully tamper-proof: a person can still delete and recreate their own account document, which resets it to the demo plan and fresh counters.
@@ -238,7 +236,7 @@ A skill is a folder of instructions that Claude Code loads only when a task need
 
 ### 4.1 Skills in place
 
-They live at `weather-dot-me/.claude/skills/<name>/`, each with a `SKILL.md`, optional `references/` and an `evals/evals.json` holding three test prompts. All seven pass Anthropic's `quick_validate.py`.
+They live at `weather-dot-me/.claude/skills/<name>/`, each with a `SKILL.md`, optional `references/` and an `evals/evals.json` holding three test prompts. The first seven pass Anthropic's `quick_validate.py`; `building-home-widgets` (October 18) was checked against the same rules by hand, as the validator isn't on this Mac.
 
 | Skill | Use it for | Evals |
 | --- | --- | --- |
@@ -249,6 +247,7 @@ They live at `weather-dot-me/.claude/skills/<name>/`, each with a `SKILL.md`, op
 | `calling-youcam` | try-on, face analysis, makeup calls, costs, keys and the owner's YouCam rules | written, not run |
 | `managing-firebase` | the data model, rules deploys, sync, account save, restore and delete | written, not run |
 | `updating-bundled-data` | the catalog and knowledge-base pipeline and the asset exports | written, not run |
+| `building-home-widgets` | the widget's content, day rule, taps, the Android provider and layouts, the morning refresh, the iPhone widget to come | written, not run |
 
 Also available, from the owner's personal skills in `~/.claude/skills/`: `logo-design`, for logo and app-icon work.
 
@@ -277,7 +276,6 @@ The `anthropic-skills:skill-creator` skill automates steps 3–6: test runs, gra
 
 | Skill | Obtain it | Because |
 | --- | --- | --- |
-| `building-home-widgets` | during the first widget task (§3.a) | the `home_widget` bridge, the Android widget, WidgetKit, App Groups, refresh limits |
 | `diagnosing-device-reports` | the next time the owner reports a bug from a device | the repeating pattern: a full restart after native plugins, Firebase error codes in logs, read-only admin checks |
 | `releasing-builds` | when the production checklist (§3.b) starts | signing, store and TestFlight uploads, the hand-offs to the owner |
 | `translating-copy` | if the knowledge-base translation outgrows `updating-bundled-data` | the ARB and knowledge-base translation workflow |
@@ -371,6 +369,15 @@ MakeOutfit, per piece (bottom ─► top ─► outer | dress ─► outer):
                              else failed(reference) for every phone; Try again ─► another outfit
 ```
 
+**The widget** (Android)
+
+```
+HomeBloc ─► HomeWidgetSync ─► WidgetContentText (person's language) ─► HomeWidgetBloc ─► PublishWidget
+  ─► home_widget: 'in_vogue_widget' JSON + 'in_vogue_widget_refresh' ─► redraw; redraws at 06:00 · 09:00 · 00:00
+InVogueWidgetProvider: Home's day rule ─► Small | Medium | Large ─► tap: invogue://home?date&occasion ─► Home
+WorkManager, daily from 05:30 ─► widgetRefreshDispatcher ─► RefreshWidget: weather + made pictures (never YouCam)
+```
+
 **A makeup look**
 
 ```
@@ -390,6 +397,7 @@ PHONE      <support>/in_vogue/<flavor>/
            Hive preferences_<flavor>: language, default_day, setup_step, location, picks, picks_synced,
                 profile_name, photo_body, photo_face, install_id, try_on_jobs, makeup_jobs
            SQLite cache.sqlite (forecasts) · files: photos/ outfits/{uid}/ makeup/{uid}/ downloads/
+           SharedPreferences HomeWidgetPreferences: in_vogue_widget, in_vogue_widget_refresh (Android widget)
 FIRESTORE  users/{uid} profile · wishlist/ · days/ · suggestions/ · makeupLooks/ · colorProfiles/
 STORAGE    users/{uid}/ photos/ · days/ · makeup/
 ASSETS     catalog/everlane_women.json · outfits/outfits.json · makeup/recipes.json · fonts · images
