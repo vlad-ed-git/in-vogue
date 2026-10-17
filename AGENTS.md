@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `feat/translate_kb_texts`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `docs/readme_refresh`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -143,7 +143,8 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `fix/plan_rules` | Everything in `feat/logout_clears_pictures`, plus Firestore rules that stop a person changing their own plan (deployed to `in-vogue-dev`) | Not merged, not pushed |
 | `feat/skip_refused_outfit` | Everything in `fix/plan_rules`, plus switching to another outfit when YouCam refuses a piece's photo | Not merged, not pushed |
 | `fix/favourites_across_phones` | Everything in `feat/skip_refused_outfit`, plus favourites that stay unloved across phones | Not merged, not pushed |
-| **`feat/translate_kb_texts`** (current) | Everything in `fix/favourites_across_phones`, plus makeup steps and outfit reasons in Spanish and Chinese | Not merged, not pushed |
+| `feat/translate_kb_texts` | Everything in `fix/favourites_across_phones`, plus makeup steps and outfit reasons in Spanish and Chinese | Not merged, not pushed |
+| **`docs/readme_refresh`** (current) | Everything in `feat/translate_kb_texts`, plus a README that describes the app as built (October 17) | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -191,7 +192,6 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 
 - [ ] Merge `feat/makeup` into `main`. *Blocked on the owner's go-ahead.*
 - [ ] Push to `origin`. *Blocked on the owner's go-ahead.*
-- [ ] Bring `in-vogue/README.md` up to date: its intro and folder tree still describe October 16. *Pending.*
 - [ ] Run each skill's evals in fresh sessions, with and without the skill, and record the results in §4.1. *Pending.*
 
 ### 3.b Production release checklist
