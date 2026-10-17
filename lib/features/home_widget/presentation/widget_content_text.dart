@@ -1,6 +1,9 @@
+import 'dart:ui' show Locale;
+
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_format.dart';
+import 'package:in_vogue/core/presentation/foundations/kicker.dart';
 import 'package:in_vogue/core/utils/occasion_l10n.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
@@ -58,6 +61,8 @@ abstract final class WidgetContentText {
     final feelsLike = unit.degrees(weather.feelsLike);
     final condition = weather.condition(l10n, code);
     final outfit = day.outfit;
+    String kicker(String word) =>
+        Kicker.usesCapitals(Locale(code)) ? word.toUpperCase() : word;
     String spoken(String dayWord) {
       final said = l10n.weatherSpokenWithDay(
         dayWord,
@@ -72,8 +77,8 @@ abstract final class WidgetContentText {
     return WidgetSnapshot(
       date: weather.date,
       occasion: weather.occasion,
-      today: l10n.today,
-      tomorrow: l10n.tomorrow,
+      today: kicker(l10n.today),
+      tomorrow: kicker(l10n.tomorrow),
       dateLine:
           '${InVogueFormat.shortDate(weather.date, code)} · '
           '${weather.occasion.kicker(l10n)}',

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The home-screen widget's type, as the app's widget preview sets it. Font weights need Android 8. -->
+    <style name="WidgetText">
+        <item name="android:fontFamily">@font/sofia_sans</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:textColor">@color/widget_rose</item>
+        <item name="android:textSize">11dp</item>
+    </style>
+
+    <!-- The day, in capitals with 12% tracking. -->
+    <style name="WidgetKicker" parent="WidgetText">
+        <item name="android:fontVariationSettings">\'wght\' 700</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.12</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <!-- The date and occasion, and feels-like. -->
+    <style name="WidgetDate" parent="WidgetText">
+        <item name="android:textColor">@color/widget_rose_muted</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- The temperature, light and tight; its size comes from the provider. -->
+    <style name="WidgetNumeral" parent="WidgetText">
+        <item name="android:fontFamily">@font/sofia_sans_extra_condensed</item>
+        <item name="android:fontVariationSettings">\'wght\' 300</item>
+        <item name="android:letterSpacing">-0.025</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <!-- The condition sentence; its size comes from the layout. -->
+    <style name="WidgetCondition" parent="WidgetText">
+        <item name="android:fontVariationSettings">\'wght\' 600</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- "Getting ready" over the waiting photo. -->
+    <style name="WidgetWaiting" parent="WidgetCondition">
+        <item name="android:textSize">15dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+</resources>

@@ -82,8 +82,8 @@ void main() {
     );
     final [made, waiting] = content.days;
     expect(made.date, _today);
-    expect(made.today, l10n.today);
-    expect(made.tomorrow, l10n.tomorrow);
+    expect(made.today, 'HOY', reason: 'a kicker, in capitals');
+    expect(made.tomorrow, 'MAÑANA');
     expect(
       made.dateLine,
       '${InVogueFormat.shortDate(_today, 'es')} · '
@@ -105,6 +105,19 @@ void main() {
         l10n.weatherSpokenWithDay(l10n.tomorrow, 12, waiting.condition, 10),
       ),
     );
+  });
+
+  test('writes Chinese kickers as they are, with no capitals', () {
+    final content = WidgetContentText.of(
+      days: [(report: _report(_today, ForecastDay.today), outfit: null)],
+      preferred: ForecastDay.today,
+      countryCode: 'CN',
+      bodyPhoto: null,
+      l10n: lookupAppLocalizations(const Locale('zh')),
+      language: SupportedLanguages.chinese,
+      now: DateTime(2026, 10, 18, 7),
+    );
+    expect(content.days.single.today, '今天');
   });
 
   test('gives temperatures in the unit of where the person is', () {

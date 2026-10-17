@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The home-screen widget: a Rouge slab with Rose type, beside the portrait on studio grey. -->
+    <color name="widget_rouge">#8C0F1F</color>
+    <color name="widget_rose">#F7D3D8</color>
+    <color name="widget_rose_muted">#E8AEB8</color>
+    <color name="widget_studio">#EDEDEB</color>
+</resources>

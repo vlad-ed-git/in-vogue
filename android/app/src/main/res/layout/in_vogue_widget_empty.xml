@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Before the app has given the widget a day: the Rouge field and the name. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/widget_rouge">
+
+    <TextView
+        style="@style/WidgetText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="@font/sofia_sans_extra_condensed"
+        android:text="@string/widget_brand"
+        android:textSize="40dp"
+        android:textStyle="bold" />
+</FrameLayout>

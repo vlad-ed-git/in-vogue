@@ -26,7 +26,8 @@ class WidgetSnapshot extends Equatable {
   final DateTime date;
   final Occasion occasion;
 
-  /// The day word when [date] is today, and when it is tomorrow.
+  /// The kicker when [date] is today, and when it is tomorrow, as shown:
+  /// in capitals where the language has them.
   final String today;
   final String tomorrow;
 

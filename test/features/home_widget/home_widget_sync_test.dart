@@ -135,7 +135,7 @@ void main() {
     expect(content.preferred, ForecastDay.tomorrow);
     expect([for (final day in content.days) day.date], [_today, _tomorrow]);
     expect(content.days.first.picture, _outfit.picture);
-    expect(content.days.first.today, 'Hoy');
+    expect(content.days.first.today, 'HOY');
     expect(content.days.last.picture, isNull);
     expect(content.days.last.waitingPhoto, '/photos/body-1.jpg');
   });
