@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_picker_data_source.dart';
+import 'package:in_vogue/features/photos/data/data_sources/photo_prepare_data_source.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_store_data_source.dart';
 import 'package:in_vogue/features/photos/data/repositories/photo_repository_impl.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
@@ -16,6 +17,9 @@ void init(GetIt locator) {
     ..registerLazySingleton<PhotoPickerDataSource>(
       PhotoPickerDataSourceImpl.new,
     )
+    ..registerLazySingleton<PhotoPrepareDataSource>(
+      PhotoPrepareDataSourceImpl.new,
+    )
     ..registerLazySingleton<PhotoStoreDataSource>(
       () => PhotoStoreDataSourceImpl(
         directory: path.join(locator<AppDirectory>().path, 'photos'),
@@ -25,6 +29,7 @@ void init(GetIt locator) {
     ..registerLazySingleton<PhotoRepository>(
       () => PhotoRepositoryImpl(
         pickerDataSource: locator(),
+        prepareDataSource: locator(),
         storeDataSource: locator(),
         logMessages: locator(),
       ),

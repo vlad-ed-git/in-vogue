@@ -248,6 +248,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get photoUnreadable => '无法打开这张照片，请换一张。';
 
   @override
+  String get photoTooSmall => '这张照片太小了，请换一张更大的。';
+
+  @override
+  String get photoUnusable => '无法使用这张照片，请换一张。';
+
+  @override
   String get addPhotoOfYou => '添加一张你的照片';
 
   @override

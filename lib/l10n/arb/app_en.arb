@@ -282,6 +282,14 @@
   "@photoUnreadable": {
     "description": "A chosen photo could not be read."
   },
+  "photoTooSmall": "This photo is too small. Choose a larger one.",
+  "@photoTooSmall": {
+    "description": "A chosen photo is smaller than the try-on or the skin analysis needs."
+  },
+  "photoUnusable": "We can’t use this photo. Choose another one.",
+  "@photoUnusable": {
+    "description": "A chosen photo could not be read or changed to a format that works."
+  },
   "addPhotoOfYou": "Add a photo of you",
   "@addPhotoOfYou": {
     "description": "Title of setup step 2."

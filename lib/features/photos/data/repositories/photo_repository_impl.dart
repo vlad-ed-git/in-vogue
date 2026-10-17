@@ -3,8 +3,10 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_picker_data_source.dart';
+import 'package:in_vogue/features/photos/data/data_sources/photo_prepare_data_source.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_store_data_source.dart';
 import 'package:in_vogue/features/photos/data/photo_exception.dart';
+import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -12,23 +14,31 @@ import 'package:in_vogue/features/photos/domain/repositories/photo_repository.da
 class PhotoRepositoryImpl implements PhotoRepository {
   PhotoRepositoryImpl({
     required PhotoPickerDataSource pickerDataSource,
+    required PhotoPrepareDataSource prepareDataSource,
     required PhotoStoreDataSource storeDataSource,
     required LogMessages logMessages,
   }) : _picker = pickerDataSource,
+       _prepare = prepareDataSource,
        _store = storeDataSource,
        _logger = logMessages;
 
   final PhotoPickerDataSource _picker;
+  final PhotoPrepareDataSource _prepare;
   final PhotoStoreDataSource _store;
   final LogMessages _logger;
 
   @override
-  Future<Either<Failure, String?>> choose() async {
+  Future<Either<Failure, ChosenPhoto?>> choose(PhotoRole role) async {
     try {
-      return Right(await _picker.choose());
+      final picked = await _picker.choose();
+      if (picked == null) return const Right(null);
+      return Right(await _prepare.prepare(picked, role));
     } on PhotoException catch (error) {
-      _log('choose', error.cause, error.stackTrace);
-      return const Left(PhotoFailure());
+      // A photo too small is the person's to replace, not an error.
+      if (error.problem != PhotoProblem.tooSmall) {
+        _log('choose', error.cause, error.stackTrace);
+      }
+      return Left(PhotoFailure(error.problem));
     }
   }
 

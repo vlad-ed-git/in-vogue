@@ -17,6 +17,7 @@ import 'package:in_vogue/features/makeup/domain/repositories/makeup_service_repo
 import 'package:in_vogue/features/makeup/domain/services/make_look.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -603,7 +604,8 @@ class _FakePhotos implements PhotoRepository {
       Right(role == PhotoRole.face ? face : null);
 
   @override
-  Future<Either<Failure, String?>> choose() => throw UnimplementedError();
+  Future<Either<Failure, ChosenPhoto?>> choose(PhotoRole role) =>
+      throw UnimplementedError();
 
   @override
   Future<Either<Failure, UserPhoto>> keep(String path, PhotoRole role) =>

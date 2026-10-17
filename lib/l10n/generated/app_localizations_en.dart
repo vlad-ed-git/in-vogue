@@ -251,6 +251,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn’t open this photo. Choose another one.';
 
   @override
+  String get photoTooSmall => 'This photo is too small. Choose a larger one.';
+
+  @override
+  String get photoUnusable => 'We can’t use this photo. Choose another one.';
+
+  @override
   String get addPhotoOfYou => 'Add a photo of you';
 
   @override

@@ -2,7 +2,6 @@ import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
-import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/usecases/choose_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
@@ -51,6 +50,7 @@ class PhotoState extends Equatable {
     this.status = PhotoStatus.empty,
     this.path,
     this.isKept = false,
+    this.converted = false,
     this.busy = false,
     this.failure,
   });
@@ -62,6 +62,10 @@ class PhotoState extends Equatable {
 
   /// Whether [path] is the kept photo.
   final bool isKept;
+
+  /// Whether [path]'s format was changed so YouCam takes it; it stays so
+  /// once kept.
+  final bool converted;
 
   /// Choosing or keeping.
   final bool busy;
@@ -75,12 +79,13 @@ class PhotoState extends Equatable {
     status: status ?? this.status,
     path: path,
     isKept: isKept,
+    converted: converted,
     busy: busy,
     failure: failure,
   );
 
   @override
-  List<Object?> get props => [status, path, isKept, busy, failure];
+  List<Object?> get props => [status, path, isKept, converted, busy, failure];
 }
 
 /// One photo of the person: chosen with the system picker, trusted as the
@@ -125,12 +130,18 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
   Future<void> _choose(Emitter<PhotoState> emit) async {
     final before = state._with();
     emit(before._with(busy: true));
-    final chosen = await _choosePhoto(const NoParams());
+    final chosen = await _choosePhoto(_role);
     final failure = chosen.fold((failure) => failure, (_) => null);
     if (failure != null) return emit(before._with(failure: failure));
-    final path = chosen.getOrElse(() => null);
-    if (path == null) return emit(before);
-    emit(PhotoState(status: PhotoStatus.chosen, path: path));
+    final photo = chosen.getOrElse(() => null);
+    if (photo == null) return emit(before);
+    emit(
+      PhotoState(
+        status: PhotoStatus.chosen,
+        path: photo.path,
+        converted: photo.converted,
+      ),
+    );
   }
 
   Future<void> _confirm(Emitter<PhotoState> emit) async {
@@ -149,6 +160,7 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
           status: PhotoStatus.confirmed,
           path: photo.path,
           isKept: true,
+          converted: shown.converted,
         ),
       ),
     );

@@ -5,9 +5,11 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_picker_data_source.dart';
+import 'package:in_vogue/features/photos/data/data_sources/photo_prepare_data_source.dart';
 import 'package:in_vogue/features/photos/data/data_sources/photo_store_data_source.dart';
 import 'package:in_vogue/features/photos/data/photo_exception.dart';
 import 'package:in_vogue/features/photos/data/repositories/photo_repository_impl.dart';
+import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -24,22 +26,26 @@ const _body = UserPhoto(
 
 @GenerateMocks([
   PhotoPickerDataSource,
+  PhotoPrepareDataSource,
   PhotoStoreDataSource,
   PhotoRepository,
   LogMessages,
 ])
 void main() {
   late MockPhotoPickerDataSource picker;
+  late MockPhotoPrepareDataSource prepare;
   late MockPhotoStoreDataSource store;
   late MockLogMessages logger;
   late PhotoRepositoryImpl repository;
 
   setUp(() {
     picker = MockPhotoPickerDataSource();
+    prepare = MockPhotoPrepareDataSource();
     store = MockPhotoStoreDataSource();
     logger = MockLogMessages();
     repository = PhotoRepositoryImpl(
       pickerDataSource: picker,
+      prepareDataSource: prepare,
       storeDataSource: store,
       logMessages: logger,
     );
@@ -48,22 +54,31 @@ void main() {
   PhotoException unreadable() =>
       PhotoException(PlatformException(code: 'unreadable'), StackTrace.current);
 
-  test('returns the chosen photo, or none when the person cancels', () async {
-    when(picker.choose()).thenAnswer((_) async => '/tmp/picked.jpg');
+  test('makes the chosen photo ready for its role, or none when the person '
+      'cancels', () async {
+    const ready = ChosenPhoto(path: '/tmp/picked-ready.png', converted: true);
+    when(picker.choose()).thenAnswer((_) async => '/tmp/picked.webp');
+    when(
+      prepare.prepare('/tmp/picked.webp', PhotoRole.face),
+    ).thenAnswer((_) async => ready);
     expect(
-      await repository.choose(),
-      const Right<Failure, String?>('/tmp/picked.jpg'),
+      await repository.choose(PhotoRole.face),
+      const Right<Failure, ChosenPhoto?>(ready),
     );
     when(picker.choose()).thenAnswer((_) async => null);
-    expect(await repository.choose(), const Right<Failure, String?>(null));
+    expect(
+      await repository.choose(PhotoRole.face),
+      const Right<Failure, ChosenPhoto?>(null),
+    );
+    verify(prepare.prepare(any, any)).called(1);
   });
 
   test('maps a picker problem to a photo failure and logs it', () async {
     final error = unreadable();
     when(picker.choose()).thenThrow(error);
     expect(
-      await repository.choose(),
-      const Left<Failure, String?>(PhotoFailure()),
+      await repository.choose(PhotoRole.body),
+      const Left<Failure, ChosenPhoto?>(PhotoFailure(PhotoProblem.unreadable)),
     );
     verify(
       logger.logError(
@@ -71,6 +86,28 @@ void main() {
         callerMethod: 'choose',
         error: error.cause,
         stackTrace: error.stackTrace,
+      ),
+    ).called(1);
+  });
+
+  test('says why a chosen photo cannot be used', () async {
+    when(picker.choose()).thenAnswer((_) async => '/tmp/picked.jpg');
+    for (final problem in [PhotoProblem.tooSmall, PhotoProblem.unusable]) {
+      when(prepare.prepare(any, any)).thenThrow(
+        PhotoException(StateError('$problem'), StackTrace.current, problem),
+      );
+      expect(
+        await repository.choose(PhotoRole.body),
+        Left<Failure, ChosenPhoto?>(PhotoFailure(problem)),
+      );
+    }
+    // Only the photo that could not be read is an error worth logging.
+    verify(
+      logger.logError(
+        callerClass: anyNamed('callerClass'),
+        callerMethod: anyNamed('callerMethod'),
+        error: anyNamed('error'),
+        stackTrace: anyNamed('stackTrace'),
       ),
     ).called(1);
   });

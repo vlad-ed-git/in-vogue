@@ -100,7 +100,10 @@ void main() {
   });
 
   testWidgets('says when a photo cannot be opened', (tester) async {
-    await pumpScreen(tester, state: const PhotoState(failure: PhotoFailure()));
+    await pumpScreen(
+      tester,
+      state: const PhotoState(failure: PhotoFailure(PhotoProblem.unreadable)),
+    );
     expect(
       find.text('We couldn’t open this photo. Choose another one.'),
       findsOneWidget,

@@ -55,6 +55,8 @@
   "offlineSaved": "No tienes conexión. Este es el conjunto guardado el {savedAt}.",
   "savedAt": "{date} a las {time}",
   "photoUnreadable": "No pudimos abrir esta foto. Elige otra.",
+  "photoTooSmall": "Esta foto es demasiado pequeña. Elige una más grande.",
+  "photoUnusable": "No podemos usar esta foto. Elige otra.",
   "addPhotoOfYou": "Añade una foto tuya",
   "bodyPhotoWhy": "Vestimos esta foto con cada conjunto.",
   "chooseDifferentPhoto": "Elegir una foto distinta",

@@ -8,7 +8,11 @@ extension FailureMessage on Failure {
     CacheFailure() => context.translated.cacheFailure,
     NetworkFailure() => context.translated.networkFailure,
     ServerFailure() => context.translated.serverFailure,
-    PhotoFailure() => context.translated.photoUnreadable,
+    PhotoFailure(:final problem) => switch (problem) {
+      PhotoProblem.unreadable => context.translated.photoUnreadable,
+      PhotoProblem.tooSmall => context.translated.photoTooSmall,
+      PhotoProblem.unusable => context.translated.photoUnusable,
+    },
     SignInFailure() => context.translated.signInFailed,
     TryOnFailure(:final problem) => switch (problem) {
       TryOnProblem.failed => context.translated.tryOnFailed,

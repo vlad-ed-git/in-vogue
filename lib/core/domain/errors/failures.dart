@@ -57,9 +57,13 @@ enum PhotoProblem {
   unusable,
 }
 
-/// A photo could not be chosen or read.
+/// A photo could not be chosen, read or used.
 final class PhotoFailure extends Failure {
-  const PhotoFailure();
+  const PhotoFailure(this.problem);
+  final PhotoProblem problem;
+
+  @override
+  List<Object?> get props => [problem];
 }
 
 /// Why signing in did not finish.

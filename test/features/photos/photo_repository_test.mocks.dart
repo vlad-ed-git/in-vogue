@@ -4,21 +4,25 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
-import 'dart:async' as _i5;
+import 'dart:async' as _i6;
 
-import 'package:dartz/dartz.dart' as _i3;
-import 'package:in_vogue/core/domain/errors/failures.dart' as _i9;
-import 'package:in_vogue/core/domain/errors/log_messages.dart' as _i10;
+import 'package:dartz/dartz.dart' as _i4;
+import 'package:in_vogue/core/domain/errors/failures.dart' as _i11;
+import 'package:in_vogue/core/domain/errors/log_messages.dart' as _i12;
 import 'package:in_vogue/features/photos/data/data_sources/photo_picker_data_source.dart'
-    as _i4;
-import 'package:in_vogue/features/photos/data/data_sources/photo_store_data_source.dart'
-    as _i6;
-import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
+    as _i5;
+import 'package:in_vogue/features/photos/data/data_sources/photo_prepare_data_source.dart'
     as _i7;
-import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
+import 'package:in_vogue/features/photos/data/data_sources/photo_store_data_source.dart'
+    as _i9;
+import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart'
     as _i2;
-import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart'
+import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
     as _i8;
+import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
+    as _i3;
+import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart'
+    as _i10;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -36,13 +40,18 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeUserPhoto_0 extends _i1.SmartFake implements _i2.UserPhoto {
-  _FakeUserPhoto_0(Object parent, Invocation parentInvocation)
+class _FakeChosenPhoto_0 extends _i1.SmartFake implements _i2.ChosenPhoto {
+  _FakeChosenPhoto_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeEither_1<L, R> extends _i1.SmartFake implements _i3.Either<L, R> {
-  _FakeEither_1(Object parent, Invocation parentInvocation)
+class _FakeUserPhoto_1 extends _i1.SmartFake implements _i3.UserPhoto {
+  _FakeUserPhoto_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeEither_2<L, R> extends _i1.SmartFake implements _i4.Either<L, R> {
+  _FakeEither_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -50,125 +59,151 @@ class _FakeEither_1<L, R> extends _i1.SmartFake implements _i3.Either<L, R> {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPhotoPickerDataSource extends _i1.Mock
-    implements _i4.PhotoPickerDataSource {
+    implements _i5.PhotoPickerDataSource {
   MockPhotoPickerDataSource() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<String?> choose() =>
+  _i6.Future<String?> choose() =>
       (super.noSuchMethod(
             Invocation.method(#choose, []),
-            returnValue: _i5.Future<String?>.value(),
+            returnValue: _i6.Future<String?>.value(),
           )
-          as _i5.Future<String?>);
+          as _i6.Future<String?>);
+}
+
+/// A class which mocks [PhotoPrepareDataSource].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockPhotoPrepareDataSource extends _i1.Mock
+    implements _i7.PhotoPrepareDataSource {
+  MockPhotoPrepareDataSource() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<_i2.ChosenPhoto> prepare(String? path, _i8.PhotoRole? role) =>
+      (super.noSuchMethod(
+            Invocation.method(#prepare, [path, role]),
+            returnValue: _i6.Future<_i2.ChosenPhoto>.value(
+              _FakeChosenPhoto_0(
+                this,
+                Invocation.method(#prepare, [path, role]),
+              ),
+            ),
+          )
+          as _i6.Future<_i2.ChosenPhoto>);
 }
 
 /// A class which mocks [PhotoStoreDataSource].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPhotoStoreDataSource extends _i1.Mock
-    implements _i6.PhotoStoreDataSource {
+    implements _i9.PhotoStoreDataSource {
   MockPhotoStoreDataSource() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i2.UserPhoto> keep(String? source, _i7.PhotoRole? role) =>
+  _i6.Future<_i3.UserPhoto> keep(String? source, _i8.PhotoRole? role) =>
       (super.noSuchMethod(
             Invocation.method(#keep, [source, role]),
-            returnValue: _i5.Future<_i2.UserPhoto>.value(
-              _FakeUserPhoto_0(this, Invocation.method(#keep, [source, role])),
+            returnValue: _i6.Future<_i3.UserPhoto>.value(
+              _FakeUserPhoto_1(this, Invocation.method(#keep, [source, role])),
             ),
           )
-          as _i5.Future<_i2.UserPhoto>);
+          as _i6.Future<_i3.UserPhoto>);
 
   @override
-  _i2.UserPhoto? kept(_i7.PhotoRole? role) =>
-      (super.noSuchMethod(Invocation.method(#kept, [role])) as _i2.UserPhoto?);
+  _i3.UserPhoto? kept(_i8.PhotoRole? role) =>
+      (super.noSuchMethod(Invocation.method(#kept, [role])) as _i3.UserPhoto?);
 
   @override
-  _i5.Future<void> forget(_i7.PhotoRole? role) =>
+  _i6.Future<void> forget(_i8.PhotoRole? role) =>
       (super.noSuchMethod(
             Invocation.method(#forget, [role]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 }
 
 /// A class which mocks [PhotoRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPhotoRepository extends _i1.Mock implements _i8.PhotoRepository {
+class MockPhotoRepository extends _i1.Mock implements _i10.PhotoRepository {
   MockPhotoRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i3.Either<_i9.Failure, String?>> choose() =>
+  _i6.Future<_i4.Either<_i11.Failure, _i2.ChosenPhoto?>> choose(
+    _i8.PhotoRole? role,
+  ) =>
       (super.noSuchMethod(
-            Invocation.method(#choose, []),
-            returnValue: _i5.Future<_i3.Either<_i9.Failure, String?>>.value(
-              _FakeEither_1<_i9.Failure, String?>(
-                this,
-                Invocation.method(#choose, []),
-              ),
-            ),
+            Invocation.method(#choose, [role]),
+            returnValue:
+                _i6.Future<_i4.Either<_i11.Failure, _i2.ChosenPhoto?>>.value(
+                  _FakeEither_2<_i11.Failure, _i2.ChosenPhoto?>(
+                    this,
+                    Invocation.method(#choose, [role]),
+                  ),
+                ),
           )
-          as _i5.Future<_i3.Either<_i9.Failure, String?>>);
+          as _i6.Future<_i4.Either<_i11.Failure, _i2.ChosenPhoto?>>);
 
   @override
-  _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto>> keep(
+  _i6.Future<_i4.Either<_i11.Failure, _i3.UserPhoto>> keep(
     String? path,
-    _i7.PhotoRole? role,
+    _i8.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#keep, [path, role]),
             returnValue:
-                _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto>>.value(
-                  _FakeEither_1<_i9.Failure, _i2.UserPhoto>(
+                _i6.Future<_i4.Either<_i11.Failure, _i3.UserPhoto>>.value(
+                  _FakeEither_2<_i11.Failure, _i3.UserPhoto>(
                     this,
                     Invocation.method(#keep, [path, role]),
                   ),
                 ),
           )
-          as _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto>>);
+          as _i6.Future<_i4.Either<_i11.Failure, _i3.UserPhoto>>);
 
   @override
-  _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto?>> kept(
-    _i7.PhotoRole? role,
+  _i6.Future<_i4.Either<_i11.Failure, _i3.UserPhoto?>> kept(
+    _i8.PhotoRole? role,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#kept, [role]),
             returnValue:
-                _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto?>>.value(
-                  _FakeEither_1<_i9.Failure, _i2.UserPhoto?>(
+                _i6.Future<_i4.Either<_i11.Failure, _i3.UserPhoto?>>.value(
+                  _FakeEither_2<_i11.Failure, _i3.UserPhoto?>(
                     this,
                     Invocation.method(#kept, [role]),
                   ),
                 ),
           )
-          as _i5.Future<_i3.Either<_i9.Failure, _i2.UserPhoto?>>);
+          as _i6.Future<_i4.Either<_i11.Failure, _i3.UserPhoto?>>);
 
   @override
-  _i5.Future<_i3.Either<_i9.Failure, _i3.Unit>> forget(_i7.PhotoRole? role) =>
+  _i6.Future<_i4.Either<_i11.Failure, _i4.Unit>> forget(_i8.PhotoRole? role) =>
       (super.noSuchMethod(
             Invocation.method(#forget, [role]),
-            returnValue: _i5.Future<_i3.Either<_i9.Failure, _i3.Unit>>.value(
-              _FakeEither_1<_i9.Failure, _i3.Unit>(
+            returnValue: _i6.Future<_i4.Either<_i11.Failure, _i4.Unit>>.value(
+              _FakeEither_2<_i11.Failure, _i4.Unit>(
                 this,
                 Invocation.method(#forget, [role]),
               ),
             ),
           )
-          as _i5.Future<_i3.Either<_i9.Failure, _i3.Unit>>);
+          as _i6.Future<_i4.Either<_i11.Failure, _i4.Unit>>);
 }
 
 /// A class which mocks [LogMessages].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogMessages extends _i1.Mock implements _i10.LogMessages {
+class MockLogMessages extends _i1.Mock implements _i12.LogMessages {
   MockLogMessages() {
     _i1.throwOnMissingStub(this);
   }

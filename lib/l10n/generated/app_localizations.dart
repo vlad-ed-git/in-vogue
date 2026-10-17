@@ -435,6 +435,18 @@ abstract class AppLocalizations {
   /// **'We couldn’t open this photo. Choose another one.'**
   String get photoUnreadable;
 
+  /// A chosen photo is smaller than the try-on or the skin analysis needs.
+  ///
+  /// In en, this message translates to:
+  /// **'This photo is too small. Choose a larger one.'**
+  String get photoTooSmall;
+
+  /// A chosen photo could not be read or changed to a format that works.
+  ///
+  /// In en, this message translates to:
+  /// **'We can’t use this photo. Choose another one.'**
+  String get photoUnusable;
+
   /// Title of setup step 2.
   ///
   /// In en, this message translates to:
