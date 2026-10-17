@@ -10,6 +10,9 @@ and the YouCam Makeup VTO effects, with {skin}, {concealer}, {brow} and
 indexes of its steps and the colours of its cheeks and lips, named as
 makeup.v1.json names them. Recipes are keyed
 occasion|outfit palette|shade group|contrast|weather.
+A step's title, how-to and products are written in English, Spanish and
+Chinese ({"en", "es", "zh"}) from kb/translations.v1.json: a how-to as its
+sentence, then the weather notes after it. Every text must be there.
 """
 import json
 import sys
@@ -18,6 +21,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 KB = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent / "resources/kb"
 OUT = Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / "assets/makeup/recipes.json"
+# Between a how-to's sentences.
+SEPARATORS = {"es": " ", "zh": ""}
 
 
 def colour_name(table, shade, hex_colour):
@@ -36,9 +41,36 @@ def first_colour(steps, category):
     return None
 
 
+def translator(problems):
+    words = json.loads((KB / "translations.v1.json").read_text(encoding="utf-8"))["makeup"]
+
+    def translated(kind, english):
+        found = words[kind].get(english)
+        if found is None:
+            problems.add(f"no translation for {kind} {english!r}")
+            return {"en": english}
+        return {"en": english, **{lang: found[lang] for lang in SEPARATORS}}
+
+    def how_to(english):
+        sentence, notes = english, []
+        while note := next((n for n in words["notes"] if sentence.endswith(f" {n}")), None):
+            notes.insert(0, note)
+            sentence = sentence[: -len(note) - 1]
+        found = words["howTos"].get(sentence)
+        if found is None:
+            problems.add(f"no translation for howTos {sentence!r}")
+            return {"en": english}
+        return {"en": english, **{lang: separator.join([found[lang]] + [words["notes"][n][lang] for n in notes])
+                                  for lang, separator in SEPARATORS.items()}}
+
+    return translated, how_to
+
+
 def main():
     index = json.loads((KB / "makeup.index.v1.json").read_text(encoding="utf-8"))
     colours = json.loads((KB / "makeup.v1.json").read_text(encoding="utf-8"))["colors"]
+    problems = set()
+    translated, how_to = translator(problems)
     table, positions, recipes = [], {}, {}
     for key, recipe in sorted(index["recipes"].items()):
         shade = key.split("|")[2]
@@ -54,13 +86,15 @@ def main():
             if text not in positions:
                 positions[text] = len(table)
                 table.append({
-                    "title": step["title"],
-                    "howTo": step["howTo"],
-                    "products": step["products"],
+                    "title": translated("titles", step["title"]),
+                    "howTo": how_to(step["howTo"]),
+                    "products": [translated("products", product) for product in step["products"]],
                     "effects": step["effects"],
                 })
             ids.append(positions[text])
         recipes[key] = {"variant": recipe["variant"], "cheeks": cheeks, "lips": lips, "steps": ids}
+    if problems:
+        sys.exit("\n".join(sorted(problems)))
     out = {
         "version": index["version"],
         "key": index["key"],

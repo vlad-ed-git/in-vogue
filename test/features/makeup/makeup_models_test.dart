@@ -137,6 +137,20 @@ void main() {
       }
     });
 
+    test('explain every step in Spanish and Chinese too', () {
+      for (final recipe in recipes.values) {
+        for (final step in recipe.steps) {
+          for (final text in [step.title, step.howTo, ...step.products]) {
+            expect(
+              text.translations.keys,
+              containsAll(['es', 'zh']),
+              reason: text.english,
+            );
+          }
+        }
+      }
+    });
+
     test('never smooth the skin and never touch the hair', () {
       for (final recipe in recipes.values) {
         for (final step in recipe.steps) {

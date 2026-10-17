@@ -96,6 +96,19 @@ void main() {
       }
     });
 
+    test('say why in Spanish and Chinese too', () {
+      for (final outfit in index.outfits.values) {
+        for (final reason in outfit.reasons.values) {
+          expect(
+            reason.translations.keys,
+            containsAll(['es', 'zh']),
+            reason: reason.english,
+          );
+          expect(reason.translations.values, everyElement(isNotEmpty));
+        }
+      }
+    });
+
     test('only use pieces of the bundled collection', () {
       for (final outfit in index.outfits.values) {
         expect(colourways, containsAll(outfit.pieces), reason: outfit.id);

@@ -20,7 +20,7 @@ class OutfitAssetDataSourceImpl implements OutfitAssetDataSource {
   @override
   Future<OutfitIndex> index() async {
     final text = await _bundle.loadString(path, cache: false);
-    // About 2 MB: read on another isolate so the screen keeps moving.
+    // About 4 MB: read on another isolate so the screen keeps moving.
     return Isolate.run(() => OutfitsModel.fromJson(jsonDecode(text)));
   }
 }
