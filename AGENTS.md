@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `fix/favourites_across_phones`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `feat/translate_kb_texts`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -41,7 +41,7 @@ Run every Flutter and Dart command from `in-vogue/` through an interactive zsh, 
 | **Test** (everything, about 1 minute) | `zsh -ic 'flutterN test'` |
 | Test one file | `zsh -ic 'flutterN test test/features/outfits/make_outfit_test.dart'` |
 | Visual boards (optional) | `zsh -ic 'flutterN test test_visual'`, which writes PNGs to `build/visual/` |
-| Re-export bundled data | `python3 scripts/export_catalog.py`, then `export_outfits.py`, then `export_makeup.py` |
+| Re-export bundled data | `python3 scripts/export_catalog.py`, then `export_outfits.py`, then `export_makeup.py` (they stop if `resources/kb/translations.v1.json` lacks a text) |
 | Write the dev YouCam key file | `python3 scripts/write_development_defines.py` |
 | Check the Firestore rules (emulator; needs Java 21) | `JAVA_HOME=/Users/vlad/Development/java/jdk-21.0.1.jdk/Contents/Home firebase emulators:exec --only firestore --project demo-in-vogue "python3 scripts/check_firestore_rules.py"` |
 | Deploy rules (development only) | `GOOGLE_APPLICATION_CREDENTIALS="$PWD/secrets/in-vogue-dev-firebase-adminsdk-fbsvc-517e1ce146.json" firebase deploy --only firestore:rules,storage --project in-vogue-dev --non-interactive` |
@@ -105,7 +105,7 @@ At the end of every task:
 
 ## 2. What is built
 
-Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 764 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 774 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
 
 ### 2.1 What a person can do today
 
@@ -117,7 +117,7 @@ Checked on October 17, 2026, by reading the code and running the checks: **`flut
 | **Your picks** | Only the pieces you loved. Removing one asks first. |
 | **Makeup tab** | It follows Home's day and occasion. Once there is a face photo and an outfit, the look starts by itself: Before / After, one sentence tying it to the outfit, and 3–6 numbered steps showing your face after each step (tap to zoom). Steps appear as they finish. |
 | **Settings** | Profile (face photo, name, how you signed in, edit name; without a face photo, the name's first letter in white on a Rouge square set like the logo's "In", added October 17), replace the body or face photo, membership (shows Pro or Free; display only), location (Change), default day (tomorrow with the morning rule, or always today), language, Log out (it also clears the account's outfit and makeup pictures from this phone, keeping the body and face photos and the picks; added October 17), and Delete account, which removes the account's data from Firebase and from this phone. |
-| **Languages** | English (the default), Spanish and Simplified Chinese. The exception is the knowledge base's texts (makeup steps, outfit reasons), which are English only. |
+| **Languages** | English (the default), Spanish and Simplified Chinese, including the knowledge base's texts: makeup steps (titles, how-tos, product kinds) and outfit reasons (added October 17). A makeup look saved before then stays in English. |
 
 The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when it opens on today. The occasion defaults to **Work on weekdays and Casual at weekends**.
 
@@ -142,7 +142,8 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `feat/logout_clears_pictures` | Everything in `feat/settings_profile_initial`, plus log out clearing the phone's outfit and makeup pictures | Not merged, not pushed |
 | `fix/plan_rules` | Everything in `feat/logout_clears_pictures`, plus Firestore rules that stop a person changing their own plan (deployed to `in-vogue-dev`) | Not merged, not pushed |
 | `feat/skip_refused_outfit` | Everything in `fix/plan_rules`, plus switching to another outfit when YouCam refuses a piece's photo | Not merged, not pushed |
-| **`fix/favourites_across_phones`** (current) | Everything in `feat/skip_refused_outfit`, plus favourites that stay unloved across phones | Not merged, not pushed |
+| `fix/favourites_across_phones` | Everything in `feat/skip_refused_outfit`, plus favourites that stay unloved across phones | Not merged, not pushed |
+| **`feat/translate_kb_texts`** (current) | Everything in `fix/favourites_across_phones`, plus makeup steps and outfit reasons in Spanish and Chinese | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -169,7 +170,6 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 - [ ] **Go Pro screen.** *Pending, after the decision above.* "In Vogue Pro", four benefits and the price. Go Pro joins the waiting list and shows "You're on the list" with a drawn check, and every Go Pro afterwards reads "On the Pro list ✓". The design-system pieces already exist (`ProOffer`, `ProConfirmation`, `PlanLine`, and locked `ProductTile` and `OutfitTiles`). The list must live under `users/{uid}`, or the rules need changing.
 - [ ] **Free-plan locks.** *Pending, after the decision above.* The plan line at the bottom of Home, Settings' membership row with Go Pro, and browsing limited to about 30 current-season pieces.
 - [ ] **"Other outfits" on Home** (Pro: up to 3 more outfits a day; tapping one swaps it in at once). *Blocked on an owner decision.* Home's switch became Today / Tomorrow / Outfits on October 16, and each extra outfit is a full try-on (4–6 units).
-- [ ] **Translate the knowledge base's texts** (makeup step titles, how-tos and product kinds, and outfit reasons) into Spanish and Chinese. *Pending; owner to-do from October 17.*
 - [ ] **Holiday and evening occasions.** *Blocked on owner input.* Public holidays should count as casual days, which needs a dated holiday list for each supported country. Still open: whether evenings default to Staying in (Monday to Thursday) and Going out (Friday to Sunday).
 - [ ] **Trim the on-screen wording.** *The owner leads this;* they find the copy too wordy.
 
@@ -178,7 +178,7 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 - [ ] **Crash and error reporting.** *Pending; the owner picks the tool* (Firebase Crashlytics fits the stack). Release builds report nothing today.
 - [ ] **Old pictures and records.** *Pending; the owner picks how long to keep them.* Each active person adds two outfit pictures, makeup pictures and day records every day, and only Delete account ever removes them. A Storage lifecycle rule and Firestore TTL policies can clean up without a server. Never expire `suggestions`, because they drive the no-repeat rule.
 - [ ] **How the catalog and knowledge base reach the app.** *Blocked on an owner decision.* They are bundled in `assets/`, so every catalog change (new stock, a new partner brand) needs an app release. To scale to many partners, decide whether to load versioned catalog and knowledge-base files from Firebase instead.
-- [ ] **Keep the catalog fresh.** *Pending.* The catalog is a snapshot from October 14. Re-run the pull and the exports regularly, and mark pieces that are no longer for sale on Shop instead of sending people to a dead page.
+- [ ] **Keep the catalog fresh.** *Pending.* The catalog is a snapshot from October 14. Re-run the pull and the exports regularly, and mark pieces that are no longer for sale on Shop instead of sending people to a dead page. First make `resources/tools/kb/build_outfits.py` deterministic: its output changes with Python's hash seed (`PYTHONHASHSEED`), so each rebuild reshuffles about 40% of the outfits, and today's bundle can't be rebuilt as it is (found October 17).
 - [ ] **Firebase App Check.** *Pending; needs the owner's console setup* (App Attest on iOS, Play Integrity on Android), so only the real app can reach Firestore and Storage.
 
 **Checks only the owner can do**
