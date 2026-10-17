@@ -43,6 +43,19 @@ class PicksRepositoryImpl implements PicksRepository {
   }
 
   @override
+  Future<Either<Failure, Set<String>>> removePicks(
+    Set<String> colourwayIds,
+  ) async {
+    try {
+      final picks = _local.picks().difference(colourwayIds);
+      await _local.save(picks);
+      return Right(picks);
+    } on CacheException {
+      return const Left(CacheFailure());
+    }
+  }
+
+  @override
   Future<Either<Failure, Set<String>>> synced(String accountId) async {
     try {
       return Right(_local.synced(accountId));

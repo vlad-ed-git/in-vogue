@@ -14,10 +14,14 @@ abstract interface class AccountRepository {
   /// Deletes the account [accountId]'s data and files from the server.
   Future<Either<Failure, Unit>> delete(String accountId);
 
-  /// Saves [setup] on the account [accountId]. A photo is uploaded only when
-  /// the account holds another; a favourite is removed only when the phone
-  /// unloved it since it last saved.
-  Future<Either<Failure, Unit>> save(String accountId, AccountSetup setup);
+  /// Saves [setup] on the account [accountId]; the account's favourites
+  /// once saved. A photo is uploaded only when the account holds another. A
+  /// favourite is added only when the phone loved it since it last saved,
+  /// and removed only when the phone unloved it since then.
+  Future<Either<Failure, Set<String>>> save(
+    String accountId,
+    AccountSetup setup,
+  );
 
   /// What the account [accountId] keeps for a phone to take back; null
   /// before the account is saved.

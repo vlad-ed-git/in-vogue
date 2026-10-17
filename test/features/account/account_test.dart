@@ -271,10 +271,10 @@ void main() {
             as Map<String, Object?>;
 
     test('creates a new account with its photos, picks and plan', () async {
-      expect(
-        await repository.save('uid-1', setup),
-        const Right<Failure, Unit>(unit),
-      );
+      expect((await repository.save('uid-1', setup)).getOrElse(() => {}), {
+        'everlane:a',
+        'everlane:b',
+      });
       verify(
         remote.uploadPhoto(
           path: 'users/uid-1/photos/body-2.jpg',
@@ -339,10 +339,10 @@ void main() {
       when(
         remote.wishlist(any),
       ).thenAnswer((_) async => {'everlane:a', 'everlane:b'});
-      expect(
-        await repository.save('uid-1', setup),
-        const Right<Failure, Unit>(unit),
-      );
+      expect((await repository.save('uid-1', setup)).getOrElse(() => {}), {
+        'everlane:a',
+        'everlane:b',
+      });
       verifyNoUpload();
       verifyNever(
         remote.writeWishlist(
@@ -456,6 +456,28 @@ void main() {
       ).called(1);
     });
 
+    test('never brings back a favourite another phone removed, and gives the '
+        "account's favourites once saved", () async {
+      when(
+        remote.wishlist(any),
+      ).thenAnswer((_) async => {'everlane:a', 'everlane:d'});
+      final saved = await repository.save(
+        'uid-1',
+        const AccountSetup(
+          picks: {'everlane:a', 'everlane:b', 'everlane:e'},
+          syncedPicks: {'everlane:a', 'everlane:b', 'everlane:c'},
+        ),
+      );
+      verify(
+        remote.writeWishlist('uid-1', add: {'everlane:e'}, remove: <String>{}),
+      ).called(1);
+      expect(saved.getOrElse(() => const {}), {
+        'everlane:a',
+        'everlane:d',
+        'everlane:e',
+      });
+    });
+
     test('never removes a favourite from a phone that has not saved it, as '
         'after a reinstall', () async {
       when(
@@ -479,8 +501,11 @@ void main() {
         remote.deletePhoto(any),
       ).thenThrow(ServerException(Exception('gone'), StackTrace.current));
       expect(
-        await repository.save('uid-1', AccountSetup(body: body)),
-        const Right<Failure, Unit>(unit),
+        (await repository.save(
+          'uid-1',
+          AccountSetup(body: body),
+        )).getOrElse(() => {'not saved'}),
+        isEmpty,
       );
     });
 
@@ -616,9 +641,12 @@ void main() {
       when(
         picks.markSynced(any, any),
       ).thenAnswer((_) async => const Right(unit));
-      when(
-        account.save(any, any),
-      ).thenAnswer((_) async => const Right<Failure, Unit>(unit));
+      when(account.save(any, any)).thenAnswer(
+        (_) async =>
+            const Right<Failure, Set<String>>({'everlane:a', 'everlane:b'}),
+      );
+      when(picks.addPicks(any)).thenAnswer((_) async => const Right({}));
+      when(picks.removePicks(any)).thenAnswer((_) async => const Right({}));
     });
 
     test('saves what the phone keeps on the account, and records the picks '
@@ -628,14 +656,31 @@ void main() {
         account.save('uid-1', _setup),
         picks.markSynced('uid-1', {'everlane:a', 'everlane:b'}),
       ]);
+      verifyNever(picks.addPicks(any));
+      verifyNever(picks.removePicks(any));
+    });
+
+    test('brings to the phone what other phones loved and unloved since it '
+        'last saved', () async {
+      when(account.save(any, any)).thenAnswer(
+        (_) async =>
+            const Right<Failure, Set<String>>({'everlane:a', 'everlane:d'}),
+      );
+      expect(await save('uid-1'), const Right<Failure, Unit>(unit));
+      verifyInOrder([
+        picks.addPicks({'everlane:d'}),
+        picks.removePicks({'everlane:b'}),
+        picks.markSynced('uid-1', {'everlane:a', 'everlane:d'}),
+      ]);
     });
 
     test('records no picks as saved when the save fails', () async {
-      when(
-        account.save(any, any),
-      ).thenAnswer((_) async => const Left<Failure, Unit>(NetworkFailure()));
+      when(account.save(any, any)).thenAnswer(
+        (_) async => const Left<Failure, Set<String>>(NetworkFailure()),
+      );
       expect(await save('uid-1'), const Left<Failure, Unit>(NetworkFailure()));
       verifyNever(picks.markSynced(any, any));
+      verifyNever(picks.removePicks(any));
     });
 
     test(

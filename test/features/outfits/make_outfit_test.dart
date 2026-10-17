@@ -699,6 +699,10 @@ class _FakePicks implements PicksRepository {
       throw UnimplementedError();
 
   @override
+  Future<Either<Failure, Set<String>>> removePicks(Set<String> colourwayIds) =>
+      throw UnimplementedError();
+
+  @override
   Future<Either<Failure, Set<String>>> synced(String accountId) =>
       throw UnimplementedError();
 

@@ -17,6 +17,9 @@ abstract interface class PicksRepository {
   /// Loves every one of [colourwayIds]; returns every pick after.
   Future<Either<Failure, Set<String>>> addPicks(Set<String> colourwayIds);
 
+  /// Unloves every one of [colourwayIds]; returns every pick after.
+  Future<Either<Failure, Set<String>>> removePicks(Set<String> colourwayIds);
+
   /// Loves or unloves a colourway; returns every pick after the change.
   Future<Either<Failure, Set<String>>> setPick(
     String colourwayId, {

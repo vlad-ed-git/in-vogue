@@ -232,20 +232,20 @@ class MockAccountRepository extends _i1.Mock implements _i6.AccountRepository {
           as _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>);
 
   @override
-  _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>> save(
+  _i4.Future<_i2.Either<_i7.Failure, Set<String>>> save(
     String? accountId,
     _i9.AccountSetup? setup,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#save, [accountId, setup]),
-            returnValue: _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>.value(
-              _FakeEither_0<_i7.Failure, _i2.Unit>(
+            returnValue: _i4.Future<_i2.Either<_i7.Failure, Set<String>>>.value(
+              _FakeEither_0<_i7.Failure, Set<String>>(
                 this,
                 Invocation.method(#save, [accountId, setup]),
               ),
             ),
           )
-          as _i4.Future<_i2.Either<_i7.Failure, _i2.Unit>>);
+          as _i4.Future<_i2.Either<_i7.Failure, Set<String>>>);
 
   @override
   _i4.Future<_i2.Either<_i7.Failure, _i10.SavedAccount?>> saved(
@@ -538,6 +538,21 @@ class MockPicksRepository extends _i1.Mock implements _i18.PicksRepository {
               _FakeEither_0<_i7.Failure, Set<String>>(
                 this,
                 Invocation.method(#addPicks, [colourwayIds]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i7.Failure, Set<String>>>);
+
+  @override
+  _i4.Future<_i2.Either<_i7.Failure, Set<String>>> removePicks(
+    Set<String>? colourwayIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#removePicks, [colourwayIds]),
+            returnValue: _i4.Future<_i2.Either<_i7.Failure, Set<String>>>.value(
+              _FakeEither_0<_i7.Failure, Set<String>>(
+                this,
+                Invocation.method(#removePicks, [colourwayIds]),
               ),
             ),
           )

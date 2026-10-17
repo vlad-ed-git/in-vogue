@@ -57,11 +57,10 @@ class AccountRepositoryImpl implements AccountRepository {
       }, limit: deleteTimeLimit);
 
   @override
-  Future<Either<Failure, Unit>> save(String accountId, AccountSetup setup) =>
-      _guard('save', () async {
-        await _save(accountId, setup);
-        return unit;
-      });
+  Future<Either<Failure, Set<String>>> save(
+    String accountId,
+    AccountSetup setup,
+  ) => _guard('save', () => _save(accountId, setup));
 
   @override
   Future<Either<Failure, SavedAccount?>> saved(String accountId) =>
@@ -85,7 +84,7 @@ class AccountRepositoryImpl implements AccountRepository {
         return file.path;
       });
 
-  Future<void> _save(String accountId, AccountSetup setup) async {
+  Future<Set<String>> _save(String accountId, AccountSetup setup) async {
     final saved = await _remote.readAccount(accountId);
     final savedPhotos = AccountModel.photosFromJson(saved);
     final photos = <PhotoRole, AccountPhoto>{};
@@ -120,7 +119,9 @@ class AccountRepositoryImpl implements AccountRepository {
       );
     }
     final wishlist = await _remote.wishlist(accountId);
-    final add = setup.picks.difference(wishlist);
+    // Only a pick loved since the phone last saved goes up: one it saved
+    // before that the account lacks was unloved on another phone.
+    final add = setup.picks.difference(setup.syncedPicks).difference(wishlist);
     // Only a favourite this phone unloved since it last saved goes; one
     // the phone never had stays, as after a reinstall.
     final remove = setup.syncedPicks
@@ -143,6 +144,7 @@ class AccountRepositoryImpl implements AccountRepository {
         _log('save', error, stack);
       }
     }
+    return wishlist.union(add).difference(remove);
   }
 
   static Future<String> _fingerprint(String path) async =>

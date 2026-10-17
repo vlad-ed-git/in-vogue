@@ -11,8 +11,10 @@ import 'package:in_vogue/features/profile/domain/repositories/profile_repository
 
 /// Saves the name, location, photos and picks kept on the phone on the
 /// account with the given id. Saves nothing when the phone's setup cannot
-/// be read, so a read failure never empties the account. The picks saved
-/// are recorded, so a pick unloved later is removed from the account too.
+/// be read, so a read failure never empties the account. The account's
+/// favourites then become the phone's picks, bringing what other phones
+/// loved or unloved since, and are recorded as saved, so a pick unloved
+/// later is removed from the account too.
 class SaveSetupToAccount implements UseCase<Unit, String> {
   const SaveSetupToAccount({
     required this._account,
@@ -53,7 +55,14 @@ class SaveSetupToAccount implements UseCase<Unit, String> {
         syncedPicks: synced.getOrElse(() => const {}),
       ),
     );
-    if (saved is Right) await _picks.markSynced(accountId, saving);
-    return saved;
+    if (saved case Right(value: final favourites)) {
+      // Changes only what differs, so a pick changed meanwhile stays.
+      final loved = favourites.difference(saving);
+      final unloved = saving.difference(favourites);
+      if (loved.isNotEmpty) await _picks.addPicks(loved);
+      if (unloved.isNotEmpty) await _picks.removePicks(unloved);
+      await _picks.markSynced(accountId, favourites);
+    }
+    return saved.map((_) => unit);
   }
 }
