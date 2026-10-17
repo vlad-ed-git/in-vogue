@@ -67,7 +67,12 @@ Future<Either<Failure, WeatherReport>> _forecast(Invocation invocation) async {
   final params = invocation.positionalArguments.first as WeatherReportParams;
   final day = params.day ?? ForecastDay.tomorrow;
   final date = day == ForecastDay.today ? _today : _tomorrow;
-  return Right(_report(day, params.occasion ?? Occasion.defaultFor(date)));
+  return Right(
+    _report(
+      day,
+      params.occasion ?? params.chosen[date] ?? Occasion.defaultFor(date),
+    ),
+  );
 }
 
 MakeOutfitParams _params(DateTime date, Occasion occasion) => MakeOutfitParams(
@@ -337,6 +342,25 @@ void main() {
     expect(
       bloc.state.shown.outfit,
       OutfitShown(_outfit(_tomorrow, Occasion.goingOut)),
+    );
+  });
+
+  test('gives each day its own occasion when Home loads again with the '
+      'other day selected', () async {
+    final bloc = await started();
+    bloc.add(const HomeDaySelected(ForecastDay.today));
+    await pumpEventQueue();
+    bloc.add(const HomeStarted());
+    await pumpEventQueue();
+    expect(
+      bloc.state.day(ForecastDay.tomorrow).report?.weather.occasion,
+      Occasion.casual,
+      reason: 'Saturday',
+    );
+    expect(
+      bloc.state.day(ForecastDay.today).report?.weather.occasion,
+      Occasion.work,
+      reason: 'Friday',
     );
   });
 

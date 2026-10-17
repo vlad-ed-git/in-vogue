@@ -11,18 +11,27 @@ import 'package:in_vogue/features/weather/domain/repositories/weather_repository
 import 'package:in_vogue/features/weather/domain/services/day_weather_rules.dart';
 
 class WeatherReportParams extends Equatable {
-  const WeatherReportParams({required this.location, this.day, this.occasion});
+  const WeatherReportParams({
+    required this.location,
+    this.day,
+    this.occasion,
+    this.chosen = const {},
+  });
 
   final UserLocation location;
 
   /// The day shown at the place's local time when null.
   final ForecastDay? day;
 
-  /// The day's default occasion when null.
+  /// When null, the occasion in [chosen] for the day's date, else the
+  /// date's default.
   final Occasion? occasion;
 
+  /// Occasions already set for dates, midnight UTC.
+  final Map<DateTime, Occasion> chosen;
+
   @override
-  List<Object?> get props => [location, day, occasion];
+  List<Object?> get props => [location, day, occasion, chosen];
 }
 
 class GetWeatherReport implements UseCase<WeatherReport, WeatherReportParams> {
@@ -40,7 +49,8 @@ class GetWeatherReport implements UseCase<WeatherReport, WeatherReportParams> {
       final local = forecast.localTime(now);
       final day = params.day ?? ForecastDay.shownAt(local);
       final date = day.dateFrom(local);
-      final occasion = params.occasion ?? Occasion.defaultFor(date);
+      final occasion =
+          params.occasion ?? params.chosen[date] ?? Occasion.defaultFor(date);
       final weather = DayWeatherRules.summarize(
         forecast,
         date: date,

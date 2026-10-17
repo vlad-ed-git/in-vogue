@@ -220,12 +220,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final preferred = (await _getDefaultDay(
       const NoParams(),
     )).getOrElse(() => ForecastDay.tomorrow);
+    // Each date keeps the occasion it has on screen; which day comes first
+    // is only known once the forecast says what time it is there.
+    final chosen = {
+      for (final day in state.days.values)
+        if (day.report?.weather case final weather?)
+          weather.date: weather.occasion,
+    };
     // Tomorrow means the morning rule: today from 06:00 to 08:59.
     final first = await _getWeatherReport(
       WeatherReportParams(
         location: place,
         day: preferred == ForecastDay.today ? ForecastDay.today : null,
-        occasion: _keptOccasion(null),
+        chosen: chosen,
       ),
     );
     final shownDay = first.fold(
@@ -234,11 +241,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     final otherDay = ForecastDay.values.firstWhere((day) => day != shownDay);
     final other = await _getWeatherReport(
-      WeatherReportParams(
-        location: place,
-        day: otherDay,
-        occasion: _keptOccasion(otherDay),
-      ),
+      WeatherReportParams(location: place, day: otherDay, chosen: chosen),
     );
     final firstLoad = state.status != HomeStatus.ready;
     var next = HomeState(
@@ -271,14 +274,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         );
       },
     );
-  }
-
-  /// The occasion chosen for [day] before, if it is still the same date.
-  Occasion? _keptOccasion(ForecastDay? day) {
-    final weather = state.days[day ?? state.selected]?.report?.weather;
-    if (weather == null) return null;
-    final date = (day ?? state.selected).dateFrom(clock.now());
-    return weather.date == date ? weather.occasion : null;
   }
 
   /// What making each day with weather needs, the day on screen first.

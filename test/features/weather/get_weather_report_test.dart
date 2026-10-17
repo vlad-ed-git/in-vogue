@@ -29,11 +29,17 @@ void main() {
     DateTime localTime, {
     ForecastDay? day,
     Occasion? occasion,
+    Map<DateTime, Occasion> chosen = const {},
   }) async {
     final result = await withClock(
       Clock.fixed(localTime.add(const Duration(hours: 4))),
       () => GetWeatherReport(repository)(
-        WeatherReportParams(location: _place, day: day, occasion: occasion),
+        WeatherReportParams(
+          location: _place,
+          day: day,
+          occasion: occasion,
+          chosen: chosen,
+        ),
       ),
     );
     return result.getOrElse(() => throw StateError('$result'));
@@ -63,6 +69,23 @@ void main() {
     expect(report.day, ForecastDay.today);
     expect(report.weather.date, DateTime.utc(2026, 10, 15));
     expect(report.weather.occasion, Occasion.goingOut);
+  });
+
+  test("uses the occasion chosen for the day's own date, never another "
+      "day's", () async {
+    final chosen = {DateTime.utc(2026, 10, 15): Occasion.goingOut};
+    final morning = await reportAt(
+      DateTime.utc(2026, 10, 16, 7, 30),
+      chosen: chosen,
+    );
+    expect(morning.weather.date, DateTime.utc(2026, 10, 16));
+    expect(morning.weather.occasion, Occasion.work);
+    final evening = await reportAt(
+      DateTime.utc(2026, 10, 14, 18),
+      chosen: chosen,
+    );
+    expect(evening.weather.date, DateTime.utc(2026, 10, 15));
+    expect(evening.weather.occasion, Occasion.goingOut);
   });
 
   test('marks a forecast an hour old or more as saved', () async {
