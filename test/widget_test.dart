@@ -54,6 +54,8 @@ import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dar
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 import 'package:mockito/mockito.dart';
 
+import 'features/auth/log_out_test.mocks.dart'
+    show MockDayRepository, MockMakeupJobRepository, MockMakeupRepository;
 import 'features/auth/sign_in_bloc_test.mocks.dart';
 import 'features/location/location_repository_test.mocks.dart';
 import 'features/photos/photo_repository_test.mocks.dart';
@@ -155,7 +157,13 @@ void main() {
       })
       ..registerFactory<LogOutBloc>(
         () => LogOutBloc(
-          logOut: LogOut(auth: auth, profile: profile),
+          logOut: LogOut(
+            auth: auth,
+            profile: profile,
+            days: MockDayRepository(),
+            makeup: MockMakeupRepository(),
+            makeupJobs: MockMakeupJobRepository(),
+          ),
         ),
       )
       ..registerSingleton<HomeWidgetRepository>(

@@ -27,7 +27,13 @@ void init(GetIt locator) {
       () => GetCurrentAccount(locator()),
     )
     ..registerLazySingleton<LogOut>(
-      () => LogOut(auth: locator(), profile: locator()),
+      () => LogOut(
+        auth: locator(),
+        profile: locator(),
+        days: locator(),
+        makeup: locator(),
+        makeupJobs: locator(),
+      ),
     )
     ..registerFactory<SignInBloc>(
       () => SignInBloc(
