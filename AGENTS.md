@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `fix/plan_rules`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `feat/skip_refused_outfit`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -105,7 +105,7 @@ At the end of every task:
 
 ## 2. What is built
 
-Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 751 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 761 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
 
 ### 2.1 What a person can do today
 
@@ -123,7 +123,7 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 
 ### 2.2 How it works underneath
 
-- **Outfits.** 1,749 ready-made outfits from the knowledge base are bundled in the app, sorted into 96 *cells* (a weather class combined with an occasion). For each day the app picks one: outfits never suggested come first, scored 80% on the knowledge base's rank and 20% on how many of the pieces you loved; after that, the one suggested longest ago. It then *claims* the day in Firestore in an all-or-nothing write (a transaction), so two phones, or today and tomorrow, never clash. YouCam then dresses the person **piece by piece**: bottom, then top, then outer layer; a dress goes in one pass. Progress is saved after each piece. Another phone takes over if nothing changes for 10 minutes, and an interrupted job resumes within 2 hours. The finished picture is kept on the phone and in Firebase Storage.
+- **Outfits.** 1,749 ready-made outfits from the knowledge base are bundled in the app, sorted into 96 *cells* (a weather class combined with an occasion). For each day the app picks one: outfits never suggested come first, scored 80% on the knowledge base's rank and 20% on how many of the pieces you loved; after that, the one suggested longest ago. It then *claims* the day in Firestore in an all-or-nothing write (a transaction), so two phones, or today and tomorrow, never clash. YouCam then dresses the person **piece by piece**: bottom, then top, then outer layer; a dress goes in one pass. Progress is saved after each piece. Another phone takes over if nothing changes for 10 minutes, and an interrupted job resumes within 2 hours. If YouCam refuses a piece's photo (`error_invalid_ref`), that piece is recorded on the outfit's suggestion, no outfit with it is chosen again, and the day switches to another outfit in the same claim transaction; after 3 refused outfits in one making, or with none left, the day shows the failure, and Try again takes another outfit (added October 17). The finished picture is kept on the phone and in Firebase Storage.
 - **Makeup.** YouCam reads the face's colours once per face photo, and the result is kept in Firestore under the photo's fingerprint. The app turns those colours into a skin profile (shade group and contrast) and picks one of 720 recipes, chosen by occasion, outfit palette, shade, contrast and weather. YouCam then applies each step on top of the previous step's picture. Skin smoothing is always off.
 - **Photo rules.** Every chosen photo is checked. If it's too small, the app asks for another. If it isn't JPEG or PNG, it is converted to PNG and the app shows a note. If it's too big, it is scaled down. There is no face or body detection.
 - **Account.** The profile, favourites, photos and records live in Firestore (Firebase's database) and Storage (Firebase's file store) under `users/{uid}`. Each person can reach only their own data, and nobody can change their own `plan`: a new account starts with no plan or the demo plan, and only the console changes it (October 17). The rules are deployed to `in-vogue-dev`. A returning person gets their name, face photo and favourites back at sign-in. Saving never wipes favourites, and photos are replaced only when their content changes. **Every new account is created on the Pro plan** (set in `features/account/data/models/account_model.dart`).
@@ -140,7 +140,8 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `feat/makeup` | Everything in `feat/first_outfit`, plus the Makeup tab, two-day outfits in Firestore, photo rules, returning users and makeup that starts by itself | Not merged, not pushed |
 | `feat/settings_profile_initial` | Everything in `feat/makeup`, plus Settings' default profile picture | Not merged, not pushed |
 | `feat/logout_clears_pictures` | Everything in `feat/settings_profile_initial`, plus log out clearing the phone's outfit and makeup pictures | Not merged, not pushed |
-| **`fix/plan_rules`** (current) | Everything in `feat/logout_clears_pictures`, plus Firestore rules that stop a person changing their own plan (deployed to `in-vogue-dev`) | Not merged, not pushed |
+| `fix/plan_rules` | Everything in `feat/logout_clears_pictures`, plus Firestore rules that stop a person changing their own plan (deployed to `in-vogue-dev`) | Not merged, not pushed |
+| **`feat/skip_refused_outfit`** (current) | Everything in `fix/plan_rules`, plus switching to another outfit when YouCam refuses a piece's photo | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -170,7 +171,6 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 - [ ] **Translate the knowledge base's texts** (makeup step titles, how-tos and product kinds, and outfit reasons) into Spanish and Chinese. *Pending; owner to-do from October 17.*
 - [ ] **Holiday and evening occasions.** *Blocked on owner input.* Public holidays should count as casual days, which needs a dated holiday list for each supported country. Still open: whether evenings default to Staying in (Monday to Thursday) and Going out (Friday to Sunday).
 - [ ] **Favourites across phones.** A favourite removed on one phone can come back from another. *Pending, low priority.*
-- [ ] **Skip an outfit that YouCam refuses for its reference photo** (`error_invalid_ref`), instead of retrying the same one. *Pending, low priority.*
 - [ ] **Trim the on-screen wording.** *The owner leads this;* they find the copy too wordy.
 
 **Production readiness**
@@ -345,7 +345,7 @@ The step is saved in Hive; the app reopens on it with the earlier screens beneat
 ```
 HomeBloc ─► FollowDay(day on screen), then FollowDay(other day)   (one claim at a time per phone)
 FollowDay watches users/{uid}/days/{date}_{occasion} (cache first):
-  no record ─► ChooseOutfit ─► transaction: day = making(this phone) + suggestion recorded
+  no record ─► ChooseOutfit (no refused pieces) ─► transaction: day = making(this phone) + suggestion recorded
   making, this phone, stopped ─► resume (Hive job, same photo, < 2 h)
   making, other phone ─► show its progress; unchanged 10 min ─► take over, same outfit
   ready ─► show the picture (phone copy, else Storage)      failed ─► reason + Try again (same outfit)
@@ -353,6 +353,8 @@ MakeOutfit, per piece (bottom ─► top ─► outer | dress ─► outer):
   write progress (stop if another phone took the day) ─► cloth-v4 (poll 5 s, ≤ 4 min)
   last piece ─► download ─► phone + Storage ─► ready
   YouCam refused ─► failed for every phone      network/server error ─► stays making, resumes later
+  a piece's photo refused ─► suggestion.refusedPiece ─► transaction: another outfit (≤ 3 per making),
+                             else failed(reference) for every phone; Try again ─► another outfit
 ```
 
 **A makeup look**
