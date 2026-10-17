@@ -50,9 +50,9 @@ void main() {
 
   test('has no outfits for a cell the asset lacks', () async {
     expect(
-      (await repository.outfitsFor('hot|snow|calm|work')).getOrElse(
-        () => [_tee],
-      ),
+      (await repository.outfitsFor(
+        'hot|snow|calm|work',
+      )).getOrElse(() => [_tee]),
       isEmpty,
     );
     expect((await repository.outfit('o9')).getOrElse(() => _tee), isNull);

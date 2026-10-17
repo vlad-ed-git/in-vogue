@@ -110,8 +110,10 @@ void main() {
       await pumpInVogue(
         tester,
         Builder(
-          builder: (context) =>
-              Notice.offline(context: context, savedAt: 'Thu 16 Oct at 9:12 pm'),
+          builder: (context) => Notice.offline(
+            context: context,
+            savedAt: 'Thu 16 Oct at 9:12 pm',
+          ),
         ),
       );
       expect(

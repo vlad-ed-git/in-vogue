@@ -163,7 +163,11 @@ void main() {
   }
 
   /// [update] on the day of [date] in [occasion], as following it gives.
-  Future<void> send(DateTime date, Occasion occasion, TryOnUpdate update) async {
+  Future<void> send(
+    DateTime date,
+    Occasion occasion,
+    TryOnUpdate update,
+  ) async {
     following[(date, occasion)]!.add(update);
     await pumpEventQueue();
   }
@@ -254,7 +258,11 @@ void main() {
     'says why a day could not be made, and makes it again when asked',
     () async {
       final bloc = await started();
-      await send(_tomorrow, Occasion.casual, const TryOnFailed(NetworkFailure()));
+      await send(
+        _tomorrow,
+        Occasion.casual,
+        const TryOnFailed(NetworkFailure()),
+      );
       expect(bloc.state.shown.outfit, const OutfitFailed(NetworkFailure()));
 
       bloc.add(const HomeRetried());
