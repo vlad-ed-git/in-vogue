@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 18, 2026** (branch `chore/deterministic_outfit_builder`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 18, 2026** (branch `fix/home_occasion_on_resume`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -105,7 +105,7 @@ At the end of every task:
 
 ## 2. What is built
 
-Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 774 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+Checked on October 18, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 776 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
 
 ### 2.1 What a person can do today
 
@@ -116,10 +116,10 @@ Checked on October 17, 2026, by reading the code and running the checks: **`flut
 | **Shop** | Every piece of the outfit: photo, colour, name, material and "Buy at Everlane", which opens that exact item on Everlane's site. No prices. |
 | **Your picks** | Only the pieces you loved. Removing one asks first. |
 | **Makeup tab** | It follows Home's day and occasion. Once there is a face photo and an outfit, the look starts by itself: Before / After, one sentence tying it to the outfit, and 3–6 numbered steps showing your face after each step (tap to zoom). Steps appear as they finish. |
-| **Settings** | Profile (face photo, name, how you signed in, edit name; without a face photo, the name's first letter in white on a Rouge square set like the logo's "In", added October 17), replace the body or face photo, membership (shows Pro or Free; display only), location (Change), default day (tomorrow with the morning rule, or always today), language, Log out (it also clears the account's outfit and makeup pictures from this phone, keeping the body and face photos and the picks; added October 17), and Delete account, which removes the account's data from Firebase and from this phone. |
+| **Settings** | Profile (face photo, name, how you signed in, edit name; without a face photo, the name's first letter centred in white on a Rouge square, owner October 18), replace the body or face photo, membership (shows Pro or Free; display only), location (Change), default day (tomorrow with the morning rule, or always today), language, Log out (it also clears the account's outfit and makeup pictures from this phone, keeping the body and face photos and the picks; added October 17), and Delete account, which removes the account's data from Firebase and from this phone. Log out and Delete account are Rouge, text and icon (owner, October 18). |
 | **Languages** | English (the default), Spanish and Simplified Chinese, including the knowledge base's texts: makeup steps (titles, how-tos, product kinds) and outfit reasons (added October 17). A makeup look saved before then stays in English. |
 
-The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when it opens on today. The occasion defaults to **Work on weekdays and Casual at weekends**.
+The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when it opens on today. The occasion defaults to **Work Monday to Friday and Casual on Saturday and Sunday**; a changed occasion stays with its own date only (fixed October 18: a reload had carried the selected day's occasion onto the other day, so Sunday showed Workday).
 
 ### 2.2 How it works underneath
 
@@ -145,7 +145,11 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `fix/favourites_across_phones` | Everything in `feat/skip_refused_outfit`, plus favourites that stay unloved across phones | Not merged, not pushed |
 | `feat/translate_kb_texts` | Everything in `fix/favourites_across_phones`, plus makeup steps and outfit reasons in Spanish and Chinese | Not merged, not pushed |
 | `docs/readme_refresh` | Everything in `feat/translate_kb_texts`, plus a README that describes the app as built (October 17) | Not merged, not pushed |
-| **`chore/deterministic_outfit_builder`** (current) | Everything in `docs/readme_refresh`; the outfit builder fix itself lives in `resources/`, outside git (October 18) | Not merged, not pushed |
+| `chore/deterministic_outfit_builder` | Everything in `docs/readme_refresh`; the outfit builder fix itself lives in `resources/`, outside git (October 18) | Not merged, not pushed |
+| `feat/android_widget` (paused) | Everything in `chore/deterministic_outfit_builder`, plus the widget plan; the widget work in progress is stashed | Not merged, not pushed |
+| `fix/settings_initial_centred` | Everything in `feat/android_widget`, plus the centred initial | Not merged, not pushed |
+| `fix/settings_log_out_delete_rouge` | Everything in `fix/settings_initial_centred`, plus Rouge Log out and Delete account | Not merged, not pushed |
+| **`fix/home_occasion_on_resume`** (current) | Everything in `fix/settings_log_out_delete_rouge`, plus the fix for a day taking another day's occasion | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
