@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
+import 'package:in_vogue/core/domain/entities/install_id.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/core/persistence/key_value_store.dart';
@@ -16,6 +17,7 @@ void init(
   required AppDirectory directory,
   required KeyValueStore keyValueStore,
   required SqliteCache sqliteCache,
+  required InstallId installId,
   String? youCamApiKey,
 }) {
   final key = youCamApiKey?.trim() ?? '';
@@ -42,6 +44,7 @@ void init(
   }
   locator
     ..registerSingleton<AppEnvironment>(environment)
+    ..registerSingleton<InstallId>(installId)
     ..registerSingleton<AppDirectory>(directory)
     ..registerSingleton<LogMessages>(LogMessagesImpl())
     ..registerSingleton<KeyValueStore>(

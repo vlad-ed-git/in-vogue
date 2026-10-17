@@ -11,6 +11,7 @@ import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/core/persistence/hive_key_value_store.dart';
+import 'package:in_vogue/core/persistence/install_id_store.dart';
 import 'package:in_vogue/core/persistence/sqlite_cache.dart';
 import 'package:in_vogue/features/account/di/init.dart' as account_di;
 import 'package:in_vogue/features/auth/di/init.dart' as auth_di;
@@ -71,8 +72,10 @@ abstract final class MainInit {
       await store.close();
       rethrow;
     }
+    final installId = await InstallIdStore.read(store);
     core_di.init(
       locator,
+      installId: installId,
       environment: environment,
       directory: AppDirectory(directory.path),
       keyValueStore: store,
