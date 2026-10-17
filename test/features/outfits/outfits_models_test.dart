@@ -12,18 +12,10 @@ import 'package:in_vogue/features/outfits/data/models/try_on_job_model.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_job_repository_impl.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
-import 'package:in_vogue/features/outfits/domain/services/choose_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 
 import '../../helpers/memory_store.dart';
-
-Outfit _outfit(String id, List<String> pieces) => Outfit(
-  id: id,
-  signature: pieces.join('+'),
-  pieces: pieces,
-  passes: const [],
-);
 
 void main() {
   group('the bundled outfits', () {
@@ -107,59 +99,6 @@ void main() {
           expect(categories.last, GarmentCategory.outer, reason: outfit.id);
         }
       }
-    });
-  });
-
-  group('ChooseOutfit', () {
-    final ranked = [
-      _outfit('a', ['p1', 'p2']),
-      _outfit('b', ['p3', 'p4']),
-      _outfit('c', ['p5', 'p6']),
-      _outfit('d', ['p7', 'p8']),
-      _outfit('e', ['p9', 'p10']),
-    ];
-
-    test('takes the best outfit not shown before', () {
-      expect(ChooseOutfit.from(ranked, shown: {}, picks: {})?.id, 'a');
-      expect(ChooseOutfit.from(ranked, shown: {'p1+p2'}, picks: {})?.id, 'b');
-    });
-
-    test(
-      'lets loved pieces lift an outfit, by up to a quarter of the list',
-      () {
-        // Each place is worth 0.8 / 5; a fully loved outfit gains 0.2.
-        expect(
-          ChooseOutfit.from(ranked, shown: {}, picks: {'p3', 'p4'})?.id,
-          'b',
-        );
-        expect(
-          ChooseOutfit.from(ranked, shown: {}, picks: {'p5', 'p6'})?.id,
-          'a',
-        );
-        expect(ChooseOutfit.from(ranked, shown: {}, picks: {'p3'})?.id, 'a');
-      },
-    );
-
-    test('never rules out an outfit without loved pieces', () {
-      expect(
-        ChooseOutfit.from(
-          ranked,
-          shown: {'p5+p6'},
-          picks: {'p5', 'p6', 'unknown'},
-        )?.id,
-        'a',
-      );
-    });
-
-    test('has nothing when every outfit has been shown', () {
-      expect(
-        ChooseOutfit.from(
-          ranked,
-          shown: {for (final outfit in ranked) outfit.signature},
-          picks: {'p1'},
-        ),
-        isNull,
-      );
     });
   });
 

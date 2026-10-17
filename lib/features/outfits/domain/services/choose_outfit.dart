@@ -1,6 +1,6 @@
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 
-/// Chooses an outfit no one has shown the person yet.
+/// Chooses an outfit, preferring one never suggested to the person.
 abstract final class ChooseOutfit {
   /// Weight of an outfit's place in the knowledge base's ranking, which
   /// orders a cell's outfits by weather, occasion and colour.
@@ -9,29 +9,41 @@ abstract final class ChooseOutfit {
   /// Weight of the share of its pieces the person loves.
   static const picksWeight = 0.2;
 
-  /// The best of [ranked] (best first) whose signature is not in [shown]:
-  /// loved pieces in [picks] lift an outfit, but never rule one out. Null
-  /// when every outfit has been shown.
+  /// The best of [ranked] (best first) never [suggested]: loved pieces in
+  /// [picks] lift an outfit, but never rule one out. When every outfit was
+  /// suggested, the one suggested longest ago; a time still being written
+  /// counts as now. Null only when [ranked] is empty.
   static Outfit? from(
     List<Outfit> ranked, {
-    required Set<String> shown,
+    required Map<String, DateTime?> suggested,
     required Set<String> picks,
   }) {
-    Outfit? best;
-    var bestScore = double.negativeInfinity;
-    for (var index = 0; index < ranked.length; index++) {
-      final outfit = ranked[index];
-      if (shown.contains(outfit.signature)) continue;
-      final loved = outfit.pieces.isEmpty
-          ? 0.0
-          : outfit.pieces.where(picks.contains).length / outfit.pieces.length;
-      final score =
-          rankWeight * (1 - index / ranked.length) + picksWeight * loved;
-      if (score > bestScore) {
-        best = outfit;
-        bestScore = score;
-      }
+    if (ranked.isEmpty) return null;
+    final scored = [
+      for (final (index, outfit) in ranked.indexed)
+        (outfit: outfit, score: _score(outfit, index, ranked.length, picks)),
+    ];
+    final fresh = [
+      for (final option in scored)
+        if (!suggested.containsKey(option.outfit.signature)) option,
+    ];
+    if (fresh.isNotEmpty) {
+      return fresh.reduce((a, b) => b.score > a.score ? b : a).outfit;
     }
-    return best;
+    final now = DateTime.utc(9999);
+    DateTime last(Outfit outfit) => suggested[outfit.signature] ?? now;
+    return scored.reduce((a, b) {
+      final (lastA, lastB) = (last(a.outfit), last(b.outfit));
+      final earlier =
+          lastB.isBefore(lastA) || (lastB == lastA && b.score > a.score);
+      return earlier ? b : a;
+    }).outfit;
+  }
+
+  static double _score(Outfit outfit, int index, int count, Set<String> picks) {
+    final loved = outfit.pieces.isEmpty
+        ? 0.0
+        : outfit.pieces.where(picks.contains).length / outfit.pieces.length;
+    return rankWeight * (1 - index / count) + picksWeight * loved;
   }
 }

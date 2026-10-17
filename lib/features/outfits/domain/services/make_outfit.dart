@@ -217,7 +217,10 @@ class MakeOutfit {
     final picks = (await _picks.picks()).getOrElse(() => const {});
     final outfit = ChooseOutfit.from(
       ranked.getOrElse(() => const []),
-      shown: shown.getOrElse(() => const {}),
+      suggested: {
+        for (final signature in shown.getOrElse(() => const {}))
+          signature: null,
+      },
       picks: picks,
     );
     return outfit == null

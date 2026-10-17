@@ -159,16 +159,10 @@ void main() {
     expect(tryOn.starts, hasLength(1));
   });
 
-  test(
-    'says so when every outfit has been shown, and spends nothing',
-    () async {
-      outfits.shown.addAll([_coat.signature, _dress.signature]);
-      expect(await make(), [
-        const TryOnFailed(TryOnFailure(TryOnProblem.everySeen)),
-      ]);
-      expect(tryOn.starts, isEmpty);
-    },
-  );
+  test('repeats an outfit once every one has been shown', () async {
+    outfits.shown.addAll([_coat.signature, _dress.signature]);
+    expect((await make()).last, isA<TryOnDone>());
+  });
 
   test('makes no try-on when the setup cannot be saved', () async {
     when(saveSetup(any)).thenAnswer((_) async => const Left(NetworkFailure()));
