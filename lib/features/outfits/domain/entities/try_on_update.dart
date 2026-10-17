@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 
 /// What making an outfit reports.
@@ -37,4 +38,13 @@ final class TryOnFailed extends TryOnUpdate {
 
   @override
   List<Object?> get props => [failure];
+}
+
+/// Another phone is making the day's outfit; its record shows how far.
+final class TryOnElsewhere extends TryOnUpdate {
+  const TryOnElsewhere(this.day);
+  final Day day;
+
+  @override
+  List<Object?> get props => [day];
 }

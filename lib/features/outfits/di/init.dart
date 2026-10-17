@@ -4,14 +4,18 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
 import 'package:in_vogue/core/persistence/app_directory.dart';
+import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
+import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/try_on_job_local_data_source.dart';
+import 'package:in_vogue/features/outfits/data/repositories/day_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/outfit_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_job_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/unavailable_try_on_repository.dart';
+import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
@@ -44,6 +48,20 @@ void init(GetIt locator) {
         logMessages: locator(),
       ),
     )
+    ..registerLazySingleton<DayRemoteDataSource>(
+      () => DayRemoteDataSourceImpl(FirebaseFirestore.instance),
+    )
+    ..registerLazySingleton<OutfitPictureRemoteDataSource>(
+      () => OutfitPictureRemoteDataSourceImpl(FirebaseStorage.instance),
+    )
+    ..registerLazySingleton<DayRepository>(
+      () => DayRepositoryImpl(
+        remoteDataSource: locator(),
+        pictureRemoteDataSource: locator(),
+        pictureLocalDataSource: locator(),
+        logMessages: locator(),
+      ),
+    )
     ..registerLazySingleton<TryOnJobLocalDataSource>(
       () => TryOnJobLocalDataSourceImpl(locator()),
     )
@@ -62,11 +80,13 @@ void init(GetIt locator) {
     ..registerLazySingleton<MakeOutfit>(
       () => MakeOutfit(
         outfits: locator(),
+        days: locator(),
         tryOn: locator(),
         jobs: locator(),
         photos: locator(),
         picks: locator(),
         saveSetupToAccount: locator(),
+        installId: locator(),
       ),
     );
 }

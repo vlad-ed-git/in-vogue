@@ -388,6 +388,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               ),
               TryOnDone(:final outfit) => OutfitShown(outfit),
               TryOnFailed(:final failure) => OutfitFailed(failure),
+              TryOnElsewhere(:final day) => OutfitMaking(
+                piece: day.piece,
+                pieces: day.pieces,
+              ),
             }),
           );
         },
