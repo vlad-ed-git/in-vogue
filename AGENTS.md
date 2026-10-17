@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `feat/logout_clears_pictures`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `fix/plan_rules`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -43,6 +43,7 @@ Run every Flutter and Dart command from `in-vogue/` through an interactive zsh, 
 | Visual boards (optional) | `zsh -ic 'flutterN test test_visual'`, which writes PNGs to `build/visual/` |
 | Re-export bundled data | `python3 scripts/export_catalog.py`, then `export_outfits.py`, then `export_makeup.py` |
 | Write the dev YouCam key file | `python3 scripts/write_development_defines.py` |
+| Check the Firestore rules (emulator; needs Java 21) | `JAVA_HOME=/Users/vlad/Development/java/jdk-21.0.1.jdk/Contents/Home firebase emulators:exec --only firestore --project demo-in-vogue "python3 scripts/check_firestore_rules.py"` |
 | Deploy rules (development only) | `GOOGLE_APPLICATION_CREDENTIALS="$PWD/secrets/in-vogue-dev-firebase-adminsdk-fbsvc-517e1ce146.json" firebase deploy --only firestore:rules,storage --project in-vogue-dev --non-interactive` |
 | Native Firebase files | `scripts/configure_firebase.sh development` (or `production`) |
 | Launcher icons | `scripts/generate_app_icons.sh` |
@@ -104,7 +105,7 @@ At the end of every task:
 
 ## 2. What is built
 
-Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 749 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 751 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
 
 ### 2.1 What a person can do today
 
@@ -125,7 +126,7 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 - **Outfits.** 1,749 ready-made outfits from the knowledge base are bundled in the app, sorted into 96 *cells* (a weather class combined with an occasion). For each day the app picks one: outfits never suggested come first, scored 80% on the knowledge base's rank and 20% on how many of the pieces you loved; after that, the one suggested longest ago. It then *claims* the day in Firestore in an all-or-nothing write (a transaction), so two phones, or today and tomorrow, never clash. YouCam then dresses the person **piece by piece**: bottom, then top, then outer layer; a dress goes in one pass. Progress is saved after each piece. Another phone takes over if nothing changes for 10 minutes, and an interrupted job resumes within 2 hours. The finished picture is kept on the phone and in Firebase Storage.
 - **Makeup.** YouCam reads the face's colours once per face photo, and the result is kept in Firestore under the photo's fingerprint. The app turns those colours into a skin profile (shade group and contrast) and picks one of 720 recipes, chosen by occasion, outfit palette, shade, contrast and weather. YouCam then applies each step on top of the previous step's picture. Skin smoothing is always off.
 - **Photo rules.** Every chosen photo is checked. If it's too small, the app asks for another. If it isn't JPEG or PNG, it is converted to PNG and the app shows a note. If it's too big, it is scaled down. There is no face or body detection.
-- **Account.** The profile, favourites, photos and records live in Firestore (Firebase's database) and Storage (Firebase's file store) under `users/{uid}`. Each person can reach only their own data; the rules are deployed to `in-vogue-dev`. A returning person gets their name, face photo and favourites back at sign-in. Saving never wipes favourites, and photos are replaced only when their content changes. **Every new account is created on the Pro plan** (set in `features/account/data/models/account_model.dart`).
+- **Account.** The profile, favourites, photos and records live in Firestore (Firebase's database) and Storage (Firebase's file store) under `users/{uid}`. Each person can reach only their own data, and nobody can change their own `plan`: a new account starts with no plan or the demo plan, and only the console changes it (October 17). The rules are deployed to `in-vogue-dev`. A returning person gets their name, face photo and favourites back at sign-in. Saving never wipes favourites, and photos are replaced only when their content changes. **Every new account is created on the Pro plan** (set in `features/account/data/models/account_model.dart`).
 - **Weather.** Open-Meteo (no key), cached for 2 days. Offline, the app shows the saved forecast with a note. °F in the US, °C elsewhere.
 - **Foundation.** Two flavors: development uses `in-vogue-dev` and production uses `in-vogue`, with a startup check that the flavor and project match. Hive and SQLite on the phone. The design system in `lib/core/presentation/` (tokens, theme, 28 components) matches the spec, including the curtain reveal of a new outfit. Launcher icons are made from the logo. Errors are logged only in debug builds (`LogMessagesImpl`), so release builds report nothing yet.
 - **Data tools.** These live outside the app, in `resources/`: the Everlane catalog pull (from Shopify's Global Catalog), the knowledge base (weather, occasions, styling, outfits, skin, makeup, YouCam reference) and their Python builders. `in-vogue/scripts/export_*.py` copies what the app needs into `assets/`.
@@ -138,7 +139,8 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `feat/first_outfit` | Everything in `main`, plus the account, the first try-on, Home, Shop and Settings | Not merged, not pushed |
 | `feat/makeup` | Everything in `feat/first_outfit`, plus the Makeup tab, two-day outfits in Firestore, photo rules, returning users and makeup that starts by itself | Not merged, not pushed |
 | `feat/settings_profile_initial` | Everything in `feat/makeup`, plus Settings' default profile picture | Not merged, not pushed |
-| **`feat/logout_clears_pictures`** (current) | Everything in `feat/settings_profile_initial`, plus log out clearing the phone's outfit and makeup pictures | Not merged, not pushed |
+| `feat/logout_clears_pictures` | Everything in `feat/settings_profile_initial`, plus log out clearing the phone's outfit and makeup pictures | Not merged, not pushed |
+| **`fix/plan_rules`** (current) | Everything in `feat/logout_clears_pictures`, plus Firestore rules that stop a person changing their own plan (deployed to `in-vogue-dev`) | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -161,7 +163,7 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 - [ ] **Home-screen widget for Android.** *Pending, not started.* The widget is the product's front door. It shows the day's outfit picture and weather in the Large, Medium and Small layouts of `design-spec/components/HomeWidget`: a print, with a Rouge slab and the full-height portrait running edge to edge, never a rounded card (the owner rejected one). It opens Home on tap, and setup step 6 then really places it. Agree a plan with the owner first, especially how the widget gets a fresh picture while the app is closed. Native builds are the owner's.
 - [ ] **Home-screen widget for iPhone (WidgetKit).** *Blocked on the owner's Xcode setup* (widget extension target, App Group, signing). The AI writes the code and gives the owner the exact steps.
 - [ ] **Membership rules for the MVP.** *Blocked on an owner decision.* The plan so far (October 14): Free gives 14 outfits and 3 makeup looks over the account's whole life, never reset, and one outfit a day. Pro is shown at $7.99 a month or $59.99 a year. Go Pro adds the person to a waiting list, with no payments. Today every new account is created Pro. Confirm these rules for production, including whether Pro takes real payments.
-- [ ] **Free-plan limits.** *Pending, after the decision above.* Count outfits shown and makeup looks made; an outfit counts once however many YouCam calls it took, and replacing a photo resets nothing. When they run out, the last outfit stays on screen with Go Pro.
+- [ ] **Free-plan limits.** *Pending, after the decision above.* Count outfits shown and makeup looks made; an outfit counts once however many YouCam calls it took, and replacing a photo resets nothing. When they run out, the last outfit stays on screen with Go Pro. Lock the counters in `firestore.rules` so the app can only raise them, and add cases to `scripts/check_firestore_rules.py`. Without a server they can't be fully tamper-proof: a person can still delete and recreate their own account document, which resets it to the demo plan and fresh counters.
 - [ ] **Go Pro screen.** *Pending, after the decision above.* "In Vogue Pro", four benefits and the price. Go Pro joins the waiting list and shows "You're on the list" with a drawn check, and every Go Pro afterwards reads "On the Pro list ✓". The design-system pieces already exist (`ProOffer`, `ProConfirmation`, `PlanLine`, and locked `ProductTile` and `OutfitTiles`). The list must live under `users/{uid}`, or the rules need changing.
 - [ ] **Free-plan locks.** *Pending, after the decision above.* The plan line at the bottom of Home, Settings' membership row with Go Pro, and browsing limited to about 30 current-season pieces.
 - [ ] **"Other outfits" on Home** (Pro: up to 3 more outfits a day; tapping one swaps it in at once). *Blocked on an owner decision.* Home's switch became Today / Tomorrow / Outfits on October 16, and each extra outfit is a full try-on (4–6 units).
@@ -173,7 +175,6 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 
 **Production readiness**
 
-- [ ] **Stop people upgrading themselves.** *Pending.* Today the rules let a signed-in person write anything in their own `users/{uid}`, including `plan`, so anyone could make themselves Pro. Tighten `firestore.rules` so the app can't change `plan` (and, once the limits exist, can't lower the counters), then deploy. Without a server, counters kept by the app can never be fully tamper-proof; tell the owner.
 - [ ] **Crash and error reporting.** *Pending; the owner picks the tool* (Firebase Crashlytics fits the stack). Release builds report nothing today.
 - [ ] **Old pictures and records.** *Pending; the owner picks how long to keep them.* Each active person adds two outfit pictures, makeup pictures and day records every day, and only Delete account ever removes them. A Storage lifecycle rule and Firestore TTL policies can clean up without a server. Never expire `suggestions`, because they drive the no-repeat rule.
 - [ ] **How the catalog and knowledge base reach the app.** *Blocked on an owner decision.* They are bundled in `assets/`, so every catalog change (new stock, a new partner brand) needs an app release. To scale to many partners, decide whether to load versioned catalog and knowledge-base files from Firebase instead.
