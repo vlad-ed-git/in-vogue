@@ -177,6 +177,18 @@ void main() {
     });
   });
 
+  test('adds many picks at once, keeping those already loved', () async {
+    final repository = PicksRepositoryImpl(
+      PicksLocalDataSourceImpl(MemoryStore()),
+    );
+    await repository.setPick('a-1', loved: true);
+    expect((await repository.addPicks({'a-1', 'b-2'})).getOrElse(() => {}), {
+      'a-1',
+      'b-2',
+    });
+    expect((await repository.picks()).getOrElse(() => {}), {'a-1', 'b-2'});
+  });
+
   test('clearing forgets the picks and which ones an account holds', () async {
     final repository = PicksRepositoryImpl(
       PicksLocalDataSourceImpl(MemoryStore()),

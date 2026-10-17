@@ -14,6 +14,9 @@ abstract interface class PicksRepository {
   /// Records [picks] as saved on [accountId]'s account.
   Future<Either<Failure, Unit>> markSynced(String accountId, Set<String> picks);
 
+  /// Loves every one of [colourwayIds]; returns every pick after.
+  Future<Either<Failure, Set<String>>> addPicks(Set<String> colourwayIds);
+
   /// Loves or unloves a colourway; returns every pick after the change.
   Future<Either<Failure, Set<String>>> setPick(
     String colourwayId, {

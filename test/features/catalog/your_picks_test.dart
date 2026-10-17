@@ -75,6 +75,10 @@ class _Picks implements PicksRepository {
   }
 
   @override
+  Future<Either<Failure, Set<String>>> addPicks(Set<String> colourwayIds) =>
+      throw UnimplementedError();
+
+  @override
   Future<Either<Failure, Set<String>>> synced(String accountId) =>
       throw UnimplementedError();
 
