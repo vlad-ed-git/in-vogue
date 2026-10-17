@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `feat/makeup`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `feat/settings_profile_initial`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -104,7 +104,7 @@ At the end of every task:
 
 ## 2. What is built
 
-Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 741 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+Checked on October 17, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 745 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
 
 ### 2.1 What a person can do today
 
@@ -115,7 +115,7 @@ Checked on October 17, 2026, by reading the code and running the checks: **`flut
 | **Shop** | Every piece of the outfit: photo, colour, name, material and "Buy at Everlane", which opens that exact item on Everlane's site. No prices. |
 | **Your picks** | Only the pieces you loved. Removing one asks first. |
 | **Makeup tab** | It follows Home's day and occasion. Once there is a face photo and an outfit, the look starts by itself: Before / After, one sentence tying it to the outfit, and 3–6 numbered steps showing your face after each step (tap to zoom). Steps appear as they finish. |
-| **Settings** | Profile (face, name, how you signed in, edit name), replace the body or face photo, membership (shows Pro or Free; display only), location (Change), default day (tomorrow with the morning rule, or always today), language, Log out, and Delete account, which removes the account's data from Firebase and from this phone. |
+| **Settings** | Profile (face photo, name, how you signed in, edit name; without a face photo, the name's first letter in white on a Rouge square set like the logo's "In", added October 17), replace the body or face photo, membership (shows Pro or Free; display only), location (Change), default day (tomorrow with the morning rule, or always today), language, Log out, and Delete account, which removes the account's data from Firebase and from this phone. |
 | **Languages** | English (the default), Spanish and Simplified Chinese. The exception is the knowledge base's texts (makeup steps, outfit reasons), which are English only. |
 
 The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when it opens on today. The occasion defaults to **Work on weekdays and Casual at weekends**.
@@ -136,9 +136,10 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | --- | --- | --- |
 | `main` | Foundation, design system, setup flow, sign-in, log out | 60 commits ahead of `origin/main`; not pushed |
 | `feat/first_outfit` | Everything in `main`, plus the account, the first try-on, Home, Shop and Settings | Not merged, not pushed |
-| **`feat/makeup`** (current) | Everything in `feat/first_outfit`, plus the Makeup tab, two-day outfits in Firestore, photo rules, returning users and makeup that starts by itself | Not merged, not pushed |
+| `feat/makeup` | Everything in `feat/first_outfit`, plus the Makeup tab, two-day outfits in Firestore, photo rules, returning users and makeup that starts by itself | Not merged, not pushed |
+| **`feat/settings_profile_initial`** (current) | Everything in `feat/makeup`, plus Settings' default profile picture | Not merged, not pushed |
 
-Not committed: `ios/Podfile.lock`, which the owner's iOS build updated to the new Firebase pods (cloud_firestore 7, firebase_auth 7, firebase_core 5, firebase_storage 14).
+The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
 ### 2.4 What has been checked on a real phone
 
@@ -165,7 +166,6 @@ Not committed: `ios/Podfile.lock`, which the owner's iOS build updated to the ne
 - [ ] **"Other outfits" on Home** (Pro: up to 3 more outfits a day; tapping one swaps it in at once). *Blocked on an owner decision.* Home's switch became Today / Tomorrow / Outfits on October 16, and each extra outfit is a full try-on (4–6 units).
 - [ ] **Translate the knowledge base's texts** (makeup step titles, how-tos and product kinds, and outfit reasons) into Spanish and Chinese. *Pending; owner to-do from October 17.*
 - [ ] **Holiday and evening occasions.** *Blocked on owner input.* Public holidays should count as casual days, which needs a dated holiday list for each supported country. Still open: whether evenings default to Staying in (Monday to Thursday) and Going out (Friday to Sunday).
-- [ ] **Default profile picture in Settings.** *Pending, small; owner request, October 17.* With no face photo, the Settings profile row shows an empty 56-pt photo slot. Show a Rouge (`signal`) square with the first letter of the person's name in white instead, like the logo's "In" square. Settings only: every other photo slot stays as it is, so change `SettingsRow.profile` (only Settings uses it), not `PhotoSlot`. A face photo still replaces it. Use `name.characters.first`, upper-cased, so Chinese names and emoji work.
 - [ ] **Log out clears outfit and makeup pictures from the phone**, as the spec says. The body and face photos and the picks stay, as the owner asked. *Pending, small.*
 - [ ] **Favourites across phones.** A favourite removed on one phone can come back from another. *Pending, low priority.*
 - [ ] **Skip an outfit that YouCam refuses for its reference photo** (`error_invalid_ref`), instead of retrying the same one. *Pending, low priority.*
@@ -188,7 +188,6 @@ Not committed: `ios/Podfile.lock`, which the owner's iOS build updated to the ne
 
 **Housekeeping**
 
-- [ ] Commit the owner's `ios/Podfile.lock` update. *Pending; ask the owner first.*
 - [ ] Merge `feat/makeup` into `main`. *Blocked on the owner's go-ahead.*
 - [ ] Push to `origin`. *Blocked on the owner's go-ahead.*
 - [ ] Bring `in-vogue/README.md` up to date: its intro and folder tree still describe October 16. *Pending.*
