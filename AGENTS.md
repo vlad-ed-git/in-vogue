@@ -159,6 +159,7 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 - Confirmed by the owner on October 16: Google sign-in works, and an Apple sign-in saved the profile, both photos and 4 favourites to Firebase.
 - **Not yet checked against the real YouCam API.** The last record (October 17) says no real call had been made: try-on and makeup have only run on test fakes. If the owner has run them since, update this line.
 - The October 17 work (two-day outfits, photo rules, returning users, makeup by itself) is waiting for the owner's device run.
+- October 18: the owner tested the development build with the bundled YouCam key (no flag), the occasion fix and the Settings changes (centred initial, Rouge Log out and Delete account) on a device and reported "test went well".
 
 ---
 
