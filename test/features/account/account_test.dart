@@ -19,6 +19,7 @@ import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/restore_from_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
+import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
@@ -26,11 +27,17 @@ import 'package:in_vogue/features/photos/data/photo_content_type.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
+import 'package:in_vogue/features/profile/data/data_sources/profile_local_data_source.dart';
+import 'package:in_vogue/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
+import 'package:in_vogue/features/profile/domain/usecases/get_profile_name.dart';
+import 'package:in_vogue/features/profile/domain/usecases/save_profile_name.dart';
+import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:path/path.dart' as p;
 
+import '../../helpers/memory_store.dart';
 import '../auth/sign_in_bloc_test.mocks.dart';
 import 'account_test.mocks.dart';
 
@@ -761,6 +768,37 @@ void main() {
       verifyNever(profile.saveName(any));
       verifyNever(picks.addPicks(any));
     });
+
+    test(
+      "About you fills in the account's name ahead of the provider's",
+      () async {
+        final names = ProfileRepositoryImpl(
+          ProfileLocalDataSourceImpl(MemoryStore()),
+        );
+        final auth = MockAuthRepository();
+        when(auth.currentAccount()).thenAnswer(
+          (_) async => const Right(Account(id: 'uid-1', name: 'Maya Apple')),
+        );
+        await RestoreFromAccount(
+          account: account,
+          profile: names,
+          photos: photos,
+          picks: picks,
+        )('uid-1');
+        final aboutYou = ProfileBloc(
+          getProfileName: GetProfileName(names),
+          saveProfileName: SaveProfileName(names),
+          getCurrentAccount: GetCurrentAccount(auth),
+          saveSetupToAccount: MockSaveSetupToAccount(),
+        );
+        addTearDown(aboutYou.close);
+        aboutYou.add(const ProfileLoaded());
+        expect(
+          await aboutYou.stream.first,
+          const ProfileState(status: ProfileStatus.ready, name: 'Maya'),
+        );
+      },
+    );
 
     test(
       'brings back the rest when the face photo cannot be downloaded',

@@ -108,9 +108,15 @@ void main() {
     );
     final saveSetup = MockSaveSetupToAccount();
     when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
+    final restore = MockRestoreFromAccount();
+    when(restore(any)).thenAnswer((_) async => const Right(unit));
     locator = GetIt.asNewInstance()
       ..registerFactory<SignInBloc>(
-        () => SignInBloc(signIn: SignIn(auth), saveSetupToAccount: saveSetup),
+        () => SignInBloc(
+          signIn: SignIn(auth),
+          restoreFromAccount: restore,
+          saveSetupToAccount: saveSetup,
+        ),
       )
       ..registerFactory<ProfileBloc>(
         () => ProfileBloc(
