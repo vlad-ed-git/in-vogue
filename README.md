@@ -48,24 +48,24 @@ keep the Xcode-saved version.
 Plain `flutterN run` defaults to development. Explicit commands:
 
 ```sh
-flutterN run --flavor development -t lib/main_development.dart \
-  --dart-define-from-file=secrets/development.json
+flutterN run --flavor development -t lib/main_development.dart
 flutterN run --flavor production -t lib/main_production.dart
 ```
 
 ### The YouCam key (development only)
 
-Try-ons and makeup call YouCam from the app, and only after sign-in. The key
-is read only by the development entrypoint, from the git-ignored
-`secrets/development.json`; the production entrypoint never reads it, and a
-build without it makes no outfits or makeup. Create the file from
-`secrets/youcam_api.txt`:
+Try-ons and makeup call YouCam from the app, and only after sign-in.
+Development builds bundle the key from the git-ignored
+`assets/development/youcam_api_key.txt`, so no flag is needed; the production
+flavor never bundles that folder and makes no outfits or makeup. Write the file
+from `secrets/youcam_api.txt`, then rebuild:
 
 ```sh
-python3 scripts/write_development_defines.py
+python3 scripts/write_development_key.py
 ```
 
-The development launch configuration passes it. Tests never call YouCam.
+A key inside an app can be extracted, so production's key is an open decision
+(see `AGENTS.md`). Tests never call YouCam.
 
 VS Code launch configurations select the matching flavor and entrypoint. A
 mismatched entrypoint/flavor fails startup before initializing Firebase or

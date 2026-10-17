@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 18, 2026** (branch `fix/home_occasion_on_resume`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 18, 2026** (branch `feat/youcam_key_bundled`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -42,7 +42,7 @@ Run every Flutter and Dart command from `in-vogue/` through an interactive zsh, 
 | Test one file | `zsh -ic 'flutterN test test/features/outfits/make_outfit_test.dart'` |
 | Visual boards (optional) | `zsh -ic 'flutterN test test_visual'`, which writes PNGs to `build/visual/` |
 | Re-export bundled data | `python3 scripts/export_catalog.py`, then `export_outfits.py`, then `export_makeup.py` (they stop if `resources/kb/translations.v1.json` lacks a text) |
-| Write the dev YouCam key file | `python3 scripts/write_development_defines.py` |
+| Bundle the YouCam key in development builds | `python3 scripts/write_development_key.py` (writes the git-ignored `assets/development/youcam_api_key.txt` from `secrets/youcam_api.txt`; rebuild afterwards) |
 | Check the Firestore rules (emulator; needs Java 21) | `JAVA_HOME=/Users/vlad/Development/java/jdk-21.0.1.jdk/Contents/Home firebase emulators:exec --only firestore --project demo-in-vogue "python3 scripts/check_firestore_rules.py"` |
 | Deploy rules (development only) | `GOOGLE_APPLICATION_CREDENTIALS="$PWD/secrets/in-vogue-dev-firebase-adminsdk-fbsvc-517e1ce146.json" firebase deploy --only firestore:rules,storage --project in-vogue-dev --non-interactive` |
 | Native Firebase files | `scripts/configure_firebase.sh development` (or `production`) |
@@ -85,7 +85,7 @@ A task is **done** only when analyze says "No issues found!" and every test pass
 
 ### 1.6 Secrets
 
-`in-vogue/secrets/` is git-ignored. It holds `youcam_api.txt`, `youcam_secret.txt`, `development.json` and the development Firebase admin key. **Never print, log or commit any of them.** The native Firebase files (`google-services.json`, `GoogleService-Info.plist`) are git-ignored too.
+`in-vogue/secrets/` is git-ignored. It holds `youcam_api.txt`, `youcam_secret.txt` and the development Firebase admin key (`development.json` is no longer used). `assets/development/youcam_api_key.txt` is git-ignored too: development builds bundle it, no flag needed, and production builds never do (owner, October 18). **Never print, log or commit any of them.** The native Firebase files (`google-services.json`, `GoogleService-Info.plist`) are git-ignored too.
 
 ### 1.7 Other projects
 
@@ -105,7 +105,7 @@ At the end of every task:
 
 ## 2. What is built
 
-Checked on October 18, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 776 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+Checked on October 18, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 788 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
 
 ### 2.1 What a person can do today
 
@@ -146,10 +146,11 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `feat/translate_kb_texts` | Everything in `fix/favourites_across_phones`, plus makeup steps and outfit reasons in Spanish and Chinese | Not merged, not pushed |
 | `docs/readme_refresh` | Everything in `feat/translate_kb_texts`, plus a README that describes the app as built (October 17) | Not merged, not pushed |
 | `chore/deterministic_outfit_builder` | Everything in `docs/readme_refresh`; the outfit builder fix itself lives in `resources/`, outside git (October 18) | Not merged, not pushed |
-| `feat/android_widget` (paused) | Everything in `chore/deterministic_outfit_builder`, plus the widget plan; the widget work in progress is stashed | Not merged, not pushed |
 | `fix/settings_initial_centred` | Everything in `feat/android_widget`, plus the centred initial | Not merged, not pushed |
 | `fix/settings_log_out_delete_rouge` | Everything in `fix/settings_initial_centred`, plus Rouge Log out and Delete account | Not merged, not pushed |
-| **`fix/home_occasion_on_resume`** (current) | Everything in `fix/settings_log_out_delete_rouge`, plus the fix for a day taking another day's occasion | Not merged, not pushed |
+| `fix/home_occasion_on_resume` | Everything in `fix/settings_log_out_delete_rouge`, plus the fix for a day taking another day's occasion | Not merged, not pushed |
+| `feat/android_widget` (paused) | Everything in `fix/home_occasion_on_resume`, plus widget steps 9a–9b | Not merged, not pushed |
+| **`feat/youcam_key_bundled`** (current) | Everything in `feat/android_widget`, plus the YouCam key bundled in development builds | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -215,7 +216,8 @@ Development is the everyday flavor. These steps make the **production** flavor (
 - [ ] Create the Android release key and the git-ignored `android/key.properties` (see `android/key.properties.example`). Add the key's SHA-1 and SHA-256 to the `in-vogue` Android app in Firebase. *Owner.*
 - [ ] After the two steps above, refresh production's native Firebase files with `scripts/configure_firebase.sh production`. *AI or owner.*
 - [ ] iOS: the Sign in with Apple capability for `com.invogue.app` (team `Q56R6X96PZ`), distribution signing, and an App Store Connect record. Production's Google URL scheme is already in the project. *Owner.*
-- [ ] **Decide how production gets the YouCam key.** *Blocked on the owner.* Production passes no key today, so it makes no outfits or makeup. The simple option works like development: a git-ignored secrets file passed with `--dart-define-from-file`. Note that a key inside an app can be extracted. No Cloud Functions (owner, October 17).
+- [ ] **Decide how production gets the YouCam key.** *Blocked on the owner.* Production carries no key today, so it makes no outfits or makeup. Development builds bundle theirs from a git-ignored file (owner, October 18), and production could do the same, but any key inside an app can be extracted and used to spend the YouCam units.
+- [ ] **Reconsider Cloud Functions for YouCam before release.** *Owner, October 18.* The standard secure way keeps the key on a server: one callable function holds it in Secret Manager, answers only signed-in people with App Check, applies per-person limits, and makes the YouCam calls, so the app never holds the key. Everything else stays in the app.
 - [ ] Keep the YouCam account funded for production use. When its units run out, outfits and makeup stop for everyone ("No more outfits can be made for now."). *Owner.*
 - [ ] The store requirements for the chosen channel: a privacy policy, the App Store privacy details and Google Play's data-safety form. Photos go to YouCam and Firebase. *Owner.*
 - [ ] The widget built and checked on both platforms (§3.a).
@@ -225,7 +227,7 @@ Development is the everyday flavor. These steps make the **production** flavor (
 
 ### 3.c Dropped: don't build these (owner decisions)
 
-Cloud Functions, servers, webhooks or schedulers · any YouCam units cap, counter, quota or kill switch · a guest outfit, or any YouCam call before sign-in · face or body detection on photos · the camera · dark mode or a theme switch · partner credit lines · the rolling temperature (replaced by a sideways shift) · category chips on the picks screen · the "You've seen every outfit" dead end · wardrobe uploads, AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout and endless feeds.
+Cloud Functions, servers, webhooks or schedulers (except that a YouCam proxy function is to be reconsidered before release, §3.b) · any YouCam units cap, counter, quota or kill switch · a guest outfit, or any YouCam call before sign-in · face or body detection on photos · the camera · dark mode or a theme switch · partner credit lines · the rolling temperature (replaced by a sideways shift) · category chips on the picks screen · the "You've seen every outfit" dead end · wardrobe uploads, AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout and endless feeds.
 
 ---
 
@@ -289,7 +291,7 @@ Facts that aren't obvious from the code. The skills hold the details.
 - App IDs: `com.invogue.app.dev` ("In Vogue Dev") and `com.invogue.app` ("In Vogue"). Firebase projects: `in-vogue-dev` and `in-vogue`. Development is the everyday flavor, and plain `flutterN run` uses it. A flavor that doesn't match its Firebase project fails at startup.
 - Apple team: Conduct Wellness Pal Co. Ltd., `Q56R6X96PZ`. Google iOS URL schemes: development `com.googleusercontent.apps.184104161725-h701r3ame556n3gnng2fgppa84sfp5ig`, production `com.googleusercontent.apps.854510811606-n3o3e82qpcks173om632be5bqjqq17ne`. Android development debug SHA-1 `14:66:6A:…:E2:D5` is registered in development.
 - Tools: Flutter 3.44.4 and Dart 3.12.2 (`/Users/vlad/Development/flutter`), Xcode 26.3, CocoaPods 1.16.2 (plugins through CocoaPods, not SPM; open `ios/Runner.xcworkspace`), Java 17, iOS 15.0+, Android minSdk 24, FlutterFire CLI 1.4.0, Firebase CLI at `/opt/homebrew/bin/firebase`, ImageMagick `magick`.
-- `.vscode/launch.json` holds both flavors; the development configuration passes `--dart-define-from-file=secrets/development.json`.
+- `.vscode/launch.json` holds both flavors, with no extra flags: development builds read the YouCam key from the bundled `assets/development/youcam_api_key.txt`.
 
 **Product logic**
 - Welcome's tagline: "Meet tomorrow's weather in style."
