@@ -19,6 +19,7 @@ import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dar
 import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
+import 'package:in_vogue/features/outfits/domain/services/follow_day.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart';
 import 'package:path/path.dart' as path;
@@ -86,6 +87,14 @@ void init(GetIt locator) {
         photos: locator(),
         picks: locator(),
         saveSetupToAccount: locator(),
+        installId: locator(),
+      ),
+    )
+    ..registerLazySingleton<FollowDay>(
+      () => FollowDay(
+        days: locator(),
+        outfits: locator(),
+        makeOutfit: locator(),
         installId: locator(),
       ),
     );
