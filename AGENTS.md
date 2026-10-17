@@ -1,6 +1,6 @@
 # AGENTS.md: In Vogue
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 17, 2026** (branch `docs/readme_refresh`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 18, 2026** (branch `chore/deterministic_outfit_builder`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
 
 **In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
 
@@ -144,7 +144,8 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 | `feat/skip_refused_outfit` | Everything in `fix/plan_rules`, plus switching to another outfit when YouCam refuses a piece's photo | Not merged, not pushed |
 | `fix/favourites_across_phones` | Everything in `feat/skip_refused_outfit`, plus favourites that stay unloved across phones | Not merged, not pushed |
 | `feat/translate_kb_texts` | Everything in `fix/favourites_across_phones`, plus makeup steps and outfit reasons in Spanish and Chinese | Not merged, not pushed |
-| **`docs/readme_refresh`** (current) | Everything in `feat/translate_kb_texts`, plus a README that describes the app as built (October 17) | Not merged, not pushed |
+| `docs/readme_refresh` | Everything in `feat/translate_kb_texts`, plus a README that describes the app as built (October 17) | Not merged, not pushed |
+| **`chore/deterministic_outfit_builder`** (current) | Everything in `docs/readme_refresh`; the outfit builder fix itself lives in `resources/`, outside git (October 18) | Not merged, not pushed |
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -179,7 +180,7 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 - [ ] **Crash and error reporting.** *Pending; the owner picks the tool* (Firebase Crashlytics fits the stack). Release builds report nothing today.
 - [ ] **Old pictures and records.** *Pending; the owner picks how long to keep them.* Each active person adds two outfit pictures, makeup pictures and day records every day, and only Delete account ever removes them. A Storage lifecycle rule and Firestore TTL policies can clean up without a server. Never expire `suggestions`, because they drive the no-repeat rule.
 - [ ] **How the catalog and knowledge base reach the app.** *Blocked on an owner decision.* They are bundled in `assets/`, so every catalog change (new stock, a new partner brand) needs an app release. To scale to many partners, decide whether to load versioned catalog and knowledge-base files from Firebase instead.
-- [ ] **Keep the catalog fresh.** *Pending.* The catalog is a snapshot from October 14. Re-run the pull and the exports regularly, and mark pieces that are no longer for sale on Shop instead of sending people to a dead page. First make `resources/tools/kb/build_outfits.py` deterministic: its output changes with Python's hash seed (`PYTHONHASHSEED`), so each rebuild reshuffles about 40% of the outfits, and today's bundle can't be rebuilt as it is (found October 17).
+- [ ] **Keep the catalog fresh.** *Pending.* The catalog is a snapshot from October 14. Re-run the pull and the exports regularly, and mark pieces that are no longer for sale on Shop instead of sending people to a dead page. The outfit builder is deterministic since October 18: the same catalog always gives the same outfits. Today's bundle was built before that fix and can't be rebuilt as it is; a rebuild of the October 14 catalog gives 1,809 outfits instead of 1,749, reshuffling about 40%, and every piece in it already has Spanish and Chinese names.
 - [ ] **Firebase App Check.** *Pending; needs the owner's console setup* (App Attest on iOS, Play Integrity on Android), so only the real app can reach Firestore and Storage.
 
 **Checks only the owner can do**
