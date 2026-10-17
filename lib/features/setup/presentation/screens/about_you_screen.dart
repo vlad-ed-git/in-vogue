@@ -6,6 +6,7 @@ import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/core/utils/failure_message.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
+import 'package:in_vogue/features/photos/presentation/widgets/photo_notices.dart';
 import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
@@ -107,16 +108,22 @@ class _AboutYouScreenState extends State<AboutYouScreen> {
                     ),
                     const SizedBox(height: InVogueSpace.s6),
                     BlocBuilder<PhotoBloc, PhotoState>(
-                      builder: (context, face) => PhotoPicker(
-                        kind: PhotoKind.face,
-                        example: AboutYouScreen.example,
-                        chosen: face.path == null
-                            ? null
-                            : FileImage(File(face.path!)),
-                        optional: true,
-                        onChoose: () => context.read<PhotoBloc>().add(
-                          const PhotoChooseRequested(),
-                        ),
+                      builder: (context, face) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          PhotoPicker(
+                            kind: PhotoKind.face,
+                            example: AboutYouScreen.example,
+                            chosen: face.path == null
+                                ? null
+                                : FileImage(File(face.path!)),
+                            optional: true,
+                            onChoose: () => context.read<PhotoBloc>().add(
+                              const PhotoChooseRequested(),
+                            ),
+                          ),
+                          PhotoNotices(face),
+                        ],
                       ),
                     ),
                     if (profile.failure != null) ...[

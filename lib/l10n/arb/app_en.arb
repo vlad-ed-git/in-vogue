@@ -290,6 +290,10 @@
   "@photoUnusable": {
     "description": "A chosen photo could not be read or changed to a format that works."
   },
+  "photoConverted": "We changed this photo’s format so it works. Don’t like it? Choose another.",
+  "@photoConverted": {
+    "description": "Under a chosen photo that was converted to a format the try-on and makeup take."
+  },
   "addPhotoOfYou": "Add a photo of you",
   "@addPhotoOfYou": {
     "description": "Title of setup step 2."

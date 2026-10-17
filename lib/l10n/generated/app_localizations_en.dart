@@ -257,6 +257,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get photoUnusable => 'We can’t use this photo. Choose another one.';
 
   @override
+  String get photoConverted =>
+      'We changed this photo’s format so it works. Don’t like it? Choose another.';
+
+  @override
   String get addPhotoOfYou => 'Add a photo of you';
 
   @override

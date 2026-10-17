@@ -254,6 +254,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get photoUnusable => '无法使用这张照片，请换一张。';
 
   @override
+  String get photoConverted => '我们更改了这张照片的格式，以便使用。不喜欢？请换一张。';
+
+  @override
   String get addPhotoOfYou => '添加一张你的照片';
 
   @override

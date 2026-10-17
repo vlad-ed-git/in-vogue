@@ -447,6 +447,12 @@ abstract class AppLocalizations {
   /// **'We can’t use this photo. Choose another one.'**
   String get photoUnusable;
 
+  /// Under a chosen photo that was converted to a format the try-on and makeup take.
+  ///
+  /// In en, this message translates to:
+  /// **'We changed this photo’s format so it works. Don’t like it? Choose another.'**
+  String get photoConverted;
+
   /// Title of setup step 2.
   ///
   /// In en, this message translates to:

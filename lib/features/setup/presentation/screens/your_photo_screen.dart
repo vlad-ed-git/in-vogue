@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
-import 'package:in_vogue/core/utils/failure_message.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
+import 'package:in_vogue/features/photos/presentation/widgets/photo_notices.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
 
@@ -72,7 +72,6 @@ class YourPhotoScreen extends StatelessWidget {
   Widget _picker(BuildContext context, PhotoState state) {
     final bloc = context.read<PhotoBloc>();
     final path = state.path;
-    final failure = state.failure;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -85,14 +84,7 @@ class YourPhotoScreen extends StatelessWidget {
               ? null
               : () => bloc.add(const PhotoConfirmed()),
         ),
-        if (failure != null) ...[
-          const SizedBox(height: InVogueSpace.s4),
-          Notice(
-            icon: InVogueIcons.warning,
-            alert: true,
-            message: failure.uiFriendlyMessage(context),
-          ),
-        ],
+        PhotoNotices(state),
       ],
     );
   }

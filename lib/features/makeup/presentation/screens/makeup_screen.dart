@@ -11,6 +11,7 @@ import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart';
 import 'package:in_vogue/features/makeup/presentation/bloc/makeup_bloc.dart';
 import 'package:in_vogue/features/makeup/presentation/makeup_text.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
+import 'package:in_vogue/features/photos/presentation/widgets/photo_notices.dart';
 
 /// The Makeup tab: the look for the outfit of the day shown, with its
 /// steps on the person's own face; or the face photo and a way to get the
@@ -146,6 +147,7 @@ class MakeupScreen extends StatelessWidget {
               context.read<PhotoBloc>().add(const PhotoChooseRequested()),
         ),
       ],
+      PhotoNotices(photo),
       if (day.outfit != null && path != null)
         Padding(
           padding: const EdgeInsets.only(top: InVogueSpace.s6),
@@ -156,14 +158,6 @@ class MakeupScreen extends StatelessWidget {
             onPressed: photo.busy
                 ? null
                 : () => context.read<PhotoBloc>().add(const PhotoConfirmed()),
-          ),
-        ),
-      if (photo.failure case final failure?)
-        _gap(
-          Notice(
-            icon: InVogueIcons.warning,
-            alert: true,
-            message: failure.uiFriendlyMessage(context),
           ),
         ),
       if (state.failure case final failure?) _gap(_failed(context, failure)),

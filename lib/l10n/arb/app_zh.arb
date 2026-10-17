@@ -57,6 +57,7 @@
   "photoUnreadable": "无法打开这张照片，请换一张。",
   "photoTooSmall": "这张照片太小了，请换一张更大的。",
   "photoUnusable": "无法使用这张照片，请换一张。",
+  "photoConverted": "我们更改了这张照片的格式，以便使用。不喜欢？请换一张。",
   "addPhotoOfYou": "添加一张你的照片",
   "bodyPhotoWhy": "我们会用这张照片为你换上每套搭配。",
   "chooseDifferentPhoto": "换一张照片",

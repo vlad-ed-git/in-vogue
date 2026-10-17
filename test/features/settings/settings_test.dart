@@ -186,7 +186,10 @@ void main() {
       registerFallbackValue(const DeleteAccountConfirmed());
     });
 
-    Future<void> pumpSettings(WidgetTester tester) async {
+    Future<void> pumpSettings(
+      WidgetTester tester, {
+      Stream<PhotoState> bodyStates = const Stream.empty(),
+    }) async {
       settings = _MockSettingsBloc();
       profile = _MockProfileBloc();
       face = _MockPhotoBloc();
@@ -224,7 +227,7 @@ void main() {
       );
       whenListen(
         body,
-        const Stream<PhotoState>.empty(),
+        bodyStates,
         initialState: const PhotoState(
           status: PhotoStatus.chosen,
           path: '/photos/body-3.jpg',
@@ -316,6 +319,49 @@ void main() {
       verify(() => body.add(const PhotoChooseRequested())).called(1);
       await tester.tap(findLink('Add'));
       verify(() => face.add(const PhotoChooseRequested())).called(1);
+    });
+
+    testWidgets("says when it changed a new photo's format, once kept", (
+      tester,
+    ) async {
+      await pumpSettings(
+        tester,
+        bodyStates: Stream.value(
+          const PhotoState(
+            status: PhotoStatus.confirmed,
+            path: '/photos/body-4.png',
+            isKept: true,
+            converted: true,
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(
+        find.text(
+          'We changed this photo’s format so it works. Don’t like it? Choose another.',
+        ),
+        findsOneWidget,
+      );
+      verify(() => settings.add(const SettingsSetupChanged())).called(1);
+    });
+
+    testWidgets('says why a new photo cannot be used', (tester) async {
+      await pumpSettings(
+        tester,
+        bodyStates: Stream.value(
+          const PhotoState(
+            status: PhotoStatus.chosen,
+            path: '/photos/body-3.jpg',
+            isKept: true,
+            failure: PhotoFailure(PhotoProblem.tooSmall),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(
+        find.text('This photo is too small. Choose a larger one.'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('Change on Location reads the location again', (tester) async {

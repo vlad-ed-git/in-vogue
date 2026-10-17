@@ -110,6 +110,51 @@ void main() {
     );
   });
 
+  testWidgets("says when it changed the photo's format", (tester) async {
+    await pumpScreen(
+      tester,
+      state: const PhotoState(
+        status: PhotoStatus.chosen,
+        path: '/tmp/me-ready.png',
+        converted: true,
+      ),
+    );
+    expect(
+      find.text(
+        'We changed this photo’s format so it works. Don’t like it? Choose another.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('says when a photo is too small', (tester) async {
+    await pumpScreen(
+      tester,
+      state: const PhotoState(failure: PhotoFailure(PhotoProblem.tooSmall)),
+    );
+    expect(
+      find.text('This photo is too small. Choose a larger one.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        'We changed this photo’s format so it works. Don’t like it? Choose another.',
+      ),
+      findsNothing,
+    );
+  });
+
+  testWidgets('says when a photo cannot be used', (tester) async {
+    await pumpScreen(
+      tester,
+      state: const PhotoState(failure: PhotoFailure(PhotoProblem.unusable)),
+    );
+    expect(
+      find.text('We can’t use this photo. Choose another one.'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('moves on once the photo is kept', (tester) async {
     await pumpScreen(
       tester,

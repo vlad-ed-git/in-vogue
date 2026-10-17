@@ -241,6 +241,36 @@ void main() {
     verifyNever(() => makeup.add(any()));
   });
 
+  testWidgets("says when it changed the face photo's format", (tester) async {
+    await pumpScreen(
+      tester,
+      state: ready(),
+      faceState: const PhotoState(
+        status: PhotoStatus.chosen,
+        path: '/tmp/face-ready.png',
+        converted: true,
+      ),
+    );
+    expect(
+      find.text(
+        'We changed this photo’s format so it works. Don’t like it? Choose another.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('says when a face photo cannot be used', (tester) async {
+    await pumpScreen(
+      tester,
+      state: ready(),
+      faceState: const PhotoState(failure: PhotoFailure(PhotoProblem.unusable)),
+    );
+    expect(
+      find.text('We can’t use this photo. Choose another one.'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('asks for the look once the face photo is kept', (tester) async {
     await pumpScreen(
       tester,

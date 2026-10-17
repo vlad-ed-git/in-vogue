@@ -274,6 +274,7 @@ class _PhotoRow extends StatelessWidget {
         }
         if (state.status == PhotoStatus.confirmed) {
           context.read<SettingsBloc>().add(const SettingsSetupChanged());
+          if (state.converted) context.showSnack(message: l10n.photoConverted);
         }
         if (state.failure != null) {
           SettingsScreen._fail(context, state.failure!);

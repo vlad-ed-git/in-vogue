@@ -136,6 +136,35 @@ void main() {
     expect(find.text('Continue'), findsOneWidget);
   });
 
+  testWidgets("says when it changed the face photo's format", (tester) async {
+    await pumpScreen(
+      tester,
+      faceState: const PhotoState(
+        status: PhotoStatus.confirmed,
+        path: '/support/photos/face-2.png',
+        isKept: true,
+        converted: true,
+      ),
+    );
+    expect(
+      find.text(
+        'We changed this photo’s format so it works. Don’t like it? Choose another.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('says when a face photo is too small', (tester) async {
+    await pumpScreen(
+      tester,
+      faceState: const PhotoState(failure: PhotoFailure(PhotoProblem.tooSmall)),
+    );
+    expect(
+      find.text('This photo is too small. Choose a larger one.'),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('moves on once the name is saved', (tester) async {
     await pumpScreen(
       tester,
