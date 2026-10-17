@@ -133,7 +133,7 @@
   "addToHomeScreen": "Añadir a la pantalla de inicio",
   "skip": "Omitir",
   "widgetStepsTitle": "Tres pasos en el iPhone",
-  "widgetNotReady": "El widget aún no está listo. Puedes añadirlo más tarde.",
+  "widgetAddByHand": "Añádelo desde tu pantalla de inicio: mantén pulsado, toca Widgets y elige In Vogue.",
   "widgetPreviewSpoken": "{weather} Tu conjunto se está preparando.",
   "tryOnPhotoProblem": "No pudimos vestir esta foto. Puede que otra funcione.",
   "tryOnNoCredit": "Por ahora no se pueden crear más conjuntos.",

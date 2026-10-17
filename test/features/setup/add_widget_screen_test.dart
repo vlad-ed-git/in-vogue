@@ -163,15 +163,17 @@ void main() {
     expect(pins, 0);
   });
 
-  testWidgets('on Android, asks the launcher, or says it is not ready', (
-    tester,
-  ) async {
+  testWidgets('on Android, asks the launcher, or says how to add it where '
+      "the launcher can't", (tester) async {
     await pumpScreen(tester, platform: TargetPlatform.android);
     expect(find.text('Three steps on iPhone'), findsNothing);
     await _tapInView(tester, _button('Add to home screen'));
     expect(pins, 1);
     expect(
-      find.text('The widget isn’t ready yet. You can add it later.'),
+      find.text(
+        'Add it from your home screen: press and hold, tap Widgets, '
+        'choose In Vogue.',
+      ),
       findsOneWidget,
     );
     expect(finishes, 0);

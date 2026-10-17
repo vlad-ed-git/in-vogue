@@ -542,8 +542,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get widgetStepsTitle => 'Three steps on iPhone';
 
   @override
-  String get widgetNotReady =>
-      'The widget isn’t ready yet. You can add it later.';
+  String get widgetAddByHand =>
+      'Add it from your home screen: press and hold, tap Widgets, choose In Vogue.';
 
   @override
   String widgetPreviewSpoken(String weather) {

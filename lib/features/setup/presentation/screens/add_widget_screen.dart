@@ -38,7 +38,9 @@ class AddWidgetScreen extends StatefulWidget {
 
 class _AddWidgetScreenState extends State<AddWidgetScreen> {
   bool _adding = false;
-  bool _notReady = false;
+
+  /// The launcher can't place the widget from the app.
+  bool _byHand = false;
 
   Future<void> _add() async {
     setState(() => _adding = true);
@@ -46,7 +48,7 @@ class _AddWidgetScreenState extends State<AddWidgetScreen> {
     if (!mounted) return;
     setState(() {
       _adding = false;
-      _notReady = !placed;
+      _byHand = !placed;
     });
     if (placed) widget.onFinish();
   }
@@ -153,10 +155,10 @@ class _AddWidgetScreenState extends State<AddWidgetScreen> {
 
   List<Widget> _android(BuildContext context) => [
     const SizedBox(height: InVogueSpace.s5),
-    if (_notReady) ...[
+    if (_byHand) ...[
       Notice(
-        icon: InVogueIcons.warning,
-        message: context.translated.widgetNotReady,
+        icon: InVogueIcons.handTap,
+        message: context.translated.widgetAddByHand,
       ),
       const SizedBox(height: InVogueSpace.s4),
     ],

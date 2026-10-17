@@ -508,7 +508,10 @@
   "addToHomeScreen": "Add to home screen",
   "skip": "Skip",
   "widgetStepsTitle": "Three steps on iPhone",
-  "widgetNotReady": "The widget isn’t ready yet. You can add it later.",
+  "widgetAddByHand": "Add it from your home screen: press and hold, tap Widgets, choose In Vogue.",
+  "@widgetAddByHand": {
+    "description": "Android setup, when the launcher cannot place the widget from the app."
+  },
   "widgetPreviewSpoken": "{weather} Your outfit is getting ready.",
   "@widgetPreviewSpoken": {
     "description": "The widget preview read aloud; weather is weatherSpokenWithDay.",

@@ -506,7 +506,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get widgetStepsTitle => '在 iPhone 上只需三步';
 
   @override
-  String get widgetNotReady => '小组件尚未就绪，你可以稍后添加。';
+  String get widgetAddByHand => '请在主屏幕上添加：长按屏幕，点按“小组件”，选择 In Vogue。';
 
   @override
   String widgetPreviewSpoken(String weather) {

@@ -903,11 +903,11 @@ abstract class AppLocalizations {
   /// **'Three steps on iPhone'**
   String get widgetStepsTitle;
 
-  /// No description provided for @widgetNotReady.
+  /// Android setup, when the launcher cannot place the widget from the app.
   ///
   /// In en, this message translates to:
-  /// **'The widget isn’t ready yet. You can add it later.'**
-  String get widgetNotReady;
+  /// **'Add it from your home screen: press and hold, tap Widgets, choose In Vogue.'**
+  String get widgetAddByHand;
 
   /// The widget preview read aloud; weather is weatherSpokenWithDay.
   ///
