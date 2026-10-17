@@ -19,7 +19,6 @@ import 'package:in_vogue/features/outfits/data/models/day_model.dart';
 import 'package:in_vogue/features/outfits/data/repositories/day_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_job_repository_impl.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
-import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
@@ -464,31 +463,6 @@ class _FakeOutfits implements OutfitRepository {
   @override
   Future<Either<Failure, Outfit?>> outfit(String id) async =>
       Right(ranked.where((outfit) => outfit.id == id).firstOrNull);
-
-  @override
-  Future<Either<Failure, Unit>> forgetPictures(String accountId) =>
-      throw UnimplementedError();
-
-  @override
-  Future<Either<Failure, Set<String>>> shownSignatures(String accountId) =>
-      throw UnimplementedError();
-
-  @override
-  Future<Either<Failure, DayOutfit?>> dayOutfit(
-    String accountId, {
-    required DateTime date,
-    required Occasion occasion,
-  }) => throw UnimplementedError();
-
-  @override
-  Future<Either<Failure, DayOutfit>> record(
-    String accountId, {
-    required Outfit outfit,
-    required String cell,
-    required DateTime date,
-    required Occasion occasion,
-    required List<int> picture,
-  }) => throw UnimplementedError();
 }
 
 class _FakePictures implements OutfitPictureRemoteDataSource {

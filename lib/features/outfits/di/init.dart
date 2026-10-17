@@ -8,7 +8,6 @@ import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_sour
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
-import 'package:in_vogue/features/outfits/data/data_sources/outfit_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/try_on_job_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/repositories/day_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/outfit_repository_impl.dart';
@@ -21,7 +20,6 @@ import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_reposit
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/follow_day.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart';
 import 'package:path/path.dart' as path;
 
 /// Without a YouCam client no try-on can start.
@@ -29,12 +27,6 @@ void init(GetIt locator) {
   locator
     ..registerLazySingleton<OutfitAssetDataSource>(
       () => OutfitAssetDataSourceImpl(rootBundle),
-    )
-    ..registerLazySingleton<OutfitRemoteDataSource>(
-      () => OutfitRemoteDataSourceImpl(
-        firestore: FirebaseFirestore.instance,
-        storage: FirebaseStorage.instance,
-      ),
     )
     ..registerLazySingleton<OutfitPictureLocalDataSource>(
       () => OutfitPictureLocalDataSourceImpl(
@@ -44,8 +36,6 @@ void init(GetIt locator) {
     ..registerLazySingleton<OutfitRepository>(
       () => OutfitRepositoryImpl(
         assetDataSource: locator(),
-        remoteDataSource: locator(),
-        pictureDataSource: locator(),
         logMessages: locator(),
       ),
     )
@@ -77,7 +67,6 @@ void init(GetIt locator) {
             )
           : const UnavailableTryOnRepository(),
     )
-    ..registerLazySingleton<GetDayOutfit>(() => GetDayOutfit(locator()))
     ..registerLazySingleton<MakeOutfit>(
       () => MakeOutfit(
         outfits: locator(),

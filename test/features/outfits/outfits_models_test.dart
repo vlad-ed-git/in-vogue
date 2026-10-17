@@ -6,7 +6,6 @@ import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/catalog_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/try_on_job_local_data_source.dart';
-import 'package:in_vogue/features/outfits/data/models/outfit_record_model.dart';
 import 'package:in_vogue/features/outfits/data/models/outfits_model.dart';
 import 'package:in_vogue/features/outfits/data/models/try_on_job_model.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_job_repository_impl.dart';
@@ -99,42 +98,6 @@ void main() {
           expect(categories.last, GarmentCategory.outer, reason: outfit.id);
         }
       }
-    });
-  });
-
-  group('OutfitRecordModel', () {
-    test('keeps pictures under the account by signature and type', () {
-      expect(
-        OutfitRecordModel.imagePath('uid-1', 'a+b', 'jpg'),
-        'users/uid-1/outfits/a+b.jpg',
-      );
-      expect(OutfitRecordModel.extensionOf([0x89, 0x50, 0x4E, 0x47]), 'png');
-      expect(OutfitRecordModel.extensionOf([0xFF, 0xD8, 0xFF, 0xE0]), 'jpg');
-      expect(OutfitRecordModel.contentType('png'), 'image/png');
-    });
-
-    test('reads back what it writes', () {
-      final record = (
-        signature: 'a+b',
-        outfitId: 'o1',
-        pieces: ['everlane:a', 'everlane:b'],
-        cell: 'cool|wet|calm|work',
-        date: DateTime.utc(2026, 10, 17),
-        occasion: Occasion.work,
-        imagePath: 'users/uid-1/outfits/a+b.jpg',
-        createdAt: null,
-      );
-      final json = OutfitRecordModel.toJson(record);
-      expect(json['forDate'], '2026-10-17');
-      final read = OutfitRecordModel.fromJson('a+b', json)!;
-      expect(read.signature, 'a+b');
-      expect(read.outfitId, 'o1');
-      expect(read.pieces, record.pieces);
-      expect(read.cell, record.cell);
-      expect(read.date, record.date);
-      expect(read.occasion, Occasion.work);
-      expect(read.imagePath, record.imagePath);
-      expect(OutfitRecordModel.fromJson('a+b', {'outfitId': 'o1'}), isNull);
     });
   });
 
