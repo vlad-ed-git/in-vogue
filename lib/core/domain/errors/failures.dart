@@ -80,9 +80,6 @@ enum TryOnProblem {
 
   /// This build cannot make outfits.
   unavailable,
-
-  /// Every suitable outfit has been shown.
-  everySeen,
 }
 
 final class TryOnFailure extends Failure {

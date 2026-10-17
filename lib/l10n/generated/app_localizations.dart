@@ -429,12 +429,6 @@ abstract class AppLocalizations {
   /// **'{date} at {time}'**
   String savedAt(String date, String time);
 
-  /// No description provided for @everyLookSeen.
-  ///
-  /// In en, this message translates to:
-  /// **'{day, select, today{You’ve seen every outfit that suits today. New pieces arrive soon.} other{You’ve seen every outfit that suits tomorrow. New pieces arrive soon.}}'**
-  String everyLookSeen(String day);
-
   /// A chosen photo could not be read.
   ///
   /// In en, this message translates to:

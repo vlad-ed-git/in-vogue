@@ -275,8 +275,9 @@ class MakeOutfit {
           suggested: suggested,
           picks: picks,
         );
+        // No outfit in this build suits the day's weather.
         if (outfit == null) {
-          return const Left(TryOnFailure(TryOnProblem.everySeen));
+          return const Left(TryOnFailure(TryOnProblem.unavailable));
         }
         proposal = Day(
           date: params.date,

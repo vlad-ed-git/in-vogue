@@ -54,7 +54,6 @@
   "openSettings": "打开设置",
   "offlineSaved": "当前离线。这是 {savedAt} 保存的穿搭。",
   "savedAt": "{date} {time}",
-  "everyLookSeen": "{day, select, today{适合今天的穿搭你都看过了。新单品即将上架。} other{适合明天的穿搭你都看过了。新单品即将上架。}}",
   "photoUnreadable": "无法打开这张照片，请换一张。",
   "addPhotoOfYou": "添加一张你的照片",
   "bodyPhotoWhy": "我们会用这张照片为你换上每套搭配。",

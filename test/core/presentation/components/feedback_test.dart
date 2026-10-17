@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 
 import '../../../helpers/pump_in_vogue.dart';
@@ -107,30 +106,17 @@ void main() {
       expect(notice.right - button.right, 16);
     });
 
-    testWidgets('offline and every look seen read plainly', (tester) async {
+    testWidgets('offline reads plainly', (tester) async {
       await pumpInVogue(
         tester,
         Builder(
-          builder: (context) => Column(
-            children: [
-              Notice.offline(
-                context: context,
-                savedAt: 'Thu 16 Oct at 9:12 pm',
-              ),
-              Notice.everyLookSeen(context: context, day: ForecastDay.today),
-            ],
-          ),
+          builder: (context) =>
+              Notice.offline(context: context, savedAt: 'Thu 16 Oct at 9:12 pm'),
         ),
       );
       expect(
         find.text(
           'You’re offline. This is the outfit saved on Thu 16 Oct at 9:12 pm.',
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.text(
-          'You’ve seen every outfit that suits today. New pieces arrive soon.',
         ),
         findsOneWidget,
       );

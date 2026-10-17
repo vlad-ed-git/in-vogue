@@ -249,17 +249,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String everyLookSeen(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today':
-          'Ya viste todos los conjuntos para hoy. Pronto llegan prendas nuevas.',
-      'other':
-          'Ya viste todos los conjuntos para mañana. Pronto llegan prendas nuevas.',
-    });
-    return '$_temp0';
-  }
-
-  @override
   String get photoUnreadable => 'No pudimos abrir esta foto. Elige otra.';
 
   @override

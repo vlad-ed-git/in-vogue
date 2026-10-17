@@ -342,10 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
   /// What is said below the photo when there is no outfit to show.
   Widget? _notice(BuildContext context, HomeState state) {
     final l10n = context.translated;
-    final day = state.selected;
     return switch (state.shown.outfit) {
-      OutfitFailed(failure: TryOnFailure(problem: TryOnProblem.everySeen)) =>
-        Notice.everyLookSeen(context: context, day: day),
       OutfitFailed(
         failure: TryOnFailure(
               problem: TryOnProblem.noCredit ||

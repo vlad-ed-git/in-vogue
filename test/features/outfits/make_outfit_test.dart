@@ -415,6 +415,15 @@ void main() {
     expect(await record(), isNull);
   });
 
+  test('tries nothing on when no outfit suits the weather', () async {
+    outfits = _FakeOutfits(const []);
+    expect(await make(), [
+      const TryOnFailed(TryOnFailure(TryOnProblem.unavailable)),
+    ]);
+    expect(tryOn.uploads, isEmpty);
+    expect(await record(), isNull);
+  });
+
   test('needs the body photo', () async {
     photos.body = null;
     expect(await make(), [const TryOnFailed(TryOnFailure(TryOnProblem.photo))]);

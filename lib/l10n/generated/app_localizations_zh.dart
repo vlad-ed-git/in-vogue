@@ -245,15 +245,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String everyLookSeen(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': '适合今天的穿搭你都看过了。新单品即将上架。',
-      'other': '适合明天的穿搭你都看过了。新单品即将上架。',
-    });
-    return '$_temp0';
-  }
-
-  @override
   String get photoUnreadable => '无法打开这张照片，请换一张。';
 
   @override

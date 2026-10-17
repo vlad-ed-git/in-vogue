@@ -54,7 +54,6 @@
   "openSettings": "Abrir ajustes",
   "offlineSaved": "No tienes conexión. Este es el conjunto guardado el {savedAt}.",
   "savedAt": "{date} a las {time}",
-  "everyLookSeen": "{day, select, today{Ya viste todos los conjuntos para hoy. Pronto llegan prendas nuevas.} other{Ya viste todos los conjuntos para mañana. Pronto llegan prendas nuevas.}}",
   "photoUnreadable": "No pudimos abrir esta foto. Elige otra.",
   "addPhotoOfYou": "Añade una foto tuya",
   "bodyPhotoWhy": "Vestimos esta foto con cada conjunto.",

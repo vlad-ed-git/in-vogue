@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/presentation/components/actions/in_vogue_button.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -61,17 +60,6 @@ class Notice extends StatelessWidget {
       onRose: true,
       onPressed: onRetry,
     ),
-  );
-
-  /// Every suitable outfit for [day] has been shown.
-  factory Notice.everyLookSeen({
-    required BuildContext context,
-    required ForecastDay day,
-    Key? key,
-  }) => Notice(
-    key: key,
-    icon: InVogueIcons.check,
-    message: context.translated.everyLookSeen(day.name),
   );
 
   final IconData icon;

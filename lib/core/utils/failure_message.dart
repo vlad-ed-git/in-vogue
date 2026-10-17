@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
@@ -16,9 +15,6 @@ extension FailureMessage on Failure {
       TryOnProblem.photo => context.translated.tryOnPhotoProblem,
       TryOnProblem.noCredit => context.translated.tryOnNoCredit,
       TryOnProblem.unavailable => context.translated.tryOnUnavailable,
-      TryOnProblem.everySeen => context.translated.everyLookSeen(
-        ForecastDay.tomorrow.name,
-      ),
     },
     MakeupFailure(:final problem) => switch (problem) {
       MakeupProblem.failed => context.translated.makeupFailed,
