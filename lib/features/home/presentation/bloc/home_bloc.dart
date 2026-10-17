@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
@@ -13,8 +15,8 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
+import 'package:in_vogue/features/outfits/domain/services/follow_day.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
@@ -34,7 +36,7 @@ final class HomeStarted extends HomeEvent {
   const HomeStarted();
 }
 
-/// The person switched to [day]. Never starts a try-on.
+/// The person switched to [day].
 final class HomeDaySelected extends HomeEvent {
   const HomeDaySelected(this.day);
   final ForecastDay day;
@@ -57,14 +59,13 @@ final class HomeRetried extends HomeEvent {
   const HomeRetried();
 }
 
-/// Makes, or follows the making of, [day]'s outfit.
-final class _OutfitRequested extends HomeEvent {
-  const _OutfitRequested(this.day, this.params);
-  final ForecastDay day;
-  final MakeOutfitParams params;
+/// Follows the outfits of [days].
+final class _DaysFollowed extends HomeEvent {
+  const _DaysFollowed(this.days);
+  final Map<ForecastDay, MakeOutfitParams> days;
 
   @override
-  List<Object?> get props => [day, params];
+  List<Object?> get props => [days];
 }
 
 /// What the photo stage shows for a day.
@@ -97,11 +98,6 @@ final class OutfitShown extends OutfitView {
 
   @override
   List<Object?> get props => [outfit];
-}
-
-/// No outfit was made for the day, and none is being made.
-final class OutfitMissing extends OutfitView {
-  const OutfitMissing();
 }
 
 final class OutfitFailed extends OutfitView {
@@ -179,40 +175,33 @@ class HomeState extends Equatable {
 
 /// Home's two days, today and tomorrow, each with its weather and outfit.
 ///
-/// The day shown by default (today from 06:00 to 08:59 and tomorrow
-/// otherwise, or always today when the person chose it)
-/// gets its outfit made when it has none; the other day only shows an
-/// outfit already made. Choosing an occasion makes that occasion's outfit
-/// if it has none. An outfit is never made twice.
+/// Opens on today from 06:00 to 08:59 and tomorrow otherwise, or always
+/// today when the person chose it. Both days' outfits are followed as every
+/// phone signed in sees them, and made when they need making.
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({
     required this._getCurrentAccount,
     required this._getSavedLocation,
     required this._getKeptPhoto,
     required this._getWeatherReport,
-    required this._getDayOutfit,
-    required this._makeOutfit,
+    required this._followDay,
     required this._getDefaultDay,
   }) : super(const HomeState()) {
     on<HomeStarted>(_start, transformer: restartable());
     on<HomeDaySelected>(_select);
     on<HomeOccasionChanged>(_changeOccasion, transformer: sequential());
     on<HomeRetried>(_retry, transformer: droppable());
-    on<_OutfitRequested>(_follow, transformer: concurrent());
+    on<_DaysFollowed>(_follow, transformer: restartable());
   }
 
   final GetCurrentAccount _getCurrentAccount;
   final GetSavedLocation _getSavedLocation;
   final GetKeptPhoto _getKeptPhoto;
   final GetWeatherReport _getWeatherReport;
-  final GetDayOutfit _getDayOutfit;
-  final MakeOutfit _makeOutfit;
+  final FollowDay _followDay;
   final GetDefaultDay _getDefaultDay;
 
   String? _accountId;
-
-  /// Makings this bloc follows, by key.
-  final _following = <String>{};
 
   Future<void> _start(HomeStarted event, Emitter<HomeState> emit) async {
     final account = (await _getCurrentAccount(
@@ -244,17 +233,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (report) => report.day,
     );
     final otherDay = ForecastDay.values.firstWhere((day) => day != shownDay);
-    final firstLoad = state.status != HomeStatus.ready;
-    emit(
-      HomeState(
-        status: HomeStatus.ready,
-        place: place,
-        photo: photo?.path,
-        selected: firstLoad ? shownDay : state.selected,
-        days: state.days,
-      ),
-    );
-    await _loadDay(emit, shownDay, first, make: true);
     final other = await _getWeatherReport(
       WeatherReportParams(
         location: place,
@@ -262,126 +240,81 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         occasion: _keptOccasion(otherDay),
       ),
     );
-    await _loadDay(emit, otherDay, other, make: false);
+    final firstLoad = state.status != HomeStatus.ready;
+    var next = HomeState(
+      status: HomeStatus.ready,
+      place: place,
+      photo: photo?.path,
+      selected: firstLoad ? shownDay : state.selected,
+      days: state.days,
+    );
+    for (final (day, report) in [(shownDay, first), (otherDay, other)]) {
+      next = next.withDay(day, _loaded(day, report));
+    }
+    emit(next);
+    add(_DaysFollowed(_params()));
+  }
+
+  /// [day] with [report]; its outfit view stays when its date and
+  /// occasion are the same.
+  HomeDay _loaded(ForecastDay day, Either<Failure, WeatherReport> report) {
+    final before = state.day(day);
+    return report.fold(
+      (_) => HomeDay(weatherFailed: true, outfit: before.outfit),
+      (loaded) {
+        final same =
+            before.report?.weather.date == loaded.weather.date &&
+            before.report?.weather.occasion == loaded.weather.occasion;
+        return HomeDay(
+          report: loaded,
+          outfit: same ? before.outfit : const OutfitLooking(),
+        );
+      },
+    );
   }
 
   /// The occasion chosen for [day] before, if it is still the same date.
   Occasion? _keptOccasion(ForecastDay? day) {
     final weather = state.days[day ?? state.selected]?.report?.weather;
     if (weather == null) return null;
-    final today = clock.now();
-    final date = (day ?? state.selected).dateFrom(today);
+    final date = (day ?? state.selected).dateFrom(clock.now());
     return weather.date == date ? weather.occasion : null;
   }
 
-  /// Shows [day]'s weather from [report], then its outfit; makes the
-  /// outfit when it has none and [make] is set.
-  Future<void> _loadDay(
-    Emitter<HomeState> emit,
-    ForecastDay day,
-    Either<Failure, WeatherReport> report, {
-    required bool make,
-  }) async {
-    final loaded = report.fold<WeatherReport?>((_) => null, (report) => report);
-    if (loaded == null) {
-      return emit(
-        state.withDay(
-          day,
-          HomeDay(weatherFailed: true, outfit: state.day(day).outfit),
-        ),
-      );
-    }
-    final before = state.day(day);
-    final same =
-        before.report?.weather.date == loaded.weather.date &&
-        before.report?.weather.occasion == loaded.weather.occasion;
-    emit(
-      state.withDay(
-        day,
-        HomeDay(
-          report: loaded,
-          outfit: same ? before.outfit : const OutfitLooking(),
-        ),
-      ),
-    );
-    if (same &&
-        (before.outfit is OutfitShown || before.outfit is OutfitMaking)) {
-      return;
-    }
-    await _resolve(emit, day, make: make);
-  }
-
-  /// Looks up [day]'s outfit; makes it when there is none and [make] is
-  /// set.
-  Future<void> _resolve(
-    Emitter<HomeState> emit,
-    ForecastDay day, {
-    required bool make,
-  }) async {
+  /// What making each day with weather needs, the day on screen first.
+  Map<ForecastDay, MakeOutfitParams> _params() {
     final accountId = _accountId;
-    final report = state.day(day).report;
-    if (accountId == null || report == null) return;
-    final found = await _getDayOutfit(
-      DayOutfitParams(
-        accountId: accountId,
-        date: report.weather.date,
-        occasion: report.weather.occasion,
-      ),
-    );
-    if (state.day(day).report != report) return;
-    found.fold(
-      (failure) => emit(
-        state.withDay(day, state.day(day).withOutfit(OutfitFailed(failure))),
-      ),
-      (outfit) {
-        if (outfit != null) {
-          return emit(
-            state.withDay(day, state.day(day).withOutfit(OutfitShown(outfit))),
-          );
-        }
-        if (!make) {
-          return emit(
-            state.withDay(
-              day,
-              state.day(day).withOutfit(const OutfitMissing()),
-            ),
-          );
-        }
-        emit(
-          state.withDay(day, state.day(day).withOutfit(const OutfitMaking())),
-        );
-        add(
-          _OutfitRequested(
-            day,
-            MakeOutfitParams(
-              accountId: accountId,
-              date: report.weather.date,
-              occasion: report.weather.occasion,
-              weatherClass: report.weatherClass,
-            ),
+    if (accountId == null) return const {};
+    return {
+      for (final day in [
+        state.selected,
+        ...ForecastDay.values.where((day) => day != state.selected),
+      ])
+        if (state.days[day]?.report case final report?)
+          day: MakeOutfitParams(
+            accountId: accountId,
+            date: report.weather.date,
+            occasion: report.weather.occasion,
+            weatherClass: report.weatherClass,
           ),
-        );
-      },
-    );
+    };
   }
 
-  Future<void> _follow(_OutfitRequested event, Emitter<HomeState> emit) async {
-    final params = event.params;
-    if (!_following.add(params.key)) return;
-    try {
-      await emit.forEach<TryOnUpdate>(
-        _makeOutfit(params),
-        onData: (update) {
-          final day = state.day(event.day);
-          final weather = day.report?.weather;
+  Future<void> _follow(_DaysFollowed event, Emitter<HomeState> emit) =>
+      emit.forEach<(ForecastDay, MakeOutfitParams, TryOnUpdate)>(
+        _merged(event.days),
+        onData: (followed) {
+          final (day, params, update) = followed;
+          final home = state.day(day);
+          final weather = home.report?.weather;
           // The day may have moved on to another date or occasion.
           if (weather?.date != params.date ||
               weather?.occasion != params.occasion) {
             return state;
           }
           return state.withDay(
-            event.day,
-            day.withOutfit(switch (update) {
+            day,
+            home.withOutfit(switch (update) {
               TryOnProgress(:final piece, :final pieces) => OutfitMaking(
                 piece: piece,
                 pieces: pieces,
@@ -396,9 +329,28 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           );
         },
       );
-    } finally {
-      _following.remove(params.key);
-    }
+
+  /// Each day's updates, as one stream.
+  Stream<(ForecastDay, MakeOutfitParams, TryOnUpdate)> _merged(
+    Map<ForecastDay, MakeOutfitParams> days,
+  ) {
+    final subscriptions = <StreamSubscription<TryOnUpdate>>[];
+    late final StreamController<(ForecastDay, MakeOutfitParams, TryOnUpdate)>
+    merged;
+    merged = StreamController(
+      onListen: () {
+        for (final MapEntry(key: day, value: params) in days.entries) {
+          subscriptions.add(
+            _followDay(
+              params,
+            ).listen((update) => merged.add((day, params, update))),
+          );
+        }
+      },
+      onCancel: () =>
+          Future.wait([for (final each in subscriptions) each.cancel()]),
+    );
+    return merged.stream;
   }
 
   void _select(HomeDaySelected event, Emitter<HomeState> emit) {
@@ -418,7 +370,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final report = await _getWeatherReport(
       WeatherReportParams(location: place, day: day, occasion: event.occasion),
     );
-    await _loadDay(emit, day, report, make: true);
+    emit(state.withDay(day, _loaded(day, report)));
+    add(_DaysFollowed(_params()));
   }
 
   Future<void> _retry(HomeRetried event, Emitter<HomeState> emit) async {
@@ -427,7 +380,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       return add(const HomeStarted());
     }
     if (shown.outfit is OutfitFailed) {
-      await _resolve(emit, state.selected, make: true);
+      final params = _params()[state.selected];
+      if (params != null) _followDay.retry(params);
     }
   }
 }

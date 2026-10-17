@@ -212,16 +212,6 @@ void main() {
     expect(find.text('About this outfit'), findsNothing);
   });
 
-  testWidgets('says plainly when a day has no outfit', (tester) async {
-    await pumpHome(tester, _state(const OutfitMissing()));
-    expect(find.text('There’s no outfit for tomorrow.'), findsOneWidget);
-    expect(
-      tester.widget<PhotoStage>(find.byType(PhotoStage)).state,
-      PhotoStageState.idle,
-    );
-    expect(find.text('Getting your outfit ready…'), findsNothing);
-  });
-
   testWidgets('offers Try again after a failure worth trying again', (
     tester,
   ) async {

@@ -577,15 +577,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String noOutfitForDay(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': 'There’s no outfit for today.',
-      'other': 'There’s no outfit for tomorrow.',
-    });
-    return '$_temp0';
-  }
-
-  @override
   String outfitPhotoSpoken(String about) {
     return 'You, head to toe, in your outfit. $about';
   }

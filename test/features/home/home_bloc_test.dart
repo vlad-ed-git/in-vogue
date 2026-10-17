@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
@@ -10,11 +12,12 @@ import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart'
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart';
+import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
+import 'package:in_vogue/features/outfits/domain/services/follow_day.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
@@ -59,6 +62,21 @@ WeatherReport _report(ForecastDay day, Occasion occasion) => WeatherReport(
   isSaved: false,
 );
 
+/// The weather of the day asked for, in its occasion or the day's own.
+Future<Either<Failure, WeatherReport>> _forecast(Invocation invocation) async {
+  final params = invocation.positionalArguments.first as WeatherReportParams;
+  final day = params.day ?? ForecastDay.tomorrow;
+  final date = day == ForecastDay.today ? _today : _tomorrow;
+  return Right(_report(day, params.occasion ?? Occasion.defaultFor(date)));
+}
+
+MakeOutfitParams _params(DateTime date, Occasion occasion) => MakeOutfitParams(
+  accountId: 'uid-1',
+  date: date,
+  occasion: occasion,
+  weatherClass: _mild,
+);
+
 DayOutfit _outfit(DateTime date, Occasion occasion) => DayOutfit(
   outfit: const Outfit(
     id: 'o1',
@@ -69,7 +87,7 @@ DayOutfit _outfit(DateTime date, Occasion occasion) => DayOutfit(
   date: date,
   occasion: occasion,
   cell: _mild.cell(occasion),
-  picture: '/support/outfits/uid-1/jeans+tee.jpg',
+  picture: '/support/outfits/uid-1/${date.day}_${occasion.name}.jpg',
 );
 
 @GenerateMocks([
@@ -77,8 +95,7 @@ DayOutfit _outfit(DateTime date, Occasion occasion) => DayOutfit(
   GetSavedLocation,
   GetKeptPhoto,
   GetWeatherReport,
-  GetDayOutfit,
-  MakeOutfit,
+  FollowDay,
   GetDefaultDay,
 ])
 void main() {
@@ -86,17 +103,19 @@ void main() {
   late MockGetSavedLocation location;
   late MockGetKeptPhoto photo;
   late MockGetWeatherReport weather;
-  late MockGetDayOutfit dayOutfit;
-  late MockMakeOutfit makeOutfit;
+  late MockFollowDay followDay;
   late MockGetDefaultDay defaultDay;
+
+  /// The updates of each day followed, by date and occasion; the latest
+  /// following of each.
+  late Map<(DateTime, Occasion), StreamController<TryOnUpdate>> following;
 
   HomeBloc buildBloc() => HomeBloc(
     getCurrentAccount: account,
     getSavedLocation: location,
     getKeptPhoto: photo,
     getWeatherReport: weather,
-    getDayOutfit: dayOutfit,
-    makeOutfit: makeOutfit,
+    followDay: followDay,
     getDefaultDay: defaultDay,
   );
 
@@ -105,9 +124,9 @@ void main() {
     location = MockGetSavedLocation();
     photo = MockGetKeptPhoto();
     weather = MockGetWeatherReport();
-    dayOutfit = MockGetDayOutfit();
-    makeOutfit = MockMakeOutfit();
+    followDay = MockFollowDay();
     defaultDay = MockGetDefaultDay();
+    following = {};
     when(
       defaultDay(any),
     ).thenAnswer((_) async => const Right(ForecastDay.tomorrow));
@@ -124,41 +143,33 @@ void main() {
         ),
       ),
     );
-    when(weather(any)).thenAnswer((invocation) async {
-      final params =
-          invocation.positionalArguments.first as WeatherReportParams;
-      final day = params.day ?? ForecastDay.tomorrow;
-      final date = day == ForecastDay.today ? _today : _tomorrow;
-      return Right(_report(day, params.occasion ?? Occasion.defaultFor(date)));
+    when(weather(any)).thenAnswer(_forecast);
+    when(followDay(any)).thenAnswer((invocation) {
+      final params = invocation.positionalArguments.first as MakeOutfitParams;
+      final updates = StreamController<TryOnUpdate>();
+      following[(params.date, params.occasion)] = updates;
+      return updates.stream;
     });
-    when(dayOutfit(any)).thenAnswer((_) async => const Right(null));
-    when(makeOutfit(any)).thenAnswer(
-      (invocation) => Stream.fromIterable([
-        const TryOnProgress(piece: 1, pieces: 2),
-        const TryOnProgress(piece: 2, pieces: 2),
-        TryOnDone(
-          _outfit(
-            (invocation.positionalArguments.first as MakeOutfitParams).date,
-            (invocation.positionalArguments.first as MakeOutfitParams).occasion,
-          ),
-        ),
-      ]),
-    );
   });
 
+  /// Home opened on Friday afternoon, following its days.
   Future<HomeBloc> started() async {
-    final bloc = buildBloc();
+    final bloc = withClock(Clock.fixed(_now), buildBloc);
     addTearDown(bloc.close);
-    await withClock(Clock.fixed(_now), () async {
-      bloc.add(const HomeStarted());
-      await bloc.stream.firstWhere(
-        (state) =>
-            state.day(ForecastDay.tomorrow).outfit is OutfitShown &&
-            state.day(ForecastDay.today).outfit is! OutfitLooking,
-      );
-    });
+    bloc.add(const HomeStarted());
+    await bloc.stream.firstWhere((state) => state.status == HomeStatus.ready);
+    await pumpEventQueue();
     return bloc;
   }
+
+  /// [update] on the day of [date] in [occasion], as following it gives.
+  Future<void> send(DateTime date, Occasion occasion, TryOnUpdate update) async {
+    following[(date, occasion)]!.add(update);
+    await pumpEventQueue();
+  }
+
+  List<MakeOutfitParams> followed() =>
+      verify(followDay(captureAny)).captured.cast<MakeOutfitParams>();
 
   test('shows both days, tomorrow first, each for its occasion', () async {
     final bloc = await started();
@@ -176,121 +187,198 @@ void main() {
     );
   });
 
+  test('follows both days on opening, the day on screen first', () async {
+    final bloc = await started();
+    expect(followed(), [
+      _params(_tomorrow, Occasion.casual),
+      _params(_today, Occasion.work),
+    ]);
+    expect(bloc.state.day(ForecastDay.tomorrow).outfit, const OutfitLooking());
+    expect(bloc.state.day(ForecastDay.today).outfit, const OutfitLooking());
+  });
+
   test(
-    "makes the shown day's outfit when it has none, with progress",
+    "shows each day's making, here or on another phone, then its outfit",
     () async {
-      final bloc = buildBloc();
-      addTearDown(bloc.close);
-      final views = <OutfitView>[];
-      final listening = bloc.stream.listen(
-        (state) => views.add(state.day(ForecastDay.tomorrow).outfit),
+      final bloc = await started();
+      await send(
+        _tomorrow,
+        Occasion.casual,
+        const TryOnProgress(piece: 1, pieces: 2),
       );
-      addTearDown(listening.cancel);
-      await withClock(Clock.fixed(_now), () async {
-        bloc.add(const HomeStarted());
-        await bloc.stream.firstWhere(
-          (state) => state.day(ForecastDay.tomorrow).outfit is OutfitShown,
-        );
-      });
       expect(
-        views.toSet().toList(),
-        containsAllInOrder([
-          const OutfitMaking(),
-          const OutfitMaking(piece: 1, pieces: 2),
-          const OutfitMaking(piece: 2, pieces: 2),
-          OutfitShown(_outfit(_tomorrow, Occasion.casual)),
-        ]),
+        bloc.state.day(ForecastDay.tomorrow).outfit,
+        const OutfitMaking(piece: 1, pieces: 2),
       );
-      final made =
-          verify(makeOutfit(captureAny)).captured.single as MakeOutfitParams;
-      expect(made.accountId, 'uid-1');
-      expect(made.date, _tomorrow);
-      expect(made.occasion, Occasion.casual);
-      expect(made.cell, 'mild|dry|calm|casual');
+      expect(bloc.state.day(ForecastDay.today).outfit, const OutfitLooking());
+
+      await send(
+        _today,
+        Occasion.work,
+        TryOnElsewhere(
+          Day(
+            date: _today,
+            occasion: Occasion.work,
+            cell: _mild.cell(Occasion.work),
+            outfitId: 'o2',
+            signature: 'dress',
+            status: DayStatus.making,
+            device: 'phone-b',
+            piece: 2,
+            pieces: 3,
+          ),
+        ),
+      );
+      expect(
+        bloc.state.day(ForecastDay.today).outfit,
+        const OutfitMaking(piece: 2, pieces: 3),
+      );
+
+      await send(
+        _tomorrow,
+        Occasion.casual,
+        TryOnDone(_outfit(_tomorrow, Occasion.casual)),
+      );
+      expect(
+        bloc.state.day(ForecastDay.tomorrow).outfit,
+        OutfitShown(_outfit(_tomorrow, Occasion.casual)),
+      );
+      expect(
+        bloc.state.day(ForecastDay.today).outfit,
+        const OutfitMaking(piece: 2, pieces: 3),
+      );
     },
   );
 
   test(
-    'opens on today, and makes its outfit, when the person chose today',
+    'says why a day could not be made, and makes it again when asked',
+    () async {
+      final bloc = await started();
+      await send(_tomorrow, Occasion.casual, const TryOnFailed(NetworkFailure()));
+      expect(bloc.state.shown.outfit, const OutfitFailed(NetworkFailure()));
+
+      bloc.add(const HomeRetried());
+      await pumpEventQueue();
+      verify(followDay.retry(_params(_tomorrow, Occasion.casual))).called(1);
+      await send(
+        _tomorrow,
+        Occasion.casual,
+        const TryOnProgress(piece: 1, pieces: 2),
+      );
+      expect(bloc.state.shown.outfit, const OutfitMaking(piece: 1, pieces: 2));
+    },
+  );
+
+  test('makes nothing again when the outfit on screen did not fail', () async {
+    final bloc = await started();
+    await send(_today, Occasion.work, const TryOnFailed(NetworkFailure()));
+    await send(
+      _tomorrow,
+      Occasion.casual,
+      TryOnDone(_outfit(_tomorrow, Occasion.casual)),
+    );
+    bloc.add(const HomeRetried());
+    await pumpEventQueue();
+    verifyNever(followDay.retry(any));
+  });
+
+  test(
+    'opens on today, and follows it first, when the person chose today',
     () async {
       when(
         defaultDay(any),
       ).thenAnswer((_) async => const Right(ForecastDay.today));
-      final bloc = buildBloc();
-      addTearDown(bloc.close);
-      await withClock(Clock.fixed(_now), () async {
-        bloc.add(const HomeStarted());
-        await bloc.stream.firstWhere(
-          (state) => state.day(ForecastDay.today).outfit is OutfitShown,
-        );
-      });
+      final bloc = await started();
       expect(bloc.state.selected, ForecastDay.today);
-      final made =
-          verify(makeOutfit(captureAny)).captured.single as MakeOutfitParams;
-      expect(made.date, _today);
+      expect(followed(), [
+        _params(_today, Occasion.work),
+        _params(_tomorrow, Occasion.casual),
+      ]);
     },
   );
 
-  test('shows an outfit already made, and makes nothing', () async {
-    when(dayOutfit(any)).thenAnswer((invocation) async {
-      final params = invocation.positionalArguments.first as DayOutfitParams;
-      return Right(_outfit(params.date, params.occasion));
-    });
+  test('starts nothing new on switching days', () async {
     final bloc = await started();
-    expect(
-      bloc.state.day(ForecastDay.today).outfit,
-      OutfitShown(_outfit(_today, Occasion.work)),
-    );
-    verifyNever(makeOutfit(any));
-  });
-
-  test('never makes an outfit for the other day, even on switching', () async {
-    final bloc = await started();
-    expect(bloc.state.day(ForecastDay.today).outfit, const OutfitMissing());
     bloc.add(const HomeDaySelected(ForecastDay.today));
     await bloc.stream.firstWhere((s) => s.selected == ForecastDay.today);
     await pumpEventQueue();
-    final made = verify(makeOutfit(captureAny)).captured;
-    expect(made, hasLength(1));
-    expect((made.single as MakeOutfitParams).date, _tomorrow);
+    verify(followDay(any)).called(2);
   });
 
-  test("makes the chosen occasion's outfit", () async {
+  test('follows the chosen occasion, and leaves the old one', () async {
     final bloc = await started();
-    await withClock(Clock.fixed(_now), () async {
-      bloc.add(const HomeOccasionChanged(Occasion.goingOut));
-      await bloc.stream.firstWhere(
-        (state) =>
-            state.shown.report?.weather.occasion == Occasion.goingOut &&
-            state.shown.outfit is OutfitShown,
-      );
-    });
-    final made = verify(makeOutfit(captureAny)).captured;
-    expect((made.last as MakeOutfitParams).occasion, Occasion.goingOut);
+    await send(
+      _tomorrow,
+      Occasion.casual,
+      TryOnDone(_outfit(_tomorrow, Occasion.casual)),
+    );
+    bloc.add(const HomeOccasionChanged(Occasion.goingOut));
+    await bloc.stream.firstWhere(
+      (state) => state.shown.report?.weather.occasion == Occasion.goingOut,
+    );
+    await pumpEventQueue();
+    expect(bloc.state.shown.outfit, const OutfitLooking());
+    expect(following[(_tomorrow, Occasion.casual)]!.hasListener, isFalse);
+    expect(followed(), contains(_params(_tomorrow, Occasion.goingOut)));
+
+    await send(
+      _tomorrow,
+      Occasion.goingOut,
+      TryOnDone(_outfit(_tomorrow, Occasion.goingOut)),
+    );
+    expect(
+      bloc.state.shown.outfit,
+      OutfitShown(_outfit(_tomorrow, Occasion.goingOut)),
+    );
   });
 
-  test('says why the outfit could not be made, and tries again', () async {
-    when(
-      makeOutfit(any),
-    ).thenAnswer((_) => Stream.value(const TryOnFailed(NetworkFailure())));
-    final bloc = buildBloc();
-    addTearDown(bloc.close);
-    await withClock(Clock.fixed(_now), () async {
-      bloc.add(const HomeStarted());
-      await bloc.stream.firstWhere(
-        (state) => state.shown.outfit is OutfitFailed,
-      );
-      expect(bloc.state.shown.outfit, const OutfitFailed(NetworkFailure()));
-      bloc.add(const HomeRetried());
-      await bloc.stream.firstWhere(
-        (state) => state.shown.outfit is OutfitMaking,
-      );
-      await bloc.stream.firstWhere(
-        (state) => state.shown.outfit is OutfitFailed,
-      );
-    });
-    verify(makeOutfit(any)).called(2);
+  test('keeps the outfits on screen when Home loads again', () async {
+    final bloc = await started();
+    await send(
+      _tomorrow,
+      Occasion.casual,
+      TryOnDone(_outfit(_tomorrow, Occasion.casual)),
+    );
+    bloc.add(const HomeStarted());
+    await pumpEventQueue();
+    expect(
+      bloc.state.shown.outfit,
+      OutfitShown(_outfit(_tomorrow, Occasion.casual)),
+    );
+    verify(followDay(any)).called(4);
   });
+
+  test(
+    'follows no day without weather, and loads it again on Try again',
+    () async {
+      var offline = true;
+      when(weather(any)).thenAnswer((invocation) async {
+        final params =
+            invocation.positionalArguments.first as WeatherReportParams;
+        if (offline && params.day == ForecastDay.today) {
+          return const Left(NetworkFailure());
+        }
+        return _forecast(invocation);
+      });
+      final bloc = await started();
+      expect(bloc.state.day(ForecastDay.today).weatherFailed, isTrue);
+      expect(followed(), [_params(_tomorrow, Occasion.casual)]);
+
+      offline = false;
+      bloc
+        ..add(const HomeDaySelected(ForecastDay.today))
+        ..add(const HomeRetried());
+      await pumpEventQueue();
+      expect(
+        bloc.state.day(ForecastDay.today).report?.weather.occasion,
+        Occasion.work,
+      );
+      expect(followed(), [
+        _params(_today, Occasion.work),
+        _params(_tomorrow, Occasion.casual),
+      ]);
+    },
+  );
 
   blocTest<HomeBloc, HomeState>(
     'cannot show Home without an account and a place',
@@ -300,5 +388,6 @@ void main() {
     },
     act: (bloc) => bloc.add(const HomeStarted()),
     expect: () => [const HomeState(status: HomeStatus.failed)],
+    verify: (_) => verifyNever(followDay(any)),
   );
 }

@@ -945,12 +945,6 @@ abstract class AppLocalizations {
   /// **'Piece {piece} of {pieces}'**
   String tryOnPiece(int piece, int pieces);
 
-  /// The day shown has no outfit, and none is being made.
-  ///
-  /// In en, this message translates to:
-  /// **'{day, select, today{There’s no outfit for today.} other{There’s no outfit for tomorrow.}}'**
-  String noOutfitForDay(String day);
-
   /// Screen-reader label of the outfit photo, followed by the sentence about the outfit.
   ///
   /// In en, this message translates to:

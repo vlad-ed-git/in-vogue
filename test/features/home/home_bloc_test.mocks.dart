@@ -7,7 +7,7 @@
 import 'dart:async' as _i4;
 
 import 'package:dartz/dartz.dart' as _i2;
-import 'package:in_vogue/core/domain/entities/forecast_day.dart' as _i20;
+import 'package:in_vogue/core/domain/entities/forecast_day.dart' as _i19;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
 import 'package:in_vogue/core/domain/usecases/use_case.dart' as _i7;
 import 'package:in_vogue/features/auth/domain/entities/account.dart' as _i6;
@@ -17,14 +17,12 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart'
     as _i9;
 import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart'
     as _i8;
-import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart'
-    as _i16;
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart'
-    as _i18;
+    as _i16;
+import 'package:in_vogue/features/outfits/domain/services/follow_day.dart'
+    as _i15;
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart'
     as _i17;
-import 'package:in_vogue/features/outfits/domain/usecases/get_day_outfit.dart'
-    as _i15;
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart'
     as _i12;
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
@@ -32,7 +30,7 @@ import 'package:in_vogue/features/photos/domain/entities/user_photo.dart'
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart'
     as _i10;
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart'
-    as _i19;
+    as _i18;
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart'
     as _i14;
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart'
@@ -159,69 +157,50 @@ class MockGetWeatherReport extends _i1.Mock implements _i13.GetWeatherReport {
           as _i4.Future<_i2.Either<_i5.Failure, _i14.WeatherReport>>);
 }
 
-/// A class which mocks [GetDayOutfit].
+/// A class which mocks [FollowDay].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockGetDayOutfit extends _i1.Mock implements _i15.GetDayOutfit {
-  MockGetDayOutfit() {
+class MockFollowDay extends _i1.Mock implements _i15.FollowDay {
+  MockFollowDay() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i16.DayOutfit?>> call(
-    _i15.DayOutfitParams? params,
-  ) =>
+  _i4.Stream<_i16.TryOnUpdate> call(_i17.MakeOutfitParams? params) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
-            returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i16.DayOutfit?>>.value(
-                  _FakeEither_0<_i5.Failure, _i16.DayOutfit?>(
-                    this,
-                    Invocation.method(#call, [params]),
-                  ),
-                ),
+            returnValue: _i4.Stream<_i16.TryOnUpdate>.empty(),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i16.DayOutfit?>>);
-}
-
-/// A class which mocks [MakeOutfit].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockMakeOutfit extends _i1.Mock implements _i17.MakeOutfit {
-  MockMakeOutfit() {
-    _i1.throwOnMissingStub(this);
-  }
+          as _i4.Stream<_i16.TryOnUpdate>);
 
   @override
-  _i4.Stream<_i18.TryOnUpdate> call(_i17.MakeOutfitParams? params) =>
-      (super.noSuchMethod(
-            Invocation.method(#call, [params]),
-            returnValue: _i4.Stream<_i18.TryOnUpdate>.empty(),
-          )
-          as _i4.Stream<_i18.TryOnUpdate>);
+  void retry(_i17.MakeOutfitParams? params) => super.noSuchMethod(
+    Invocation.method(#retry, [params]),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [GetDefaultDay].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockGetDefaultDay extends _i1.Mock implements _i19.GetDefaultDay {
+class MockGetDefaultDay extends _i1.Mock implements _i18.GetDefaultDay {
   MockGetDefaultDay() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i20.ForecastDay>> call(
+  _i4.Future<_i2.Either<_i5.Failure, _i19.ForecastDay>> call(
     _i7.NoParams? params,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i20.ForecastDay>>.value(
-                  _FakeEither_0<_i5.Failure, _i20.ForecastDay>(
+                _i4.Future<_i2.Either<_i5.Failure, _i19.ForecastDay>>.value(
+                  _FakeEither_0<_i5.Failure, _i19.ForecastDay>(
                     this,
                     Invocation.method(#call, [params]),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i20.ForecastDay>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i19.ForecastDay>>);
 }

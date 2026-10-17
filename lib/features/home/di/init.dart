@@ -10,8 +10,7 @@ void init(GetIt locator) {
         getSavedLocation: locator(),
         getKeptPhoto: locator(),
         getWeatherReport: locator(),
-        getDayOutfit: locator(),
-        makeOutfit: locator(),
+        followDay: locator(),
         getDefaultDay: locator(),
       ),
     )

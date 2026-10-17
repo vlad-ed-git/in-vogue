@@ -80,9 +80,8 @@ void main() {
     );
   });
 
-  test('has no outfit when Home has none or cannot look one up', () {
+  test('has no outfit when Home could not make one or has no weather', () {
     for (final day in [
-      HomeDay(report: _report, outfit: const OutfitMissing()),
       HomeDay(report: _report, outfit: const OutfitFailed(NetworkFailure())),
       const HomeDay(weatherFailed: true),
     ]) {

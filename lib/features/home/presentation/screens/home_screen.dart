@@ -344,10 +344,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final l10n = context.translated;
     final day = state.selected;
     return switch (state.shown.outfit) {
-      OutfitMissing() => Notice(
-        icon: InVogueIcons.image,
-        message: l10n.noOutfitForDay(day.name),
-      ),
       OutfitFailed(failure: TryOnFailure(problem: TryOnProblem.everySeen)) =>
         Notice.everyLookSeen(context: context, day: day),
       OutfitFailed(

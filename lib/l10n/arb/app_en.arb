@@ -550,15 +550,6 @@
       }
     }
   },
-  "noOutfitForDay": "{day, select, today{There’s no outfit for today.} other{There’s no outfit for tomorrow.}}",
-  "@noOutfitForDay": {
-    "description": "The day shown has no outfit, and none is being made.",
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
   "outfitPhotoSpoken": "You, head to toe, in your outfit. {about}",
   "@outfitPhotoSpoken": {
     "description": "Screen-reader label of the outfit photo, followed by the sentence about the outfit.",

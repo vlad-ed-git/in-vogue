@@ -537,15 +537,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String noOutfitForDay(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': '今天没有穿搭。',
-      'other': '明天没有穿搭。',
-    });
-    return '$_temp0';
-  }
-
-  @override
   String outfitPhotoSpoken(String about) {
     return '你从头到脚穿着这套穿搭。$about';
   }

@@ -140,7 +140,6 @@
   "shopThisOutfit": "Compra este conjunto",
   "aboutThisOutfit": "Sobre este conjunto",
   "tryOnPiece": "Prenda {piece} de {pieces}",
-  "noOutfitForDay": "{day, select, today{No hay conjunto para hoy.} other{No hay conjunto para mañana.}}",
   "outfitPhotoSpoken": "Tú, de pies a cabeza, con tu conjunto. {about}",
   "noPicks": "Aún no has elegido nada.",
   "removePickTitle": "¿Quitar de tu selección?",
