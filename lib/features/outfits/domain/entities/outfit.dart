@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 
 /// What a try-on pass dresses.
 enum GarmentCategory { lowerBody, upperBody, fullBody, outer }
@@ -62,7 +63,7 @@ class Outfit extends Equatable {
   final List<TryOnPass> passes;
 
   /// A one-line reason for each knowledge-base cell the outfit suits.
-  final Map<String, String> reasons;
+  final Map<String, LocalizedText> reasons;
 
   /// Null when the knowledge base does not say.
   final OutfitPalette? palette;

@@ -279,7 +279,9 @@ class _HomeScreenState extends State<HomeScreen> {
           height: height,
           outfit: FileImage(File(outfit.picture)),
           photo: photo,
-          outfitLabel: l10n.outfitPhotoSpoken(outfit.reason ?? ''),
+          outfitLabel: l10n.outfitPhotoSpoken(
+            outfit.reason?.of(context.language) ?? '',
+          ),
         ),
         OutfitMaking(:final piece, :final pieces) => PhotoStage(
           state: PhotoStageState.waiting,
@@ -373,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Widget> _about(BuildContext context, OutfitView outfit) {
     final reason = switch (outfit) {
-      OutfitShown(:final outfit) => outfit.reason,
+      OutfitShown(:final outfit) => outfit.reason?.of(context.language),
       _ => null,
     };
     if (reason == null) return const [];

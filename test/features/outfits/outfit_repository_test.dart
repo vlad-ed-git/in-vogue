@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/repositories/outfit_repository_impl.dart';
@@ -15,7 +16,11 @@ const _tee = Outfit(
   signature: 'jeans+tee',
   pieces: ['everlane:jeans', 'everlane:tee'],
   passes: [],
-  reasons: {'mild|dry|calm|casual': 'A tee with jeans for a mild day off.'},
+  reasons: {
+    'mild|dry|calm|casual': LocalizedText(
+      'A tee with jeans for a mild day off.',
+    ),
+  },
 );
 
 @GenerateMocks([OutfitAssetDataSource])

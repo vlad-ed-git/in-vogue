@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
+import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/catalog_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/try_on_job_local_data_source.dart';
@@ -17,6 +18,39 @@ import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import '../../helpers/memory_store.dart';
 
 void main() {
+  test(
+    'reads each reason in every language it has, a plain one as English',
+    () {
+      const cell = 'mild|dry|calm|casual';
+      Map<String, Object?> outfit(Object reason) => {
+        'signature': 's',
+        'pieces': <Object?>[],
+        'passes': <Object?>[],
+        'reasons': {cell: reason},
+      };
+      final index = OutfitsModel.fromJson({
+        'cells': {
+          cell: ['o1', 'o2'],
+        },
+        'outfits': {
+          'o1': outfit({
+            'en': 'A tee.',
+            'es': 'Una camiseta.',
+            'zh': '一件 T 恤。',
+          }),
+          'o2': outfit('A dress.'),
+        },
+      });
+      final translated = index.outfits['o1']!.reasons[cell]!;
+      expect(translated.of(SupportedLanguages.spanish), 'Una camiseta.');
+      expect(translated.of(SupportedLanguages.chinese), '一件 T 恤。');
+      expect(
+        index.outfits['o2']!.reasons[cell]!.of(SupportedLanguages.chinese),
+        'A dress.',
+      );
+    },
+  );
+
   group('the bundled outfits', () {
     late OutfitIndex index;
     late Set<String> colourways;

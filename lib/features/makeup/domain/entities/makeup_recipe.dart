@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 
 /// A recipe's blush colour.
 enum CheekColour { softPink, peach, rose, terracotta }
@@ -16,11 +17,11 @@ class RecipeStep extends Equatable {
     required this.effects,
   });
 
-  final String title;
-  final String howTo;
+  final LocalizedText title;
+  final LocalizedText howTo;
 
   /// Kinds of product, such as "cream blush"; never brands.
-  final List<String> products;
+  final List<LocalizedText> products;
 
   /// The render's effects. A colour may name a [SkinColour] placeholder,
   /// such as "{skin}", filled in for each face.

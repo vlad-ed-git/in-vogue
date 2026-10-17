@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/makeup/domain/entities/makeup_recipe.dart';
 import 'package:in_vogue/features/makeup/domain/entities/skin_profile.dart';
@@ -148,9 +149,9 @@ void main() {
 
     test("puts the face's own colours in place of the placeholders", () {
       const step = RecipeStep(
-        title: 'Light base',
-        howTo: 'Blend it in.',
-        products: ['light foundation in your shade'],
+        title: LocalizedText('Light base'),
+        howTo: LocalizedText('Blend it in.'),
+        products: [LocalizedText('light foundation in your shade')],
         effects: [
           {'category': 'skin_smooth', 'skinSmoothStrength': 0},
           {

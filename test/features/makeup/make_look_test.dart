@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/makeup/data/data_sources/makeup_job_local_data_source.dart';
@@ -74,9 +75,9 @@ MakeupRecipe _recipe(String key) => MakeupRecipe(
   lips: LipColour.rosyNude,
   steps: const [
     RecipeStep(
-      title: 'Even base',
-      howTo: 'Blend it in.',
-      products: ['foundation in your shade'],
+      title: LocalizedText('Even base'),
+      howTo: LocalizedText('Blend it in.'),
+      products: [LocalizedText('foundation in your shade')],
       effects: [
         {
           'category': 'foundation',
@@ -87,9 +88,9 @@ MakeupRecipe _recipe(String key) => MakeupRecipe(
       ],
     ),
     RecipeStep(
-      title: 'Brows',
-      howTo: 'Fill them in.',
-      products: ['brow pencil'],
+      title: LocalizedText('Brows'),
+      howTo: LocalizedText('Fill them in.'),
+      products: [LocalizedText('brow pencil')],
       effects: [
         {
           'category': 'eyebrows',
@@ -100,9 +101,9 @@ MakeupRecipe _recipe(String key) => MakeupRecipe(
       ],
     ),
     RecipeStep(
-      title: 'Lips',
-      howTo: 'Last of all.',
-      products: ['lipstick'],
+      title: LocalizedText('Lips'),
+      howTo: LocalizedText('Last of all.'),
+      products: [LocalizedText('lipstick')],
       effects: [
         {
           'category': 'lip_color',

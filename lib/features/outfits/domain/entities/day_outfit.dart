@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 
@@ -25,7 +26,7 @@ class DayOutfit extends Equatable {
   final String picture;
 
   /// The one-line reason for the cell it was chosen for.
-  String? get reason => outfit.reasons[cell];
+  LocalizedText? get reason => outfit.reasons[cell];
 
   @override
   List<Object?> get props => [outfit, date, occasion, cell, picture];

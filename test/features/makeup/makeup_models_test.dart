@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
+import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/features/makeup/data/data_sources/makeup_asset_data_source.dart';
 import 'package:in_vogue/features/makeup/data/models/face_colours_model.dart';
 import 'package:in_vogue/features/makeup/data/models/makeup_look_model.dart';
@@ -43,15 +45,18 @@ final _look = MakeupLook(
   before: '/support/makeup/uid-1/coat+tee/before.png',
   steps: const [
     LookStep(
-      title: 'Even base',
-      howTo: 'Blend it in.',
-      products: ['foundation in your shade'],
+      title: LocalizedText(
+        'Even base',
+        translations: {'es': 'Base uniforme', 'zh': '均匀底妆'},
+      ),
+      howTo: LocalizedText('Blend it in.'),
+      products: [LocalizedText('foundation in your shade')],
       picture: '/support/makeup/uid-1/coat+tee/step-1.jpg',
     ),
     LookStep(
-      title: 'Rosy-nude lips',
-      howTo: 'Fill them in.',
-      products: ['rosy-nude lipstick'],
+      title: LocalizedText('Rosy-nude lips'),
+      howTo: LocalizedText('Fill them in.'),
+      products: [LocalizedText('rosy-nude lipstick')],
       picture: '/support/makeup/uid-1/coat+tee/step-2.png',
     ),
   ],
@@ -59,6 +64,40 @@ final _look = MakeupLook(
 );
 
 void main() {
+  test("reads each step's texts in every language they have, plain ones as "
+      'English', () {
+    final recipes = MakeupRecipesModel.fromJson({
+      'steps': [
+        {
+          'title': {'en': 'Light base', 'es': 'Base ligera', 'zh': '轻薄底妆'},
+          'howTo': {'en': 'Blend.', 'es': 'Difumina.', 'zh': '晕开。'},
+          'products': [
+            {'en': 'concealer', 'es': 'corrector', 'zh': '遮瑕'},
+            'mascara',
+          ],
+          'effects': <Object?>[],
+        },
+      ],
+      'recipes': {
+        'work|colourful|light|low|none': {
+          'cheeks': 'rose',
+          'lips': 'nude',
+          'steps': [0],
+        },
+      },
+    });
+    final step = recipes['work|colourful|light|low|none']!.steps.single;
+    expect(step.title.of(SupportedLanguages.spanish), 'Base ligera');
+    expect(step.howTo.of(SupportedLanguages.chinese), '晕开。');
+    expect(
+      [
+        for (final product in step.products)
+          product.of(SupportedLanguages.spanish),
+      ],
+      ['corrector', 'mascara'],
+    );
+  });
+
   group('the bundled makeup recipes', () {
     late Map<String, MakeupRecipe> recipes;
 
@@ -203,6 +242,40 @@ void main() {
       expect(
         MakeupLookModel.fromJson('coat+tee', {...json, 'steps': []}),
         isNull,
+      );
+    });
+
+    test("keeps every language of the steps' texts, and reads a look kept "
+        'in English only', () {
+      final json = MakeupLookModel.toJson(_look);
+      final steps = json['steps']! as List<Object?>;
+      expect((steps.first! as Map<String, Object?>)['title'], {
+        'en': 'Even base',
+        'es': 'Base uniforme',
+        'zh': '均匀底妆',
+      });
+      final read = MakeupLookModel.fromJson('coat+tee', json)!;
+      expect(read.steps.first.title.of(SupportedLanguages.chinese), '均匀底妆');
+      expect(read.steps.first.products, _look.steps.first.products);
+
+      final english = MakeupLookModel.fromJson('coat+tee', {
+        ...json,
+        'steps': [
+          {
+            'title': 'Even base',
+            'howTo': 'Blend it in.',
+            'products': ['foundation in your shade'],
+            'picture': 'step-1.jpg',
+          },
+        ],
+      })!;
+      expect(
+        english.steps.single.title.of(SupportedLanguages.spanish),
+        'Even base',
+      );
+      expect(
+        english.steps.single.products.single.of(SupportedLanguages.spanish),
+        'foundation in your shade',
       );
     });
 

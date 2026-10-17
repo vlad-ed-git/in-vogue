@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
@@ -70,6 +71,8 @@ const _newYork = UserLocation(
 final _tomorrow = DateTime.utc(2026, 10, 17);
 const _cell = 'cool|wet|calm|casual';
 const _reason = 'A coat over a tee with jeans for a cool, wet day off.';
+const _razon =
+    'Un abrigo sobre una camiseta con jeans para un día libre fresco.';
 
 final _report = WeatherReport(
   day: ForecastDay.tomorrow,
@@ -100,7 +103,9 @@ final _outfit = DayOutfit(
     signature: 'coat+jeans+tee',
     pieces: ['everlane:jeans', 'everlane:tee', 'everlane:coat'],
     passes: [],
-    reasons: {_cell: _reason},
+    reasons: {
+      _cell: LocalizedText(_reason, translations: {'es': _razon}),
+    },
   ),
   date: _tomorrow,
   occasion: Occasion.casual,
@@ -147,6 +152,7 @@ void main() {
     HomeState state, {
     Size size = const Size(390, 760),
     double textScale = 1,
+    Locale locale = const Locale('en'),
   }) async {
     whenListen(bloc, const Stream<HomeState>.empty(), initialState: state);
     await pumpInVogue(
@@ -164,6 +170,7 @@ void main() {
       ),
       size: size,
       textScale: textScale,
+      locale: locale,
       scroll: false,
     );
     await tester.pump();
@@ -189,6 +196,18 @@ void main() {
     await tester.ensureVisible(find.text('Shop'));
     await tester.tap(find.text('Shop'));
     expect(shopped, [_outfit]);
+  });
+
+  testWidgets("says why in the person's language", (tester) async {
+    await pumpHome(
+      tester,
+      _state(OutfitShown(_outfit)),
+      locale: const Locale('es'),
+    );
+    expect(find.text(_razon), findsOneWidget);
+    expect(find.text(_reason), findsNothing);
+    final stage = tester.widget<PhotoStage>(find.byType(PhotoStage));
+    expect(stage.outfitLabel, contains(_razon));
   });
 
   testWidgets('keeps the weather, the whole photo and Shop in the first view', (

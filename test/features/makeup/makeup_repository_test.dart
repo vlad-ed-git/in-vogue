@@ -4,6 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
@@ -60,9 +61,9 @@ void main() {
       before: before,
       steps: [
         LookStep(
-          title: 'Brick-red lips',
-          howTo: 'Line, then fill.',
-          products: const ['brick-red lipstick'],
+          title: LocalizedText('Brick-red lips'),
+          howTo: LocalizedText('Line, then fill.'),
+          products: const [LocalizedText('brick-red lipstick')],
           picture: step,
         ),
       ],

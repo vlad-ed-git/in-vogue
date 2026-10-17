@@ -236,9 +236,9 @@ class MakeupScreen extends StatelessWidget {
     for (final (index, step) in steps.indexed)
       MakeupStep(
         number: index + 1,
-        title: step.title,
-        instructions: step.howTo,
-        product: step.productLine,
+        title: step.title.of(context.language),
+        instructions: step.howTo.of(context.language),
+        product: step.productLine(context.language),
         picture: step.picture == null ? null : FileImage(File(step.picture!)),
         onPictureTap: step.picture == null
             ? null

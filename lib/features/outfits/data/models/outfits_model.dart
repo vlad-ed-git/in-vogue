@@ -1,3 +1,4 @@
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 
 /// The knowledge base's ranked outfit ids per cell, and the outfits.
@@ -62,7 +63,10 @@ abstract final class OutfitsModel {
         signature: signature,
         pieces: pieces.cast<String>(),
         passes: [for (final pass in passes) _pass(pass)],
-        reasons: reasons.cast<String, String>(),
+        reasons: {
+          for (final MapEntry(key: cell, value: reason) in reasons.entries)
+            cell: ?LocalizedText.fromJson(reason),
+        },
         palette: _palettes[fields['palette']],
       ),
     _ => throw FormatException('Not an outfit', id),

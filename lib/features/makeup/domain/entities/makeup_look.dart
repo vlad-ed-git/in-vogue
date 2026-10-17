@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/makeup/domain/entities/makeup_recipe.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
@@ -12,11 +13,11 @@ class LookStep extends Equatable {
     this.picture,
   });
 
-  final String title;
-  final String howTo;
+  final LocalizedText title;
+  final LocalizedText howTo;
 
   /// Kinds of product; never brands.
-  final List<String> products;
+  final List<LocalizedText> products;
 
   /// The face after this step; null until it is made.
   final String? picture;

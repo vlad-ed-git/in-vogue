@@ -8,6 +8,7 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/domain/entities/install_id.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
@@ -80,7 +81,11 @@ const _coat = Outfit(
       reference: 'https://cdn.example/coat.jpg',
     ),
   ],
-  reasons: {_cell: 'A coat over a tee with jeans for a cool, wet workday.'},
+  reasons: {
+    _cell: LocalizedText(
+      'A coat over a tee with jeans for a cool, wet workday.',
+    ),
+  },
 );
 
 const _dress = Outfit(

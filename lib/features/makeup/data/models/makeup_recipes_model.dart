@@ -1,3 +1,4 @@
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/features/makeup/domain/entities/makeup_recipe.dart';
 
 /// Reads the makeup asset made by scripts/export_makeup.py.
@@ -66,17 +67,21 @@ abstract final class MakeupRecipesModel {
 
   static RecipeStep _step(Object? json) => switch (json) {
     {
-      'title': final String title,
-      'howTo': final String howTo,
+      'title': final Object title,
+      'howTo': final Object howTo,
       'products': final List<Object?> products,
       'effects': final List<Object?> effects,
     } =>
       RecipeStep(
-        title: title,
-        howTo: howTo,
-        products: products.whereType<String>().toList(),
+        title: _text(title),
+        howTo: _text(howTo),
+        products: [for (final product in products) _text(product)],
         effects: effects.whereType<Map<String, Object?>>().toList(),
       ),
     _ => throw const FormatException('Not a recipe step'),
   };
+
+  static LocalizedText _text(Object? json) =>
+      LocalizedText.fromJson(json) ??
+      (throw FormatException('Not a text', json));
 }

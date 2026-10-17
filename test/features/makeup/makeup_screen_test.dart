@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
@@ -54,21 +55,33 @@ final _day = MakeupDay(
 
 const _steps = [
   LookStep(
-    title: 'Even base',
-    howTo: 'Press a light tint over the centre of the face.',
-    products: ['foundation in your shade', 'concealer one shade lighter'],
+    title: LocalizedText('Even base', translations: {'es': 'Base uniforme'}),
+    howTo: LocalizedText(
+      'Press a light tint over the centre of the face.',
+      translations: {'es': 'Aplica un tinte ligero en el centro de la cara.'},
+    ),
+    products: [
+      LocalizedText(
+        'foundation in your shade',
+        translations: {'es': 'base de maquillaje de tu tono'},
+      ),
+      LocalizedText(
+        'concealer one shade lighter',
+        translations: {'es': 'corrector un tono más claro'},
+      ),
+    ],
     picture: '/phone/coat+tee/step-1.jpg',
   ),
   LookStep(
-    title: 'Soft taupe eyes',
-    howTo: 'Sweep taupe over the lids.',
-    products: ['taupe eyeshadow'],
+    title: LocalizedText('Soft taupe eyes'),
+    howTo: LocalizedText('Sweep taupe over the lids.'),
+    products: [LocalizedText('taupe eyeshadow')],
     picture: '/phone/coat+tee/step-2.jpg',
   ),
   LookStep(
-    title: 'Rosy-nude lips',
-    howTo: 'Fill them in.',
-    products: ['rosy-nude lipstick'],
+    title: LocalizedText('Rosy-nude lips'),
+    howTo: LocalizedText('Fill them in.'),
+    products: [LocalizedText('rosy-nude lipstick')],
     picture: '/phone/coat+tee/step-3.jpg',
   ),
 ];
@@ -114,6 +127,7 @@ void main() {
     Stream<PhotoState> faceStates = const Stream.empty(),
     Size size = const Size(390, 844),
     double textScale = 1,
+    Locale locale = const Locale('en'),
   }) async {
     whenListen(makeup, const Stream<MakeupState>.empty(), initialState: state);
     whenListen(face, faceStates, initialState: faceState);
@@ -131,6 +145,7 @@ void main() {
       platform: TargetPlatform.iOS,
       size: size,
       textScale: textScale,
+      locale: locale,
       scroll: false,
     );
     await tester.pumpAndSettle();
@@ -173,6 +188,24 @@ void main() {
     );
     expect(find.byType(MakeupStep), findsNWidgets(3));
     expect(find.textContaining(r'$'), findsNothing);
+  });
+
+  testWidgets("shows the steps in the person's language", (tester) async {
+    await pumpScreen(
+      tester,
+      state: ready(look: _look()),
+      locale: const Locale('es'),
+    );
+    expect(find.text('Base uniforme'), findsOneWidget);
+    expect(
+      find.text('Aplica un tinte ligero en el centro de la cara.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Base de maquillaje de tu tono, corrector un tono más claro'),
+      findsOneWidget,
+    );
+    expect(find.text('Soft taupe eyes'), findsOneWidget, reason: 'English');
   });
 
   testWidgets("opens a step's picture full size", (tester) async {

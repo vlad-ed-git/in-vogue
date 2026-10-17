@@ -4,6 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
@@ -70,9 +71,9 @@ MakeupLook _look(String signature) => MakeupLook(
   before: '/phone/$signature/before.png',
   steps: [
     LookStep(
-      title: 'Even base',
-      howTo: 'Blend it in.',
-      products: const ['foundation in your shade'],
+      title: LocalizedText('Even base'),
+      howTo: LocalizedText('Blend it in.'),
+      products: const [LocalizedText('foundation in your shade')],
       picture: '/phone/$signature/step-1.jpg',
     ),
   ],
@@ -86,12 +87,16 @@ const _face = UserPhoto(
 );
 
 const _pending = [
-  LookStep(title: 'Even base', howTo: 'Blend it in.', products: []),
+  LookStep(
+    title: LocalizedText('Even base'),
+    howTo: LocalizedText('Blend it in.'),
+    products: [],
+  ),
 ];
 const _halfMade = [
   LookStep(
-    title: 'Even base',
-    howTo: 'Blend it in.',
+    title: LocalizedText('Even base'),
+    howTo: LocalizedText('Blend it in.'),
     products: [],
     picture: '/phone/coat+tee/step-1.jpg',
   ),

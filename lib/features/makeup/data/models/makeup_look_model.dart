@@ -1,3 +1,4 @@
+import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/makeup/data/models/makeup_recipes_model.dart';
 import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart';
@@ -38,9 +39,9 @@ abstract final class MakeupLookModel {
     'steps': [
       for (final step in look.steps)
         {
-          'title': step.title,
-          'howTo': step.howTo,
-          'products': step.products,
+          'title': step.title.toJson(),
+          'howTo': step.howTo.toJson(),
+          'products': [for (final product in step.products) product.toJson()],
           'picture': p.basename(step.picture!),
         },
     ],
@@ -67,17 +68,22 @@ abstract final class MakeupLookModel {
       final lookSteps = [
         for (final step in steps)
           if (step case {
-            'title': final String title,
-            'howTo': final String howTo,
+            'title': final Object title,
+            'howTo': final Object howTo,
             'products': final List<Object?> products,
             'picture': final String picture,
           })
-            LookStep(
-              title: title,
-              howTo: howTo,
-              products: products.whereType<String>().toList(),
-              picture: picture,
-            ),
+            if ((LocalizedText.fromJson(title), LocalizedText.fromJson(howTo))
+                case (final LocalizedText title, final LocalizedText howTo))
+              LookStep(
+                title: title,
+                howTo: howTo,
+                products: [
+                  for (final product in products)
+                    ?LocalizedText.fromJson(product),
+                ],
+                picture: picture,
+              ),
       ];
       if (date == null ||
           kind == null ||

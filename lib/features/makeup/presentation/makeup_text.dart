@@ -1,3 +1,4 @@
+import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart';
 import 'package:in_vogue/features/makeup/domain/entities/makeup_recipe.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
@@ -33,9 +34,12 @@ extension MakeupLookText on MakeupLook {
 
 /// The words of a makeup step.
 extension LookStepText on LookStep {
-  /// The kinds of product, as one line starting with a capital.
-  String get productLine {
-    final line = products.join(', ');
+  /// The kinds of product in [language], as one line starting with a
+  /// capital.
+  String productLine(SupportedLanguages language) {
+    final line = [
+      for (final product in products) product.of(language),
+    ].join(language == SupportedLanguages.chinese ? '、' : ', ');
     return line.isEmpty ? line : line[0].toUpperCase() + line.substring(1);
   }
 }
