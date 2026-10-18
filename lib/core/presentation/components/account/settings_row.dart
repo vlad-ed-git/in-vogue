@@ -46,8 +46,9 @@ class SettingsRow extends StatelessWidget {
        icon = null,
        onTap = null;
 
-  /// A row led by a 56-point square photo. Without [avatar] it shows
-  /// [title]'s first letter on Rouge, or Rose when [title] is blank.
+  /// A row led by a 56-point square photo. Without [avatar], or when it
+  /// can't be drawn, it shows [title]'s first letter on Rouge, or Rose when
+  /// [title] is blank.
   const SettingsRow.profile({
     required this.title,
     required this.avatar,
@@ -179,7 +180,12 @@ class SettingsRow extends StatelessWidget {
                   dimension: 56,
                   child: switch ((avatar, _initial)) {
                     (null, final String letter) => _Initial(letter),
-                    _ => PhotoSlot(image: avatar, aspectRatio: 1),
+                    // The initial stands in for a photo that can't be drawn.
+                    (_, final letter) => PhotoSlot(
+                      image: avatar,
+                      aspectRatio: 1,
+                      fallback: letter == null ? null : _Initial(letter),
+                    ),
                   },
                 ),
                 const SizedBox(width: InVogueSpace.s3),

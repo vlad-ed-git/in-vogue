@@ -1,9 +1,27 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 
 import '../../../helpers/pump_in_vogue.dart';
+
+/// A photo whose file is gone.
+class _BrokenImage extends ImageProvider<_BrokenImage> {
+  const _BrokenImage();
+
+  @override
+  Future<_BrokenImage> obtainKey(ImageConfiguration configuration) =>
+      SynchronousFuture(this);
+
+  @override
+  ImageStreamCompleter loadImage(_BrokenImage key, ImageDecoderCallback _) =>
+      OneFrameImageStreamCompleter(
+        Future<ImageInfo>.error(const FileSystemException('gone')),
+      );
+}
 
 void main() {
   group('SettingsRow', () {
@@ -91,6 +109,23 @@ void main() {
         );
         expect(find.text(initial), findsOneWidget, reason: name);
       }
+    });
+
+    testWidgets('a face photo that cannot be drawn shows the initial, not '
+        'an empty slot', (tester) async {
+      await pumpInVogue(
+        tester,
+        const SettingsRow.profile(title: 'maya', avatar: _BrokenImage()),
+      );
+      await tester.pump();
+      final square = find.byWidgetPredicate(
+        (widget) =>
+            widget is ColoredBox && widget.color == InVogueColors.signal,
+      );
+      expect(
+        find.descendant(of: square, matching: find.text('M')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('a blank name keeps the empty Rose slot', (tester) async {

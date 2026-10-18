@@ -17,6 +17,7 @@ class PhotoSlot extends StatelessWidget {
     this.semanticLabel,
     this.overlay,
     this.showLoading = false,
+    this.fallback,
     super.key,
   });
 
@@ -42,6 +43,10 @@ class PhotoSlot extends StatelessWidget {
   /// for photos fetched from the web.
   final bool showLoading;
 
+  /// Shown in place of a photo that can't be drawn, such as one whose file
+  /// is gone; [background] when null.
+  final Widget? fallback;
+
   @override
   Widget build(BuildContext context) {
     Widget? photo;
@@ -54,7 +59,8 @@ class PhotoSlot extends StatelessWidget {
         semanticLabel: semanticLabel,
         excludeFromSemantics: semanticLabel == null,
         frameBuilder: showLoading ? _whileLoading : null,
-        errorBuilder: (context, error, stack) => const SizedBox.expand(),
+        errorBuilder: (context, error, stack) =>
+            fallback ?? const SizedBox.expand(),
       );
       if (opacity < 1) photo = Opacity(opacity: opacity, child: photo);
     }

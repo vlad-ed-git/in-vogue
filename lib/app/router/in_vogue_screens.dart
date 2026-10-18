@@ -201,16 +201,24 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         BlocProvider(create: (_) => locator<DeleteAccountBloc>()),
         BlocProvider(create: (_) => locator<SkinAnalysisBloc>()),
       ],
-      child: Builder(
-        builder: (context) => SettingsScreen(
-          onLoggedOut: () => context.read<SetupBloc>().add(
-            const SetupStepReached(SetupStep.signIn),
+      child: _OnTabShown(
+        tab: InVogueTab.settings,
+        // The face photo may have changed on Mirror, and the name at sign-in.
+        onShown: (context) {
+          context.read<PhotoBloc>().add(const PhotoLoaded());
+          context.read<ProfileBloc>().add(const ProfileLoaded());
+        },
+        child: Builder(
+          builder: (context) => SettingsScreen(
+            onLoggedOut: () => context.read<SetupBloc>().add(
+              const SetupStepReached(SetupStep.signIn),
+            ),
+            onAccountDeleted: () => context.read<SetupBloc>().add(
+              const SetupStepReached(SetupStep.welcome),
+            ),
+            bodyPhoto: () => locator<PhotoBloc>(param1: PhotoRole.body),
+            onAddWidget: locator<HomeWidgetRepository>().requestPin,
           ),
-          onAccountDeleted: () => context.read<SetupBloc>().add(
-            const SetupStepReached(SetupStep.welcome),
-          ),
-          bodyPhoto: () => locator<PhotoBloc>(param1: PhotoRole.body),
-          onAddWidget: locator<HomeWidgetRepository>().requestPin,
         ),
       ),
     ),
