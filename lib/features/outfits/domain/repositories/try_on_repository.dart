@@ -26,11 +26,14 @@ final class TryOnSucceeded extends TryOnTask {
 
 /// Failed; the service charges nothing for it.
 final class TryOnErrored extends TryOnTask {
-  const TryOnErrored(this.problem);
+  const TryOnErrored(this.problem, {this.advice});
   final TryOnProblem problem;
 
+  /// What to change about the photo, when it is the problem.
+  final PhotoAdvice? advice;
+
   @override
-  List<Object?> get props => [problem];
+  List<Object?> get props => [problem, advice];
 }
 
 /// The virtual try-on service.

@@ -147,12 +147,18 @@ void main() {
         await repository.check('task-2'),
         const Right<Failure, TryOnTask>(TryOnErrored(TryOnProblem.failed)),
       );
-      when(
-        remote.task(YouCamTool.clothes, 'task-3'),
-      ).thenAnswer((_) async => const YouCamTaskFailed(YouCamProblem.photo));
+      when(remote.task(YouCamTool.clothes, 'task-3')).thenAnswer(
+        (_) async => const YouCamTaskFailed(
+          YouCamProblem.photo,
+          advice: PhotoAdvice.onlyYou,
+          code: 'error_multi_person',
+        ),
+      );
       expect(
         await repository.check('task-3'),
-        const Right<Failure, TryOnTask>(TryOnErrored(TryOnProblem.photo)),
+        const Right<Failure, TryOnTask>(
+          TryOnErrored(TryOnProblem.photo, advice: PhotoAdvice.onlyYou),
+        ),
       );
       when(remote.task(YouCamTool.clothes, 'task-4')).thenAnswer(
         (_) async => const YouCamTaskFailed(YouCamProblem.reference),

@@ -74,10 +74,15 @@ class TryOnRepositoryImpl implements TryOnRepository {
               ? const TryOnErrored(TryOnProblem.failed)
               : TryOnSucceeded(url);
         }
-        return switch (task) {
-          YouCamTaskFailed(:final problem) => TryOnErrored(_problem(problem)),
-          _ => const TryOnRunning(),
-        };
+        if (task case final YouCamTaskFailed failed) {
+          _logger.logError(
+            callerClass: 'TryOnRepositoryImpl',
+            callerMethod: 'check',
+            error: 'YouCam task failed: ${failed.code}',
+          );
+          return TryOnErrored(_problem(failed.problem), advice: failed.advice);
+        }
+        return const TryOnRunning();
       });
 
   @override

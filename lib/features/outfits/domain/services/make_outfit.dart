@@ -493,8 +493,8 @@ class MakeOutfit {
       switch (checked.getOrElse(() => const TryOnRunning())) {
         case TryOnSucceeded(:final pictureUrl):
           return Right(pictureUrl);
-        case TryOnErrored(:final problem):
-          return Left(TryOnFailure(problem));
+        case TryOnErrored(:final problem, :final advice):
+          return Left(TryOnFailure(problem, advice: advice));
         case TryOnRunning():
           if (!clock.now().isBefore(deadline)) {
             return const Left(ServerFailure());
