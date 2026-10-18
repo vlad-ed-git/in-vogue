@@ -34,6 +34,18 @@ enum YouCamProblem {
   unauthorized,
 }
 
+/// A YouCam task that failed, as it is logged: its [code] says why, and
+/// carries nothing personal.
+class YouCamTaskError implements Exception {
+  const YouCamTaskError(this.code);
+
+  /// Such as `error_face_angle_rightward`.
+  final String? code;
+
+  @override
+  String toString() => 'YouCamTaskError ${code ?? 'without a code'}';
+}
+
 /// YouCam refused a call; nothing it was asked to start has started.
 class YouCamException implements Exception {
   const YouCamException(this.problem, this.cause, this.stackTrace);

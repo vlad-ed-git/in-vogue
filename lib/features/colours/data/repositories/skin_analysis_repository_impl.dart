@@ -75,7 +75,7 @@ class SkinAnalysisRepositoryImpl implements SkinAnalysisRepository {
     _logger.logError(
       callerClass: 'SkinAnalysisRepositoryImpl',
       callerMethod: 'check',
-      error: 'YouCam task failed: ${failed.code}',
+      error: YouCamTaskError(failed.code),
     );
     return AnalysisFailed(_problem(failed.problem), advice: failed.advice);
   }

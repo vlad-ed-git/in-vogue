@@ -1,8 +1,10 @@
 import 'dart:developer' as developer;
 
+import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:in_vogue/core/data/errors/error_reports.dart';
+import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 
 /// Writes each error to the debug console in debug builds, and files it
@@ -32,6 +34,8 @@ class LogMessagesImpl implements LogMessages {
   static String categoryOf(Object error) => switch (error) {
     FirebaseException(:final plugin, :final code) =>
       'FirebaseException $plugin/$code',
+    YouCamTaskError() => '$error',
+    DioException(:final type) => 'DioException ${type.name}',
     _ => '${error.runtimeType}',
   };
 }

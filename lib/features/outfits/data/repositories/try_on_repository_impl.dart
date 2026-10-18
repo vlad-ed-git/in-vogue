@@ -78,7 +78,7 @@ class TryOnRepositoryImpl implements TryOnRepository {
           _logger.logError(
             callerClass: 'TryOnRepositoryImpl',
             callerMethod: 'check',
-            error: 'YouCam task failed: ${failed.code}',
+            error: YouCamTaskError(failed.code),
           );
           return TryOnErrored(_problem(failed.problem), advice: failed.advice);
         }
