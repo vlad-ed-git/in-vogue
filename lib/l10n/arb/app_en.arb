@@ -48,16 +48,7 @@
   },
   "today": "Today",
   "tomorrow": "Tomorrow",
-  "before": "Before",
-  "@before": {
-    "description": "Makeup comparison: the face photo."
-  },
-  "after": "After",
-  "@after": {
-    "description": "Makeup comparison: the finished look."
-  },
   "tabHome": "Home",
-  "tabMakeup": "Makeup",
   "tabSettings": "Settings",
   "temperatureSpoken": "{temperature} degrees",
   "@temperatureSpoken": {
@@ -292,7 +283,7 @@
   },
   "photoConverted": "We changed this photo’s format so it works. Don’t like it? Choose another.",
   "@photoConverted": {
-    "description": "Under a chosen photo that was converted to a format the try-on and makeup take."
+    "description": "Under a chosen photo that was converted to a format YouCam takes."
   },
   "addPhotoOfYou": "Add a photo of you",
   "@addPhotoOfYou": {
@@ -361,26 +352,15 @@
     }
   },
   "lockedSpoken": "Part of Pro",
-  "planFree": "Free plan · {outfits, plural, =0{no outfits} =1{1 outfit} other{{outfits} outfits}} and {looks, plural, =0{no makeup looks} =1{1 makeup look} other{{looks} makeup looks}} left",
+  "planFree": "Free plan · {outfits, plural, =0{no outfits} =1{1 outfit} other{{outfits} outfits}} left",
   "@planFree": {
     "placeholders": {
       "outfits": {
-        "type": "int"
-      },
-      "looks": {
         "type": "int"
       }
     }
   },
   "planNoOutfits": "Free plan · no outfits left",
-  "planMakeupLeft": "Free plan · {looks, plural, =0{no makeup looks} =1{1 makeup look} other{{looks} makeup looks}} left",
-  "@planMakeupLeft": {
-    "placeholders": {
-      "looks": {
-        "type": "int"
-      }
-    }
-  },
   "onProList": "On the Pro list ✓",
   "loveSpoken": "Love {name}",
   "@loveSpoken": {
@@ -437,25 +417,13 @@
       }
     }
   },
-  "preparing": "Preparing",
-  "faceAfterStep": "Your face after step {step}",
-  "@faceAfterStep": {
-    "placeholders": {
-      "step": {
-        "type": "int"
-      }
-    }
-  },
-  "faceWithLook": "Your face with the finished look",
-  "facePhotoSpoken": "Your face photo",
   "logOut": "Log out",
   "deleteAccount": "Delete account",
   "proName": "In Vogue Pro",
-  "proLine": "More outfits, more choice, makeup for all of them.",
+  "proLine": "More outfits, more choice.",
   "proBenefitDaily": "A new outfit every day",
   "proBenefitChoice": "Other outfits to choose from",
   "proBenefitCollection": "The whole collection to browse",
-  "proBenefitMakeup": "Makeup for every outfit",
   "proPrice": "$7.99 a month · or $59.99 a year",
   "@proPrice": {
     "description": "The only price in the app."
@@ -498,8 +466,8 @@
   "@yourName": {
     "description": "Label of the name field."
   },
-  "facePhotoTitle": "Add a face photo",
-  "facePhotoLine": "Optional. It makes your makeup match you.",
+  "facePhotoTitle": "Add a selfie",
+  "facePhotoLine": "Optional. It’s for your skin tone and colour analysis.",
   "addWidgetTitle": "Add In Vogue to your home screen",
   "@addWidgetTitle": {
     "description": "Title of setup step 6."
@@ -681,7 +649,7 @@
   "@facePhoto": {
     "description": "Settings row."
   },
-  "facePhotoUse": "Used for makeup",
+  "facePhotoUse": "Used for your colour analysis",
   "@facePhotoUse": {
     "description": "What the face photo is for."
   },
@@ -746,102 +714,6 @@
   "@keepAccount": {
     "description": "Closes the delete sheet without deleting."
   },
-  "makeupFailed": "We couldn’t make your makeup this time. Your photo is fine.",
-  "@makeupFailed": {
-    "description": "Making the makeup look failed; trying again may work."
-  },
-  "makeupPhotoProblem": "We couldn’t find your face in this photo. A close-up, facing forward in daylight, works best.",
-  "@makeupPhotoProblem": {
-    "description": "The makeup service could not use the person's face photo."
-  },
-  "makeupNoCredit": "No more makeup looks can be made for now.",
-  "@makeupNoCredit": {
-    "description": "YouCam's units are spent; no look is made."
-  },
-  "makeupUnavailable": "Makeup isn’t available in this version yet.",
-  "@makeupUnavailable": {
-    "description": "This build has no access to the makeup service."
-  },
-  "makeupFor": "{day, select, today{Makeup for today} other{Makeup for tomorrow}}",
-  "@makeupFor": {
-    "description": "Title of the Makeup tab: the day of the outfit on Home.",
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
-  "makeupStepsArriving": "Your steps appear as each one is ready.",
-  "@makeupStepsArriving": {
-    "description": "Below the title while the makeup look is being made."
-  },
-  "makeupStepCount": "{count, select, three{Three steps} four{Four steps} five{Five steps} six{Six steps} other{The steps}}",
-  "@makeupStepCount": {
-    "description": "Heading above the makeup steps; count is the number of steps in words: three, four, five or six.",
-    "placeholders": {
-      "count": {
-        "type": "String"
-      }
-    }
-  },
-  "cheekColour": "{colour, select, soft_pink{Soft pink} peach{Peach} rose{Rose} terracotta{Terracotta} other{Soft}}",
-  "@cheekColour": {
-    "description": "A blush colour, as it starts lookSentence.",
-    "placeholders": {
-      "colour": {
-        "type": "String"
-      }
-    }
-  },
-  "lipColour": "{colour, select, nude{nude} rosy_nude{rosy-nude} rose{rose} terracotta{terracotta} red{red} berry{berry} brick{brick-red} other{soft}}",
-  "@lipColour": {
-    "description": "A lip colour, as it reads inside lookSentence.",
-    "placeholders": {
-      "colour": {
-        "type": "String"
-      }
-    }
-  },
-  "lookSentence": "{cheeks} cheeks and {lips} lips, to go with {palette, select, warm{your warm neutrals} cool{your cool neutrals} mixed{your neutrals} other{the colour you’re wearing}}.",
-  "@lookSentence": {
-    "description": "Ties the makeup look to the outfit's colours. cheeks is cheekColour, lips is lipColour.",
-    "placeholders": {
-      "cheeks": {
-        "type": "String"
-      },
-      "lips": {
-        "type": "String"
-      },
-      "palette": {
-        "type": "String"
-      }
-    }
-  },
-  "makeupWaitsForOutfit": "Your makeup follows your outfit, which is on its way.",
-  "@makeupWaitsForOutfit": {
-    "description": "The outfit on Home is still being made, so no makeup can start."
-  },
-  "makeupNeedsOutfit": "{day, select, today{There’s no outfit for today to match yet.} other{There’s no outfit for tomorrow to match yet.}}",
-  "@makeupNeedsOutfit": {
-    "description": "The day on Home has no outfit, so no makeup can be made for it.",
-    "placeholders": {
-      "day": {
-        "type": "String"
-      }
-    }
-  },
-  "yourLastLook": "Your last look",
-  "@yourLastLook": {
-    "description": "Heading above the makeup look made for an earlier outfit."
-  },
-  "makeupFacePhotoLine": "Your makeup is made on your own face.",
-  "@makeupFacePhotoLine": {
-    "description": "Why the Makeup tab asks for a face photo."
-  },
-  "makeupShadesNeutral": "For shades that match you, use a face photo taken in daylight, facing forward.",
-  "@makeupShadesNeutral": {
-    "description": "The face photo was not clear enough to match shades; neutral shades were used."
-  },
   "loading": "Loading",
   "@loading": {
     "description": "Read by screen readers on a control or slot that is working."
@@ -865,5 +737,80 @@
   "photoStandHeadToToe": "We couldn’t see you standing in this photo. Choose one of you standing, head to toe.",
   "@photoStandHeadToToe": {
     "description": "A body photo YouCam refused because the person isn’t standing, head to toe."
-  }
+  },
+  "tabMirror": "Mirror",
+  "@tabMirror": {
+    "description": "The tab with the colours that suit the person, and their wardrobe."
+  },
+  "selfieTitle": "Find your colours",
+  "@selfieTitle": {
+    "description": "Mirror, without a face photo: the heading above the selfie picker."
+  },
+  "selfieLine": "Add a selfie for your skin tone and colour analysis.",
+  "@selfieLine": {
+    "description": "Mirror, without a face photo."
+  },
+  "readingColours": "Reading your colours…",
+  "@readingColours": {
+    "description": "Mirror, while the skin-tone analysis runs."
+  },
+  "yourSeason": "Your season",
+  "@yourSeason": {
+    "description": "Kicker above the colour season."
+  },
+  "seasonLightSpring": "Light Spring",
+  "seasonTrueSpring": "True Spring",
+  "seasonBrightSpring": "Bright Spring",
+  "seasonLightSummer": "Light Summer",
+  "seasonTrueSummer": "True Summer",
+  "seasonSoftSummer": "Soft Summer",
+  "seasonSoftAutumn": "Soft Autumn",
+  "seasonTrueAutumn": "True Autumn",
+  "seasonDarkAutumn": "Dark Autumn",
+  "seasonDarkWinter": "Dark Winter",
+  "seasonTrueWinter": "True Winter",
+  "seasonBrightWinter": "Bright Winter",
+  "adviceLightSpring": "Fresh, delicate colours suit you: peach, coral and warm aqua.",
+  "adviceTrueSpring": "Bright, sunny colours suit you: poppy, golden yellow and turquoise.",
+  "adviceBrightSpring": "Vivid, warm colours suit you: hot coral, lemon and azure.",
+  "adviceLightSummer": "Airy pastels suit you: powder blue, lavender and rose.",
+  "adviceTrueSummer": "Gentle, cool colours suit you: slate blue, raspberry and soft teal.",
+  "adviceSoftSummer": "Muted, smoky colours suit you: dusty rose, sage and grey-blue.",
+  "adviceSoftAutumn": "Muted, earthy colours suit you: khaki, moss and warm taupe.",
+  "adviceTrueAutumn": "Rich, earthy colours suit you: rust, olive, mustard and teal.",
+  "adviceDarkAutumn": "Deep, warm colours suit you: chocolate, forest green and burnt orange.",
+  "adviceDarkWinter": "Deep, cool colours suit you: burgundy, pine and deep navy.",
+  "adviceTrueWinter": "Crisp, cool colours suit you: true red, royal blue and emerald.",
+  "adviceBrightWinter": "Vivid, icy colours suit you: fuchsia, cobalt and pure white.",
+  "colourFacts": "{undertone, select, warm{Warm} cool{Cool} other{Neutral}} undertone · {depth, select, light{light} deep{deep} other{medium}} colouring · {contrast, select, high{high} low{low} other{medium}} contrast",
+  "@colourFacts": {
+    "description": "Why the season: the undertone, depth and contrast read from the face.",
+    "placeholders": {
+      "undertone": {
+        "type": "String"
+      },
+      "depth": {
+        "type": "String"
+      },
+      "contrast": {
+        "type": "String"
+      }
+    }
+  },
+  "coloursSuit": "Colours that suit you",
+  "coloursNeutrals": "Your neutrals",
+  "coloursGoEasy": "Go easy on",
+  "@coloursGoEasy": {
+    "description": "Heading above the colours that suit the person least."
+  },
+  "coloursUnclear": "The photo wasn’t clear, so this is a starting point. A selfie in daylight, facing forward, reads better.",
+  "wardrobeTitle": "My wardrobe",
+  "wardrobeLine": "Soon you can add your own clothes, and your outfits will use them.",
+  "@wardrobeLine": {
+    "description": "A stand-in until wardrobe uploads are built."
+  },
+  "colourFailed": "We couldn’t read your colours this time.",
+  "colourPhotoProblem": "We couldn’t read your face in this photo. A close-up, facing forward in daylight, works best.",
+  "colourNoCredit": "No more colour readings can be made for now.",
+  "colourUnavailable": "Colour readings aren’t available in this version yet."
 }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +14,8 @@ import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/your_picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/screens/your_picks_screen.dart';
+import 'package:in_vogue/features/colours/presentation/bloc/colours_bloc.dart';
+import 'package:in_vogue/features/colours/presentation/screens/mirror_screen.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home/presentation/bloc/shop_bloc.dart';
 import 'package:in_vogue/features/home/presentation/screens/home_screen.dart';
@@ -23,9 +24,6 @@ import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_re
 import 'package:in_vogue/features/home_widget/presentation/bloc/home_widget_bloc.dart';
 import 'package:in_vogue/features/home_widget/presentation/widgets/home_widget_sync.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
-import 'package:in_vogue/features/makeup/presentation/bloc/makeup_bloc.dart';
-import 'package:in_vogue/features/makeup/presentation/screens/makeup_screen.dart';
-import 'package:in_vogue/features/makeup/presentation/screens/picture_screen.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
@@ -41,8 +39,7 @@ import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart
 import 'package:in_vogue/features/setup/presentation/screens/your_photo_screen.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 
-/// The app's screens, with their blocs from [locator]. Home's bloc is
-/// shared by the tabs, so Makeup follows Home's day and outfit.
+/// The app's screens, with their blocs from [locator].
 AppScreens inVogueScreens(GetIt locator) => AppScreens(
   tabs: (tabs) => MultiBlocProvider(
     providers: [
@@ -212,11 +209,10 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         ),
       ),
     ),
-    InVogueTab.makeup => MultiBlocProvider(
+    InVogueTab.mirror => MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => locator<MakeupBloc>()
-            ..add(MakeupDayShown(makeupDayOf(context.read<HomeBloc>().state))),
+          create: (_) => locator<ColoursBloc>()..add(const ColoursShown()),
         ),
         BlocProvider(
           create: (_) =>
@@ -224,55 +220,16 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
                 ..add(const PhotoLoaded()),
         ),
       ],
-      child: BlocListener<HomeBloc, HomeState>(
-        listenWhen: (previous, current) =>
-            makeupDayOf(previous) != makeupDayOf(current),
-        listener: (context, home) =>
-            context.read<MakeupBloc>().add(MakeupDayShown(makeupDayOf(home))),
-        child: _OnTabShown(
-          tab: InVogueTab.makeup,
-          // The face photo may have been replaced in Settings.
-          onShown: (context) =>
-              context.read<PhotoBloc>().add(const PhotoLoaded()),
-          child: Builder(
-            builder: (context) => MakeupScreen(
-              onPicture: (picture, label) => _push(
-                context,
-                (context) => PictureScreen(
-                  picture: FileImage(File(picture)),
-                  label: label,
-                  onClose: () => Navigator.of(context).pop(),
-                ),
-              ),
-            ),
-          ),
-        ),
+      child: _OnTabShown(
+        tab: InVogueTab.mirror,
+        // The face photo may have been replaced in Settings.
+        onShown: (context) =>
+            context.read<PhotoBloc>().add(const PhotoLoaded()),
+        child: const MirrorScreen(),
       ),
     ),
   },
 );
-
-/// Home's day, as the Makeup tab follows it: an outfit being looked up or
-/// made is pending, unless Home cannot look it up.
-MakeupDay makeupDayOf(HomeState home) {
-  final shown = home.shown;
-  return MakeupDay(
-    day: home.selected,
-    occasion: shown.report?.weather.occasion,
-    outfit: switch (shown.outfit) {
-      OutfitShown(:final outfit) => outfit,
-      _ => null,
-    },
-    weather: shown.report?.weatherClass,
-    outfitPending: switch (shown.outfit) {
-      OutfitMaking() => true,
-      OutfitLooking() =>
-        home.status == HomeStatus.loading ||
-            (home.status == HomeStatus.ready && !shown.weatherFailed),
-      _ => false,
-    },
-  );
-}
 
 /// Opens a full screen over the tabs.
 void _push(BuildContext context, WidgetBuilder builder) => unawaited(

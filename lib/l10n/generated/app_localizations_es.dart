@@ -68,16 +68,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tomorrow => 'Mañana';
 
   @override
-  String get before => 'Antes';
-
-  @override
-  String get after => 'Después';
-
-  @override
   String get tabHome => 'Inicio';
-
-  @override
-  String get tabMakeup => 'Maquillaje';
 
   @override
   String get tabSettings => 'Ajustes';
@@ -348,36 +339,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get lockedSpoken => 'Incluido en Pro';
 
   @override
-  String planFree(int outfits, int looks) {
+  String planFree(int outfits) {
     String _temp0 = intl.Intl.pluralLogic(
       outfits,
       locale: localeName,
       other: '$outfits conjuntos',
       one: '1 conjunto',
     );
-    String _temp1 = intl.Intl.pluralLogic(
-      looks,
-      locale: localeName,
-      other: '$looks looks de maquillaje',
-      one: '1 look de maquillaje',
-    );
-    return 'Plan gratuito · te quedan $_temp0 y $_temp1';
+    return 'Plan gratuito · te quedan $_temp0';
   }
 
   @override
   String get planNoOutfits => 'Plan gratuito · no te quedan conjuntos';
-
-  @override
-  String planMakeupLeft(int looks) {
-    String _temp0 = intl.Intl.pluralLogic(
-      looks,
-      locale: localeName,
-      other: 'te quedan $looks looks de maquillaje',
-      one: 'te queda 1 look de maquillaje',
-      zero: 'no te quedan looks de maquillaje',
-    );
-    return 'Plan gratuito · $_temp0';
-  }
 
   @override
   String get onProList => 'En la lista de Pro ✓';
@@ -431,20 +404,6 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get preparing => 'Preparando';
-
-  @override
-  String faceAfterStep(int step) {
-    return 'Tu cara después del paso $step';
-  }
-
-  @override
-  String get faceWithLook => 'Tu cara con el look terminado';
-
-  @override
-  String get facePhotoSpoken => 'Tu foto de la cara';
-
-  @override
   String get logOut => 'Cerrar sesión';
 
   @override
@@ -454,7 +413,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get proName => 'In Vogue Pro';
 
   @override
-  String get proLine => 'Más conjuntos, más opciones y maquillaje para todos.';
+  String get proLine => 'Más conjuntos y más opciones.';
 
   @override
   String get proBenefitDaily => 'Un conjunto nuevo cada día';
@@ -464,9 +423,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get proBenefitCollection => 'Toda la colección para explorar';
-
-  @override
-  String get proBenefitMakeup => 'Maquillaje para cada conjunto';
 
   @override
   String get proPrice => '\$7.99 al mes · o \$59.99 al año';
@@ -521,10 +477,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get yourName => 'Tu nombre';
 
   @override
-  String get facePhotoTitle => 'Añade una foto de tu cara';
+  String get facePhotoTitle => 'Añade un selfie';
 
   @override
-  String get facePhotoLine => 'Opcional. Así el maquillaje va contigo.';
+  String get facePhotoLine =>
+      'Opcional. Sirve para analizar tu tono de piel y tus colores.';
 
   @override
   String get addWidgetTitle => 'Añade In Vogue a tu pantalla de inicio';
@@ -663,7 +620,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get facePhoto => 'Foto de la cara';
 
   @override
-  String get facePhotoUse => 'Se usa para el maquillaje';
+  String get facePhotoUse => 'Para analizar tus colores';
 
   @override
   String get notAdded => 'Aún no añadida';
@@ -711,107 +668,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get keepAccount => 'Conservar mi cuenta';
 
   @override
-  String get makeupFailed =>
-      'Esta vez no pudimos crear tu maquillaje. Tu foto está bien.';
-
-  @override
-  String get makeupPhotoProblem =>
-      'No encontramos tu cara en esta foto. Funciona mejor un primer plano, de frente y con luz natural.';
-
-  @override
-  String get makeupNoCredit => 'Por ahora no se pueden crear más maquillajes.';
-
-  @override
-  String get makeupUnavailable =>
-      'El maquillaje aún no está disponible en esta versión.';
-
-  @override
-  String makeupFor(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': 'Maquillaje para hoy',
-      'other': 'Maquillaje para mañana',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String get makeupStepsArriving => 'Cada paso aparece en cuanto está listo.';
-
-  @override
-  String makeupStepCount(String count) {
-    String _temp0 = intl.Intl.selectLogic(count, {
-      'three': 'Tres pasos',
-      'four': 'Cuatro pasos',
-      'five': 'Cinco pasos',
-      'six': 'Seis pasos',
-      'other': 'Los pasos',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String cheekColour(String colour) {
-    String _temp0 = intl.Intl.selectLogic(colour, {
-      'soft_pink': 'rosa suave',
-      'peach': 'melocotón',
-      'rose': 'rosa',
-      'terracotta': 'terracota',
-      'other': 'suave',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String lipColour(String colour) {
-    String _temp0 = intl.Intl.selectLogic(colour, {
-      'nude': 'nude',
-      'rosy_nude': 'rosa nude',
-      'rose': 'rosa',
-      'terracotta': 'terracota',
-      'red': 'rojo',
-      'berry': 'baya',
-      'brick': 'rojo ladrillo',
-      'other': 'suave',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String lookSentence(String cheeks, String lips, String palette) {
-    String _temp0 = intl.Intl.selectLogic(palette, {
-      'warm': 'tus neutros cálidos',
-      'cool': 'tus neutros fríos',
-      'mixed': 'tus neutros',
-      'other': 'el color que llevas',
-    });
-    return 'Mejillas en tono $cheeks y labios en tono $lips, a juego con $_temp0.';
-  }
-
-  @override
-  String get makeupWaitsForOutfit =>
-      'Tu maquillaje va con tu conjunto, que ya está en camino.';
-
-  @override
-  String makeupNeedsOutfit(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': 'Aún no hay un conjunto de hoy con el que combinar.',
-      'other': 'Aún no hay un conjunto de mañana con el que combinar.',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String get yourLastLook => 'Tu último maquillaje';
-
-  @override
-  String get makeupFacePhotoLine =>
-      'Tu maquillaje se crea sobre tu propia cara.';
-
-  @override
-  String get makeupShadesNeutral =>
-      'Para tonos que vayan contigo, usa una foto de tu cara de frente y con luz natural.';
-
-  @override
   String get loading => 'Cargando';
 
   @override
@@ -833,4 +689,159 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get photoStandHeadToToe =>
       'En esta foto no te vemos de pie. Elige una en la que estés de pie, de pies a cabeza.';
+
+  @override
+  String get tabMirror => 'Espejo';
+
+  @override
+  String get selfieTitle => 'Descubre tus colores';
+
+  @override
+  String get selfieLine =>
+      'Añade un selfie para analizar tu tono de piel y tus colores.';
+
+  @override
+  String get readingColours => 'Analizando tus colores…';
+
+  @override
+  String get yourSeason => 'Tu estación';
+
+  @override
+  String get seasonLightSpring => 'Primavera clara';
+
+  @override
+  String get seasonTrueSpring => 'Primavera pura';
+
+  @override
+  String get seasonBrightSpring => 'Primavera brillante';
+
+  @override
+  String get seasonLightSummer => 'Verano claro';
+
+  @override
+  String get seasonTrueSummer => 'Verano puro';
+
+  @override
+  String get seasonSoftSummer => 'Verano suave';
+
+  @override
+  String get seasonSoftAutumn => 'Otoño suave';
+
+  @override
+  String get seasonTrueAutumn => 'Otoño puro';
+
+  @override
+  String get seasonDarkAutumn => 'Otoño profundo';
+
+  @override
+  String get seasonDarkWinter => 'Invierno profundo';
+
+  @override
+  String get seasonTrueWinter => 'Invierno puro';
+
+  @override
+  String get seasonBrightWinter => 'Invierno brillante';
+
+  @override
+  String get adviceLightSpring =>
+      'Te favorecen los colores frescos y delicados: melocotón, coral y aguamarina cálida.';
+
+  @override
+  String get adviceTrueSpring =>
+      'Te favorecen los colores vivos y soleados: amapola, amarillo dorado y turquesa.';
+
+  @override
+  String get adviceBrightSpring =>
+      'Te favorecen los colores intensos y cálidos: coral vivo, limón y azul celeste.';
+
+  @override
+  String get adviceLightSummer =>
+      'Te favorecen los pasteles ligeros: azul empolvado, lavanda y rosa.';
+
+  @override
+  String get adviceTrueSummer =>
+      'Te favorecen los colores fríos y suaves: azul pizarra, frambuesa y verde azulado suave.';
+
+  @override
+  String get adviceSoftSummer =>
+      'Te favorecen los colores apagados y ahumados: rosa empolvado, salvia y azul grisáceo.';
+
+  @override
+  String get adviceSoftAutumn =>
+      'Te favorecen los colores tierra apagados: caqui, musgo y topo cálido.';
+
+  @override
+  String get adviceTrueAutumn =>
+      'Te favorecen los colores tierra intensos: óxido, oliva, mostaza y verde azulado.';
+
+  @override
+  String get adviceDarkAutumn =>
+      'Te favorecen los colores cálidos y profundos: chocolate, verde bosque y naranja tostado.';
+
+  @override
+  String get adviceDarkWinter =>
+      'Te favorecen los colores fríos y profundos: burdeos, verde pino y azul marino oscuro.';
+
+  @override
+  String get adviceTrueWinter =>
+      'Te favorecen los colores fríos y nítidos: rojo puro, azul real y esmeralda.';
+
+  @override
+  String get adviceBrightWinter =>
+      'Te favorecen los colores intensos y helados: fucsia, cobalto y blanco puro.';
+
+  @override
+  String colourFacts(String undertone, String depth, String contrast) {
+    String _temp0 = intl.Intl.selectLogic(undertone, {
+      'warm': 'cálido',
+      'cool': 'frío',
+      'other': 'neutro',
+    });
+    String _temp1 = intl.Intl.selectLogic(depth, {
+      'light': 'claro',
+      'deep': 'profundo',
+      'other': 'medio',
+    });
+    String _temp2 = intl.Intl.selectLogic(contrast, {
+      'high': 'alto',
+      'low': 'bajo',
+      'other': 'medio',
+    });
+    return 'Subtono $_temp0 · colorido $_temp1 · contraste $_temp2';
+  }
+
+  @override
+  String get coloursSuit => 'Colores que te favorecen';
+
+  @override
+  String get coloursNeutrals => 'Tus neutros';
+
+  @override
+  String get coloursGoEasy => 'Úsalos con moderación';
+
+  @override
+  String get coloursUnclear =>
+      'La foto no era clara, así que esto es un punto de partida. Un selfie con luz de día, mirando al frente, funciona mejor.';
+
+  @override
+  String get wardrobeTitle => 'Mi armario';
+
+  @override
+  String get wardrobeLine =>
+      'Pronto podrás añadir tu propia ropa y tus conjuntos la usarán.';
+
+  @override
+  String get colourFailed => 'Esta vez no pudimos analizar tus colores.';
+
+  @override
+  String get colourPhotoProblem =>
+      'No pudimos leer tu cara en esta foto. Funciona mejor un primer plano, mirando al frente y con luz de día.';
+
+  @override
+  String get colourNoCredit =>
+      'Por ahora no se pueden hacer más análisis de color.';
+
+  @override
+  String get colourUnavailable =>
+      'El análisis de color aún no está disponible en esta versión.';
 }

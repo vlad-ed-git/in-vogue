@@ -3,6 +3,6 @@ enum PhotoRole {
   /// Head to toe; every outfit is made from it.
   body,
 
-  /// A close-up for makeup.
+  /// A close-up for the skin tone and colour analysis.
   face,
 }

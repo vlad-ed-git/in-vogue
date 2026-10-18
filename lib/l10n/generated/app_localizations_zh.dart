@@ -64,16 +64,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tomorrow => '明天';
 
   @override
-  String get before => '妆前';
-
-  @override
-  String get after => '妆后';
-
-  @override
   String get tabHome => '首页';
-
-  @override
-  String get tabMakeup => '妆容';
 
   @override
   String get tabSettings => '设置';
@@ -339,17 +330,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lockedSpoken => 'Pro 专享';
 
   @override
-  String planFree(int outfits, int looks) {
-    return '免费版 · 还剩 $outfits 套穿搭和 $looks 次妆容';
+  String planFree(int outfits) {
+    return '免费版 · 还剩 $outfits 套穿搭';
   }
 
   @override
   String get planNoOutfits => '免费版 · 穿搭已用完';
-
-  @override
-  String planMakeupLeft(int looks) {
-    return '免费版 · 还剩 $looks 次妆容';
-  }
 
   @override
   String get onProList => '已加入 Pro 名单 ✓';
@@ -397,20 +383,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get preparing => '准备中';
-
-  @override
-  String faceAfterStep(int step) {
-    return '第 $step 步后的你';
-  }
-
-  @override
-  String get faceWithLook => '完成妆容后的你';
-
-  @override
-  String get facePhotoSpoken => '你的脸部照片';
-
-  @override
   String get logOut => '退出登录';
 
   @override
@@ -420,7 +392,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get proName => 'In Vogue Pro';
 
   @override
-  String get proLine => '更多穿搭，更多选择，每套都有妆容。';
+  String get proLine => '更多穿搭，更多选择。';
 
   @override
   String get proBenefitDaily => '每天一套新穿搭';
@@ -430,9 +402,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get proBenefitCollection => '浏览完整系列';
-
-  @override
-  String get proBenefitMakeup => '每套穿搭都有妆容';
 
   @override
   String get proPrice => '每月 \$7.99 · 或每年 \$59.99';
@@ -485,10 +454,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get yourName => '你的名字';
 
   @override
-  String get facePhotoTitle => '添加一张面部照片';
+  String get facePhotoTitle => '添加一张自拍';
 
   @override
-  String get facePhotoLine => '可选。让妆容更适合你。';
+  String get facePhotoLine => '可选。用于肤色与色彩分析。';
 
   @override
   String get addWidgetTitle => '把 In Vogue 添加到主屏幕';
@@ -623,7 +592,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get facePhoto => '面部照片';
 
   @override
-  String get facePhotoUse => '用于妆容';
+  String get facePhotoUse => '用于色彩分析';
 
   @override
   String get notAdded => '尚未添加';
@@ -671,101 +640,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get keepAccount => '保留我的账户';
 
   @override
-  String get makeupFailed => '这次没能为你生成妆容。你的照片没有问题。';
-
-  @override
-  String get makeupPhotoProblem => '这张照片里找不到你的脸。在自然光下正面拍摄的近照效果最好。';
-
-  @override
-  String get makeupNoCredit => '目前无法再生成新的妆容。';
-
-  @override
-  String get makeupUnavailable => '此版本暂不提供妆容。';
-
-  @override
-  String makeupFor(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': '今天的妆容',
-      'other': '明天的妆容',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String get makeupStepsArriving => '每一步完成后就会出现在这里。';
-
-  @override
-  String makeupStepCount(String count) {
-    String _temp0 = intl.Intl.selectLogic(count, {
-      'three': '三个步骤',
-      'four': '四个步骤',
-      'five': '五个步骤',
-      'six': '六个步骤',
-      'other': '步骤',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String cheekColour(String colour) {
-    String _temp0 = intl.Intl.selectLogic(colour, {
-      'soft_pink': '柔粉色',
-      'peach': '蜜桃色',
-      'rose': '玫瑰色',
-      'terracotta': '赤陶色',
-      'other': '柔和',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String lipColour(String colour) {
-    String _temp0 = intl.Intl.selectLogic(colour, {
-      'nude': '裸色',
-      'rosy_nude': '玫瑰裸色',
-      'rose': '玫瑰色',
-      'terracotta': '赤陶色',
-      'red': '红色',
-      'berry': '莓果色',
-      'brick': '砖红色',
-      'other': '柔和',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String lookSentence(String cheeks, String lips, String palette) {
-    String _temp0 = intl.Intl.selectLogic(palette, {
-      'warm': '你的暖调中性色',
-      'cool': '你的冷调中性色',
-      'mixed': '你的中性色',
-      'other': '你身上的颜色',
-    });
-    return '$cheeks腮红配$lips唇妆，呼应$_temp0。';
-  }
-
-  @override
-  String get makeupWaitsForOutfit => '妆容会搭配你的穿搭，穿搭正在准备中。';
-
-  @override
-  String makeupNeedsOutfit(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': '今天还没有可搭配的穿搭。',
-      'other': '明天还没有可搭配的穿搭。',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String get yourLastLook => '你上一次的妆容';
-
-  @override
-  String get makeupFacePhotoLine => '妆容会画在你自己的脸上。';
-
-  @override
-  String get makeupShadesNeutral => '想让色号更适合你，请使用在自然光下正面拍摄的面部照片。';
-
-  @override
   String get loading => '加载中';
 
   @override
@@ -782,4 +656,141 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get photoStandHeadToToe => '这张照片里看不到你站立的样子。请选择一张从头到脚的站姿照片。';
+
+  @override
+  String get tabMirror => '镜子';
+
+  @override
+  String get selfieTitle => '找到适合你的颜色';
+
+  @override
+  String get selfieLine => '添加一张自拍，用于肤色与色彩分析。';
+
+  @override
+  String get readingColours => '正在分析你的颜色…';
+
+  @override
+  String get yourSeason => '你的色彩季型';
+
+  @override
+  String get seasonLightSpring => '浅春型';
+
+  @override
+  String get seasonTrueSpring => '暖春型';
+
+  @override
+  String get seasonBrightSpring => '净春型';
+
+  @override
+  String get seasonLightSummer => '浅夏型';
+
+  @override
+  String get seasonTrueSummer => '冷夏型';
+
+  @override
+  String get seasonSoftSummer => '柔夏型';
+
+  @override
+  String get seasonSoftAutumn => '柔秋型';
+
+  @override
+  String get seasonTrueAutumn => '暖秋型';
+
+  @override
+  String get seasonDarkAutumn => '深秋型';
+
+  @override
+  String get seasonDarkWinter => '深冬型';
+
+  @override
+  String get seasonTrueWinter => '冷冬型';
+
+  @override
+  String get seasonBrightWinter => '净冬型';
+
+  @override
+  String get adviceLightSpring => '清新柔和的颜色最适合你：蜜桃色、珊瑚色和暖调水绿色。';
+
+  @override
+  String get adviceTrueSpring => '明亮阳光的颜色最适合你：罂粟红、金黄色和绿松石色。';
+
+  @override
+  String get adviceBrightSpring => '鲜艳的暖色最适合你：亮珊瑚色、柠檬黄和天蓝色。';
+
+  @override
+  String get adviceLightSummer => '轻盈的粉彩色最适合你：粉蓝、薰衣草紫和玫瑰粉。';
+
+  @override
+  String get adviceTrueSummer => '柔和的冷色最适合你：石板蓝、覆盆子红和柔和的蓝绿色。';
+
+  @override
+  String get adviceSoftSummer => '低饱和的烟熏色最适合你：灰粉色、鼠尾草绿和灰蓝色。';
+
+  @override
+  String get adviceSoftAutumn => '低饱和的大地色最适合你：卡其色、苔藓绿和暖灰褐色。';
+
+  @override
+  String get adviceTrueAutumn => '浓郁的大地色最适合你：铁锈红、橄榄绿、芥末黄和蓝绿色。';
+
+  @override
+  String get adviceDarkAutumn => '深沉的暖色最适合你：巧克力色、森林绿和焦橙色。';
+
+  @override
+  String get adviceDarkWinter => '深沉的冷色最适合你：酒红色、松绿色和深海军蓝。';
+
+  @override
+  String get adviceTrueWinter => '清透的冷色最适合你：正红色、宝蓝色和祖母绿。';
+
+  @override
+  String get adviceBrightWinter => '鲜艳冰冷的颜色最适合你：紫红色、钴蓝色和纯白色。';
+
+  @override
+  String colourFacts(String undertone, String depth, String contrast) {
+    String _temp0 = intl.Intl.selectLogic(undertone, {
+      'warm': '暖',
+      'cool': '冷',
+      'other': '中性',
+    });
+    String _temp1 = intl.Intl.selectLogic(depth, {
+      'light': '浅',
+      'deep': '深',
+      'other': '中等',
+    });
+    String _temp2 = intl.Intl.selectLogic(contrast, {
+      'high': '高',
+      'low': '低',
+      'other': '中',
+    });
+    return '$_temp0调 · $_temp1色度 · $_temp2对比';
+  }
+
+  @override
+  String get coloursSuit => '适合你的颜色';
+
+  @override
+  String get coloursNeutrals => '你的中性色';
+
+  @override
+  String get coloursGoEasy => '少穿这些颜色';
+
+  @override
+  String get coloursUnclear => '照片不够清晰，所以这只是一个参考。白天光线下正面的自拍效果更好。';
+
+  @override
+  String get wardrobeTitle => '我的衣橱';
+
+  @override
+  String get wardrobeLine => '很快你就可以添加自己的衣服，搭配会用上它们。';
+
+  @override
+  String get colourFailed => '这次没能分析出你的颜色。';
+
+  @override
+  String get colourPhotoProblem => '这张照片无法识别你的脸。白天光线下正面的特写效果最好。';
+
+  @override
+  String get colourNoCredit => '暂时无法再进行色彩分析。';
+
+  @override
+  String get colourUnavailable => '此版本暂不支持色彩分析。';
 }

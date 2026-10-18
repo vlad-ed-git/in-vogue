@@ -65,16 +65,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tomorrow => 'Tomorrow';
 
   @override
-  String get before => 'Before';
-
-  @override
-  String get after => 'After';
-
-  @override
   String get tabHome => 'Home';
-
-  @override
-  String get tabMakeup => 'Makeup';
 
   @override
   String get tabSettings => 'Settings';
@@ -346,7 +337,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lockedSpoken => 'Part of Pro';
 
   @override
-  String planFree(int outfits, int looks) {
+  String planFree(int outfits) {
     String _temp0 = intl.Intl.pluralLogic(
       outfits,
       locale: localeName,
@@ -354,30 +345,11 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '1 outfit',
       zero: 'no outfits',
     );
-    String _temp1 = intl.Intl.pluralLogic(
-      looks,
-      locale: localeName,
-      other: '$looks makeup looks',
-      one: '1 makeup look',
-      zero: 'no makeup looks',
-    );
-    return 'Free plan · $_temp0 and $_temp1 left';
+    return 'Free plan · $_temp0 left';
   }
 
   @override
   String get planNoOutfits => 'Free plan · no outfits left';
-
-  @override
-  String planMakeupLeft(int looks) {
-    String _temp0 = intl.Intl.pluralLogic(
-      looks,
-      locale: localeName,
-      other: '$looks makeup looks',
-      one: '1 makeup look',
-      zero: 'no makeup looks',
-    );
-    return 'Free plan · $_temp0 left';
-  }
 
   @override
   String get onProList => 'On the Pro list ✓';
@@ -431,20 +403,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get preparing => 'Preparing';
-
-  @override
-  String faceAfterStep(int step) {
-    return 'Your face after step $step';
-  }
-
-  @override
-  String get faceWithLook => 'Your face with the finished look';
-
-  @override
-  String get facePhotoSpoken => 'Your face photo';
-
-  @override
   String get logOut => 'Log out';
 
   @override
@@ -454,7 +412,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get proName => 'In Vogue Pro';
 
   @override
-  String get proLine => 'More outfits, more choice, makeup for all of them.';
+  String get proLine => 'More outfits, more choice.';
 
   @override
   String get proBenefitDaily => 'A new outfit every day';
@@ -464,9 +422,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proBenefitCollection => 'The whole collection to browse';
-
-  @override
-  String get proBenefitMakeup => 'Makeup for every outfit';
 
   @override
   String get proPrice => '\$7.99 a month · or \$59.99 a year';
@@ -520,10 +475,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourName => 'Your name';
 
   @override
-  String get facePhotoTitle => 'Add a face photo';
+  String get facePhotoTitle => 'Add a selfie';
 
   @override
-  String get facePhotoLine => 'Optional. It makes your makeup match you.';
+  String get facePhotoLine =>
+      'Optional. It’s for your skin tone and colour analysis.';
 
   @override
   String get addWidgetTitle => 'Add In Vogue to your home screen';
@@ -662,7 +618,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get facePhoto => 'Face photo';
 
   @override
-  String get facePhotoUse => 'Used for makeup';
+  String get facePhotoUse => 'Used for your colour analysis';
 
   @override
   String get notAdded => 'Not added yet';
@@ -710,105 +666,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get keepAccount => 'Keep my account';
 
   @override
-  String get makeupFailed =>
-      'We couldn’t make your makeup this time. Your photo is fine.';
-
-  @override
-  String get makeupPhotoProblem =>
-      'We couldn’t find your face in this photo. A close-up, facing forward in daylight, works best.';
-
-  @override
-  String get makeupNoCredit => 'No more makeup looks can be made for now.';
-
-  @override
-  String get makeupUnavailable => 'Makeup isn’t available in this version yet.';
-
-  @override
-  String makeupFor(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': 'Makeup for today',
-      'other': 'Makeup for tomorrow',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String get makeupStepsArriving => 'Your steps appear as each one is ready.';
-
-  @override
-  String makeupStepCount(String count) {
-    String _temp0 = intl.Intl.selectLogic(count, {
-      'three': 'Three steps',
-      'four': 'Four steps',
-      'five': 'Five steps',
-      'six': 'Six steps',
-      'other': 'The steps',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String cheekColour(String colour) {
-    String _temp0 = intl.Intl.selectLogic(colour, {
-      'soft_pink': 'Soft pink',
-      'peach': 'Peach',
-      'rose': 'Rose',
-      'terracotta': 'Terracotta',
-      'other': 'Soft',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String lipColour(String colour) {
-    String _temp0 = intl.Intl.selectLogic(colour, {
-      'nude': 'nude',
-      'rosy_nude': 'rosy-nude',
-      'rose': 'rose',
-      'terracotta': 'terracotta',
-      'red': 'red',
-      'berry': 'berry',
-      'brick': 'brick-red',
-      'other': 'soft',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String lookSentence(String cheeks, String lips, String palette) {
-    String _temp0 = intl.Intl.selectLogic(palette, {
-      'warm': 'your warm neutrals',
-      'cool': 'your cool neutrals',
-      'mixed': 'your neutrals',
-      'other': 'the colour you’re wearing',
-    });
-    return '$cheeks cheeks and $lips lips, to go with $_temp0.';
-  }
-
-  @override
-  String get makeupWaitsForOutfit =>
-      'Your makeup follows your outfit, which is on its way.';
-
-  @override
-  String makeupNeedsOutfit(String day) {
-    String _temp0 = intl.Intl.selectLogic(day, {
-      'today': 'There’s no outfit for today to match yet.',
-      'other': 'There’s no outfit for tomorrow to match yet.',
-    });
-    return '$_temp0';
-  }
-
-  @override
-  String get yourLastLook => 'Your last look';
-
-  @override
-  String get makeupFacePhotoLine => 'Your makeup is made on your own face.';
-
-  @override
-  String get makeupShadesNeutral =>
-      'For shades that match you, use a face photo taken in daylight, facing forward.';
-
-  @override
   String get loading => 'Loading';
 
   @override
@@ -830,4 +687,158 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get photoStandHeadToToe =>
       'We couldn’t see you standing in this photo. Choose one of you standing, head to toe.';
+
+  @override
+  String get tabMirror => 'Mirror';
+
+  @override
+  String get selfieTitle => 'Find your colours';
+
+  @override
+  String get selfieLine =>
+      'Add a selfie for your skin tone and colour analysis.';
+
+  @override
+  String get readingColours => 'Reading your colours…';
+
+  @override
+  String get yourSeason => 'Your season';
+
+  @override
+  String get seasonLightSpring => 'Light Spring';
+
+  @override
+  String get seasonTrueSpring => 'True Spring';
+
+  @override
+  String get seasonBrightSpring => 'Bright Spring';
+
+  @override
+  String get seasonLightSummer => 'Light Summer';
+
+  @override
+  String get seasonTrueSummer => 'True Summer';
+
+  @override
+  String get seasonSoftSummer => 'Soft Summer';
+
+  @override
+  String get seasonSoftAutumn => 'Soft Autumn';
+
+  @override
+  String get seasonTrueAutumn => 'True Autumn';
+
+  @override
+  String get seasonDarkAutumn => 'Dark Autumn';
+
+  @override
+  String get seasonDarkWinter => 'Dark Winter';
+
+  @override
+  String get seasonTrueWinter => 'True Winter';
+
+  @override
+  String get seasonBrightWinter => 'Bright Winter';
+
+  @override
+  String get adviceLightSpring =>
+      'Fresh, delicate colours suit you: peach, coral and warm aqua.';
+
+  @override
+  String get adviceTrueSpring =>
+      'Bright, sunny colours suit you: poppy, golden yellow and turquoise.';
+
+  @override
+  String get adviceBrightSpring =>
+      'Vivid, warm colours suit you: hot coral, lemon and azure.';
+
+  @override
+  String get adviceLightSummer =>
+      'Airy pastels suit you: powder blue, lavender and rose.';
+
+  @override
+  String get adviceTrueSummer =>
+      'Gentle, cool colours suit you: slate blue, raspberry and soft teal.';
+
+  @override
+  String get adviceSoftSummer =>
+      'Muted, smoky colours suit you: dusty rose, sage and grey-blue.';
+
+  @override
+  String get adviceSoftAutumn =>
+      'Muted, earthy colours suit you: khaki, moss and warm taupe.';
+
+  @override
+  String get adviceTrueAutumn =>
+      'Rich, earthy colours suit you: rust, olive, mustard and teal.';
+
+  @override
+  String get adviceDarkAutumn =>
+      'Deep, warm colours suit you: chocolate, forest green and burnt orange.';
+
+  @override
+  String get adviceDarkWinter =>
+      'Deep, cool colours suit you: burgundy, pine and deep navy.';
+
+  @override
+  String get adviceTrueWinter =>
+      'Crisp, cool colours suit you: true red, royal blue and emerald.';
+
+  @override
+  String get adviceBrightWinter =>
+      'Vivid, icy colours suit you: fuchsia, cobalt and pure white.';
+
+  @override
+  String colourFacts(String undertone, String depth, String contrast) {
+    String _temp0 = intl.Intl.selectLogic(undertone, {
+      'warm': 'Warm',
+      'cool': 'Cool',
+      'other': 'Neutral',
+    });
+    String _temp1 = intl.Intl.selectLogic(depth, {
+      'light': 'light',
+      'deep': 'deep',
+      'other': 'medium',
+    });
+    String _temp2 = intl.Intl.selectLogic(contrast, {
+      'high': 'high',
+      'low': 'low',
+      'other': 'medium',
+    });
+    return '$_temp0 undertone · $_temp1 colouring · $_temp2 contrast';
+  }
+
+  @override
+  String get coloursSuit => 'Colours that suit you';
+
+  @override
+  String get coloursNeutrals => 'Your neutrals';
+
+  @override
+  String get coloursGoEasy => 'Go easy on';
+
+  @override
+  String get coloursUnclear =>
+      'The photo wasn’t clear, so this is a starting point. A selfie in daylight, facing forward, reads better.';
+
+  @override
+  String get wardrobeTitle => 'My wardrobe';
+
+  @override
+  String get wardrobeLine =>
+      'Soon you can add your own clothes, and your outfits will use them.';
+
+  @override
+  String get colourFailed => 'We couldn’t read your colours this time.';
+
+  @override
+  String get colourPhotoProblem =>
+      'We couldn’t read your face in this photo. A close-up, facing forward in daylight, works best.';
+
+  @override
+  String get colourNoCredit => 'No more colour readings can be made for now.';
+
+  @override
+  String get colourUnavailable =>
+      'Colour readings aren’t available in this version yet.';
 }

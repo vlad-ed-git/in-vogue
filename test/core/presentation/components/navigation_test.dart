@@ -140,7 +140,7 @@ void main() {
         Align(
           alignment: Alignment.bottomCenter,
           child: InVogueTabBar(
-            current: InVogueTab.makeup,
+            current: InVogueTab.mirror,
             onSelected: (tab) => selected = tab,
           ),
         ),
@@ -148,7 +148,7 @@ void main() {
       );
       expect(tester.getSize(find.byType(InVogueTabBar)).height, 50 + 34);
       expect(
-        tester.widget<Text>(find.text('Makeup')).style,
+        tester.widget<Text>(find.text('Mirror')).style,
         InVogueType.navActive,
       );
       expect(tester.widget<Text>(find.text('Home')).style, InVogueType.nav);
@@ -160,11 +160,11 @@ void main() {
       );
       expect(marker.size, const Size(32, 2));
       expect(marker.top, bar.top, reason: 'it covers the top hairline');
-      expect(marker.center.dx, tester.getCenter(find.text('Makeup')).dx);
+      expect(marker.center.dx, tester.getCenter(find.text('Mirror')).dx);
       expect(
-        tester.getSemantics(find.bySemanticsLabel('Makeup')),
+        tester.getSemantics(find.bySemanticsLabel('Mirror')),
         matchesSemantics(
-          label: 'Makeup',
+          label: 'Mirror',
           isButton: true,
           hasSelectedState: true,
           isSelected: true,

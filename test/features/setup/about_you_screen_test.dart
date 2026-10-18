@@ -77,9 +77,9 @@ void main() {
     expect(find.text('5 / 6'), findsOneWidget);
     expect(find.text('What should we call you?'), findsOneWidget);
     expect(find.text('Maya'), findsOneWidget);
-    expect(find.text('Add a face photo'), findsOneWidget);
+    expect(find.text('Add a selfie'), findsOneWidget);
     expect(
-      find.text('Optional. It makes your makeup match you.'),
+      find.text('Optional. It’s for your skin tone and colour analysis.'),
       findsOneWidget,
     );
     expect(find.text('Close up'), findsOneWidget);

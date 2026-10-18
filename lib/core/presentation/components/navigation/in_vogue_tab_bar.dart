@@ -6,7 +6,7 @@ import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
 /// Tab bar destinations.
-enum InVogueTab { home, makeup, settings }
+enum InVogueTab { home, mirror, settings }
 
 /// A bottom bar of three text tabs; the current one is bold with a 32 × 2
 /// marker on the top hairline. Includes the bottom safe area.
@@ -25,7 +25,7 @@ class InVogueTabBar extends StatelessWidget {
     final l10n = context.translated;
     final labels = {
       InVogueTab.home: l10n.tabHome,
-      InVogueTab.makeup: l10n.tabMakeup,
+      InVogueTab.mirror: l10n.tabMirror,
       InVogueTab.settings: l10n.tabSettings,
     };
     return Semantics(

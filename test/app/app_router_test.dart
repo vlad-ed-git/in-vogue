@@ -136,9 +136,9 @@ void main() {
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
     expect(find.text('tab:settings'), findsOneWidget);
-    await tester.tap(find.text('Makeup'));
+    await tester.tap(find.text('Mirror'));
     await tester.pumpAndSettle();
-    expect(find.text('tab:makeup'), findsOneWidget);
+    expect(find.text('tab:mirror'), findsOneWidget);
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
     expect(find.text('tab:home'), findsOneWidget);

@@ -7,7 +7,7 @@ import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 /// reopened step has the earlier steps beneath it and Back returns to them.
 abstract final class AppRoutes {
   static const home = '/home';
-  static const makeup = '/makeup';
+  static const mirror = '/mirror';
   static const settings = '/settings';
 
   /// Path segment of each setup step, in order.
@@ -51,7 +51,7 @@ abstract final class AppRoutes {
 
   static String forTab(InVogueTab tab) => switch (tab) {
     InVogueTab.home => home,
-    InVogueTab.makeup => makeup,
+    InVogueTab.mirror => mirror,
     InVogueTab.settings => settings,
   };
 }

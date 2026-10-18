@@ -202,29 +202,11 @@ abstract class AppLocalizations {
   /// **'Tomorrow'**
   String get tomorrow;
 
-  /// Makeup comparison: the face photo.
-  ///
-  /// In en, this message translates to:
-  /// **'Before'**
-  String get before;
-
-  /// Makeup comparison: the finished look.
-  ///
-  /// In en, this message translates to:
-  /// **'After'**
-  String get after;
-
   /// No description provided for @tabHome.
   ///
   /// In en, this message translates to:
   /// **'Home'**
   String get tabHome;
-
-  /// No description provided for @tabMakeup.
-  ///
-  /// In en, this message translates to:
-  /// **'Makeup'**
-  String get tabMakeup;
 
   /// No description provided for @tabSettings.
   ///
@@ -447,7 +429,7 @@ abstract class AppLocalizations {
   /// **'We can’t use this photo. Choose another one.'**
   String get photoUnusable;
 
-  /// Under a chosen photo that was converted to a format the try-on and makeup take.
+  /// Under a chosen photo that was converted to a format YouCam takes.
   ///
   /// In en, this message translates to:
   /// **'We changed this photo’s format so it works. Don’t like it? Choose another.'**
@@ -612,20 +594,14 @@ abstract class AppLocalizations {
   /// No description provided for @planFree.
   ///
   /// In en, this message translates to:
-  /// **'Free plan · {outfits, plural, =0{no outfits} =1{1 outfit} other{{outfits} outfits}} and {looks, plural, =0{no makeup looks} =1{1 makeup look} other{{looks} makeup looks}} left'**
-  String planFree(int outfits, int looks);
+  /// **'Free plan · {outfits, plural, =0{no outfits} =1{1 outfit} other{{outfits} outfits}} left'**
+  String planFree(int outfits);
 
   /// No description provided for @planNoOutfits.
   ///
   /// In en, this message translates to:
   /// **'Free plan · no outfits left'**
   String get planNoOutfits;
-
-  /// No description provided for @planMakeupLeft.
-  ///
-  /// In en, this message translates to:
-  /// **'Free plan · {looks, plural, =0{no makeup looks} =1{1 makeup look} other{{looks} makeup looks}} left'**
-  String planMakeupLeft(int looks);
 
   /// No description provided for @onProList.
   ///
@@ -693,30 +669,6 @@ abstract class AppLocalizations {
   /// **'{name} in {colour}, catalogue photo'**
   String catalogPhotoSpoken(String name, String colour);
 
-  /// No description provided for @preparing.
-  ///
-  /// In en, this message translates to:
-  /// **'Preparing'**
-  String get preparing;
-
-  /// No description provided for @faceAfterStep.
-  ///
-  /// In en, this message translates to:
-  /// **'Your face after step {step}'**
-  String faceAfterStep(int step);
-
-  /// No description provided for @faceWithLook.
-  ///
-  /// In en, this message translates to:
-  /// **'Your face with the finished look'**
-  String get faceWithLook;
-
-  /// No description provided for @facePhotoSpoken.
-  ///
-  /// In en, this message translates to:
-  /// **'Your face photo'**
-  String get facePhotoSpoken;
-
   /// No description provided for @logOut.
   ///
   /// In en, this message translates to:
@@ -738,7 +690,7 @@ abstract class AppLocalizations {
   /// No description provided for @proLine.
   ///
   /// In en, this message translates to:
-  /// **'More outfits, more choice, makeup for all of them.'**
+  /// **'More outfits, more choice.'**
   String get proLine;
 
   /// No description provided for @proBenefitDaily.
@@ -758,12 +710,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The whole collection to browse'**
   String get proBenefitCollection;
-
-  /// No description provided for @proBenefitMakeup.
-  ///
-  /// In en, this message translates to:
-  /// **'Makeup for every outfit'**
-  String get proBenefitMakeup;
 
   /// The only price in the app.
   ///
@@ -864,13 +810,13 @@ abstract class AppLocalizations {
   /// No description provided for @facePhotoTitle.
   ///
   /// In en, this message translates to:
-  /// **'Add a face photo'**
+  /// **'Add a selfie'**
   String get facePhotoTitle;
 
   /// No description provided for @facePhotoLine.
   ///
   /// In en, this message translates to:
-  /// **'Optional. It makes your makeup match you.'**
+  /// **'Optional. It’s for your skin tone and colour analysis.'**
   String get facePhotoLine;
 
   /// Title of setup step 6.
@@ -1104,7 +1050,7 @@ abstract class AppLocalizations {
   /// What the face photo is for.
   ///
   /// In en, this message translates to:
-  /// **'Used for makeup'**
+  /// **'Used for your colour analysis'**
   String get facePhotoUse;
 
   /// A photo that has not been added.
@@ -1191,96 +1137,6 @@ abstract class AppLocalizations {
   /// **'Keep my account'**
   String get keepAccount;
 
-  /// Making the makeup look failed; trying again may work.
-  ///
-  /// In en, this message translates to:
-  /// **'We couldn’t make your makeup this time. Your photo is fine.'**
-  String get makeupFailed;
-
-  /// The makeup service could not use the person's face photo.
-  ///
-  /// In en, this message translates to:
-  /// **'We couldn’t find your face in this photo. A close-up, facing forward in daylight, works best.'**
-  String get makeupPhotoProblem;
-
-  /// YouCam's units are spent; no look is made.
-  ///
-  /// In en, this message translates to:
-  /// **'No more makeup looks can be made for now.'**
-  String get makeupNoCredit;
-
-  /// This build has no access to the makeup service.
-  ///
-  /// In en, this message translates to:
-  /// **'Makeup isn’t available in this version yet.'**
-  String get makeupUnavailable;
-
-  /// Title of the Makeup tab: the day of the outfit on Home.
-  ///
-  /// In en, this message translates to:
-  /// **'{day, select, today{Makeup for today} other{Makeup for tomorrow}}'**
-  String makeupFor(String day);
-
-  /// Below the title while the makeup look is being made.
-  ///
-  /// In en, this message translates to:
-  /// **'Your steps appear as each one is ready.'**
-  String get makeupStepsArriving;
-
-  /// Heading above the makeup steps; count is the number of steps in words: three, four, five or six.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, select, three{Three steps} four{Four steps} five{Five steps} six{Six steps} other{The steps}}'**
-  String makeupStepCount(String count);
-
-  /// A blush colour, as it starts lookSentence.
-  ///
-  /// In en, this message translates to:
-  /// **'{colour, select, soft_pink{Soft pink} peach{Peach} rose{Rose} terracotta{Terracotta} other{Soft}}'**
-  String cheekColour(String colour);
-
-  /// A lip colour, as it reads inside lookSentence.
-  ///
-  /// In en, this message translates to:
-  /// **'{colour, select, nude{nude} rosy_nude{rosy-nude} rose{rose} terracotta{terracotta} red{red} berry{berry} brick{brick-red} other{soft}}'**
-  String lipColour(String colour);
-
-  /// Ties the makeup look to the outfit's colours. cheeks is cheekColour, lips is lipColour.
-  ///
-  /// In en, this message translates to:
-  /// **'{cheeks} cheeks and {lips} lips, to go with {palette, select, warm{your warm neutrals} cool{your cool neutrals} mixed{your neutrals} other{the colour you’re wearing}}.'**
-  String lookSentence(String cheeks, String lips, String palette);
-
-  /// The outfit on Home is still being made, so no makeup can start.
-  ///
-  /// In en, this message translates to:
-  /// **'Your makeup follows your outfit, which is on its way.'**
-  String get makeupWaitsForOutfit;
-
-  /// The day on Home has no outfit, so no makeup can be made for it.
-  ///
-  /// In en, this message translates to:
-  /// **'{day, select, today{There’s no outfit for today to match yet.} other{There’s no outfit for tomorrow to match yet.}}'**
-  String makeupNeedsOutfit(String day);
-
-  /// Heading above the makeup look made for an earlier outfit.
-  ///
-  /// In en, this message translates to:
-  /// **'Your last look'**
-  String get yourLastLook;
-
-  /// Why the Makeup tab asks for a face photo.
-  ///
-  /// In en, this message translates to:
-  /// **'Your makeup is made on your own face.'**
-  String get makeupFacePhotoLine;
-
-  /// The face photo was not clear enough to match shades; neutral shades were used.
-  ///
-  /// In en, this message translates to:
-  /// **'For shades that match you, use a face photo taken in daylight, facing forward.'**
-  String get makeupShadesNeutral;
-
   /// Read by screen readers on a control or slot that is working.
   ///
   /// In en, this message translates to:
@@ -1316,6 +1172,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We couldn’t see you standing in this photo. Choose one of you standing, head to toe.'**
   String get photoStandHeadToToe;
+
+  /// The tab with the colours that suit the person, and their wardrobe.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirror'**
+  String get tabMirror;
+
+  /// Mirror, without a face photo: the heading above the selfie picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Find your colours'**
+  String get selfieTitle;
+
+  /// Mirror, without a face photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a selfie for your skin tone and colour analysis.'**
+  String get selfieLine;
+
+  /// Mirror, while the skin-tone analysis runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your colours…'**
+  String get readingColours;
+
+  /// Kicker above the colour season.
+  ///
+  /// In en, this message translates to:
+  /// **'Your season'**
+  String get yourSeason;
+
+  /// No description provided for @seasonLightSpring.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Spring'**
+  String get seasonLightSpring;
+
+  /// No description provided for @seasonTrueSpring.
+  ///
+  /// In en, this message translates to:
+  /// **'True Spring'**
+  String get seasonTrueSpring;
+
+  /// No description provided for @seasonBrightSpring.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright Spring'**
+  String get seasonBrightSpring;
+
+  /// No description provided for @seasonLightSummer.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Summer'**
+  String get seasonLightSummer;
+
+  /// No description provided for @seasonTrueSummer.
+  ///
+  /// In en, this message translates to:
+  /// **'True Summer'**
+  String get seasonTrueSummer;
+
+  /// No description provided for @seasonSoftSummer.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft Summer'**
+  String get seasonSoftSummer;
+
+  /// No description provided for @seasonSoftAutumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Soft Autumn'**
+  String get seasonSoftAutumn;
+
+  /// No description provided for @seasonTrueAutumn.
+  ///
+  /// In en, this message translates to:
+  /// **'True Autumn'**
+  String get seasonTrueAutumn;
+
+  /// No description provided for @seasonDarkAutumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Autumn'**
+  String get seasonDarkAutumn;
+
+  /// No description provided for @seasonDarkWinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Winter'**
+  String get seasonDarkWinter;
+
+  /// No description provided for @seasonTrueWinter.
+  ///
+  /// In en, this message translates to:
+  /// **'True Winter'**
+  String get seasonTrueWinter;
+
+  /// No description provided for @seasonBrightWinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright Winter'**
+  String get seasonBrightWinter;
+
+  /// No description provided for @adviceLightSpring.
+  ///
+  /// In en, this message translates to:
+  /// **'Fresh, delicate colours suit you: peach, coral and warm aqua.'**
+  String get adviceLightSpring;
+
+  /// No description provided for @adviceTrueSpring.
+  ///
+  /// In en, this message translates to:
+  /// **'Bright, sunny colours suit you: poppy, golden yellow and turquoise.'**
+  String get adviceTrueSpring;
+
+  /// No description provided for @adviceBrightSpring.
+  ///
+  /// In en, this message translates to:
+  /// **'Vivid, warm colours suit you: hot coral, lemon and azure.'**
+  String get adviceBrightSpring;
+
+  /// No description provided for @adviceLightSummer.
+  ///
+  /// In en, this message translates to:
+  /// **'Airy pastels suit you: powder blue, lavender and rose.'**
+  String get adviceLightSummer;
+
+  /// No description provided for @adviceTrueSummer.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle, cool colours suit you: slate blue, raspberry and soft teal.'**
+  String get adviceTrueSummer;
+
+  /// No description provided for @adviceSoftSummer.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted, smoky colours suit you: dusty rose, sage and grey-blue.'**
+  String get adviceSoftSummer;
+
+  /// No description provided for @adviceSoftAutumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted, earthy colours suit you: khaki, moss and warm taupe.'**
+  String get adviceSoftAutumn;
+
+  /// No description provided for @adviceTrueAutumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Rich, earthy colours suit you: rust, olive, mustard and teal.'**
+  String get adviceTrueAutumn;
+
+  /// No description provided for @adviceDarkAutumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep, warm colours suit you: chocolate, forest green and burnt orange.'**
+  String get adviceDarkAutumn;
+
+  /// No description provided for @adviceDarkWinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep, cool colours suit you: burgundy, pine and deep navy.'**
+  String get adviceDarkWinter;
+
+  /// No description provided for @adviceTrueWinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Crisp, cool colours suit you: true red, royal blue and emerald.'**
+  String get adviceTrueWinter;
+
+  /// No description provided for @adviceBrightWinter.
+  ///
+  /// In en, this message translates to:
+  /// **'Vivid, icy colours suit you: fuchsia, cobalt and pure white.'**
+  String get adviceBrightWinter;
+
+  /// Why the season: the undertone, depth and contrast read from the face.
+  ///
+  /// In en, this message translates to:
+  /// **'{undertone, select, warm{Warm} cool{Cool} other{Neutral}} undertone · {depth, select, light{light} deep{deep} other{medium}} colouring · {contrast, select, high{high} low{low} other{medium}} contrast'**
+  String colourFacts(String undertone, String depth, String contrast);
+
+  /// No description provided for @coloursSuit.
+  ///
+  /// In en, this message translates to:
+  /// **'Colours that suit you'**
+  String get coloursSuit;
+
+  /// No description provided for @coloursNeutrals.
+  ///
+  /// In en, this message translates to:
+  /// **'Your neutrals'**
+  String get coloursNeutrals;
+
+  /// Heading above the colours that suit the person least.
+  ///
+  /// In en, this message translates to:
+  /// **'Go easy on'**
+  String get coloursGoEasy;
+
+  /// No description provided for @coloursUnclear.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo wasn’t clear, so this is a starting point. A selfie in daylight, facing forward, reads better.'**
+  String get coloursUnclear;
+
+  /// No description provided for @wardrobeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My wardrobe'**
+  String get wardrobeTitle;
+
+  /// A stand-in until wardrobe uploads are built.
+  ///
+  /// In en, this message translates to:
+  /// **'Soon you can add your own clothes, and your outfits will use them.'**
+  String get wardrobeLine;
+
+  /// No description provided for @colourFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t read your colours this time.'**
+  String get colourFailed;
+
+  /// No description provided for @colourPhotoProblem.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t read your face in this photo. A close-up, facing forward in daylight, works best.'**
+  String get colourPhotoProblem;
+
+  /// No description provided for @colourNoCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'No more colour readings can be made for now.'**
+  String get colourNoCredit;
+
+  /// No description provided for @colourUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour readings aren’t available in this version yet.'**
+  String get colourUnavailable;
 }
 
 class _AppLocalizationsDelegate

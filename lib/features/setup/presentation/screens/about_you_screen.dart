@@ -11,8 +11,8 @@ import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
 
-/// Setup step 5: the name In Vogue uses, then an optional face photo for
-/// makeup, kept as soon as it is chosen.
+/// Setup step 5: the name In Vogue uses, then an optional selfie for the
+/// skin tone and colour analysis, kept as soon as it is chosen.
 class AboutYouScreen extends StatefulWidget {
   const AboutYouScreen({required this.onBack, required this.onDone, super.key});
 

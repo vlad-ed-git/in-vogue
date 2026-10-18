@@ -16,7 +16,7 @@ import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc
 import 'package:in_vogue/features/setup/presentation/bloc/setup_bloc.dart';
 import 'package:in_vogue/main_init.dart';
 
-/// Without a [youCamApiKey] the app makes no outfits or makeup.
+/// Without a [youCamApiKey] the app makes no outfits and reads no colours.
 Future<void> bootstrap({
   required AppEnvironment environment,
   required FirebaseOptions firebaseOptions,
