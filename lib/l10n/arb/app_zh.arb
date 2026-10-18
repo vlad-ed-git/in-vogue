@@ -195,5 +195,6 @@
   "makeupNeedsOutfit": "{day, select, today{今天还没有可搭配的穿搭。} other{明天还没有可搭配的穿搭。}}",
   "yourLastLook": "你上一次的妆容",
   "makeupFacePhotoLine": "妆容会画在你自己的脸上。",
-  "makeupShadesNeutral": "想让色号更适合你，请使用在自然光下正面拍摄的面部照片。"
+  "makeupShadesNeutral": "想让色号更适合你，请使用在自然光下正面拍摄的面部照片。",
+  "loading": "加载中"
 }

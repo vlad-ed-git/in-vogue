@@ -807,4 +807,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get makeupShadesNeutral =>
       'For shades that match you, use a face photo taken in daylight, facing forward.';
+
+  @override
+  String get loading => 'Loading';
 }

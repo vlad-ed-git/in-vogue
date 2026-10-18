@@ -1280,6 +1280,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'For shades that match you, use a face photo taken in daylight, facing forward.'**
   String get makeupShadesNeutral;
+
+  /// Read by screen readers on a control or slot that is working.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get loading;
 }
 
 class _AppLocalizationsDelegate

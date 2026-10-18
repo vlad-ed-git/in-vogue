@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/components/feedback/notice.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
+import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_motion.dart';
@@ -18,6 +19,10 @@ enum PhotoStageState {
   /// The person's own photo, faded, with a waiting message.
   waiting,
 
+  /// The person's own photo, faded, while the outfit is looked up: a
+  /// [RunningRule] runs along the bottom, with no words.
+  looking,
+
   /// The person's own photo, faded, with a retry notice below.
   failed,
 
@@ -27,6 +32,7 @@ enum PhotoStageState {
 
 /// A full-length photo, contained on paper.
 ///
+/// While waiting, a [RunningRule] runs along the bottom of the message.
 /// Going from [PhotoStageState.waiting] to ready reveals the outfit top to
 /// bottom; a new outfit photo crossfades in with a small upward settle.
 class PhotoStage extends StatefulWidget {
@@ -188,6 +194,7 @@ class _PhotoStageState extends State<PhotoStage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final ready = widget.state == PhotoStageState.ready;
     final waiting = widget.state == PhotoStageState.waiting;
+    final looking = widget.state == PhotoStageState.looking;
     final failed = widget.state == PhotoStageState.failed;
     final revealing = ready && !_reveal.isCompleted;
     return Column(
@@ -205,6 +212,13 @@ class _PhotoStageState extends State<PhotoStage> with TickerProviderStateMixin {
                   if (!ready || revealing) _faded(),
                   if (ready) _outfit(),
                   if (waiting) _WaitingMessage(progress: widget.progress),
+                  if (looking)
+                    const Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: RunningRule(),
+                    ),
                 ],
               ),
             ),
@@ -236,29 +250,42 @@ class _WaitingMessage extends StatelessWidget {
         liveRegion: true,
         child: DecoratedBox(
           decoration: const BoxDecoration(color: InVogueColors.accent),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.translated.gettingOutfitReady,
-                  textAlign: TextAlign.center,
-                  style: InVogueType.bodyStrong.copyWith(
-                    color: InVogueColors.onAccent,
-                  ),
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
                 ),
-                if (progress != null)
-                  Text(
-                    progress!,
-                    textAlign: TextAlign.center,
-                    style: InVogueType.meta.copyWith(
-                      color: InVogueColors.onAccent,
-                      fontFeatures: InVogueType.tabularFigures,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.translated.gettingOutfitReady,
+                      textAlign: TextAlign.center,
+                      style: InVogueType.bodyStrong.copyWith(
+                        color: InVogueColors.onAccent,
+                      ),
                     ),
-                  ),
-              ],
-            ),
+                    if (progress != null)
+                      Text(
+                        progress!,
+                        textAlign: TextAlign.center,
+                        style: InVogueType.meta.copyWith(
+                          color: InVogueColors.onAccent,
+                          fontFeatures: InVogueType.tabularFigures,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: RunningRule(),
+              ),
+            ],
           ),
         ),
       ),

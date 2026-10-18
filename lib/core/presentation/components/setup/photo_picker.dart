@@ -5,6 +5,7 @@ import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/kicker.dart';
 import 'package:in_vogue/core/presentation/foundations/photo_slot.dart';
+import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
@@ -20,7 +21,8 @@ enum PhotoKind { body, face }
 ///
 /// With a [chosen] photo, it offers Continue and a link to choose again.
 /// An [optional] photo has a Rose choose button and no Continue, for a
-/// screen whose step forward is its own.
+/// screen whose step forward is its own. While [busy], the action on
+/// screen runs a [RunningRule].
 class PhotoPicker extends StatelessWidget {
   const PhotoPicker({
     required this.kind,
@@ -29,6 +31,7 @@ class PhotoPicker extends StatelessWidget {
     this.chosen,
     this.onContinue,
     this.optional = false,
+    this.busy = false,
     super.key,
   });
 
@@ -42,6 +45,9 @@ class PhotoPicker extends StatelessWidget {
 
   /// Whether the photo can be left out; see [PhotoPicker].
   final bool optional;
+
+  /// Choosing or keeping the photo.
+  final bool busy;
 
   /// Space between the photo row and the buttons.
   static const double actionsGap = InVogueSpace.s6;
@@ -104,24 +110,31 @@ class PhotoPicker extends StatelessWidget {
             InVogueButton.primary(
               label: l10n.continueAction,
               onPressed: onContinue,
+              busy: busy,
             ),
             const SizedBox(height: InVogueSpace.s4),
           ],
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: TextLink(label: l10n.chooseDifferentPhoto, onTap: onChoose),
+            child: TextLink(
+              label: l10n.chooseDifferentPhoto,
+              onTap: busy ? null : onChoose,
+              busy: busy && optional,
+            ),
           ),
         ] else if (optional)
           InVogueButton.secondary(
             label: chooseLabel,
             icon: InVogueIcons.image,
             onPressed: onChoose,
+            busy: busy,
           )
         else
           InVogueButton.primary(
             label: chooseLabel,
             icon: InVogueIcons.image,
             onPressed: onChoose,
+            busy: busy,
           ),
         if (!hasPhoto && kind == PhotoKind.body) ...[
           const SizedBox(height: InVogueSpace.s3),

@@ -810,4 +810,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get makeupShadesNeutral =>
       'Para tonos que vayan contigo, usa una foto de tu cara de frente y con luz natural.';
+
+  @override
+  String get loading => 'Cargando';
 }

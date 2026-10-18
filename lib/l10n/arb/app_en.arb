@@ -841,5 +841,9 @@
   "makeupShadesNeutral": "For shades that match you, use a face photo taken in daylight, facing forward.",
   "@makeupShadesNeutral": {
     "description": "The face photo was not clear enough to match shades; neutral shades were used."
+  },
+  "loading": "Loading",
+  "@loading": {
+    "description": "Read by screen readers on a control or slot that is working."
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/components/actions/in_vogue_button.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
+import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
@@ -15,6 +16,7 @@ class Notice extends StatelessWidget {
     required this.message,
     this.action,
     this.alert = false,
+    this.busy = false,
     super.key,
   });
 
@@ -72,53 +74,70 @@ class Notice extends StatelessWidget {
   /// Adds the ink rule and announces the message.
   final bool alert;
 
+  /// Runs a [RunningRule] along the bottom while what it tells of works.
+  final bool busy;
+
   @override
   Widget build(BuildContext context) => Semantics(
     container: true,
     liveRegion: alert,
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: InVogueColors.accent,
-        border: alert
-            ? const Border(
-                top: BorderSide(
-                  color: InVogueColors.alert,
-                  width: InVogueLayout.strokeSelect,
-                ),
-              )
-            : null,
-      ),
-      child: Padding(
-        // The alert rule is drawn inside the padding, like CSS's inset
-        // shadow, so content does not move.
-        padding: const EdgeInsets.all(InVogueSpace.s4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(
-              icon,
-              color: alert ? InVogueColors.alert : InVogueColors.onAccent,
-            ),
-            const SizedBox(width: InVogueSpace.s3),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    message,
-                    style: InVogueType.body.copyWith(
-                      color: InVogueColors.onAccent,
-                    ),
-                  ),
-                  if (action != null) ...[
-                    const SizedBox(height: InVogueSpace.s3),
-                    action!,
-                  ],
-                ],
+    child: busy
+        ? Stack(
+            children: [
+              _band(),
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: RunningRule(),
               ),
+            ],
+          )
+        : _band(),
+  );
+
+  Widget _band() => DecoratedBox(
+    decoration: BoxDecoration(
+      color: InVogueColors.accent,
+      border: alert
+          ? const Border(
+              top: BorderSide(
+                color: InVogueColors.alert,
+                width: InVogueLayout.strokeSelect,
+              ),
+            )
+          : null,
+    ),
+    child: Padding(
+      // The alert rule is drawn inside the padding, like CSS's inset
+      // shadow, so content does not move.
+      padding: const EdgeInsets.all(InVogueSpace.s4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon,
+            color: alert ? InVogueColors.alert : InVogueColors.onAccent,
+          ),
+          const SizedBox(width: InVogueSpace.s3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  message,
+                  style: InVogueType.body.copyWith(
+                    color: InVogueColors.onAccent,
+                  ),
+                ),
+                if (action != null) ...[
+                  const SizedBox(height: InVogueSpace.s3),
+                  action!,
+                ],
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     ),
   );

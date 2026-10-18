@@ -57,6 +57,7 @@ class ShopItem extends StatelessWidget {
                   alignment: AlignmentDirectional.topStart,
                   child: PhotoSlot(
                     image: photo,
+                    showLoading: true,
                     semanticLabel: l10n.catalogPhotoSpoken(name, colourName),
                   ),
                 ),

@@ -3,6 +3,7 @@ import 'package:in_vogue/core/presentation/components/actions/text_link.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/photo_slot.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
+import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
@@ -30,13 +31,15 @@ class SettingsRows extends StatelessWidget {
   );
 }
 
-/// A hairline row: a name, an optional value, and a text action.
+/// A hairline row: a name, an optional value, and a text action. While
+/// [busy], the action's link, or a command's title, runs a [RunningRule].
 class SettingsRow extends StatelessWidget {
   const SettingsRow({
     required this.title,
     this.value,
     this.action,
     this.onAction,
+    this.busy = false,
     super.key,
   }) : avatar = null,
        showAvatar = false,
@@ -51,6 +54,7 @@ class SettingsRow extends StatelessWidget {
     this.value,
     this.action,
     this.onAction,
+    this.busy = false,
     super.key,
   }) : showAvatar = true,
        icon = null,
@@ -61,6 +65,7 @@ class SettingsRow extends StatelessWidget {
     required this.title,
     required IconData this.icon,
     required this.onTap,
+    this.busy = false,
     super.key,
   }) : value = null,
        action = null,
@@ -79,21 +84,32 @@ class SettingsRow extends StatelessWidget {
   final IconData? icon;
   final VoidCallback? onTap;
 
+  /// Working: taps do nothing and screen readers hear it loading.
+  final bool busy;
+
   /// Log out; null [onTap] disables it.
-  static SettingsRow logOut(BuildContext context, VoidCallback? onTap) =>
-      SettingsRow.command(
-        title: context.translated.logOut,
-        icon: InVogueIcons.signOut,
-        onTap: onTap,
-      );
+  static SettingsRow logOut(
+    BuildContext context,
+    VoidCallback? onTap, {
+    bool busy = false,
+  }) => SettingsRow.command(
+    title: context.translated.logOut,
+    icon: InVogueIcons.signOut,
+    onTap: onTap,
+    busy: busy,
+  );
 
   /// Delete account.
-  static SettingsRow deleteAccount(BuildContext context, VoidCallback onTap) =>
-      SettingsRow.command(
-        title: context.translated.deleteAccount,
-        icon: InVogueIcons.trash,
-        onTap: onTap,
-      );
+  static SettingsRow deleteAccount(
+    BuildContext context,
+    VoidCallback onTap, {
+    bool busy = false,
+  }) => SettingsRow.command(
+    title: context.translated.deleteAccount,
+    icon: InVogueIcons.trash,
+    onTap: onTap,
+    busy: busy,
+  );
 
   /// [title]'s first letter, upper-cased; null when [title] is blank.
   String? get _initial {
@@ -112,9 +128,22 @@ class SettingsRow extends StatelessWidget {
               Icon(icon!, size: 20, color: InVogueColors.signal),
               const SizedBox(width: 6),
               Flexible(
-                child: Text(
-                  title,
-                  style: InVogueType.item.copyWith(color: InVogueColors.signal),
+                child: Stack(
+                  children: [
+                    Text(
+                      title,
+                      style: InVogueType.item.copyWith(
+                        color: InVogueColors.signal,
+                      ),
+                    ),
+                    if (busy)
+                      const Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: RunningRule(color: InVogueColors.signal),
+                      ),
+                  ],
                 ),
               ),
             ],
@@ -158,17 +187,18 @@ class SettingsRow extends StatelessWidget {
               Expanded(child: text),
               if (action != null) ...[
                 const SizedBox(width: InVogueSpace.s4),
-                TextLink(label: action!, onTap: onAction),
+                TextLink(label: action!, onTap: onAction, busy: busy),
               ],
             ],
           ),
         ),
       ),
     );
-    if (onTap == null) return row;
+    if (onTap == null && !busy) return row;
     return Pressable(
-      onTap: onTap,
+      onTap: busy ? null : onTap,
       semanticLabel: title,
+      semanticValue: busy ? context.translated.loading : null,
       excludeSemantics: true,
       expandTapTarget: false,
       builder: (context, state) => row,

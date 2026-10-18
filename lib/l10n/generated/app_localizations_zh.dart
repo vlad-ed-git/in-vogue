@@ -764,4 +764,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get makeupShadesNeutral => '想让色号更适合你，请使用在自然光下正面拍摄的面部照片。';
+
+  @override
+  String get loading => '加载中';
 }

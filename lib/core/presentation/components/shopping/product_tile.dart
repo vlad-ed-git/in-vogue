@@ -52,6 +52,7 @@ class ProductTile extends StatelessWidget {
       children: [
         PhotoSlot(
           image: photo,
+          showLoading: true,
           opacity: locked ? InVogueLayout.opacityLocked : 1,
           overlay: locked
               ? LockOverlay(semanticLabel: l10n.lockedSpoken)

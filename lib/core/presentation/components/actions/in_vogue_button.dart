@@ -1,11 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
+import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_motion.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
+import 'package:in_vogue/core/utils/context_ext.dart';
 
 /// Button fill style.
 enum InVogueButtonKind {
@@ -17,7 +19,8 @@ enum InVogueButtonKind {
 }
 
 /// A full-width square button with a flush-left label and an optional
-/// trailing icon. Darkens while pressed; studio grey when disabled.
+/// trailing icon. Darkens while pressed; studio grey when disabled; keeps
+/// its colours and runs a [RunningRule] along its bottom while [busy].
 class InVogueButton extends StatelessWidget {
   const InVogueButton({
     required this.label,
@@ -30,6 +33,7 @@ class InVogueButton extends StatelessWidget {
     this.semanticLabel,
     this.focusNode,
     this.autofocus = false,
+    this.busy = false,
     super.key,
   });
 
@@ -41,6 +45,7 @@ class InVogueButton extends StatelessWidget {
     this.semanticLabel,
     this.focusNode,
     this.autofocus = false,
+    this.busy = false,
     super.key,
   }) : kind = InVogueButtonKind.primary,
        iconColor = null,
@@ -58,6 +63,7 @@ class InVogueButton extends StatelessWidget {
     this.semanticLabel,
     this.focusNode,
     this.autofocus = false,
+    this.busy = false,
     super.key,
   }) : kind = InVogueButtonKind.secondary;
 
@@ -80,6 +86,9 @@ class InVogueButton extends StatelessWidget {
   final String? semanticLabel;
   final FocusNode? focusNode;
   final bool autofocus;
+
+  /// Working: taps do nothing and screen readers hear it loading.
+  final bool busy;
 
   (Color fill, Color pressed, Color label) get _colors => switch (kind) {
     InVogueButtonKind.primary => (
@@ -110,18 +119,19 @@ class InVogueButton extends StatelessWidget {
         ? const EdgeInsetsDirectional.fromSTEB(14, 2, InVogueSpace.s3, 2)
         : const EdgeInsetsDirectional.fromSTEB(18, 2, InVogueSpace.s4, 2);
     return Pressable(
-      onTap: onPressed,
+      onTap: busy ? null : onPressed,
       semanticLabel: semanticLabel,
+      semanticValue: busy ? context.translated.loading : null,
       focusNode: focusNode,
       autofocus: autofocus,
       expandTapTarget: false,
       builder: (context, state) {
-        final enabled = state.enabled;
+        final enabled = busy || state.enabled;
         final color = !enabled
             ? InVogueColors.studio
             : (state.pressed ? pressedFill : fill);
         final foreground = enabled ? labelColor : InVogueColors.graphite;
-        return AnimatedContainer(
+        final button = AnimatedContainer(
           duration: InVogueMotion.press,
           curve: InVogueMotion.standard,
           color: color,
@@ -150,6 +160,18 @@ class InVogueButton extends StatelessWidget {
               ],
             ],
           ),
+        );
+        if (!busy) return button;
+        return Stack(
+          children: [
+            button,
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: RunningRule(color: labelColor),
+            ),
+          ],
         );
       },
     );

@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
 import 'package:in_vogue/core/presentation/foundations/photo_slot.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
+import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_motion.dart';
@@ -13,7 +14,8 @@ import 'package:in_vogue/core/utils/context_ext.dart';
 /// 96-point picture, under a hairline.
 ///
 /// Without a [picture] the step is pending: graphite text, an empty Rose
-/// square and "Preparing". The picture fades in when it arrives.
+/// square and "Preparing"; the one [working] runs a [RunningRule] along the
+/// bottom of its square. The picture fades in when it arrives.
 class MakeupStep extends StatelessWidget {
   const MakeupStep({
     required this.number,
@@ -23,6 +25,7 @@ class MakeupStep extends StatelessWidget {
     this.note,
     this.picture,
     this.onPictureTap,
+    this.working = false,
     super.key,
   });
 
@@ -37,6 +40,9 @@ class MakeupStep extends StatelessWidget {
   final String? note;
   final ImageProvider? picture;
   final VoidCallback? onPictureTap;
+
+  /// The pending step being made now.
+  final bool working;
 
   bool get pending => picture == null;
 
@@ -111,16 +117,27 @@ class MakeupStep extends StatelessWidget {
                 semanticLabel: l10n.faceAfterStep(number),
                 excludeSemantics: true,
                 expandTapTarget: false,
-                builder: (context, state) => AnimatedSwitcher(
-                  duration: context.reduceMotion
-                      ? Duration.zero
-                      : InVogueMotion.base,
-                  switchInCurve: InVogueMotion.standard,
-                  child: PhotoSlot(
-                    key: ValueKey(picture),
-                    image: picture,
-                    aspectRatio: 1,
-                  ),
+                builder: (context, state) => Stack(
+                  children: [
+                    AnimatedSwitcher(
+                      duration: context.reduceMotion
+                          ? Duration.zero
+                          : InVogueMotion.base,
+                      switchInCurve: InVogueMotion.standard,
+                      child: PhotoSlot(
+                        key: ValueKey(picture),
+                        image: picture,
+                        aspectRatio: 1,
+                      ),
+                    ),
+                    if (pending && working)
+                      const Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: RunningRule(),
+                      ),
+                  ],
                 ),
               ),
             ),

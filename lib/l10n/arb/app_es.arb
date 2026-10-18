@@ -195,5 +195,6 @@
   "makeupNeedsOutfit": "{day, select, today{Aún no hay un conjunto de hoy con el que combinar.} other{Aún no hay un conjunto de mañana con el que combinar.}}",
   "yourLastLook": "Tu último maquillaje",
   "makeupFacePhotoLine": "Tu maquillaje se crea sobre tu propia cara.",
-  "makeupShadesNeutral": "Para tonos que vayan contigo, usa una foto de tu cara de frente y con luz natural."
+  "makeupShadesNeutral": "Para tonos que vayan contigo, usa una foto de tu cara de frente y con luz natural.",
+  "loading": "Cargando"
 }

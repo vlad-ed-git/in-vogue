@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
+import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
@@ -12,26 +13,32 @@ import 'package:in_vogue/core/utils/context_ext.dart';
 enum SignInProvider { apple, google }
 
 /// Sign-in buttons, 12 apart: Apple then Google on Apple platforms, Google
-/// alone elsewhere.
+/// alone elsewhere. While one is [busy], the other is off.
 class SignInButtons extends StatelessWidget {
   const SignInButtons({
     required this.onApple,
     required this.onGoogle,
+    this.busy,
     super.key,
   });
 
   final VoidCallback? onApple;
   final VoidCallback? onGoogle;
 
+  /// The provider signing in.
+  final SignInProvider? busy;
+
   @override
   Widget build(BuildContext context) {
     final apple = SignInButton(
       provider: SignInProvider.apple,
-      onPressed: onApple,
+      onPressed: busy == null ? onApple : null,
+      busy: busy == SignInProvider.apple,
     );
     final google = SignInButton(
       provider: SignInProvider.google,
-      onPressed: onGoogle,
+      onPressed: busy == null ? onGoogle : null,
+      busy: busy == SignInProvider.google,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -47,11 +54,13 @@ class SignInButtons extends StatelessWidget {
 }
 
 /// A full-width sign-in button with the provider's logo and a centred label.
-/// Apple is ink with a paper label; Google is paper with an edge.
+/// Apple is ink with a paper label; Google is paper with an edge. While
+/// [busy] it keeps its colours and runs a [RunningRule] along its bottom.
 class SignInButton extends StatelessWidget {
   const SignInButton({
     required this.provider,
     required this.onPressed,
+    this.busy = false,
     super.key,
   });
 
@@ -59,6 +68,9 @@ class SignInButton extends StatelessWidget {
 
   /// Null disables the button.
   final VoidCallback? onPressed;
+
+  /// Working: taps do nothing and screen readers hear it loading.
+  final bool busy;
 
   @override
   Widget build(BuildContext context) {
@@ -69,19 +81,20 @@ class SignInButton extends StatelessWidget {
     };
     final apple = provider == SignInProvider.apple;
     return Pressable(
-      onTap: onPressed,
+      onTap: busy ? null : onPressed,
       semanticLabel: label,
+      semanticValue: busy ? l10n.loading : null,
       excludeSemantics: true,
       expandTapTarget: false,
       builder: (context, state) {
-        final enabled = state.enabled;
+        final enabled = busy || state.enabled;
         final fill = !enabled
             ? InVogueColors.studio
             : (apple ? InVogueColors.ink : InVogueColors.paper);
         final foreground = !enabled
             ? InVogueColors.graphite
             : (apple ? InVogueColors.paper : InVogueColors.ink);
-        return DecoratedBox(
+        final button = DecoratedBox(
           // Inset edge, as the CSS box-shadow draws it.
           position: DecorationPosition.foreground,
           decoration: BoxDecoration(
@@ -117,6 +130,18 @@ class SignInButton extends StatelessWidget {
               ),
             ),
           ),
+        );
+        if (!busy) return button;
+        return Stack(
+          children: [
+            button,
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: RunningRule(color: foreground),
+            ),
+          ],
         );
       },
     );

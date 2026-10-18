@@ -97,11 +97,14 @@ class _ColourSheetState extends State<ColourSheet> {
             Expanded(
               child: PhotoSlot(
                 image: colour.wornPhoto,
+                showLoading: true,
                 semanticLabel: '${widget.pieceName}, ${colour.name}',
               ),
             ),
             const SizedBox(width: InVogueLayout.gutter),
-            Expanded(child: PhotoSlot(image: colour.flatPhoto)),
+            Expanded(
+              child: PhotoSlot(image: colour.flatPhoto, showLoading: true),
+            ),
           ],
         ),
         const SizedBox(height: InVogueSpace.s4),

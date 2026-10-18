@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_icons.dart';
+import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 
@@ -15,6 +16,7 @@ class PhotoSlot extends StatelessWidget {
     this.background = InVogueColors.accent,
     this.semanticLabel,
     this.overlay,
+    this.showLoading = false,
     super.key,
   });
 
@@ -36,6 +38,10 @@ class PhotoSlot extends StatelessWidget {
   /// Drawn over the photo.
   final Widget? overlay;
 
+  /// Runs a [RunningRule] along the bottom until the photo's first frame,
+  /// for photos fetched from the web.
+  final bool showLoading;
+
   @override
   Widget build(BuildContext context) {
     Widget? photo;
@@ -47,6 +53,7 @@ class PhotoSlot extends StatelessWidget {
         gaplessPlayback: true,
         semanticLabel: semanticLabel,
         excludeFromSemantics: semanticLabel == null,
+        frameBuilder: showLoading ? _whileLoading : null,
         errorBuilder: (context, error, stack) => const SizedBox.expand(),
       );
       if (opacity < 1) photo = Opacity(opacity: opacity, child: photo);
@@ -61,6 +68,22 @@ class PhotoSlot extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _whileLoading(
+  BuildContext context,
+  Widget child,
+  int? frame,
+  bool wasSynchronouslyLoaded,
+) {
+  if (wasSynchronouslyLoaded || frame != null) return child;
+  return Stack(
+    fit: StackFit.expand,
+    children: [
+      child,
+      const Align(alignment: Alignment.bottomCenter, child: RunningRule()),
+    ],
+  );
 }
 
 /// A 22-point ink square with a paper check.
