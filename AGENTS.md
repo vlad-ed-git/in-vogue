@@ -41,7 +41,7 @@ A task is done only when analyze says "No issues found!" and every test passes.
 
 **Never**
 - Spend YouCam units yourself. Real YouCam runs are the owner's.
-- Run `flutterN build`, `flutterN run`, simulators or `integration_test/` unless asked. The owner's device runs are the native check.
+- Run `flutterN build`, `flutterN run`, `scripts/build_release.sh`, simulators or `integration_test/` unless asked. The owner's device runs are the native check.
 - Edit Xcode capabilities, entitlements, signing or URL types, or Firebase and Apple console settings. Give the owner exact steps instead.
 - Deploy to production (`in-vogue`). The admin key is for `in-vogue-dev` only.
 - Print, log or commit a secret (see Security).

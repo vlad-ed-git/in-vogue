@@ -413,6 +413,28 @@ The VS Code launch configurations do the same.
   ```
 - **The project file:** `pod install` may rewrite `ios/Runner.xcodeproj/project.pbxproj` in an older format. Keep the version Xcode saved.
 
+### Release builds
+
+`scripts/build_release.sh` makes a flavor's release builds in four steps, stopping at the first that fails:
+
+1. Builds the iOS archive (`flutter build ipa`).
+2. Builds the Android APK (`flutter build apk`).
+3. Moves both, and the IPA when signing allows exporting one, into `release/`.
+4. Deletes `build/` to save space.
+
+When a step fails, `build/` stays as it was, for a look.
+
+```sh
+scripts/build_release.sh              # development
+scripts/build_release.sh production   # production, once its signing is set up
+```
+
+- **Where the builds go:** `release/in-vogue-<flavor>-<version>-<date-time>/`, holding `in-vogue-<flavor>-<version>.xcarchive`, `.apk` and, when exported, `.ipa`. `release/` is git-ignored.
+- **No IPA?** Open the `.xcarchive` to export one from Xcode's Organizer.
+- **Signing:** the archive needs Xcode signed in to team `Q56R6X96PZ`. Development APKs are signed with the debug key.
+- **Time:** it takes several minutes, and the next build starts from scratch.
+- **Options:** `FLUTTER` overrides the Flutter command (by default, what `flutterN` points to). `EXPORT_METHOD` is passed to `flutter build ipa --export-method`, for example `ad-hoc`.
+
 ### Sign-in prerequisites
 
 - **Firebase Auth:** the Apple and Google providers turned on in each project.
@@ -439,6 +461,7 @@ Run from `in-vogue/`; on the owner's Mac, wrap Flutter and Dart commands in `zsh
 | The development YouCam key | `python3 scripts/write_development_key.py` |
 | Check the Firestore rules on the emulator (Java 21) | `JAVA_HOME=<java 21> firebase emulators:exec --only firestore --project demo-in-vogue "python3 scripts/check_firestore_rules.py"` |
 | Deploy the rules to development | `GOOGLE_APPLICATION_CREDENTIALS=secrets/<service-account>.json firebase deploy --only firestore:rules,storage --project in-vogue-dev --non-interactive` |
+| Release builds: the iOS archive and APK into `release/`, then `build/` deleted | `scripts/build_release.sh [development\|production]` |
 | The device startup test (a simulator or phone) | `flutterN test integration_test/startup_test.dart --flavor development -d <device-id>` |
 
 ## Testing
