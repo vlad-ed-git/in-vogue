@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/config/app_check.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
+import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
 import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
 import 'package:in_vogue/features/home_widget/domain/services/refresh_widget.dart';
@@ -110,6 +111,7 @@ Future<void> refreshWidgetInBackground(AppEnvironment environment) async {
     pictureLocalDataSource: OutfitPictureLocalDataSourceImpl(
       path.join(folder, 'outfits'),
     ),
+    fingerprints: PhotoFingerprints(),
     logMessages: log,
   );
   final outfits = OutfitRepositoryImpl(

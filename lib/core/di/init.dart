@@ -7,6 +7,7 @@ import 'package:in_vogue/core/domain/entities/install_id.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/core/persistence/key_value_store.dart';
+import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/core/persistence/sqlite_cache.dart';
 
 /// Register initialized resources; no service can observe unopened storage.
@@ -47,6 +48,7 @@ void init(
     ..registerSingleton<InstallId>(installId)
     ..registerSingleton<AppDirectory>(directory)
     ..registerSingleton<LogMessages>(LogMessagesImpl())
+    ..registerSingleton<PhotoFingerprints>(PhotoFingerprints())
     ..registerSingleton<KeyValueStore>(
       keyValueStore,
       dispose: (store) => store.close(),

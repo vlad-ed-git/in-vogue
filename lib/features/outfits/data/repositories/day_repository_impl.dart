@@ -7,6 +7,7 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
+import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
@@ -17,11 +18,16 @@ import 'package:path/path.dart' as p;
 
 /// Days and suggestions in Firestore, which keeps a copy on the phone and
 /// syncs it; pictures in Storage, with a copy of each on the phone.
+///
+/// Each picture made is also listed under its photo and outfit, on the
+/// account and on the phone, so the same photo and outfit are tried on
+/// once and a later day with them takes the picture at once.
 class DayRepositoryImpl implements DayRepository {
   DayRepositoryImpl({
     required DayRemoteDataSource remoteDataSource,
     required OutfitPictureRemoteDataSource pictureRemoteDataSource,
     required OutfitPictureLocalDataSource pictureLocalDataSource,
+    required this._fingerprints,
     required LogMessages logMessages,
   }) : _remote = remoteDataSource,
        _pictures = pictureRemoteDataSource,
@@ -31,6 +37,7 @@ class DayRepositoryImpl implements DayRepository {
   final DayRemoteDataSource _remote;
   final OutfitPictureRemoteDataSource _pictures;
   final OutfitPictureLocalDataSource _phone;
+  final PhotoFingerprints _fingerprints;
   final LogMessages _logger;
 
   /// How long a call may take before it counts as offline.
@@ -42,6 +49,11 @@ class DayRepositoryImpl implements DayRepository {
   /// Where the picture [name] of [accountId]'s days is in Storage.
   static String picturePath(String accountId, String name) =>
       'users/$accountId/days/$name';
+
+  /// Where the picture of the outfit [signature] on the photo with the
+  /// fingerprint [photo] is listed.
+  static String madeKey(String photo, String signature) =>
+      '${photo.substring(0, 16)}-$signature';
 
   @override
   Stream<Either<Failure, Day?>> watch(
@@ -142,6 +154,7 @@ class DayRepositoryImpl implements DayRepository {
     String accountId,
     Day day,
     List<int> picture, {
+    required String photo,
     required String device,
   }) => _guard('finish', limit: pictureTimeLimit, () async {
     final extension = DayModel.extensionOf(picture);
@@ -153,6 +166,17 @@ class DayRepositoryImpl implements DayRepository {
       picture,
       contentType: DayModel.contentType(extension),
     );
+    // Listed even when another phone took the day: the try-on is paid for.
+    final fingerprint = await _fingerprints.of(photo);
+    final key = madeKey(fingerprint, day.signature);
+    await _remote.keepMadePicture(
+      accountId,
+      key,
+      photo: fingerprint,
+      signature: day.signature,
+      path: path,
+    );
+    await _phone.keepMadePicture(accountId, key, path);
     final made = await _remote.change(
       accountId,
       day.key,
@@ -179,6 +203,36 @@ class DayRepositoryImpl implements DayRepository {
   );
 
   @override
+  Future<Either<Failure, String?>> madePicture(
+    String accountId, {
+    required String photo,
+    required String signature,
+  }) => _guard('madePicture', () async {
+    final key = madeKey(await _fingerprints.of(photo), signature);
+    final known = _phone.madePicture(accountId, key);
+    if (known != null) return known;
+    final path = await _remote.madePicture(accountId, key);
+    if (path != null) await _phone.keepMadePicture(accountId, key, path);
+    return path;
+  });
+
+  @override
+  Future<Either<Failure, String?>> reuse(
+    String accountId,
+    Day day,
+    String picturePath, {
+    required String device,
+  }) => _guard('reuse', limit: pictureTimeLimit, () async {
+    final made = await _remote.change(
+      accountId,
+      day.key,
+      device: device,
+      change: (current) => current.readyAt(picturePath),
+    );
+    return made ? _onPhone(accountId, picturePath) : null;
+  });
+
+  @override
   Future<Either<Failure, String>> picture(String accountId, Day day) =>
       _guard('picture', limit: pictureTimeLimit, () async {
         final path = day.picturePath;
@@ -188,10 +242,16 @@ class DayRepositoryImpl implements DayRepository {
             StackTrace.current,
           );
         }
-        final name = p.basename(path);
-        return _phone.kept(accountId, name) ??
-            await _phone.keep(accountId, name, await _pictures.download(path));
+        return _onPhone(accountId, path);
       });
+
+  /// The picture at [path] on the account, on this phone: fetched when
+  /// missing.
+  Future<String> _onPhone(String accountId, String path) async {
+    final name = p.basename(path);
+    return _phone.kept(accountId, name) ??
+        await _phone.keep(accountId, name, await _pictures.download(path));
+  }
 
   @override
   Future<Either<Failure, Unit>> forgetPictures(String accountId) =>

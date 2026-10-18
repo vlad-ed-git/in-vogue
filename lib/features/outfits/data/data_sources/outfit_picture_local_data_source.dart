@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:in_vogue/core/persistence/cache_exception.dart';
@@ -13,7 +14,16 @@ abstract interface class OutfitPictureLocalDataSource {
   /// [CacheException].
   Future<String> keep(String accountId, String name, List<int> picture);
 
-  /// Deletes every picture of [accountId]. Throws [CacheException].
+  /// Where on the account the picture made under [key] is, as this phone
+  /// remembers; null when it doesn't. Throws [CacheException].
+  String? madePicture(String accountId, String key);
+
+  /// Remembers that the picture made under [key] is at [path] on the
+  /// account. Throws [CacheException].
+  Future<void> keepMadePicture(String accountId, String key, String path);
+
+  /// Deletes every picture of [accountId], and what this phone remembers of
+  /// them. Throws [CacheException].
   Future<void> forget(String accountId);
 }
 
@@ -25,6 +35,9 @@ class OutfitPictureLocalDataSourceImpl implements OutfitPictureLocalDataSource {
 
   String _file(String accountId, String name) =>
       p.join(_directory, accountId, name);
+
+  File _made(String accountId, String key) =>
+      File(p.join(_directory, accountId, 'made', key));
 
   @override
   String? kept(String accountId, String name) {
@@ -49,13 +62,31 @@ class OutfitPictureLocalDataSourceImpl implements OutfitPictureLocalDataSource {
   @override
   Future<String> keep(String accountId, String name, List<int> picture) async {
     final file = File(_file(accountId, name));
+    await _write(file, picture);
+    return file.path;
+  }
+
+  @override
+  String? madePicture(String accountId, String key) {
+    final file = _made(accountId, key);
+    try {
+      return file.existsSync() ? file.readAsStringSync() : null;
+    } on FileSystemException catch (error, stack) {
+      throw CacheException(error, stack);
+    }
+  }
+
+  @override
+  Future<void> keepMadePicture(String accountId, String key, String path) =>
+      _write(_made(accountId, key), utf8.encode(path));
+
+  static Future<void> _write(File file, List<int> bytes) async {
     try {
       await file.parent.create(recursive: true);
       // Written beside it first, so a cut-short write never shows.
       final partial = File('${file.path}.part');
-      await partial.writeAsBytes(picture, flush: true);
+      await partial.writeAsBytes(bytes, flush: true);
       await partial.rename(file.path);
-      return file.path;
     } on FileSystemException catch (error, stack) {
       throw CacheException(error, stack);
     }

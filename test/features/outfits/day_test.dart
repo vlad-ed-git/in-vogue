@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:clock/clock.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
@@ -223,6 +225,9 @@ void main() {
         remoteDataSource: DayRemoteDataSourceImpl(firestore),
         pictureRemoteDataSource: pictures,
         pictureLocalDataSource: OutfitPictureLocalDataSourceImpl(phone.path),
+        fingerprints: PhotoFingerprints(
+          read: (path) async => utf8.encode(path),
+        ),
         logMessages: LogMessagesImpl(),
       );
     });
@@ -311,7 +316,15 @@ void main() {
       expect(again.day.problem, isNull);
       expect(again.day.outfitId, 'o1');
 
-      await settled(days.finish('uid-1', again.day, _png, device: 'phone-b'));
+      await settled(
+        days.finish(
+          'uid-1',
+          again.day,
+          _png,
+          photo: '/photos/body-1.jpg',
+          device: 'phone-b',
+        ),
+      );
       final kept = await claim('phone-a', proposal: _outfit('o2'));
       expect(kept, isA<DayKept>());
       expect((kept as DayKept).day.status, DayStatus.ready);
@@ -439,6 +452,7 @@ void main() {
         'uid-1',
         claimed.day,
         _png,
+        photo: '/photos/body-1.jpg',
         device: 'phone-a',
       )).getOrElse(() => null)!;
       expect(File(file).readAsBytesSync(), _png);
@@ -448,13 +462,77 @@ void main() {
       expect(day?['picturePath'], 'users/uid-1/days/2026-10-18_work.png');
     });
 
+    test('finds the picture made of an outfit on a photo: on the phone, '
+        'else on the account', () async {
+      Future<String?> made(String photo) async => (await days.madePicture(
+        'uid-1',
+        photo: photo,
+        signature: 'sig-o1',
+      )).getOrElse(() => throw StateError('made'));
+      expect(await made('/photos/body-1.jpg'), isNull);
+
+      final claimed =
+          await claim('phone-a', proposal: _outfit('o1')) as DayClaimed;
+      await settled(
+        days.finish(
+          'uid-1',
+          claimed.day,
+          _png,
+          photo: '/photos/body-1.jpg',
+          device: 'phone-a',
+        ),
+      );
+      const path = 'users/uid-1/days/2026-10-18_work.png';
+      expect(await made('/photos/body-1.jpg'), path);
+      expect(await made('/photos/body-2.jpg'), isNull);
+
+      await days.forgetPictures('uid-1');
+      expect(await made('/photos/body-1.jpg'), path);
+    });
+
+    test('a day takes a picture made before, only while this phone makes '
+        'it', () async {
+      const path = 'users/uid-1/days/2026-10-12_work.png';
+      pictures.files[path] = _png;
+      final claimed =
+          await claim('phone-a', proposal: _outfit('o1')) as DayClaimed;
+      final file = (await settled(
+        days.reuse('uid-1', claimed.day, path, device: 'phone-a'),
+      )).getOrElse(() => null)!;
+      expect(File(file).readAsBytesSync(), _png);
+      final day = await record('days/2026-10-18_work');
+      expect(day?['status'], 'ready');
+      expect(day?['picturePath'], path);
+      expect(pictures.files.keys, [path]);
+
+      final other =
+          await claim(
+                'phone-a',
+                proposal: _outfit('o2', date: _today),
+                date: _today,
+              )
+              as DayClaimed;
+      time = time.add(DayRules.lease);
+      await claim('phone-b', date: _today);
+      expect(
+        await days.reuse('uid-1', other.day, path, device: 'phone-a'),
+        const Right<Failure, String?>(null),
+      );
+    });
+
     test('marks nothing made by a phone that lost the day', () async {
       final mine =
           await claim('phone-a', proposal: _outfit('o1')) as DayClaimed;
       time = time.add(DayRules.lease);
       await claim('phone-b');
       expect(
-        await days.finish('uid-1', mine.day, _png, device: 'phone-a'),
+        await days.finish(
+          'uid-1',
+          mine.day,
+          _png,
+          photo: '/photos/body-1.jpg',
+          device: 'phone-a',
+        ),
         const Right<Failure, String?>(null),
       );
       expect((await record('days/2026-10-18_work'))?['status'], 'making');
@@ -463,7 +541,15 @@ void main() {
     test("fetches a made day's picture the phone lacks", () async {
       final claimed =
           await claim('phone-a', proposal: _outfit('o1')) as DayClaimed;
-      await settled(days.finish('uid-1', claimed.day, _png, device: 'phone-a'));
+      await settled(
+        days.finish(
+          'uid-1',
+          claimed.day,
+          _png,
+          photo: '/photos/body-1.jpg',
+          device: 'phone-a',
+        ),
+      );
       await days.forgetPictures('uid-1');
       final made = (await days.day(
         'uid-1',
@@ -487,7 +573,13 @@ void main() {
       );
       final claimed =
           await claim('phone-a', proposal: _outfit('o1')) as DayClaimed;
-      await days.finish('uid-1', claimed.day, _png, device: 'phone-a');
+      await days.finish(
+        'uid-1',
+        claimed.day,
+        _png,
+        photo: '/photos/body-1.jpg',
+        device: 'phone-a',
+      );
       await expectation;
     });
   });

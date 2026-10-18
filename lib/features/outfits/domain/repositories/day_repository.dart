@@ -64,10 +64,32 @@ abstract interface class DayRepository {
 
   /// Keeps [picture] on the phone and the account and marks the day made;
   /// the picture's file, or null when [device] no longer makes the day.
+  /// The picture is also kept as the outfit's on the photo at [photo], so
+  /// they are never tried on again.
   Future<Either<Failure, String?>> finish(
     String accountId,
     Day day,
     List<int> picture, {
+    required String photo,
+    required String device,
+  });
+
+  /// Where on the account the picture already made of the outfit
+  /// [signature] on the photo at [photo] is, from this phone when it
+  /// knows; null when none was made.
+  Future<Either<Failure, String?>> madePicture(
+    String accountId, {
+    required String photo,
+    required String signature,
+  });
+
+  /// Marks the day made with the picture already at [picturePath] on the
+  /// account; the picture's file on the phone, or null when [device] no
+  /// longer makes the day.
+  Future<Either<Failure, String?>> reuse(
+    String accountId,
+    Day day,
+    String picturePath, {
     required String device,
   });
 

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:clock/clock.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +13,7 @@ import 'package:in_vogue/core/domain/entities/install_id.dart';
 import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
@@ -34,6 +37,7 @@ import 'package:in_vogue/features/photos/domain/repositories/photo_repository.da
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:mockito/mockito.dart';
+import 'package:path/path.dart' as p;
 
 import '../../helpers/memory_store.dart';
 import '../auth/sign_in_bloc_test.mocks.dart';
@@ -188,6 +192,7 @@ void main() {
       remoteDataSource: DayRemoteDataSourceImpl(firestore),
       pictureRemoteDataSource: pictures,
       pictureLocalDataSource: OutfitPictureLocalDataSourceImpl(phone.path),
+      fingerprints: _fingerprints,
       logMessages: LogMessagesImpl(),
     );
     outfits = _FakeOutfits([_coat, _dress]);
@@ -200,6 +205,81 @@ void main() {
   });
 
   tearDown(() => phone.delete(recursive: true));
+
+  group('a photo and outfit are tried on once', () {
+    final later = DateTime.utc(2026, 10, 19);
+
+    test('keeps the picture under the photo and outfit, on the account and '
+        'the phone', () async {
+      await make();
+      final made = await firestore.collection('users/uid-1/tryOns').get();
+      expect(made.docs.single.data(), {
+        'photo': sha256.convert(utf8.encode(_body.path)).toString(),
+        'signature': _coat.signature,
+        'picturePath': 'users/uid-1/days/2026-10-17_work.jpg',
+        'madeAt': isA<Timestamp>(),
+      });
+    });
+
+    test('a later day with the same outfit takes the picture made before, '
+        'at once and with no try-on', () async {
+      outfits = _FakeOutfits([_coat]);
+      await make();
+      final updates = await make(params: _params(later));
+      expect(updates, [isA<TryOnDone>()]);
+      expect(tryOn.uploads, hasLength(1));
+      expect(tryOn.starts, hasLength(3));
+      expect(pictures.files.keys, ['users/uid-1/days/2026-10-17_work.jpg']);
+      final day = await record(later);
+      expect(day?['status'], 'ready');
+      expect(day?['picturePath'], 'users/uid-1/days/2026-10-17_work.jpg');
+      final done = updates.single as TryOnDone;
+      expect(done.outfit.outfit, _coat);
+      expect(done.outfit.date, later);
+      expect(File(done.outfit.picture).existsSync(), isTrue);
+    });
+
+    test('another phone, or this one after a reinstall, finds it on the '
+        'account', () async {
+      outfits = _FakeOutfits([_coat]);
+      await make();
+      final empty = await Directory.systemTemp.createTemp('outfits');
+      addTearDown(() => empty.delete(recursive: true));
+      days = DayRepositoryImpl(
+        remoteDataSource: DayRemoteDataSourceImpl(firestore),
+        pictureRemoteDataSource: pictures,
+        pictureLocalDataSource: OutfitPictureLocalDataSourceImpl(empty.path),
+        fingerprints: _fingerprints,
+        logMessages: LogMessagesImpl(),
+      );
+      final updates = await make(
+        maker: makeOutfit(device: 'phone-b'),
+        params: _params(later),
+      );
+      expect(updates, [isA<TryOnDone>()]);
+      expect(tryOn.starts, hasLength(3));
+      final done = updates.single as TryOnDone;
+      expect(p.isWithin(empty.path, done.outfit.picture), isTrue);
+    });
+
+    test('a new photo is tried on anew', () async {
+      outfits = _FakeOutfits([_coat]);
+      await make();
+      photos.body = const UserPhoto(
+        role: PhotoRole.body,
+        path: '/support/photos/body-2.jpg',
+        revision: 2,
+      );
+      final updates = await make(params: _params(later));
+      expect(updates.first, const TryOnProgress(piece: 1, pieces: 3));
+      expect(updates.last, isA<TryOnDone>());
+      expect(tryOn.starts, hasLength(6));
+      expect(
+        (await firestore.collection('users/uid-1/tryOns').get()).docs,
+        hasLength(2),
+      );
+    });
+  });
 
   test('claims the day, then tries the outfit on piece by piece, each on the '
       'last picture', () async {
@@ -566,6 +646,11 @@ void main() {
     },
   );
 }
+
+/// Fingerprints from the photo's path, as these photos aren't on disk.
+final _fingerprints = PhotoFingerprints(
+  read: (path) async => utf8.encode(path),
+);
 
 class _FakeOutfits implements OutfitRepository {
   _FakeOutfits(this.ranked);

@@ -12,7 +12,9 @@ import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
 typedef SuggestionSeen = ({bool known, DateTime? lastAt});
 
 /// Each account's days (`users/{uid}/days/{date}_{occasion}`) and the
-/// outfits suggested to it (`users/{uid}/suggestions/{signature}`).
+/// outfits suggested to it (`users/{uid}/suggestions/{signature}`), and
+/// the pictures already made of an outfit on a photo
+/// (`users/{uid}/tryOns/{key}`).
 ///
 /// Every method throws [NetworkException] or [ServerException].
 abstract interface class DayRemoteDataSource {
@@ -58,6 +60,20 @@ abstract interface class DayRemoteDataSource {
     required String device,
     required Day Function(Day current) change,
   });
+
+  /// Where on the account the picture made under [key] is; null when none
+  /// was.
+  Future<String?> madePicture(String accountId, String key);
+
+  /// Records under [key] that the picture of the outfit [signature] on the
+  /// photo with the fingerprint [photo] is at [path].
+  Future<void> keepMadePicture(
+    String accountId,
+    String key, {
+    required String photo,
+    required String signature,
+    required String path,
+  });
 }
 
 class DayRemoteDataSourceImpl implements DayRemoteDataSource {
@@ -82,6 +98,9 @@ class DayRemoteDataSourceImpl implements DayRemoteDataSource {
 
   CollectionReference<Map<String, dynamic>> _suggestions(String accountId) =>
       _account(accountId).collection('suggestions');
+
+  DocumentReference<Map<String, dynamic>> _made(String accountId, String key) =>
+      _account(accountId).collection('tryOns').doc(key);
 
   static Day? _read(DocumentSnapshot<Map<String, dynamic>> snapshot) {
     final data = snapshot.data();
@@ -214,6 +233,30 @@ class DayRemoteDataSourceImpl implements DayRemoteDataSource {
       }
       transaction.set(dayRef, _write(change(current)));
       return true;
+    }),
+  );
+
+  @override
+  Future<String?> madePicture(String accountId, String key) => _guard(
+    () async => switch ((await _made(accountId, key).get()).data()) {
+      {'picturePath': final String path} => path,
+      _ => null,
+    },
+  );
+
+  @override
+  Future<void> keepMadePicture(
+    String accountId,
+    String key, {
+    required String photo,
+    required String signature,
+    required String path,
+  }) => _guard(
+    () => _made(accountId, key).set({
+      'photo': photo,
+      'signature': signature,
+      'picturePath': path,
+      'madeAt': FieldValue.serverTimestamp(),
     }),
   );
 

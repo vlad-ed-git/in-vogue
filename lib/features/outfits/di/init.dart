@@ -50,6 +50,7 @@ void init(GetIt locator) {
         remoteDataSource: locator(),
         pictureRemoteDataSource: locator(),
         pictureLocalDataSource: locator(),
+        fingerprints: locator(),
         logMessages: locator(),
       ),
     )

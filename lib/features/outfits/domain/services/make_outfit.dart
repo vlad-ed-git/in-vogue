@@ -59,8 +59,9 @@ class MakeOutfitParams extends Equatable {
 /// person's favourite pieces. The outfit is then tried on piece by piece,
 /// each piece reported on the day, and the picture kept with the day.
 ///
-/// Progress is kept after each piece, so a try-on cut short goes on where
-/// it stopped. When the try-on refuses a piece's photo, the piece is never
+/// A photo and outfit already tried on are never tried on again: the day
+/// takes the picture made before. Progress is kept after each piece, so a
+/// try-on cut short goes on where it stopped. When the try-on refuses a piece's photo, the piece is never
 /// chosen again and the day goes on with another outfit. Days are claimed
 /// one at a time, and one making per day runs at a time; asking again
 /// follows it.
@@ -196,6 +197,16 @@ class MakeOutfit {
     )).fold<Outfit?>((_) => null, (outfit) => outfit);
     if (outfit == null) return const TryOnFailed(CacheFailure());
 
+    final made = await _days.madePicture(
+      params.accountId,
+      photo: body.path,
+      signature: day.signature,
+    );
+    if (made case Left(value: final failure)) return TryOnFailed(failure);
+    if (made.getOrElse(() => null) case final String path) {
+      return _reused(params, day, outfit, path);
+    }
+
     var job = await _resumable(params, day, body);
     if (job == null) {
       job = TryOnJob(
@@ -274,12 +285,42 @@ class MakeOutfit {
       params.accountId,
       day,
       picture.getOrElse(() => const []),
+      photo: body.path,
       device: _device,
     );
     if (kept case Left(value: final failure)) return TryOnFailed(failure);
     final file = kept.getOrElse(() => null);
     if (file == null) return TryOnElsewhere(day);
     await _drop(job!);
+    return TryOnDone(
+      DayOutfit(
+        outfit: outfit,
+        date: day.date,
+        occasion: day.occasion,
+        cell: day.cell,
+        picture: file,
+      ),
+    );
+  }
+
+  /// Makes [day] with [outfit]'s picture made before at [path].
+  Future<TryOnUpdate> _reused(
+    MakeOutfitParams params,
+    Day day,
+    Outfit outfit,
+    String path,
+  ) async {
+    final kept = await _days.reuse(
+      params.accountId,
+      day,
+      path,
+      device: _device,
+    );
+    if (kept case Left(value: final failure)) return TryOnFailed(failure);
+    final file = kept.getOrElse(() => null);
+    if (file == null) return TryOnElsewhere(day);
+    // A try-on kept from before isn't needed any more.
+    await _jobs.clear(params.key);
     return TryOnDone(
       DayOutfit(
         outfit: outfit,

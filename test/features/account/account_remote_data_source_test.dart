@@ -17,6 +17,7 @@ const _collections = [
   'suggestions',
   'makeupLooks',
   'colorProfiles',
+  'tryOns',
 ];
 
 MockListResult _listed({

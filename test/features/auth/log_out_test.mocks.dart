@@ -362,13 +362,14 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
     String? accountId,
     _i10.Day? day,
     List<int>? picture, {
+    required String? photo,
     required String? device,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #finish,
               [accountId, day, picture],
-              {#device: device},
+              {#photo: photo, #device: device},
             ),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, String?>>.value(
               _FakeEither_0<_i5.Failure, String?>(
@@ -376,6 +377,57 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
                 Invocation.method(
                   #finish,
                   [accountId, day, picture],
+                  {#photo: photo, #device: device},
+                ),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, String?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, String?>> madePicture(
+    String? accountId, {
+    required String? photo,
+    required String? signature,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #madePicture,
+              [accountId],
+              {#photo: photo, #signature: signature},
+            ),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, String?>>.value(
+              _FakeEither_0<_i5.Failure, String?>(
+                this,
+                Invocation.method(
+                  #madePicture,
+                  [accountId],
+                  {#photo: photo, #signature: signature},
+                ),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, String?>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, String?>> reuse(
+    String? accountId,
+    _i10.Day? day,
+    String? picturePath, {
+    required String? device,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #reuse,
+              [accountId, day, picturePath],
+              {#device: device},
+            ),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, String?>>.value(
+              _FakeEither_0<_i5.Failure, String?>(
+                this,
+                Invocation.method(
+                  #reuse,
+                  [accountId, day, picturePath],
                   {#device: device},
                 ),
               ),
