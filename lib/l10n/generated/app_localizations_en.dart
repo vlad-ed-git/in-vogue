@@ -926,4 +926,103 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get colourMixed => 'Mixed';
+
+  @override
+  String colourName(String name) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'white': 'White',
+      'ivory': 'Ivory',
+      'cream': 'Cream',
+      'stone': 'Stone',
+      'beige': 'Beige',
+      'sand': 'Sand',
+      'camel': 'Camel',
+      'tan': 'Tan',
+      'taupe': 'Taupe',
+      'greige': 'Greige',
+      'lightGrey': 'Light grey',
+      'silver': 'Silver',
+      'grey': 'Grey',
+      'charcoal': 'Charcoal',
+      'black': 'Black',
+      'chocolate': 'Chocolate',
+      'espresso': 'Espresso',
+      'coffee': 'Coffee',
+      'brown': 'Brown',
+      'cinnamon': 'Cinnamon',
+      'rust': 'Rust',
+      'brick': 'Brick',
+      'terracotta': 'Terracotta',
+      'burntOrange': 'Burnt orange',
+      'orange': 'Orange',
+      'apricot': 'Apricot',
+      'peach': 'Peach',
+      'salmon': 'Salmon',
+      'coral': 'Coral',
+      'poppy': 'Poppy',
+      'red': 'Red',
+      'burgundy': 'Burgundy',
+      'wine': 'Wine',
+      'blush': 'Blush',
+      'orchid': 'Orchid',
+      'dustyRose': 'Dusty rose',
+      'mauve': 'Mauve',
+      'raspberry': 'Raspberry',
+      'berry': 'Berry',
+      'fuchsia': 'Fuchsia',
+      'hotPink': 'Hot pink',
+      'watermelon': 'Watermelon',
+      'lemon': 'Lemon',
+      'buttercup': 'Buttercup',
+      'mustard': 'Mustard',
+      'gold': 'Gold',
+      'ochre': 'Ochre',
+      'mint': 'Mint',
+      'sage': 'Sage',
+      'moss': 'Moss',
+      'olive': 'Olive',
+      'khaki': 'Khaki',
+      'leafGreen': 'Leaf green',
+      'lime': 'Lime',
+      'emerald': 'Emerald',
+      'jade': 'Jade',
+      'forestGreen': 'Forest green',
+      'pine': 'Pine',
+      'teal': 'Teal',
+      'deepTeal': 'Deep teal',
+      'turquoise': 'Turquoise',
+      'aqua': 'Aqua',
+      'skyBlue': 'Sky blue',
+      'powderBlue': 'Powder blue',
+      'periwinkle': 'Periwinkle',
+      'cornflower': 'Cornflower',
+      'denim': 'Denim',
+      'slateBlue': 'Slate blue',
+      'royalBlue': 'Royal blue',
+      'cobalt': 'Cobalt',
+      'azure': 'Azure',
+      'navy': 'Navy',
+      'midnight': 'Midnight',
+      'lavender': 'Lavender',
+      'lilac': 'Lilac',
+      'violet': 'Violet',
+      'purple': 'Purple',
+      'plum': 'Plum',
+      'aubergine': 'Aubergine',
+      'other': 'Colour',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get tipSuits =>
+      'Wear it near your face: tops, shirts, knits and jackets.';
+
+  @override
+  String get tipNeutrals =>
+      'A base that goes with your colours: trousers, skirts and coats.';
+
+  @override
+  String get tipGoEasy =>
+      'Keep it away from your face, or wear it lower down: trousers and skirts.';
 }

@@ -9,6 +9,7 @@ import 'package:in_vogue/core/utils/failure_message.dart';
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
 import 'package:in_vogue/features/colours/presentation/bloc/colours_bloc.dart';
 import 'package:in_vogue/features/colours/presentation/colours_text.dart';
+import 'package:in_vogue/features/colours/presentation/widgets/palette_colour_sheet.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/photos/presentation/widgets/photo_notices.dart';
 import 'package:in_vogue/features/wardrobe/presentation/widgets/wardrobe_section.dart';
@@ -183,20 +184,22 @@ class MirrorScreen extends StatelessWidget {
           child: Notice(icon: InVogueIcons.image, message: l10n.coloursUnclear),
         ),
       SectionHeading(l10n.coloursSuit),
-      _Swatches(reading.palette.suits),
+      _Swatches(reading.palette.suits, PaletteGroup.suits),
       SectionHeading(l10n.coloursNeutrals),
-      _Swatches(reading.palette.neutrals),
+      _Swatches(reading.palette.neutrals, PaletteGroup.neutrals),
       SectionHeading(l10n.coloursGoEasy),
-      _Swatches(reading.palette.avoid),
+      _Swatches(reading.palette.avoid, PaletteGroup.goEasy),
     ];
   }
 }
 
-/// Round swatches, six to a row across the content width.
+/// Round swatches, six to a row across the content width; each opens its
+/// name and how to wear it.
 class _Swatches extends StatelessWidget {
-  const _Swatches(this.colours);
+  const _Swatches(this.colours, this.group);
 
   final List<int> colours;
+  final PaletteGroup group;
 
   static const _perRow = 6;
 
@@ -211,7 +214,17 @@ class _Swatches extends StatelessWidget {
         runSpacing: InVogueLayout.gutter,
         children: [
           for (final colour in colours)
-            Swatch(color: Color(colour), size: size),
+            Pressable(
+              onTap: () => showPaletteColourSheet(
+                context: context,
+                argb: colour,
+                group: group,
+              ),
+              semanticLabel: paletteColourName(context.translated, colour),
+              excludeSemantics: true,
+              builder: (context, state) =>
+                  Swatch(color: Color(colour), size: size),
+            ),
         ],
       );
     },

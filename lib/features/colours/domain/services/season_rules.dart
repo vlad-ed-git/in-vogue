@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
 import 'package:in_vogue/features/colours/domain/entities/face_colours.dart';
+import 'package:in_vogue/features/colours/domain/services/colour_space.dart';
 
 /// In Vogue's own colour analysis: turns a face's sampled colours into one
 /// of the twelve seasons by undertone, depth and contrast, each with a
@@ -277,37 +278,15 @@ abstract final class SeasonRules {
   };
 
   /// The individual typology angle of a CIELAB colour, in degrees.
-  static double _itaOf(({double l, double a, double b}) lab) =>
+  static double _itaOf(Lab lab) =>
       math.atan2(lab.l - 50, lab.b) * 180 / math.pi;
 
   /// The CIELAB hue angle, in degrees.
-  static double _hueOf(({double l, double a, double b}) lab) =>
-      math.atan2(lab.b, lab.a) * 180 / math.pi;
+  static double _hueOf(Lab lab) => math.atan2(lab.b, lab.a) * 180 / math.pi;
 
-  static double _linear(double value) => value <= 0.04045
-      ? value / 12.92
-      : math.pow((value + 0.055) / 1.055, 2.4).toDouble();
-
-  /// CIELAB under D65 of `#RRGGBB`; null when [hex] is not one.
-  static ({double l, double a, double b})? _lab(String hex) {
-    final match = RegExp(
-      r'^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$',
-    ).firstMatch(hex);
-    if (match == null) return null;
-    double channel(int group) =>
-        _linear(int.parse(match.group(group)!, radix: 16) / 255);
-    final r = channel(1);
-    final g = channel(2);
-    final b = channel(3);
-    final x = (0.4124564 * r + 0.3575761 * g + 0.1804375 * b) / 0.95047;
-    final y = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b;
-    final z = (0.0193339 * r + 0.1191920 * g + 0.9503041 * b) / 1.08883;
-    double f(double t) => t > 216 / 24389
-        ? math.pow(t, 1 / 3).toDouble()
-        : (24389 / 27 * t + 16) / 116;
-    final fx = f(x);
-    final fy = f(y);
-    final fz = f(z);
-    return (l: 116 * fy - 16, a: 500 * (fx - fy), b: 200 * (fy - fz));
-  }
+  /// CIELAB of `#RRGGBB`; null when [hex] is not one.
+  static Lab? _lab(String hex) => switch (ColourSpace.argbOf(hex)) {
+    final argb? => ColourSpace.labOf(argb),
+    null => null,
+  };
 }

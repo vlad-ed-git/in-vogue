@@ -124,6 +124,41 @@ void main() {
     expect(find.byType(Image), findsNothing);
   });
 
+  testWidgets('a colour opens its name, its group and how to wear it', (
+    tester,
+  ) async {
+    await pumpMirror(tester, ready);
+    final peach = find.bySemanticsLabel('Peach');
+    expect(peach, findsWidgets);
+    await tester.ensureVisible(peach.first);
+    await tester.tap(peach.first);
+    await pumpWhileLoading(tester);
+    expect(find.text('Peach'), findsOneWidget);
+    expect(find.text('Colours that suit you'), findsWidgets);
+    expect(
+      find.text('Wear it near your face: tops, shirts, knits and jackets.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('a colour to go easy on says where to wear it instead', (
+    tester,
+  ) async {
+    await pumpMirror(tester, ready);
+    // Light Spring goes easy on black.
+    final black = find.bySemanticsLabel('Black');
+    await tester.ensureVisible(black.first);
+    await tester.tap(black.first);
+    await pumpWhileLoading(tester);
+    expect(
+      find.text(
+        'Keep it away from your face, or wear it lower down: trousers and '
+        'skirts.',
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('says when the photo was too unclear to trust', (tester) async {
     await pumpMirror(
       tester,

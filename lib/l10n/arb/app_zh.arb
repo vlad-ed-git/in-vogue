@@ -245,5 +245,9 @@
   "colourPurple": "紫色",
   "colourYellow": "黄色",
   "colourOrange": "橙色",
-  "colourMixed": "多色"
+  "colourMixed": "多色",
+  "colourName": "{name, select, white{白色} ivory{象牙白} cream{奶油色} stone{石色} beige{米色} sand{沙色} camel{驼色} tan{棕褐色} taupe{灰褐色} greige{灰米色} lightGrey{浅灰色} silver{银色} grey{灰色} charcoal{炭灰色} black{黑色} chocolate{巧克力色} espresso{浓缩咖啡色} coffee{咖啡色} brown{棕色} cinnamon{肉桂色} rust{铁锈红} brick{砖红色} terracotta{赤陶色} burntOrange{焦橙色} orange{橙色} apricot{杏色} peach{蜜桃色} salmon{三文鱼色} coral{珊瑚色} poppy{罂粟红} red{红色} burgundy{酒红色} wine{葡萄酒色} blush{浅粉色} orchid{兰花色} dustyRose{灰粉色} mauve{藕荷色} raspberry{覆盆子红} berry{浆果色} fuchsia{紫红色} hotPink{亮粉色} watermelon{西瓜红} lemon{柠檬黄} buttercup{奶油黄} mustard{芥末黄} gold{金色} ochre{赭石色} mint{薄荷绿} sage{鼠尾草绿} moss{苔藓绿} olive{橄榄绿} khaki{卡其色} leafGreen{叶绿色} lime{青柠色} emerald{祖母绿} jade{玉绿色} forestGreen{森林绿} pine{松绿色} teal{蓝绿色} deepTeal{深蓝绿色} turquoise{绿松石色} aqua{水绿色} skyBlue{天蓝色} powderBlue{粉蓝色} periwinkle{长春花蓝} cornflower{矢车菊蓝} denim{牛仔蓝} slateBlue{石板蓝} royalBlue{宝蓝色} cobalt{钴蓝色} azure{蔚蓝色} navy{藏青色} midnight{午夜蓝} lavender{薰衣草紫} lilac{丁香紫} violet{紫罗兰色} purple{紫色} plum{李子色} aubergine{茄紫色} other{颜色}}",
+  "tipSuits": "适合靠近脸部穿：上衣、衬衫、针织衫和外套。",
+  "tipNeutrals": "能搭配你的颜色的基础色：裤子、裙子和大衣。",
+  "tipGoEasy": "远离脸部，或穿在下身：裤子和裙子。"
 }

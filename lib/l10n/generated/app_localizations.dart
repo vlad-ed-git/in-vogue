@@ -1580,6 +1580,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Mixed'**
   String get colourMixed;
+
+  /// A palette colour's name, the nearest of a list of clothing colours.
+  ///
+  /// In en, this message translates to:
+  /// **'{name, select, white{White} ivory{Ivory} cream{Cream} stone{Stone} beige{Beige} sand{Sand} camel{Camel} tan{Tan} taupe{Taupe} greige{Greige} lightGrey{Light grey} silver{Silver} grey{Grey} charcoal{Charcoal} black{Black} chocolate{Chocolate} espresso{Espresso} coffee{Coffee} brown{Brown} cinnamon{Cinnamon} rust{Rust} brick{Brick} terracotta{Terracotta} burntOrange{Burnt orange} orange{Orange} apricot{Apricot} peach{Peach} salmon{Salmon} coral{Coral} poppy{Poppy} red{Red} burgundy{Burgundy} wine{Wine} blush{Blush} orchid{Orchid} dustyRose{Dusty rose} mauve{Mauve} raspberry{Raspberry} berry{Berry} fuchsia{Fuchsia} hotPink{Hot pink} watermelon{Watermelon} lemon{Lemon} buttercup{Buttercup} mustard{Mustard} gold{Gold} ochre{Ochre} mint{Mint} sage{Sage} moss{Moss} olive{Olive} khaki{Khaki} leafGreen{Leaf green} lime{Lime} emerald{Emerald} jade{Jade} forestGreen{Forest green} pine{Pine} teal{Teal} deepTeal{Deep teal} turquoise{Turquoise} aqua{Aqua} skyBlue{Sky blue} powderBlue{Powder blue} periwinkle{Periwinkle} cornflower{Cornflower} denim{Denim} slateBlue{Slate blue} royalBlue{Royal blue} cobalt{Cobalt} azure{Azure} navy{Navy} midnight{Midnight} lavender{Lavender} lilac{Lilac} violet{Violet} purple{Purple} plum{Plum} aubergine{Aubergine} other{Colour}}'**
+  String colourName(String name);
+
+  /// No description provided for @tipSuits.
+  ///
+  /// In en, this message translates to:
+  /// **'Wear it near your face: tops, shirts, knits and jackets.'**
+  String get tipSuits;
+
+  /// No description provided for @tipNeutrals.
+  ///
+  /// In en, this message translates to:
+  /// **'A base that goes with your colours: trousers, skirts and coats.'**
+  String get tipNeutrals;
+
+  /// No description provided for @tipGoEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it away from your face, or wear it lower down: trousers and skirts.'**
+  String get tipGoEasy;
 }
 
 class _AppLocalizationsDelegate

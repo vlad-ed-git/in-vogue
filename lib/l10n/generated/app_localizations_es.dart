@@ -928,4 +928,103 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get colourMixed => 'Varios';
+
+  @override
+  String colourName(String name) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'white': 'Blanco',
+      'ivory': 'Marfil',
+      'cream': 'Crema',
+      'stone': 'Piedra',
+      'beige': 'Beis',
+      'sand': 'Arena',
+      'camel': 'Camel',
+      'tan': 'Tostado',
+      'taupe': 'Topo',
+      'greige': 'Greige',
+      'lightGrey': 'Gris claro',
+      'silver': 'Plata',
+      'grey': 'Gris',
+      'charcoal': 'Gris marengo',
+      'black': 'Negro',
+      'chocolate': 'Chocolate',
+      'espresso': 'Café expreso',
+      'coffee': 'Café',
+      'brown': 'Marrón',
+      'cinnamon': 'Canela',
+      'rust': 'Óxido',
+      'brick': 'Ladrillo',
+      'terracotta': 'Terracota',
+      'burntOrange': 'Naranja tostado',
+      'orange': 'Naranja',
+      'apricot': 'Albaricoque',
+      'peach': 'Melocotón',
+      'salmon': 'Salmón',
+      'coral': 'Coral',
+      'poppy': 'Amapola',
+      'red': 'Rojo',
+      'burgundy': 'Burdeos',
+      'wine': 'Vino',
+      'blush': 'Rosa palo',
+      'orchid': 'Orquídea',
+      'dustyRose': 'Rosa empolvado',
+      'mauve': 'Malva',
+      'raspberry': 'Frambuesa',
+      'berry': 'Baya',
+      'fuchsia': 'Fucsia',
+      'hotPink': 'Rosa intenso',
+      'watermelon': 'Sandía',
+      'lemon': 'Limón',
+      'buttercup': 'Amarillo suave',
+      'mustard': 'Mostaza',
+      'gold': 'Dorado',
+      'ochre': 'Ocre',
+      'mint': 'Menta',
+      'sage': 'Salvia',
+      'moss': 'Musgo',
+      'olive': 'Oliva',
+      'khaki': 'Caqui',
+      'leafGreen': 'Verde hoja',
+      'lime': 'Lima',
+      'emerald': 'Esmeralda',
+      'jade': 'Jade',
+      'forestGreen': 'Verde bosque',
+      'pine': 'Verde pino',
+      'teal': 'Verde azulado',
+      'deepTeal': 'Verde azulado oscuro',
+      'turquoise': 'Turquesa',
+      'aqua': 'Aguamarina',
+      'skyBlue': 'Azul cielo',
+      'powderBlue': 'Azul empolvado',
+      'periwinkle': 'Pervinca',
+      'cornflower': 'Azul aciano',
+      'denim': 'Azul denim',
+      'slateBlue': 'Azul pizarra',
+      'royalBlue': 'Azul real',
+      'cobalt': 'Cobalto',
+      'azure': 'Azul celeste',
+      'navy': 'Azul marino',
+      'midnight': 'Azul noche',
+      'lavender': 'Lavanda',
+      'lilac': 'Lila',
+      'violet': 'Violeta',
+      'purple': 'Morado',
+      'plum': 'Ciruela',
+      'aubergine': 'Berenjena',
+      'other': 'Color',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get tipSuits =>
+      'Llévalo cerca de la cara: tops, camisas, punto y chaquetas.';
+
+  @override
+  String get tipNeutrals =>
+      'Una base que combina con tus colores: pantalones, faldas y abrigos.';
+
+  @override
+  String get tipGoEasy =>
+      'Mantenlo lejos de la cara o úsalo más abajo: pantalones y faldas.';
 }
