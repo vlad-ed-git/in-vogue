@@ -6,9 +6,8 @@
 #   scripts/build_release.sh [development|production]   # development by default
 #
 # FLUTTER picks the Flutter command; by default it is what the owner's
-# flutterN alias points to, else `flutter`. EXPORT_METHOD, when set, is passed
-# to `flutter build ipa --export-method`. The IPA is exported when signing
-# allows it; the archive is kept either way.
+# flutterN alias points to, else `flutter`. Only the archive is kept from the
+# iOS build, never an IPA.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -43,12 +42,9 @@ apk="build/app/outputs/flutter-apk/app-$flavor-release.apk"
 rm -rf build/ios/archive build/ios/ipa "$apk"
 
 echo "==> 1/4 The iOS archive ($flavor, $version)"
-ipa_flags=()
-if [ -n "${EXPORT_METHOD:-}" ]; then
-  ipa_flags=(--export-method "$EXPORT_METHOD")
-fi
-# The odd expansion keeps macOS's bash 3.2 happy with an empty array.
-if ! "$flutter" build ipa --release --flavor "$flavor" -t "$entry" ${ipa_flags[@]+"${ipa_flags[@]}"}; then
+# flutter build ipa also tries to export an IPA, which signing may refuse;
+# only the archive counts.
+if ! "$flutter" build ipa --release --flavor "$flavor" -t "$entry"; then
   echo "flutter build ipa reported an error; checking for the archive." >&2
 fi
 if [ ! -d "$archive" ]; then
@@ -67,12 +63,6 @@ echo "==> 3/4 Moving them to $release"
 mkdir -p "$release"
 mv "$archive" "$release/$name.xcarchive"
 mv "$apk" "$release/$name.apk"
-ipa="$(find build/ios/ipa -name '*.ipa' 2>/dev/null | head -n 1 || true)"
-if [ -n "$ipa" ]; then
-  mv "$ipa" "$release/$name.ipa"
-else
-  echo "No IPA was exported; the archive can be exported from Xcode's Organizer."
-fi
 if [ ! -d "$release/$name.xcarchive" ] || [ ! -f "$release/$name.apk" ]; then
   echo "Moving them failed; build/ is kept." >&2
   exit 1
