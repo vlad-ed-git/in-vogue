@@ -1,6 +1,6 @@
 # AGENTS.md
 
-In Vogue is a Flutter weather app for Android and iPhone. Each day it shows the person, head to toe, in a real outfit from a partner catalog (Everlane today) picked for the day's weather and occasion, with step-by-step makeup to match, a link to buy each piece and a home-screen widget.
+In Vogue is a Flutter weather app for Android and iPhone. Each day it shows the person, head to toe, in a real outfit from a partner catalog (Everlane today) picked for the day's weather and occasion, with the clothing colours that suit them, read from a selfie, a link to buy each piece and a home-screen widget.
 
 - **Read [README.md](README.md)** for the system design, architecture, data model and APIs. Area details are in the skills (below).
 - **Focus now (owner, October 18):** an MVP for testers on the development flavor (`com.invogue.app.dev`, Firebase `in-vogue-dev`). Production waits.
@@ -81,7 +81,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - YouCam: nothing before sign-in, and no units cap, counter or quota, ever. Everything runs in the app, with no servers or Cloud Functions (a YouCam proxy is to be reconsidered before release).
 - No partner credits such as "Outfits by {Brand}"; "Buy at {Brand}" is fine. No design decision rests on a partner. Rights to the catalog and brand content are in place, so don't raise licensing.
 - One white theme: never dark mode or an appearance setting.
-- Clothes only: no shoes, bags or accessories, and people keep their own shoes. Face makeup only, never hair.
+- Clothes only: no shoes, bags or accessories, and people keep their own shoes. Never hair changes.
 - Outfits come from the whole collection. Loved pieces add weight; never-suggested outfits come first, then the one suggested longest ago.
 - English unless the person picks another language; never follow the phone's.
 
@@ -102,15 +102,13 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 2. [x] **The widget's temperature on narrow widgets.** Done October 18; the owner's build checks it. On Android, the numeral is sized to the widget's width, measured in its own font. On iPhone, it shrinks to a quarter of its size before it would wrap.
 3. [x] **Makeup doesn't work on the owner's phone.** Fixed October 18; it needs the owner's YouCam run to confirm. The `errors` collection was empty (failed YouCam tasks were never logged), and neither development account had a colour profile, so the skin analysis had never succeeded. It refused the face photo's angle (`error_face_angle_rightward`) at the strict `high` level. Then, because the app didn't know the analyzer's seven angle codes, it said "Your photo is fine."
    - The analysis now runs at `low` strictness, since the app trusts the photo (owner to confirm).
-   - Every photo error says what to change (`PhotoAdvice`), for makeup and try-on alike.
+   - Every photo error says what to change (`PhotoAdvice`), for the colour reading and try-on alike.
    - Failed tasks are logged with YouCam's code, so they reach `errors`.
    - A success without a `face_quality` report keeps the person's colours.
-4. [ ] **Replace Makeup with a colour palette and My Wardrobe** (owner, October 18). Users want their skin analysis to give the clothing colours that suit them, more than step-by-step makeup. The new page, top to bottom: the face with its skin-tone results and colour palette, then My Wardrobe. Steps:
-   1. Scrap makeup, keeping the face photo and the skin analysis.
-   2. Research. Study YouCam's skin-tone analysis in depth: every result and error, and what to tell the person. Study colour analysis too, for a hardcoded recommender from YouCam's results to clothing colours, shown visually.
-   3. A design spec for the page.
-   4. Build it.
-   5. User testing.
+4. [x] **Replace Makeup with a colour palette and My Wardrobe.** Done October 18 as the **Mirror** tab (Home, Mirror, Settings); user testing is the owner's. Makeup is gone, code and tests; the face photo and the skin analysis stay (`lib/features/colours`). Owner decisions, October 18:
+   - Mirror shows the colour season and why, then the palette in round swatches, then My Wardrobe. No face photo on the page: it belongs in Settings. Without one, Mirror asks for a selfie.
+   - Setup and Settings say the face photo is for the skin tone and colour analysis. Never mention makeup.
+   - The season is In Vogue's own hardcoded suggestion from YouCam's sampled colours (`SeasonRules`); YouCam gives no season or undertone.
 5. [ ] **My Wardrobe**, part of item 4, later. People upload their own outfits, with the details recommendation needs. Their outfits weigh more than the catalog's when choosing.
 
 **Also open:**
@@ -140,7 +138,7 @@ Each lives in `../.claude/skills/<name>/`: a `SKILL.md`, optional `references/` 
 | `writing-tests` | tests the owner's way; how each package is mocked here | not run |
 | `building-features` | Clean Architecture slices, DI, routing, stand-ins; the feature map | not run |
 | `building-ui` | the design system, the spec and the owner's overrides, copy, motion, accessibility | not run |
-| `calling-youcam` | try-on, face analysis, makeup calls, costs, keys and the owner's YouCam rules | not run |
+| `calling-youcam` | try-on, the skin-tone analysis, photo errors, costs, keys and the owner's YouCam rules | not run |
 | `managing-firebase` | the data model, rules, sync, account save, restore and delete | not run |
 | `updating-bundled-data` | the catalog and knowledge-base pipeline and the asset exports | not run |
 | `building-home-widgets` | both home-screen widgets: content, day rule, taps, native code, the morning refresh | not run |

@@ -1,8 +1,8 @@
 # In Vogue
 
-In Vogue is a weather app for Android and iPhone. Each day it shows the person, head to toe, wearing a real outfit from a partner fashion house, chosen for that day's weather and plans. It adds step-by-step makeup to match, a link to buy every piece, and a home-screen widget. The current partner catalog is Everlane's women's collection; rights to the catalog and brand content are in place.
+In Vogue is a weather app for Android and iPhone. Each day it shows the person, head to toe, wearing a real outfit from a partner fashion house, chosen for that day's weather and plans. It reads the person's colours from a selfie and shows the clothing colours that suit them, a link to buy every piece, and a home-screen widget. The current partner catalog is Everlane's women's collection; rights to the catalog and brand content are in place.
 
-**Status (October 18, 2026):** an MVP for testers on the development flavor. Analyze is clean and 857 tests pass. Rules for AI agents working on the code are in [AGENTS.md](AGENTS.md).
+**Status (October 18, 2026):** an MVP for testers on the development flavor. Analyze is clean and 824 tests pass. Rules for AI agents working on the code are in [AGENTS.md](AGENTS.md).
 
 ## Contents
 
@@ -37,7 +37,7 @@ Nothing leaves the phone before sign-in, and YouCam is called only after it.
 
 **Shop** lists every piece of the outfit with its photo, colour, name and material, and "Buy at Everlane", which opens that exact item. There are no prices. **Your picks** shows only the pieces the person loved; removing one asks first.
 
-**Makeup** (being replaced by a colour palette and My Wardrobe; see [Roadmap](#roadmap)) follows Home's day and occasion. Once there is a face photo and an outfit, the look starts by itself: Before / After, a sentence tying it to the outfit, and 3 to 6 numbered steps, each showing the face after that step (tap to zoom). Steps appear as they finish.
+**Mirror** shows the person's colour season, why (undertone, depth and contrast) and its palette in round swatches: colours that suit them, their neutrals, and colours to go easy on. YouCam reads the colours from the face photo once; the season is In Vogue's own suggestion. Without a face photo, Mirror asks for a selfie for the skin tone and colour analysis, kept as soon as it is chosen; the face photo itself is shown only in Settings. My wardrobe sits below, a stand-in until wardrobe uploads are built.
 
 **Settings** holds:
 - the profile: face photo, name, how the person signed in, and Edit. Without a face photo it shows the name's first letter on Rouge.
@@ -45,12 +45,12 @@ Nothing leaves the phone before sign-in, and YouCam is called only after it.
 - the membership (Pro or Free, shown only).
 - the location, the default day and the language.
 - the home-screen widget, whose Add places it, or says how.
-- Log out, which also clears this account's outfit and makeup pictures from the phone.
+- Log out, which also clears this account's outfit pictures and colour readings under way from the phone.
 - Delete account, which removes the account's data from Firebase and from the phone.
 
 **The home-screen widget** puts the day's weather on a Rouge slab beside the person in the day's outfit, in Small (weather only), Medium and Large. It picks the day as Home does and switches at 06:00, 09:00 and midnight. Until the outfit is made it shows the person's photo faded under "Getting ready", and when it has nothing newer it shows the time it was saved. A tap opens Home on that day and occasion. A background job refreshes it each morning, and Log out and Delete account clear it. On iPhone it is set up for the development flavor only, until production has its own App Group.
 
-**Languages:** English (the default, whatever the phone's language), Spanish and Simplified Chinese, including the knowledge base's texts (outfit reasons and makeup steps).
+**Languages:** English (the default, whatever the phone's language), Spanish and Simplified Chinese, including the knowledge base's outfit reasons.
 
 ## System design
 
@@ -59,10 +59,10 @@ Nothing leaves the phone before sign-in, and YouCam is called only after it.
 ```
                 ┌──────────────────── the phone: In Vogue (Flutter) ──────────────────────┐
 Open-Meteo ◄────┤ weather: 3-day hourly forecast (dio), cached 2 days in SQLite            │
-YouCam     ◄────┤ try-on · face colours · makeup steps (after sign-in; key in dev builds)  │
+YouCam     ◄────┤ try-on · skin-tone analysis (after sign-in; key in dev builds)           │
 Firebase   ◄────┤ Auth: Apple, Google · Firestore users/{uid}, errors · Storage, App Check │
 Everlane   ◄────┤ "Buy at Everlane" opens the exact item (url_launcher)                    │
-                │ bundled: catalog · 1,749 outfits · 720 makeup recipes                    │
+                │ bundled: catalog · 1,749 outfits                                         │
                 │ home-screen widget: Kotlin (Android) · SwiftUI (iPhone, App Group)       │
                 │ morning refresh: WorkManager (Android) · background app refresh (iPhone) │
                 └──────────────────────────────────────────────────────────────────────────┘
@@ -83,7 +83,7 @@ InVogueApp (MaterialApp.router, Paper theme only) ─► go_router (redirect: se
    ├─ /setup ► /photo ► /picks ► /sign-in ► /about-you ► /widget        (nested, so Back works)
    └─ tab shell (indexed stack; HomeBloc and the widget's sync above the tabs)
         ├─ /home      ─► Shop, Your picks (over the tabs)
-        ├─ /makeup    ─► picture viewer   (built on first visit, follows Home's day)
+        ├─ /mirror    ─► the colour season and palette, then My wardrobe
         └─ /settings
 features/<name>/  presentation (BLoC, screens) ─► domain (pure Dart) ◄─ data (Firebase, Hive, dio, assets)
                   di/init.dart registers it all in GetIt
@@ -93,8 +93,8 @@ features/<name>/  presentation (BLoC, screens) ─► domain (pure Dart) ◄─ 
 
 ```
 Welcome ─► Your photo ─► Weather + picks ─► Sign in ─────────────► About you ─► Add widget ─► Home
-location   body photo    hearts             Apple | Google          name, face    launcher or
-                                            restore ─► save         photo         three steps
+location   body photo    hearts             Apple | Google          name,         launcher or
+                                            restore ─► save         selfie        three steps
 ├──────────── nothing leaves the phone ─────┤├──── account in Firebase; YouCam allowed from here ────┤
 The step is saved in Hive; the app reopens on it with the earlier screens beneath for Back.
 ```
@@ -124,20 +124,18 @@ MakeOutfit, once the day is claimed:
 - **Trying on:** YouCam dresses the person piece by piece, each pass on the last pass's picture, and progress is saved after each piece. An interrupted making resumes within 2 hours, while YouCam still holds the pictures.
 - **Tried on once:** each finished picture is listed under the body photo's fingerprint and the outfit's signature, so a later day with the same photo and outfit takes the picture at once, with no YouCam call and no second upload. The fingerprint is the SHA-256 of the photo's bytes, which is the same on every phone; the photo's file name and URL aren't, because they come from a counter kept on each phone.
 
-### A makeup look
+### Reading colours
 
 ```
-MakeupBloc starts when: face photo kept ∧ the outfit has no look ∧ none being made ∧ last try didn't fail
-MakeLook: look of (face photo, outfit) on the phone? ─► show it at once; else on the account? ─► fetch, keep
-  face ─► before.png (upright, ≤ 1024 px)
-  colours ─► colorProfiles/{sha256(face)}, else skin-tone-analysis (20 units, once per photo)
-  SkinRules ─► shade + contrast (+ concealer, brow, nude-lip colours)
-  key occasion|palette|shade|contrast|weather ─► recipe: 3–6 steps
-  each step: makeup-vto on the previous picture (1 unit; poll 3 s, ≤ 2 min) ─► keep ─► show
-  done ─► makeupLooks/{face}-{signature} + pictures in Storage and on the phone, record beside them
+ColoursBloc, when Mirror shows or a face photo is kept:
+AnalyseFace: colours of this photo on the account? (colorProfiles/{sha256(face)}) ─► show at once
+  else face ─► upright PNG, ≤ 1024 px ─► skin-tone-analysis at low strictness (20 units, once per photo)
+  poll 3 s, ≤ 2 min ─► colours (skin, brows, lips, hair, eyes) ─► colorProfiles
+  SeasonRules: undertone + depth + contrast ─► one of 12 seasons ─► its palette
+  refused photo ─► what to change (PhotoAdvice) and Choose a different photo
 ```
 
-Given the face photo and the outfit, the recipe is fixed, so a look is kept under both: the same face and outfit never call YouCam again, and a new face photo gets its own look. Each look's record sits beside its pictures on the phone, so the Makeup tab opens it without Firestore, even offline. Steps are kept as they finish, so an interrupted look continues where it stopped. Skin smoothing is always off.
+A reading is kept under the face photo's fingerprint, so the same photo is never analysed twice, and one cut short is checked again rather than paid for twice (Hive `analysis_tasks`). YouCam only samples the colours; the season and palette are In Vogue's own, a suggestion.
 
 ### The home-screen widgets
 
@@ -167,8 +165,8 @@ The app asks Open-Meteo for a 3-day hourly forecast at the person's location and
 | Outfit pictures | files in `outfits/{uid}/` | Storage `users/{uid}/days/` |
 | Pictures made of a photo and outfit | `outfits/{uid}/made/` | `users/{uid}/tryOns` |
 | Face colours | — | `users/{uid}/colorProfiles` |
-| Makeup looks | `makeup/{uid}/{look}/`, record in `look.json` | `users/{uid}/makeupLooks`, Storage `users/{uid}/makeup/{look}/` |
-| Unfinished try-ons and looks | Hive (`try_on_jobs`, `makeup_jobs`), resumed within 2 hours | the day's progress |
+| Unfinished try-ons | Hive `try_on_jobs`, resumed within 2 hours | the day's progress |
+| Colour readings under way | Hive `analysis_tasks` | — |
 | Photo fingerprints | memory, once per photo file | — |
 | The widget's content | home_widget's storage (Android), the App Group (iPhone) | — |
 | Error reports | memory, until someone signs in | `errors` |
@@ -176,18 +174,19 @@ The app asks Open-Meteo for a 3-day hourly forecast at the person's location and
 ### Rules worth knowing
 
 - **Days:** `making`, then `ready` or `failed`. The lease is 10 minutes and a try-on job is valid for 2 hours.
-- **Makeup:**
-  - **Shade group** from ITA°: light from 41°, medium from 10°, deep below. Within 2° above an edge counts as the deeper group.
+- **Colours** (`SeasonRules`):
+  - **Undertone** from the skin's CIELAB hue angle: warm from 60°, cool up to 52°, neutral between. A neutral skin leans warm with golden or copper hair (chroma from 12, hue 40–90°), cool with ash or black hair (chroma below 6), and otherwise warm from 56°.
+  - **Depth** from the mean L* of skin and hair: light from 62, deep below 36 or when the skin's ITA° is below 12.
   - **Contrast** is the ΔL* between the skin and the darker of the brows and hair: medium from 25, high from 45.
-  - **Derived colours:** concealer is the skin's OKLab L +0.03; nude lip is the lips' L −0.03 with chroma ×0.9.
-  - **Unclear photos** get neutral medium/medium.
-  - **Steps per look:** 3 for Staying in, 4 for Casual, 5 for Work and 6 for Going out.
+  - **Season:** deep is Dark Autumn or Dark Winter; high contrast is Bright Spring, Bright Winter (light) or True Winter; light is Light Spring or Light Summer; low contrast or a neutral undertone is Soft Autumn or Soft Summer; the rest is True Spring (mean L* from 58), True Autumn or True Summer.
+  - **Palettes:** 12 colours that suit, 6 neutrals and 4 to go easy on for each season.
+  - **Unclear photos:** a face-quality report that isn't all good still gives a reading, shown as a starting point.
 - **Photos:**
   - JPEG or PNG, at most 10 MB and 4096 px. Another format is converted to PNG with a note, and a larger photo is scaled down.
   - Body photos need at least 512 × 384, face photos at least 320 px a side.
   - The picker scales to 2048 px at JPEG quality 90.
   - There is no face or body detection.
-- **YouCam costs:** 2 units per try-on pass, 20 per face analysis, 1 per makeup step; failed tasks are free. A new person's first day costs about 35 to 45 units (two outfits, the face analysis, makeup), then about 10 a day.
+- **YouCam costs:** 2 units per try-on pass and 20 per face analysis, once per face photo; failed tasks are free. A new person's first day costs about 30 units (two outfits and the face analysis), then 4 to 6 a day.
 
 ## Architecture
 
@@ -228,11 +227,11 @@ lib/
     weather/               # Open-Meteo forecasts and day rules
     photos/                # The system photo picker and the private photo store
     catalog/               # The bundled collection and the person's picks
+    colours/               # The skin-tone analysis, colour seasons and the Mirror tab
     auth/                  # Sign in with Apple and Google, Firebase Auth
     account/               # Saving, restoring and deleting the account
     outfits/               # Choosing, claiming and trying on each day's outfit
     home/                  # The Home tab and Shop
-    makeup/                # Face colours, recipes and looks
     profile/               # The person's name
     home_widget/           # Both widgets: content, pictures, taps, the morning refresh
     preferences/           # Language and default day
@@ -240,7 +239,7 @@ lib/
   l10n/arb/                # English, Spanish and Simplified Chinese strings
 android/app/src/main/kotlin/com/invogue/app/InVogueWidgetProvider.kt   # The Android widget
 ios/In Vogue Widget/       # The iPhone widget extension (SwiftUI)
-assets/                    # catalog/, outfits/, makeup/, fonts/, images/, development/ (git-ignored key)
+assets/                    # catalog/, outfits/, fonts/, images/, development/ (git-ignored key)
 scripts/                   # Exports, glyphs, icons, Firebase configuration, the rules check
 ```
 
@@ -277,9 +276,8 @@ English is the default whatever the phone's language. The person's choice is res
 | --- | --- |
 | Buttons and sign-in buttons (`busy`) | Along the bottom, in the label's colour. The button keeps its fill and ignores taps. Sign-in turns the other provider off and keeps running through the account's restore and save. |
 | Text links and Settings rows (`busy`) | In place of the underline. For Log out and Delete account, a Rouge rule under the title. |
-| Content still loading (`RunningRule.content`) | Over a hairline where the content will appear: Picks' weather and pieces, the Outfits tab, Shop, Your picks, and Makeup's first look-up and its steps before the recipe arrives. |
+| Content still loading (`RunningRule.content`) | Over a hairline where the content will appear: Picks' weather and pieces, the Outfits tab, Shop, Your picks, and Mirror while it reads the colours. |
 | The outfit | `PhotoStage.looking`: along the bottom of the faded photo while the outfit is looked up. While it's being made, inside "Getting your outfit ready…". |
-| Makeup | Under the square of the step being made (the first without a picture), and along the bottom of "Your makeup follows your outfit…". |
 | Catalogue photos (`PhotoSlot.showLoading`) | Along the bottom of the Rose slot until the photo's first frame. |
 
 Busy controls tell screen readers "Loading". Only the thing being waited on moves.
@@ -295,19 +293,18 @@ Busy controls tell screen readers "Loading". Only the thing being waited on move
 
 ### YouCam (Perfect Corp)
 
-Base URL `https://yce-api-01.makeupar.com`, with the API key as a bearer token. The app calls YouCam itself, only after sign-in. Development builds bundle the key; production builds carry none and make no outfits or makeup.
+Base URL `https://yce-api-01.makeupar.com`, with the API key as a bearer token. The app calls YouCam itself, only after sign-in. Development builds bundle the key; production builds carry none, make no outfits and read no colours.
 
 | Call | Used for |
 | --- | --- |
 | `POST /s2s/v2.0/file`, then `PUT` to the upload URL it returns | Uploads the body photo, or a face picture, and gets a file id |
 | `POST /s2s/v2.0/task/cloth-v4` | AI Clothes try-on: `src_file_id` (the photo) or `src_file_url` (the last pass's picture), `ref_file_url` (the garment photo) and `garment_category` |
-| `POST /s2s/v2.0/task/skin-tone-analysis` | Facial colour tones of the face photo (skin, brows, lips, hair) |
-| `POST /s2s/v2.0/task/makeup-vto` | One makeup step: `src_file_id` and the step's `effects` |
-| `GET /s2s/v2.0/task/{tool}/{task_id}` | Polls a task: every 5 seconds for try-on (up to 4 minutes), every 3 for makeup (up to 2) |
+| `POST /s2s/v2.0/task/skin-tone-analysis` | Facial colour tones of the face photo (skin, brows, lips, hair, eyes), at `face_angle_strictness_level: low` |
+| `GET /s2s/v2.0/task/{tool}/{task_id}` | Polls a task: every 5 seconds for try-on (up to 4 minutes), every 3 for the skin-tone analysis (up to 2) |
 | The result's URL (no key) | Downloads the finished picture; YouCam keeps it about 2 hours |
 | `POST /s2s/v2.0/task/delete` | Discards a task once its picture is kept |
 
-When YouCam refuses a garment's photo (`error_invalid_ref`), that piece is never chosen again and the day switches to another outfit. When the units run out, outfits and makeup stop for everyone with "No more outfits can be made for now."
+When YouCam refuses a garment's photo (`error_invalid_ref`), that piece is never chosen again and the day switches to another outfit. When the units run out, outfits and colour readings stop for everyone with "No more outfits can be made for now."
 
 ### Firebase
 
@@ -315,7 +312,7 @@ When YouCam refuses a garment's photo (`error_invalid_ref`), that piece is never
 | --- | --- |
 | Authentication | Sign in with Apple (iPhone only) and Google |
 | Cloud Firestore | The account and everything under `users/{uid}` (see [Data](#data)); offline persistence gives the phone a copy |
-| Cloud Storage | Photos, outfit pictures and makeup pictures under `users/{uid}/` |
+| Cloud Storage | Photos and outfit pictures under `users/{uid}/` |
 | App Check | On, with debug tokens in debug builds, Play Integrity on Android and App Attest on iPhone, but never enforced (owner decision), so it changes nothing |
 
 Projects: `in-vogue-dev` (development) and `in-vogue` (production).
@@ -338,7 +335,7 @@ Projects: `in-vogue-dev` (development) and `in-vogue` (production).
 
 ### Offline: the catalog
 
-The catalog isn't fetched by the app. On the Mac, `../resources/` pulls Everlane's women's collection from Shopify's Global Catalog and builds the knowledge base (weather, occasions, styling, outfits, skin, makeup) with Python. `scripts/export_*.py` copies what the app needs into `assets/`. The data stays bundled (owner decision), so a catalog change ships with an app release.
+The catalog isn't fetched by the app. On the Mac, `../resources/` pulls Everlane's women's collection from Shopify's Global Catalog and builds the knowledge base (weather, occasions, styling and outfits) with Python. `scripts/export_*.py` copies what the app needs into `assets/`. The data stays bundled (owner decision), so a catalog change ships with an app release.
 
 ## Data
 
@@ -351,11 +348,10 @@ The catalog isn't fetched by the app. On the Mac, `../resources/` pulls Everlane
 | `users/{uid}/days/{yyyy-mm-dd}_{occasion}` | Each day's outfit: cell, outfit, `status`, the phone making it, progress, `picturePath`, `problem` |
 | `users/{uid}/suggestions/{signature}` | When each outfit was suggested, and any piece whose photo YouCam refused |
 | `users/{uid}/tryOns/{photo}-{signature}` | The picture made of an outfit on a photo: the photo's fingerprint, the signature and the picture's path |
-| `users/{uid}/makeupLooks/{face}-{signature}` | A look: its face photo's fingerprint, the outfit, palette, cheek and lip colours, steps (texts in three languages) and picture names. Looks made before October 18 are named by the signature alone |
-| `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo |
+| `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo: skin, brows, lips, hair, eyes, and whether the photo was clear |
 | `errors/{id}` | An error report: account, time, where, the error's kind and code, stack, flavor, platform, version, build and install id. The app may only add its own; nobody reads or changes one from the app |
 
-In the names above, `{photo}` and `{face}` are the first 16 characters of the photo's SHA-256.
+In the names above, `{photo}` is the first 16 characters of the photo's SHA-256.
 
 ### Storage
 
@@ -363,20 +359,19 @@ In the names above, `{photo}` and `{face}` are the first 16 characters of the ph
 | --- | --- |
 | `users/{uid}/photos/<file>` | The body and face photos |
 | `users/{uid}/days/{date}_{occasion}.jpg` or `.png` | A finished outfit picture; later days with the same photo and outfit share it |
-| `users/{uid}/makeup/{look}/<file>` | A look's `before` picture and each step's picture |
 
 ### On the phone
 
 Everything sits in `<support>/in_vogue/<flavor>/`:
 
-- **Hive** (`preferences_<flavor>`): the language, default day, setup step, location, picks and those last saved on the account, the name, the photo records, the install id, and the unfinished try-on and makeup jobs.
+- **Hive** (`preferences_<flavor>`): the language, default day, setup step, location, picks and those last saved on the account, the name, the photo records, the install id, the unfinished try-on jobs and the colour readings under way.
 - **SQLite** (`cache.sqlite`): forecasts, with expiry.
-- **Files:** `photos/`, `outfits/{uid}/` (with `made/`), `makeup/{uid}/{look}/` (with `look.json`) and `downloads/`.
+- **Files:** `photos/`, `outfits/{uid}/` (with `made/`) and `downloads/`.
 - **The widgets:** Android stores their content in home_widget's preferences. iPhone stores it in the App Group: its `UserDefaults` and a `widget/` folder of pictures.
 
 ### Bundled assets
 
-`assets/catalog/everlane_women.json` (the collection), `assets/outfits/outfits.json` (1,749 outfits in 96 cells), `assets/makeup/recipes.json` (720 recipes), the fonts and images.
+`assets/catalog/everlane_women.json` (the collection), `assets/outfits/outfits.json` (1,749 outfits in 96 cells), the fonts and images.
 
 ## Getting started
 
@@ -467,7 +462,7 @@ Run from `in-vogue/`; on the owner's Mac, wrap Flutter and Dart commands in `zsh
 | Analyze | `flutterN analyze` |
 | Test | `flutterN test` |
 | Type-check the iPhone widget (no build) | `xcrun swiftc -typecheck -parse-as-library -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target arm64-apple-ios17.0 "ios/In Vogue Widget/"*.swift` |
-| Export the bundled data, in this order | `python3 scripts/export_catalog.py`, `python3 scripts/export_outfits.py`, `python3 scripts/export_makeup.py` (the last two stop if `../resources/kb/translations.v1.json` lacks a text) |
+| Export the bundled data, in this order | `python3 scripts/export_catalog.py`, then `python3 scripts/export_outfits.py` (it stops if `../resources/kb/translations.v1.json` lacks a text) |
 | Widget glyphs for both platforms | `python3 scripts/generate_widget_glyphs.py` |
 | Launcher icons | `scripts/generate_app_icons.sh` |
 | Native Firebase files | `scripts/configure_firebase.sh development` (or `production`) |
@@ -483,7 +478,7 @@ Run from `in-vogue/`; on the owner's Mac, wrap Flutter and Dart commands in `zsh
 
 - **The foundation:** the flavor and Firebase isolation, the iOS flavor wiring, language restore and fallback, real Hive and SQLite behaviour, complete translation files, and 320-point screens at 200% text.
 - **The design system:** every token, glyph path and component, checked against `../design-spec/` when it sits beside the repository.
-- **The app:** routes and resuming setup; every screen; the location, forecast and day rules; the photo rules; the bundled data (every text in three languages); choosing and claiming days across phones; making outfits and makeup against scripted YouCam fakes, including both caches; saving, restoring and deleting the account; the rules' plan lock; and both widgets' content, taps and refresh.
+- **The app:** routes and resuming setup; every screen; the location, forecast and day rules; the photo rules; the bundled data (every text in three languages); choosing and claiming days across phones; making outfits and reading colours against scripted YouCam fakes, including their caches; the colour seasons; saving, restoring and deleting the account; the rules' plan lock; and both widgets' content, taps and refresh.
 - **The native widgets:** checked in place of a build by `test/core/android_widget_configuration_test.dart` and `ios_widget_configuration_test.dart`.
 
 Each package is tested the way its own docs say: platform-interface mocks for plugins, `withClock` for time, bloc_test's `MockBloc` for screens, `fake_cloud_firestore`, sqflite_common_ffi and http_mock_adapter. Tests never call YouCam or real Firebase. The device test in `integration_test/` starts the real native Firebase, Hive and SQLite.
@@ -498,8 +493,8 @@ All checks run locally; the project has no CI by the owner's choice.
 - **Keys:** `secrets/` (the YouCam key and the development admin key), the bundled development key and the native Firebase files are git-ignored.
   - A key inside an app can be extracted, so production carries none yet.
   - A YouCam proxy function, holding the key on a server behind App Check, is to be reconsidered before release.
-- **Photos and pictures:** they go to YouCam (to make outfits and makeup) and to Firebase.
-  - Log out removes this account's outfit and makeup pictures from the phone.
+- **Photos and pictures:** they go to YouCam (to make outfits and read colours) and to Firebase.
+  - Log out removes this account's outfit pictures and colour readings under way from the phone.
   - Delete account removes everything from Firebase and the phone.
 - **Error reports:** they carry the account id and never the exception's message. They stay after Delete account, since the app can't delete them.
 
@@ -509,7 +504,7 @@ All checks run locally; the project has no CI by the owner's choice.
 
 - **Sign-in (October 16):** Google sign-in works, and an Apple sign-in saved the profile, both photos and four favourites to Firebase.
 - **Owner's device test (October 18):** the development build with the bundled YouCam key, the occasion fix and the Settings changes all passed.
-- **Still to check:** a real end-to-end YouCam run, the October 17 work (two-day outfits, photo rules, returning users, makeup by itself), and both widgets.
+- **Still to check:** a real end-to-end YouCam run, the October 17 work (two-day outfits, photo rules, returning users), Mirror's colour reading, and both widgets.
 
 ### Next
 
@@ -524,12 +519,7 @@ From the owner's device test, October 18, in this order:
      "error_message": "The face is turned too far to the right for accurate analysis. Slightly turn head to the left and try again.",
      "results": null, "task_status": "error"}}
    ```
-4. **Replace Makeup with a colour palette and My Wardrobe.** Feedback says people want their skin analysis to give the clothing colours that suit them, shown visually, more than step-by-step makeup. They also want to add their own outfits. Both go on one page, top to bottom: the face with its skin-tone results and colour palette, then My Wardrobe. Steps:
-   1. Scrap makeup, keeping the face photo and the skin analysis.
-   2. Research YouCam's skin-tone analysis in depth (every result and error, and what to tell the person), and colour analysis, for a hardcoded recommender from YouCam's results to clothing colours.
-   3. A design spec.
-   4. Build it.
-   5. User testing.
+4. **Replace Makeup with a colour palette and My Wardrobe.** Done October 18 as the Mirror tab (see [Reading colours](#reading-colours)); user testing is the owner's. Makeup is gone: its looks, recipes, steps and pictures. The face photo and the skin analysis stay. The owner's design: the season and why, then the palette in round swatches, then My Wardrobe; no face photo on the page, since it belongs in Settings; without one, Mirror asks for a selfie.
 5. **My Wardrobe** (later, part of item 4): people upload their own outfits with the details recommendation needs, and their own outfits weigh more than the catalog's when choosing.
 
 ### Open work
@@ -538,11 +528,11 @@ From the owner's device test, October 18, in this order:
   - Android: Large, Medium and Small; the switch at 06:00, 09:00 and midnight; a tap opening Home on that day; the waiting and stale states; the morning refresh (about 05:30, network on).
   - iPhone: the same, with Background App Refresh on, since iOS picks when the refresh runs.
 - **Membership rules for the MVP (owner decision).**
-  - The plan so far: Free gives 14 outfits and 3 makeup looks over the account's whole life, and one outfit a day. Pro is shown at $7.99 a month or $59.99 a year, and Go Pro joins a waiting list, with no payments.
+  - The plan so far: Free gives 14 outfits over the account's whole life, and one outfit a day (its 3 makeup looks went with makeup on October 18). Pro is shown at $7.99 a month or $59.99 a year, and Go Pro joins a waiting list, with no payments.
   - Every new account is created Pro today, so each tester's YouCam spend is uncapped.
   - The decision unblocks three pieces of work:
-    - **Free-plan limits:** count outfits shown and looks made, and lock the counters in the rules so the app can only raise them. Without a server they can't be fully tamper-proof.
-    - **The Go Pro screen:** "In Vogue Pro", four benefits, the price and the waiting list. The design-system pieces exist.
+    - **Free-plan limits:** count outfits shown, and lock the counters in the rules so the app can only raise them. Without a server they can't be fully tamper-proof.
+    - **The Go Pro screen:** "In Vogue Pro", three benefits, the price and the waiting list. The design-system pieces exist.
     - **Free-plan locks:** the plan line on Home, Go Pro in Settings, and browsing limited to about 30 current-season pieces.
 - **How testers get the app (owner decision).**
   - Firebase App Distribution is quickest. On Android it takes the debug-signed development build as is.
@@ -579,7 +569,7 @@ The production flavor (`com.invogue.app`, Firebase `in-vogue`) needs these befor
   - production entitlements for Runner and the extension with `group.com.invogue.app` (owner, in Xcode);
   - `HomeWidgetDataSourceImpl.appGroupOf(production)` (AI);
   - the extension's version and build number set to match the app's.
-- [ ] Build the production flavor and check sign-in, the first outfit, makeup and Delete account on a device.
+- [ ] Build the production flavor and check sign-in, the first outfit, Mirror's colours and Delete account on a device.
 - [ ] Sign the release builds, upload them to the chosen channel, merge, push and tag.
 
 ### Decision log
@@ -589,11 +579,11 @@ Each line is an owner decision, kept so that old ideas stay dead.
 - **October 14:** Everlane's women's collection became the first catalog. Outfits are tried on piece by piece, with Everlane's whole-outfit photos held in reserve.
 - **October 15:** the design became Swiss Style on white with Rouge and Rose, and the logo was finalised. The icons moved to `phosphoricons_flutter`.
 - **October 16:** setup became photo before sign-in, with no guest outfit. No photo checks ("just trust the user"). No native builds unless asked, never test packages, and no screen reuse.
-- **October 17:** no units cap ever, everything in the app, the newest package versions without asking, and makeup starts by itself.
+- **October 17:** no units cap ever, everything in the app, the newest package versions without asking, and makeup starts by itself (makeup was replaced on October 18).
 - **October 18, morning:** Saturday and Sunday default to Casual. Development builds bundle the YouCam key, and a YouCam function is to be reconsidered before release. The app updates the widget, plus a morning refresh.
 - **October 18, later:** the catalog stays bundled, and App Check stays in the app, never enforced. The focus became an MVP for testers on the development flavor.
 - **October 18, last:** each photo and outfit is tried on once, and looks are kept per face photo. Error reports go to a Firestore `errors` collection.
 - **October 18, after the device test:**
   - Loading must visibly move, overriding the spec's still placeholders. Of three options, the owner picked the running rule.
-  - Makeup gives way to a skin-tone colour palette and My Wardrobe on one page.
+  - Makeup gives way to a skin-tone colour palette and My Wardrobe on one page: the Mirror tab (Home, Mirror, Settings). It shows the season and why and the palette in round swatches, never the face photo, which belongs in Settings. Setup asks for the selfie for the skin tone and colour analysis, never for makeup.
   - Wardrobe uploads, dropped before, are planned, and the person's own outfits weigh more.
