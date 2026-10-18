@@ -41,6 +41,13 @@ class ColourProfileRepositoryImpl implements ColourProfileRepository {
   });
 
   @override
+  Future<Either<Failure, FaceColours?>> latest(String accountId) =>
+      _guard('latest', () async {
+        final json = await _remote.latest(accountId);
+        return json == null ? null : FaceColoursModel.fromJson(json);
+      });
+
+  @override
   Future<Either<Failure, Unit>> save(
     String accountId,
     String facePhoto,

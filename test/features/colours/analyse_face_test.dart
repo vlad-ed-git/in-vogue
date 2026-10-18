@@ -69,11 +69,23 @@ class _Service implements SkinAnalysisRepository {
 class _Profiles implements ColourProfileRepository {
   final kept = <String, FaceColours>{};
 
+  /// Keys in the order they were saved, the last one latest.
+  final saved = <String>[];
+
   @override
   Future<Either<Failure, FaceColours?>> colours(
     String accountId,
     String facePhoto,
   ) async => Right(kept['$accountId$facePhoto']);
+
+  @override
+  Future<Either<Failure, FaceColours?>> latest(String accountId) async {
+    final key = saved.lastWhere(
+      (key) => key.startsWith(accountId),
+      orElse: () => '',
+    );
+    return Right(kept[key]);
+  }
 
   @override
   Future<Either<Failure, Unit>> save(
@@ -82,6 +94,9 @@ class _Profiles implements ColourProfileRepository {
     FaceColours colours,
   ) async {
     kept['$accountId$facePhoto'] = colours;
+    saved
+      ..remove('$accountId$facePhoto')
+      ..add('$accountId$facePhoto');
     return const Right(unit);
   }
 }
@@ -151,14 +166,62 @@ void main() {
     verify(saveSetup('uid-1')).called(1);
   });
 
-  test('takes the colours already read from this photo', () async {
-    profiles.kept['uid-1${_face.path}'] = _colours;
+  test('takes the colours already read for the person, from any photo, '
+      'and reads nothing', () async {
+    await profiles.save('uid-1', '/photos/face-1.png', _colours);
     final service = _Service([]);
     expect(
       await analyse(service)('uid-1'),
       const Right<Failure, FaceColours>(_colours),
     );
     expect(service.uploads, isEmpty);
+    verifyNever(photos.kept(any));
+  });
+
+  test(
+    'a redo reads the current face photo and makes it the reading',
+    () async {
+      const older = FaceColours(
+        skin: '#C69C82',
+        eyebrow: '#4A3628',
+        lip: '#B5726E',
+        hair: '#4A3628',
+        clear: true,
+      );
+      await profiles.save('uid-1', '/photos/face-1.png', older);
+      final service = _Service([const AnalysisDone(_colours)]);
+      expect(
+        await analyse(service)('uid-1', redo: true),
+        const Right<Failure, FaceColours>(_colours),
+      );
+      expect(service.uploads, [_face.path]);
+      expect(
+        await profiles.latest('uid-1'),
+        const Right<Failure, FaceColours?>(_colours),
+      );
+    },
+  );
+
+  test('a redo of a photo read before takes its reading, for free', () async {
+    await profiles.save('uid-1', _face.path, _colours);
+    const later = FaceColours(
+      skin: '#C69C82',
+      eyebrow: '#4A3628',
+      lip: '#B5726E',
+      hair: '#4A3628',
+      clear: true,
+    );
+    await profiles.save('uid-1', '/photos/face-3.png', later);
+    final service = _Service([]);
+    expect(
+      await analyse(service)('uid-1', redo: true),
+      const Right<Failure, FaceColours>(_colours),
+    );
+    expect(service.uploads, isEmpty);
+    expect(
+      await profiles.latest('uid-1'),
+      const Right<Failure, FaceColours?>(_colours),
+    );
   });
 
   test('picks up a reading cut short instead of paying for another', () async {

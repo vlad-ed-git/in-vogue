@@ -42,8 +42,9 @@ class ColoursState extends Equatable {
   List<Object?> get props => [status, reading, failure];
 }
 
-/// The colours that suit the person, read from their kept face photo; a
-/// reading shown stays while the same photo is checked again.
+/// The colours that suit the person: the reading kept on the account, or
+/// the first reading of their face photo. A reading shown stays on screen
+/// while it is looked up again.
 class ColoursBloc extends Bloc<ColoursEvent, ColoursState> {
   ColoursBloc({
     required this._getCurrentAccount,
@@ -57,15 +58,11 @@ class ColoursBloc extends Bloc<ColoursEvent, ColoursState> {
   final GetKeptPhoto _getKeptPhoto;
   final AnalyseFace _analyseFace;
 
-  /// The face photo the reading on screen comes from.
-  int? _revision;
-
   Future<void> _show(ColoursShown event, Emitter<ColoursState> emit) async {
     final face = (await _getKeptPhoto(
       PhotoRole.face,
     )).fold<UserPhoto?>((_) => null, (photo) => photo);
     if (face == null) {
-      _revision = null;
       return emit(const ColoursState(status: ColoursStatus.noPhoto));
     }
     final account = (await _getCurrentAccount(
@@ -79,22 +76,19 @@ class ColoursBloc extends Bloc<ColoursEvent, ColoursState> {
         ),
       );
     }
-    if (state.status != ColoursStatus.ready || _revision != face.revision) {
+    if (state.status != ColoursStatus.ready) {
       emit(const ColoursState(status: ColoursStatus.reading));
     }
     final colours = await _analyseFace(account.id);
     colours.fold(
       (failure) =>
           emit(ColoursState(status: ColoursStatus.failed, failure: failure)),
-      (colours) {
-        _revision = face.revision;
-        emit(
-          ColoursState(
-            status: ColoursStatus.ready,
-            reading: SeasonRules.readingOf(colours),
-          ),
-        );
-      },
+      (colours) => emit(
+        ColoursState(
+          status: ColoursStatus.ready,
+          reading: SeasonRules.readingOf(colours),
+        ),
+      ),
     );
   }
 }

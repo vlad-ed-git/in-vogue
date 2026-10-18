@@ -104,15 +104,16 @@ class MockAnalyseFace extends _i1.Mock implements _i11.AnalyseFace {
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i12.FaceColours>> call(
-    String? accountId,
-  ) =>
+    String? accountId, {
+    bool? redo = false,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#call, [accountId]),
+            Invocation.method(#call, [accountId], {#redo: redo}),
             returnValue:
                 _i4.Future<_i2.Either<_i5.Failure, _i12.FaceColours>>.value(
                   _FakeEither_0<_i5.Failure, _i12.FaceColours>(
                     this,
-                    Invocation.method(#call, [accountId]),
+                    Invocation.method(#call, [accountId], {#redo: redo}),
                   ),
                 ),
           )

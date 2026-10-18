@@ -108,6 +108,46 @@ void main() {
         const Right<Failure, FaceColours?>(null),
       );
     });
+
+    test(
+      "the account's reading is the one saved last, from any photo",
+      () async {
+        final firestore = FakeFirebaseFirestore();
+        final repository = ColourProfileRepositoryImpl(
+          remoteDataSource: ColourProfileRemoteDataSourceImpl(firestore),
+          fingerprints: PhotoFingerprints(read: (path) async => path.codeUnits),
+          logMessages: LogMessagesImpl(),
+        );
+        expect(
+          await repository.latest('uid-1'),
+          const Right<Failure, FaceColours?>(null),
+        );
+        const other = FaceColours(
+          skin: '#C69C82',
+          eyebrow: '#4A3628',
+          lip: '#B5726E',
+          hair: '#4A3628',
+          clear: true,
+        );
+        await repository.save('uid-1', '/photos/face.png', _colours);
+        await Future<void>.delayed(const Duration(milliseconds: 2));
+        await repository.save('uid-1', '/photos/another.png', other);
+        expect(
+          await repository.latest('uid-1'),
+          const Right<Failure, FaceColours?>(other),
+        );
+        await Future<void>.delayed(const Duration(milliseconds: 2));
+        await repository.save('uid-1', '/photos/face.png', _colours);
+        expect(
+          await repository.latest('uid-1'),
+          const Right<Failure, FaceColours?>(_colours),
+        );
+        expect(
+          await repository.latest('uid-2'),
+          const Right<Failure, FaceColours?>(null),
+        );
+      },
+    );
   });
 
   group('AnalysisJobRepositoryImpl', () {

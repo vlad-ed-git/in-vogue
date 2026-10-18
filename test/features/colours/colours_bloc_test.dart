@@ -107,14 +107,10 @@ void main() {
   );
 
   blocTest<ColoursBloc, ColoursState>(
-    'keeps the season on screen while the same photo is checked again',
+    'keeps the season on screen while it is looked up again',
     build: build,
     seed: () => ready,
-    act: (bloc) async {
-      bloc.add(const ColoursShown());
-      await Future<void>.delayed(Duration.zero);
-      bloc.add(const ColoursShown());
-    },
-    expect: () => [const ColoursState(status: ColoursStatus.reading), ready],
+    act: (bloc) => bloc.add(const ColoursShown()),
+    expect: () => const <ColoursState>[],
   );
 }

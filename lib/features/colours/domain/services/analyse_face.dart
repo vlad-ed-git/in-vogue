@@ -12,10 +12,12 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
 
-/// Reads the colours of the person's face photo with the skin-tone
-/// analysis: once per photo, kept on the account by the photo's content.
-/// A reading cut short is checked again rather than paid for twice; a
-/// failed one costs nothing and starts again next time.
+/// The person's colours, read by the skin-tone analysis once per person
+/// (owner, October 18): a new face photo keeps the colours already read,
+/// since the person is the same, and is read only when they ask to redo
+/// it. Readings are kept on the account under the photo's content, the one
+/// saved last being the person's. A reading cut short is checked again
+/// rather than paid for twice; a failed one costs nothing.
 class AnalyseFace {
   AnalyseFace({
     required this._service,
@@ -35,8 +37,19 @@ class AnalyseFace {
   final Duration _checkEvery;
   final Duration _taskTimeLimit;
 
-  /// The colours of [accountId]'s kept face photo.
-  Future<Either<Failure, FaceColours>> call(String accountId) async {
+  /// [accountId]'s colours: the reading kept on the account, or, when
+  /// there is none or the person asks to [redo] it, the kept face photo's.
+  Future<Either<Failure, FaceColours>> call(
+    String accountId, {
+    bool redo = false,
+  }) async {
+    if (!redo) {
+      final latest = await _profiles.latest(accountId);
+      if (latest case Left(value: final failure)) return Left(failure);
+      if (latest.getOrElse(() => null) case final FaceColours colours) {
+        return Right(colours);
+      }
+    }
     final face = (await _photos.kept(
       PhotoRole.face,
     )).fold<UserPhoto?>((_) => null, (photo) => photo);
@@ -46,6 +59,9 @@ class AnalyseFace {
     final known = await _profiles.colours(accountId, face.path);
     if (known case Left(value: final failure)) return Left(failure);
     if (known.getOrElse(() => null) case final FaceColours colours) {
+      // Read before: saved again, it becomes the reading at no cost.
+      final saved = await _profiles.save(accountId, face.path, colours);
+      if (saved case Left(value: final failure)) return Left(failure);
       return Right(colours);
     }
     if (!_service.available) {

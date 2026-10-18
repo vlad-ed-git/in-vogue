@@ -8,6 +8,9 @@ abstract interface class ColourProfileRemoteDataSource {
   /// The colours read from the photo [photoId]; null when there are none.
   Future<Map<String, Object?>?> colours(String accountId, String photoId);
 
+  /// The colours saved last, from any photo; null when there are none.
+  Future<Map<String, Object?>?> latest(String accountId);
+
   Future<void> save(
     String accountId,
     String photoId,
@@ -34,6 +37,14 @@ class ColourProfileRemoteDataSourceImpl
       _guard(
         () async => (await _profiles(accountId).doc(photoId).get()).data(),
       );
+
+  @override
+  Future<Map<String, Object?>?> latest(String accountId) => _guard(() async {
+    final saved = await _profiles(
+      accountId,
+    ).orderBy('analysedAt', descending: true).limit(1).get();
+    return saved.docs.isEmpty ? null : saved.docs.first.data();
+  });
 
   @override
   Future<void> save(
