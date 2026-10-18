@@ -100,8 +100,11 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 1. [x] **Animated loading everywhere.** Done October 18. The owner picked the running rule from three options: a 2-point bar runs along whatever is working, at every wait in the app. This overrides the spec's still Rose placeholders (`design-spec/guide/04-photography.md`, `06-motion.md`). How it works is in README's [Design system](README.md#design-system).
 2. [x] **The widget's temperature on narrow widgets.** Done October 18; the owner's build checks it. On Android, the numeral is sized to the widget's width, measured in its own font. On iPhone, it shrinks to a quarter of its size before it would wrap.
-3. [ ] **Makeup doesn't work on the owner's phone.** Diagnose it, starting with the reports in `in-vogue-dev`'s Firestore `errors` collection, read with the admin key. Begin with the skin analysis, which stays.
-   - YouCam's photo errors, such as `error_face_angle_rightward` ("The face is turned too far to the right… turn head to the left"), reach the person as "Your photo is fine." (`makeupFailed`, `tryOnFailed`). That's wrong: say what to fix.
+3. [x] **Makeup doesn't work on the owner's phone.** Fixed October 18; it needs the owner's YouCam run to confirm. The `errors` collection was empty (failed YouCam tasks were never logged), and neither development account had a colour profile, so the skin analysis had never succeeded. It refused the face photo's angle (`error_face_angle_rightward`) at the strict `high` level. Then, because the app didn't know the analyzer's seven angle codes, it said "Your photo is fine."
+   - The analysis now runs at `low` strictness, since the app trusts the photo (owner to confirm).
+   - Every photo error says what to change (`PhotoAdvice`), for makeup and try-on alike.
+   - Failed tasks are logged with YouCam's code, so they reach `errors`.
+   - A success without a `face_quality` report keeps the person's colours.
 4. [ ] **Replace Makeup with a colour palette and My Wardrobe** (owner, October 18). Users want their skin analysis to give the clothing colours that suit them, more than step-by-step makeup. The new page, top to bottom: the face with its skin-tone results and colour palette, then My Wardrobe. Steps:
    1. Scrap makeup, keeping the face photo and the skin analysis.
    2. Research. Study YouCam's skin-tone analysis in depth: every result and error, and what to tell the person. Study colour analysis too, for a hardcoded recommender from YouCam's results to clothing colours, shown visually.

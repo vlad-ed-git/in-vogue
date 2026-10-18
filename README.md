@@ -517,8 +517,7 @@ From the owner's device test, October 18, in this order:
 
 1. **Animated loading everywhere.** Done October 18 with the running rule (see [Design system](#design-system)).
 2. **The widget's temperature on narrow widgets.** Done October 18, waiting for the owner's build: the numeral fits any width on Android and iPhone.
-3. **Makeup doesn't work on the owner's phone.** The diagnosis starts with the `errors` reports in `in-vogue-dev` and with the skin analysis, which stays.
-   - YouCam's photo errors reach the person as "Your photo is fine." That's wrong: they should say what to fix. For example:
+3. **Makeup doesn't work on the owner's phone.** Fixed October 18; the owner's YouCam run confirms it. The skin analysis refused the face photo's angle at `high` strictness and had never succeeded. The app didn't know the angle codes, so it said "Your photo is fine." The analysis now runs at `low`, every photo error says what to change, failed tasks are logged with YouCam's code, and a success without `face_quality` keeps the person's colours. The error the owner saw:
 
    ```json
    {"status": 200, "data": {"error": "error_face_angle_rightward",
