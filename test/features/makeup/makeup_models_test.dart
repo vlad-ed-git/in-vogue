@@ -212,6 +212,14 @@ void main() {
       expect(FaceColoursModel.fromAnalysis(dim).clear, isFalse);
     });
 
+    test('trusts the colours of a success that reports no face quality', () {
+      final colours = FaceColoursModel.fromAnalysis({
+        'color': _analysis['color'],
+      });
+      expect(colours.clear, isTrue);
+      expect(colours.skin, '#E8C4AE');
+    });
+
     test('counts results without readable colours as an unclear photo', () {
       expect(
         FaceColoursModel.fromAnalysis({

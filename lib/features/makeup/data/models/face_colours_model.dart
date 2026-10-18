@@ -8,7 +8,9 @@ abstract final class FaceColoursModel {
   static final _hex = RegExp(r'^#[0-9a-fA-F]{6}$');
 
   /// The colours in an analysis's [results]. Results without readable
-  /// colours count as an unclear photo: neutral colours, not clear.
+  /// colours count as an unclear photo: neutral colours, not clear. The
+  /// analysis refuses photos it can't read, so a success that reports no
+  /// face quality is clear.
   static FaceColours fromAnalysis(Object? results) {
     if (results case {
       'color': {
@@ -20,7 +22,7 @@ abstract final class FaceColoursModel {
     } when [skin, eyebrow, lip, hair].every(_hex.hasMatch)) {
       final quality = switch (results) {
         {'face_quality': final Map<String, Object?> quality} => quality,
-        _ => const <String, Object?>{},
+        _ => null,
       };
       return FaceColours(
         skin: skin.toUpperCase(),
@@ -28,12 +30,13 @@ abstract final class FaceColoursModel {
         lip: lip.toUpperCase(),
         hair: hair.toUpperCase(),
         clear:
+            quality == null ||
             quality['has_face'] == true &&
-            const [
-              'frontal',
-              'lighting',
-              'faceangle',
-            ].every((check) => quality[check] == 'good'),
+                const [
+                  'frontal',
+                  'lighting',
+                  'faceangle',
+                ].every((check) => quality[check] == 'good'),
       );
     }
     return SkinRules.neutralColours;

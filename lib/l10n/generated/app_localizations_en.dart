@@ -810,4 +810,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loading => 'Loading';
+
+  @override
+  String get photoLookStraight =>
+      'Your face is turned or tilted in this photo. Choose one where you look straight ahead.';
+
+  @override
+  String get photoMoveCloser =>
+      'Your face is too small in this photo. Choose a closer one.';
+
+  @override
+  String get photoShowWholeFace =>
+      'Part of your face is cut off in this photo. Choose one that shows your whole face.';
+
+  @override
+  String get photoOnlyYou =>
+      'There’s more than one person in this photo. Choose one of just you.';
+
+  @override
+  String get photoStandHeadToToe =>
+      'We couldn’t see you standing in this photo. Choose one of you standing, head to toe.';
 }

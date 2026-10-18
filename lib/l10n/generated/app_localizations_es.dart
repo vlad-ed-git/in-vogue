@@ -813,4 +813,24 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get loading => 'Cargando';
+
+  @override
+  String get photoLookStraight =>
+      'En esta foto tu cara está girada o inclinada. Elige una en la que mires al frente.';
+
+  @override
+  String get photoMoveCloser =>
+      'En esta foto tu cara se ve demasiado pequeña. Elige una más cercana.';
+
+  @override
+  String get photoShowWholeFace =>
+      'En esta foto se corta parte de tu cara. Elige una en la que se vea entera.';
+
+  @override
+  String get photoOnlyYou =>
+      'En esta foto hay más de una persona. Elige una en la que salgas solo tú.';
+
+  @override
+  String get photoStandHeadToToe =>
+      'En esta foto no te vemos de pie. Elige una en la que estés de pie, de pies a cabeza.';
 }

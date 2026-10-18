@@ -196,5 +196,10 @@
   "yourLastLook": "Tu último maquillaje",
   "makeupFacePhotoLine": "Tu maquillaje se crea sobre tu propia cara.",
   "makeupShadesNeutral": "Para tonos que vayan contigo, usa una foto de tu cara de frente y con luz natural.",
-  "loading": "Cargando"
+  "loading": "Cargando",
+  "photoLookStraight": "En esta foto tu cara está girada o inclinada. Elige una en la que mires al frente.",
+  "photoMoveCloser": "En esta foto tu cara se ve demasiado pequeña. Elige una más cercana.",
+  "photoShowWholeFace": "En esta foto se corta parte de tu cara. Elige una en la que se vea entera.",
+  "photoOnlyYou": "En esta foto hay más de una persona. Elige una en la que salgas solo tú.",
+  "photoStandHeadToToe": "En esta foto no te vemos de pie. Elige una en la que estés de pie, de pies a cabeza."
 }

@@ -363,8 +363,8 @@ class MakeLook {
       switch (checked.getOrElse(() => MakeupTaskRunning<T>())) {
         case MakeupTaskDone<T>(:final result):
           return Right(result);
-        case MakeupTaskFailed<T>(:final problem):
-          return Left(MakeupFailure(problem));
+        case MakeupTaskFailed<T>(:final problem, :final advice):
+          return Left(MakeupFailure(problem, advice: advice));
         case MakeupTaskRunning<T>():
           if (!clock.now().isBefore(deadline)) {
             return const Left(ServerFailure());

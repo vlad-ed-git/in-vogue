@@ -196,5 +196,10 @@
   "yourLastLook": "你上一次的妆容",
   "makeupFacePhotoLine": "妆容会画在你自己的脸上。",
   "makeupShadesNeutral": "想让色号更适合你，请使用在自然光下正面拍摄的面部照片。",
-  "loading": "加载中"
+  "loading": "加载中",
+  "photoLookStraight": "这张照片里你的脸转向一侧或歪斜。请选择一张直视前方的照片。",
+  "photoMoveCloser": "这张照片里你的脸太小了。请选择一张更近的照片。",
+  "photoShowWholeFace": "这张照片里你的脸有一部分被裁掉了。请选择一张能看到整张脸的照片。",
+  "photoOnlyYou": "这张照片里不止一个人。请选择一张只有你的照片。",
+  "photoStandHeadToToe": "这张照片里看不到你站立的样子。请选择一张从头到脚的站姿照片。"
 }

@@ -1286,6 +1286,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loading'**
   String get loading;
+
+  /// A photo YouCam refused because the face is turned, tilted, or tipped up or down.
+  ///
+  /// In en, this message translates to:
+  /// **'Your face is turned or tilted in this photo. Choose one where you look straight ahead.'**
+  String get photoLookStraight;
+
+  /// A photo YouCam refused because the face is too small in it.
+  ///
+  /// In en, this message translates to:
+  /// **'Your face is too small in this photo. Choose a closer one.'**
+  String get photoMoveCloser;
+
+  /// A photo YouCam refused because the face is cut off or not centred.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of your face is cut off in this photo. Choose one that shows your whole face.'**
+  String get photoShowWholeFace;
+
+  /// A photo YouCam refused because more than one person is in it.
+  ///
+  /// In en, this message translates to:
+  /// **'There’s more than one person in this photo. Choose one of just you.'**
+  String get photoOnlyYou;
+
+  /// A body photo YouCam refused because the person isn’t standing, head to toe.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t see you standing in this photo. Choose one of you standing, head to toe.'**
+  String get photoStandHeadToToe;
 }
 
 class _AppLocalizationsDelegate

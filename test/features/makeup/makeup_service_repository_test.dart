@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/features/makeup/data/data_sources/face_picture_data_source.dart';
 import 'package:in_vogue/features/makeup/data/repositories/makeup_service_repository_impl.dart';
@@ -24,6 +25,19 @@ const _effects = [
   },
 ];
 
+/// Keeps what is logged.
+class _Log implements LogMessages {
+  final errors = <String>[];
+
+  @override
+  void logError({
+    required String callerClass,
+    required String callerMethod,
+    required Object error,
+    StackTrace? stackTrace,
+  }) => errors.add('$callerClass.$callerMethod: $error');
+}
+
 void main() {
   late MockYouCamRemoteDataSource remote;
   late _FakeFaces faces;
@@ -41,17 +55,43 @@ void main() {
     when(remote.start(any, any)).thenAnswer((_) async => 'task-1');
   });
 
-  test('analyses a face held within ten degrees of the camera', () async {
-    expect(
-      await service.startAnalysis('file-1'),
-      const Right<Failure, String>('task-1'),
+  test(
+    'analyses the face at low angle strictness, trusting the photo',
+    () async {
+      expect(
+        await service.startAnalysis('file-1'),
+        const Right<Failure, String>('task-1'),
+      );
+      verify(
+        remote.start(YouCamTool.skinTone, {
+          'src_file_id': 'file-1',
+          'face_angle_strictness_level': 'low',
+        }),
+      ).called(1);
+    },
+  );
+
+  test('logs a failed task with its code and keeps what to change', () async {
+    final log = _Log();
+    final logged = MakeupServiceRepositoryImpl(
+      remoteDataSource: remote,
+      faceDataSource: faces,
+      logMessages: log,
     );
-    verify(
-      remote.start(YouCamTool.skinTone, {
-        'src_file_id': 'file-1',
-        'face_angle_strictness_level': 'high',
-      }),
-    ).called(1);
+    when(remote.task(YouCamTool.skinTone, 'task-1')).thenAnswer(
+      (_) async => const YouCamTaskFailed(
+        YouCamProblem.photo,
+        advice: PhotoAdvice.lookStraight,
+        code: 'error_face_angle_rightward',
+      ),
+    );
+    expect(
+      await logged.checkAnalysis('task-1'),
+      const Right<Failure, MakeupTask<FaceColours>>(
+        MakeupTaskFailed(MakeupProblem.photo, advice: PhotoAdvice.lookStraight),
+      ),
+    );
+    expect(log.errors, [contains('error_face_angle_rightward')]);
   });
 
   test("reads a finished analysis's colours", () async {

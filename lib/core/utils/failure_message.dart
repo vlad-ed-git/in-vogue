@@ -14,16 +14,18 @@ extension FailureMessage on Failure {
       PhotoProblem.unusable => context.translated.photoUnusable,
     },
     SignInFailure() => context.translated.signInFailed,
-    TryOnFailure(:final problem) => switch (problem) {
+    TryOnFailure(:final problem, :final advice) => switch (problem) {
       TryOnProblem.failed ||
       TryOnProblem.reference => context.translated.tryOnFailed,
-      TryOnProblem.photo => context.translated.tryOnPhotoProblem,
+      TryOnProblem.photo =>
+        _advice(context, advice) ?? context.translated.tryOnPhotoProblem,
       TryOnProblem.noCredit => context.translated.tryOnNoCredit,
       TryOnProblem.unavailable => context.translated.tryOnUnavailable,
     },
-    MakeupFailure(:final problem) => switch (problem) {
+    MakeupFailure(:final problem, :final advice) => switch (problem) {
       MakeupProblem.failed => context.translated.makeupFailed,
-      MakeupProblem.photo => context.translated.makeupPhotoProblem,
+      MakeupProblem.photo =>
+        _advice(context, advice) ?? context.translated.makeupPhotoProblem,
       MakeupProblem.noCredit => context.translated.makeupNoCredit,
       MakeupProblem.unavailable => context.translated.makeupUnavailable,
     },
@@ -33,3 +35,13 @@ extension FailureMessage on Failure {
           : context.translated.locationUnavailable,
   };
 }
+
+/// What to change about a photo, said to the person; null without advice.
+String? _advice(BuildContext context, PhotoAdvice? advice) => switch (advice) {
+  PhotoAdvice.lookStraight => context.translated.photoLookStraight,
+  PhotoAdvice.moveCloser => context.translated.photoMoveCloser,
+  PhotoAdvice.showWholeFace => context.translated.photoShowWholeFace,
+  PhotoAdvice.onlyYou => context.translated.photoOnlyYou,
+  PhotoAdvice.standHeadToToe => context.translated.photoStandHeadToToe,
+  null => null,
+};

@@ -767,4 +767,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loading => '加载中';
+
+  @override
+  String get photoLookStraight => '这张照片里你的脸转向一侧或歪斜。请选择一张直视前方的照片。';
+
+  @override
+  String get photoMoveCloser => '这张照片里你的脸太小了。请选择一张更近的照片。';
+
+  @override
+  String get photoShowWholeFace => '这张照片里你的脸有一部分被裁掉了。请选择一张能看到整张脸的照片。';
+
+  @override
+  String get photoOnlyYou => '这张照片里不止一个人。请选择一张只有你的照片。';
+
+  @override
+  String get photoStandHeadToToe => '这张照片里看不到你站立的样子。请选择一张从头到脚的站姿照片。';
 }

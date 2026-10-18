@@ -26,11 +26,14 @@ final class MakeupTaskDone<T> extends MakeupTask<T> {
 
 /// Failed; the service charges nothing for it.
 final class MakeupTaskFailed<T> extends MakeupTask<T> {
-  const MakeupTaskFailed(this.problem);
+  const MakeupTaskFailed(this.problem, {this.advice});
   final MakeupProblem problem;
 
+  /// What to change about the photo, when it is the problem.
+  final PhotoAdvice? advice;
+
   @override
-  List<Object?> get props => [problem];
+  List<Object?> get props => [problem, advice];
 }
 
 /// The makeup service: analyses a face's colours and puts makeup on it.

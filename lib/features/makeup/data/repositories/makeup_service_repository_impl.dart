@@ -66,7 +66,9 @@ class MakeupServiceRepositoryImpl implements MakeupServiceRepository {
     'startAnalysis',
     () => _remote.start(YouCamTool.skinTone, {
       'src_file_id': fileId,
-      'face_angle_strictness_level': 'high',
+      // YouCam's levels run strict, high (its default), medium, low and
+      // flexible; the app trusts the person's photo.
+      'face_angle_strictness_level': 'low',
     }),
   );
 
@@ -79,7 +81,7 @@ class MakeupServiceRepositoryImpl implements MakeupServiceRepository {
       YouCamTaskSucceeded(:final results) => MakeupTaskDone(
         FaceColoursModel.fromAnalysis(results),
       ),
-      YouCamTaskFailed(:final problem) => MakeupTaskFailed(_problem(problem)),
+      final YouCamTaskFailed failed => _failed('checkAnalysis', failed),
       YouCamTaskRunning() => const MakeupTaskRunning(),
     },
   );
@@ -109,9 +111,7 @@ class MakeupServiceRepositoryImpl implements MakeupServiceRepository {
               : MakeupTaskDone(url);
         }
         return switch (task) {
-          YouCamTaskFailed(:final problem) => MakeupTaskFailed(
-            _problem(problem),
-          ),
+          final YouCamTaskFailed failed => _failed('checkStep', failed),
           _ => const MakeupTaskRunning(),
         };
       });
@@ -124,6 +124,16 @@ class MakeupServiceRepositoryImpl implements MakeupServiceRepository {
   Future<void> discard(String taskId) async {
     // Only tidies up: YouCam deletes tasks after about 30 days anyway.
     await _guard('discard', () => _remote.deleteTask(taskId));
+  }
+
+  /// [failed] as a makeup task, logged with YouCam's code.
+  MakeupTaskFailed<T> _failed<T>(String method, YouCamTaskFailed failed) {
+    _logger.logError(
+      callerClass: 'MakeupServiceRepositoryImpl',
+      callerMethod: method,
+      error: 'YouCam task failed: ${failed.code}',
+    );
+    return MakeupTaskFailed(_problem(failed.problem), advice: failed.advice);
   }
 
   static MakeupProblem _problem(YouCamProblem problem) => switch (problem) {
