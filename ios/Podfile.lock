@@ -1221,6 +1221,11 @@ PODS:
   - Firebase/Storage (12.19.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 12.19.0)
+  - firebase_app_check (0.5.0):
+    - Firebase/CoreOnly (~> 12.19.0)
+    - firebase_core
+    - FirebaseAppCheck (~> 12.19.0)
+    - Flutter
   - firebase_auth (7.0.0):
     - Firebase/Auth (= 12.19.0)
     - firebase_core
@@ -1232,6 +1237,12 @@ PODS:
     - Firebase/Storage (= 12.19.0)
     - firebase_core
     - Flutter
+  - FirebaseAppCheck (12.19.0):
+    - AppCheckCore (~> 11.3)
+    - FirebaseAppCheckInterop (~> 12.19.0)
+    - FirebaseCore (~> 12.19.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/UserDefaults (~> 8.1)
   - FirebaseAppCheckInterop (12.19.0)
   - FirebaseAuth (12.19.0):
     - FirebaseAppCheckInterop (~> 12.19.0)
@@ -1451,6 +1462,7 @@ PODS:
 
 DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
+  - firebase_app_check (from `.symlinks/plugins/firebase_app_check/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
@@ -1474,6 +1486,7 @@ SPEC REPOS:
     - AppCheckCore
     - BoringSSL-GRPC
     - Firebase
+    - FirebaseAppCheck
     - FirebaseAppCheckInterop
     - FirebaseAuth
     - FirebaseAuthInterop
@@ -1499,6 +1512,8 @@ SPEC REPOS:
 EXTERNAL SOURCES:
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
+  firebase_app_check:
+    :path: ".symlinks/plugins/firebase_app_check/ios"
   firebase_auth:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
@@ -1537,9 +1552,11 @@ SPEC CHECKSUMS:
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   cloud_firestore: 04cf438d27d03ef6e9fcb80772db3c445120e101
   Firebase: 7ca191e43724142f79fae653547b3382c45413cc
+  firebase_app_check: c364ecbf7f9c0315c9bcf78177c0c69891e32acd
   firebase_auth: 80e26abec6fd9ed51749950f44ad783bb36964cc
   firebase_core: 72d6e5d1b38913a27b9c5f7c84fe429ef4ad07b0
   firebase_storage: df53ddb2f44e964938a29ca300b390e507b37726
+  FirebaseAppCheck: d8e84486d3502e42f7807e05562605d800043e5b
   FirebaseAppCheckInterop: bd4b791ffaed7ae719304af6369d243ddee5e4a0
   FirebaseAuth: 8c38236f67e5e3dd6aacf3e0c46b3eed31e9c820
   FirebaseAuthInterop: f1ad187a0052276ad49a990538accfdf36fc595d
