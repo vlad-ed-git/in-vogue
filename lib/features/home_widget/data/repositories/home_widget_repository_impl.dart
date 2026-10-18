@@ -50,8 +50,23 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
     }
   }
 
+  /// The publish under way; the next one waits for it, so two never share
+  /// pictures into the same folder at once.
+  Future<void> _publishing = Future.value();
+
   @override
   Future<Either<Failure, Unit>> publish(
+    WidgetContent content, {
+    WidgetRefreshContext? refresh,
+  }) {
+    final published = _publishing.then(
+      (_) => _publish(content, refresh: refresh),
+    );
+    _publishing = published.then<void>((_) {}, onError: (Object _) {});
+    return published;
+  }
+
+  Future<Either<Failure, Unit>> _publish(
     WidgetContent content, {
     WidgetRefreshContext? refresh,
   }) => _guard('publish', () async {

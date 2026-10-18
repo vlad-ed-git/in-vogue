@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
@@ -124,6 +126,52 @@ void main() {
       });
     },
   );
+
+  test(
+    'publishes one at a time, so two never share pictures at once',
+    () async {
+      final first = Completer<Map<String, String>>();
+      var sharing = 0;
+      var mostAtOnce = 0;
+      when(pictures.share(any)).thenAnswer((_) async {
+        mostAtOnce = math.max(mostAtOnce, ++sharing);
+        final shared = sharing == 1 && !first.isCompleted
+            ? await first.future
+            : const <String, String>{};
+        sharing--;
+        return shared;
+      });
+      final publishing = [
+        withClock(Clock.fixed(now), () => repository.publish(_content)),
+        withClock(Clock.fixed(now), () => repository.publish(_content)),
+      ];
+      await pumpEventQueue();
+      expect(mostAtOnce, 1);
+      first.complete(const {});
+      expect(await Future.wait(publishing), [
+        const Right<Failure, Unit>(unit),
+        const Right<Failure, Unit>(unit),
+      ]);
+      expect(mostAtOnce, 1);
+      verify(pictures.share(any)).called(2);
+    },
+  );
+
+  test('a publish that fails does not stop the next', () async {
+    when(
+      pictures.share(any),
+    ).thenThrow(CacheException(Exception(), StackTrace.current));
+    final failed = await withClock(
+      Clock.fixed(now),
+      () => repository.publish(_content),
+    );
+    expect(failed.isLeft(), isTrue);
+    when(pictures.share(any)).thenAnswer((_) async => const {});
+    expect(
+      await withClock(Clock.fixed(now), () => repository.publish(_content)),
+      const Right<Failure, Unit>(unit),
+    );
+  });
 
   test('leaves out a picture the widget has no copy of', () async {
     when(pictures.share(any)).thenAnswer((_) async => {});
