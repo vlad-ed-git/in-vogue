@@ -1316,7 +1316,7 @@
 				INFOPLIST_FILE = "In Vogue Widget/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "In Vogue Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1403,7 +1403,7 @@
 				INFOPLIST_FILE = "In Vogue Widget/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "In Vogue Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1489,7 +1489,7 @@
 				INFOPLIST_FILE = "In Vogue Widget/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "In Vogue Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1580,7 +1580,7 @@
 				INFOPLIST_FILE = "In Vogue Widget/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "In Vogue Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1666,7 +1666,7 @@
 				INFOPLIST_FILE = "In Vogue Widget/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "In Vogue Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1751,7 +1751,7 @@
 				INFOPLIST_FILE = "In Vogue Widget/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "In Vogue Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
