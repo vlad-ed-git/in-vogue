@@ -8,8 +8,10 @@ import 'dart:async' as _i3;
 
 import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart'
     as _i2;
-import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart'
+import 'package:in_vogue/features/home_widget/data/data_sources/widget_picture_data_source.dart'
     as _i4;
+import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart'
+    as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -105,11 +107,40 @@ class MockHomeWidgetDataSource extends _i1.Mock
           as _i3.Stream<Uri?>);
 }
 
+/// A class which mocks [WidgetPictureDataSource].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockWidgetPictureDataSource extends _i1.Mock
+    implements _i4.WidgetPictureDataSource {
+  MockWidgetPictureDataSource() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<Map<String, String>> share(Set<String>? paths) =>
+      (super.noSuchMethod(
+            Invocation.method(#share, [paths]),
+            returnValue: _i3.Future<Map<String, String>>.value(
+              <String, String>{},
+            ),
+          )
+          as _i3.Future<Map<String, String>>);
+
+  @override
+  _i3.Future<void> clear() =>
+      (super.noSuchMethod(
+            Invocation.method(#clear, []),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+}
+
 /// A class which mocks [WidgetRefreshScheduler].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockWidgetRefreshScheduler extends _i1.Mock
-    implements _i4.WidgetRefreshScheduler {
+    implements _i5.WidgetRefreshScheduler {
   MockWidgetRefreshScheduler() {
     _i1.throwOnMissingStub(this);
   }

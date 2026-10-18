@@ -6,6 +6,7 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart';
+import 'package:in_vogue/features/home_widget/data/data_sources/widget_picture_data_source.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
 import 'package:in_vogue/features/home_widget/data/models/widget_content_model.dart';
 import 'package:in_vogue/features/home_widget/data/models/widget_refresh_context_model.dart';
@@ -15,12 +16,14 @@ import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.dart';
 
-/// The Android home-screen widget: it shows the content kept for it and
-/// picks its day itself, redrawn at each turn of the day and refreshed each
-/// morning in the background.
+/// The home-screen widget on Android and iPhone: it shows the content kept
+/// for it, with the day's pictures where it can read them, and picks its day
+/// itself. It changes at each turn of the day and is refreshed each morning
+/// in the background.
 class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
   HomeWidgetRepositoryImpl({
     required HomeWidgetDataSource dataSource,
+    required this._pictures,
     required this._scheduler,
     required this._environment,
     required LogMessages logMessages,
@@ -28,6 +31,7 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
        _logger = logMessages;
 
   final HomeWidgetDataSource _widget;
+  final WidgetPictureDataSource _pictures;
   final WidgetRefreshScheduler _scheduler;
 
   /// The flavor's name, kept for the morning refresh's Firebase.
@@ -51,9 +55,14 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
     WidgetContent content, {
     WidgetRefreshContext? refresh,
   }) => _guard('publish', () async {
+    final shared = await _pictures.share({
+      for (final day in content.days) ...[?day.picture, ?day.waitingPhoto],
+    });
     await _widget.save(
       HomeWidgetDataSourceImpl.contentKey,
-      jsonEncode(WidgetContentModel.toJson(content)),
+      jsonEncode(
+        WidgetContentModel.toJson(content, picturePath: (path) => shared[path]),
+      ),
     );
     await _widget.update();
     final now = clock.now();
@@ -89,6 +98,7 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
   Future<Either<Failure, Unit>> clear() => _guard('clear', () async {
     await _widget.save(HomeWidgetDataSourceImpl.contentKey, null);
     await _widget.update();
+    await _pictures.clear();
   });
 
   @override

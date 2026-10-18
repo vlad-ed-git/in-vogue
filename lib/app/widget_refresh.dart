@@ -11,9 +11,8 @@ import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/config/app_check.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
-import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
-import 'package:in_vogue/features/home_widget/data/repositories/home_widget_repository_impl.dart';
+import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
 import 'package:in_vogue/features/home_widget/domain/services/refresh_widget.dart';
 import 'package:in_vogue/features/home_widget/presentation/widget_content_text.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
@@ -34,8 +33,8 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:workmanager/workmanager.dart';
 
-/// The widget's morning refresh, run by WorkManager while the app is
-/// closed. A refresh that fails keeps what the widget shows; the next
+/// The widget's morning refresh, run in the background by WorkManager on
+/// Android and by background app refresh on iPhone. A refresh that fails keeps what the widget shows; the next
 /// morning tries again.
 @pragma('vm:entry-point')
 void widgetRefreshDispatcher() {
@@ -66,15 +65,15 @@ Future<void> refreshWidgetInBackground(AppEnvironment environment) async {
   DartPluginRegistrant.ensureInitialized();
   WidgetsFlutterBinding.ensureInitialized();
   final log = LogMessagesImpl();
-  final widget = HomeWidgetRepositoryImpl(
-    dataSource: const HomeWidgetDataSourceImpl(),
+  final widget = home_widget_di.platformHomeWidgetRepository(
+    environment: environment,
     scheduler: WorkmanagerWidgetRefreshScheduler(
       widgetRefreshDispatcher,
       environment: environment.name,
     ),
-    environment: environment.name,
     logMessages: log,
   );
+  if (widget == null) return;
   final saved = await widget.savedRefresh();
   if (saved == null) return;
   await initializeDateFormatting();

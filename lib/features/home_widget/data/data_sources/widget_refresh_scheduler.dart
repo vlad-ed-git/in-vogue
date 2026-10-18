@@ -2,8 +2,9 @@ import 'package:flutter/services.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:workmanager/workmanager.dart';
 
-/// Runs the widget's morning refresh in the background, through Android's
-/// WorkManager.
+/// Runs the widget's morning refresh in the background: through WorkManager
+/// on Android, and background app refresh on iPhone, which picks the time
+/// itself.
 ///
 /// Every method throws [CacheException].
 abstract interface class WidgetRefreshScheduler {

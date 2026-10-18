@@ -10,6 +10,7 @@ import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart';
+import 'package:in_vogue/features/home_widget/data/data_sources/widget_picture_data_source.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
 import 'package:in_vogue/features/home_widget/data/repositories/home_widget_repository_impl.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
@@ -44,18 +45,25 @@ final _content = WidgetContent(
   savedLine: 'Saved Sun 18 Oct at 9:12 pm',
 );
 
-@GenerateMocks([HomeWidgetDataSource, WidgetRefreshScheduler])
+@GenerateMocks([
+  HomeWidgetDataSource,
+  WidgetPictureDataSource,
+  WidgetRefreshScheduler,
+])
 void main() {
   late MockHomeWidgetDataSource widget;
+  late MockWidgetPictureDataSource pictures;
   late MockWidgetRefreshScheduler scheduler;
   late HomeWidgetRepositoryImpl repository;
   final now = DateTime(2026, 10, 18, 21, 12);
 
   setUp(() {
     widget = MockHomeWidgetDataSource();
+    pictures = MockWidgetPictureDataSource();
     scheduler = MockWidgetRefreshScheduler();
     repository = HomeWidgetRepositoryImpl(
       dataSource: widget,
+      pictures: pictures,
       scheduler: scheduler,
       environment: 'development',
       logMessages: LogMessagesImpl(),
@@ -66,44 +74,67 @@ void main() {
     when(widget.schedule(any)).thenAnswer((_) async {});
     when(widget.canPin()).thenAnswer((_) async => true);
     when(widget.pin()).thenAnswer((_) async {});
+    when(pictures.share(any)).thenAnswer(
+      (invocation) async => {
+        for (final path in invocation.positionalArguments.single as Set<String>)
+          path: '/group/widget/${path.split('/').last}',
+      },
+    );
+    when(pictures.clear()).thenAnswer((_) async {});
   });
 
-  test('saves the days for the widget, redraws it and has it change at '
-      'the next turns of the day', () async {
-    expect(
-      await withClock(Clock.fixed(now), () => repository.publish(_content)),
-      const Right<Failure, Unit>(unit),
-    );
-    final calls = verifyInOrder([
-      widget.save(HomeWidgetDataSourceImpl.contentKey, captureAny),
-      widget.update(),
-      widget.schedule(WidgetSchedule.changesAfter(now)),
-    ]);
-    final saved = calls.first.captured.single as String;
-    expect(jsonDecode(saved), {
-      'version': 1,
-      'preferred': 'tomorrow',
-      'savedLine': 'Saved Sun 18 Oct at 9:12 pm',
-      'days': [
-        {
-          'date': '2026-10-19',
-          'occasion': 'work',
-          'today': 'Today',
-          'tomorrow': 'Tomorrow',
-          'dateLine': 'Mon 19 Oct · Workday',
-          'temperature': 54,
-          'condition': 'Showers after 3 pm',
-          'feelsLike': 'Feels like 49°',
-          'glyph': 'cloud-rain',
-          'picture': null,
-          'waitingPhoto': '/support/photos/body-1.jpg',
-          'gettingReady': 'Getting ready',
-          'spokenToday': 'Today, 54 degrees.',
-          'spokenTomorrow': 'Tomorrow, 54 degrees.',
-          'link': 'invogue://home?date=2026-10-19&occasion=work',
-        },
-      ],
-    });
+  test(
+    'saves the days for the widget with their pictures where it reads '
+    'them, redraws it and has it change at the next turns of the day',
+    () async {
+      expect(
+        await withClock(Clock.fixed(now), () => repository.publish(_content)),
+        const Right<Failure, Unit>(unit),
+      );
+      final calls = verifyInOrder([
+        pictures.share({'/support/photos/body-1.jpg'}),
+        widget.save(HomeWidgetDataSourceImpl.contentKey, captureAny),
+        widget.update(),
+        widget.schedule(WidgetSchedule.changesAfter(now)),
+      ]);
+      final saved = calls[1].captured.single as String;
+      expect(jsonDecode(saved), {
+        'version': 1,
+        'preferred': 'tomorrow',
+        'savedLine': 'Saved Sun 18 Oct at 9:12 pm',
+        'days': [
+          {
+            'date': '2026-10-19',
+            'occasion': 'work',
+            'today': 'Today',
+            'tomorrow': 'Tomorrow',
+            'dateLine': 'Mon 19 Oct · Workday',
+            'temperature': 54,
+            'condition': 'Showers after 3 pm',
+            'feelsLike': 'Feels like 49°',
+            'glyph': 'cloud-rain',
+            'picture': null,
+            'waitingPhoto': '/group/widget/body-1.jpg',
+            'gettingReady': 'Getting ready',
+            'spokenToday': 'Today, 54 degrees.',
+            'spokenTomorrow': 'Tomorrow, 54 degrees.',
+            'link': 'invogue://home?date=2026-10-19&occasion=work&homeWidget',
+          },
+        ],
+      });
+    },
+  );
+
+  test('leaves out a picture the widget has no copy of', () async {
+    when(pictures.share(any)).thenAnswer((_) async => {});
+    await repository.publish(_content);
+    final saved =
+        verify(
+              widget.save(HomeWidgetDataSourceImpl.contentKey, captureAny),
+            ).captured.single
+            as String;
+    final days = (jsonDecode(saved) as Map<String, Object?>)['days']! as List;
+    expect((days.single as Map)['waitingPhoto'], isNull);
   });
 
   test(
@@ -153,11 +184,13 @@ void main() {
     },
   );
 
-  test('forgets the days and redraws the widget empty', () async {
+  test('forgets the days and their pictures, and redraws the widget '
+      'empty', () async {
     expect(await repository.clear(), const Right<Failure, Unit>(unit));
     verifyInOrder([
       widget.save(HomeWidgetDataSourceImpl.contentKey, null),
       widget.update(),
+      pictures.clear(),
     ]);
   });
 
@@ -175,7 +208,9 @@ void main() {
   test('tells which day a tap on the widget opened, the tap that started '
       'the app first, and skips links it cannot read', () async {
     when(widget.launchedWith()).thenAnswer(
-      (_) async => Uri.parse('invogue://home?date=2026-10-18&occasion=casual'),
+      (_) async => Uri.parse(
+        'invogue://home?date=2026-10-18&occasion=casual&homeWidget',
+      ),
     );
     when(widget.clicks()).thenAnswer(
       (_) => Stream.fromIterable([
