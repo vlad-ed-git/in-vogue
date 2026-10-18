@@ -2,7 +2,7 @@
 
 In Vogue is a weather app for Android and iPhone. Each day it shows the person, head to toe, wearing a real outfit from a partner fashion house, chosen for that day's weather and plans. It reads the person's colours from a selfie and shows the clothing colours that suit them, a link to buy every piece, and a home-screen widget. The current partner catalog is Everlane's women's collection; rights to the catalog and brand content are in place.
 
-**Status (October 18, 2026):** an MVP for testers on the development flavor. Analyze is clean and 860 tests pass. Rules for AI agents working on the code are in [AGENTS.md](AGENTS.md).
+**Status (October 18, 2026):** an MVP for testers on the development flavor. Analyze is clean and 880 tests pass. Rules for AI agents working on the code are in [AGENTS.md](AGENTS.md).
 
 ## Contents
 
@@ -37,10 +37,10 @@ Nothing leaves the phone before sign-in, and YouCam is called only after it.
 
 **Shop** lists every piece of the outfit with its photo, colour, name and material, and "Buy at Everlane", which opens that exact item. There are no prices. **Your picks** shows only the pieces the person loved; removing one asks first.
 
-**Mirror** shows the person's colour season, why (undertone, depth and contrast) and its palette in round swatches: colours that suit them, their neutrals, and colours to go easy on. Tapping a swatch opens its name (the nearest of 78 clothing colours, `ColourNames`) and how to wear it. "See your full analysis" opens a sheet with the colours read from the photo (skin, hair, brows, eyes, lips), what the undertone, depth and contrast mean for the person, and the season. YouCam reads the colours from the face photo once per person: a new face photo keeps them, unless the person redoes the skin analysis from Settings. The season is In Vogue's own suggestion. Without a face photo, Mirror asks for a selfie for the skin tone and colour analysis, kept as soon as it is chosen; the face photo itself is shown only in Settings. My wardrobe sits below: the outfits the person owns in a grid, each opening its details (colour, weather, occasions) with Remove, and Add an outfit, which takes a photo from Photos or Gallery, a name, a colour, the weather it suits and its occasions. Home doesn't recommend from the wardrobe yet (owner to decide how).
+**Mirror** shows the person's colour season, why (undertone, depth and contrast) and its palette in round swatches: colours that suit them, their neutrals, and colours to go easy on. Tapping a swatch opens its name (the nearest of 78 clothing colours, `ColourNames`) and how to wear it. "See your full analysis" opens a sheet with the colours read from the photo (skin, hair, brows, eyes, lips), what the undertone, depth and contrast mean for the person, and the season. YouCam reads the colours from the face photo once per person: a new face photo keeps them, unless the person redoes the skin analysis from Settings. The season is In Vogue's own suggestion. Without a face photo, Mirror asks for a selfie for the skin tone and colour analysis, kept as soon as it is chosen; the face photo itself is shown only in Settings. My wardrobe sits below: the outfits the person owns in a grid, each opening its details (colours, weather, occasions) with Remove, and Add an outfit, which takes a photo from Photos or Gallery, a name, one or more colours, the weather it suits and its occasions. Home doesn't recommend from the wardrobe yet (owner to decide how).
 
 **Settings** holds:
-- the profile: face photo, name, how the person signed in, and Edit. Without a face photo it shows the name's first letter on Rouge.
+- the profile: face photo, name, how the person signed in, and Edit. Without a face photo, or when the photo can't be drawn, it shows the name's first letter on Rouge. Settings reloads its photos and profile whenever its tab is shown.
 - the body and face photos. Replacing the face photo offers to redo the skin analysis; otherwise the colours stay.
 - the membership (Pro or Free, shown only).
 - the location, the default day and the language.
@@ -152,7 +152,7 @@ Morning refresh, from 05:30: WorkManager (Android) · background app refresh (iP
   ─► widgetRefreshDispatcher ─► RefreshWidget: new weather + pictures already made (never YouCam)
 ```
 
-The app writes today's and tomorrow's snapshots, their words already in the person's language, because the app's language isn't the phone's. The widget picks the day itself. On iPhone the extension can't read the app's files, so the app copies the day's pictures into the App Group's container, under names that change when a picture does.
+The app writes today's and tomorrow's snapshots, their words already in the person's language, because the app's language isn't the phone's. The widget picks the day itself. On iPhone the extension can't read the app's files, so the app copies the day's pictures into the App Group's container, under names that change when a picture does. Publishes run one at a time, so two can't remove each other's pictures.
 
 ### Weather
 
@@ -259,7 +259,7 @@ go_router 18. A redirect sends the person to setup or to the tabs. Setup routes 
 
 Repositories log each infrastructure failure through `LogMessages` before turning it into a `Failure`, and uncaught framework and platform errors go the same way. `LogMessagesImpl` writes to the debug console in debug builds and files a report in the Firestore `errors` collection from every build (owner, October 18), so testers' errors reach the team.
 
-- **What a report holds:** the account, when, where (class and method), the error's kind and code, a trimmed stack, and the flavor, platform, app version, build and install id. It never holds the exception's message, which may carry personal data.
+- **What a report holds:** the account, when, where (class and method), the error's kind and code (a failed YouCam task's code, a network failure's kind, a Firebase error's plugin and code), a trimmed stack, and the flavor, platform, app version, build and install id. It never holds the exception's message, which may carry personal data.
 - **When it's sent:** for the person signed in. Reports made before sign-in wait in memory for it.
 - **How many:** each distinct error is filed once a run, at most 50 in all. A report that fails is dropped without reporting itself.
 - **The background widget refresh** still logs to the console only.
@@ -353,7 +353,7 @@ The catalog isn't fetched by the app. On the Mac, `../resources/` pulls Everlane
 | `users/{uid}/suggestions/{signature}` | When each outfit was suggested, and any piece whose photo YouCam refused |
 | `users/{uid}/tryOns/{photo}-{signature}` | The picture made of an outfit on a photo: the photo's fingerprint, the signature and the picture's path |
 | `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo: skin, brows, lips, hair, eyes, whether the photo was clear, and `analysedAt`. The one analysed last is the person's reading |
-| `users/{uid}/wardrobe/{id}` | An outfit the person owns: `name`, `colour`, `bands` (feels-like bands), `rain`, `occasions`, `photo` (`path` in Storage, `url`) and `createdAt` |
+| `users/{uid}/wardrobe/{id}` | An outfit the person owns: `name`, `colours` (one or more; an outfit saved before October 18's change holds one `colour`, still read), `bands` (feels-like bands), `rain`, `occasions`, `photo` (`path` in Storage, `url`) and `createdAt` |
 | `errors/{id}` | An error report: account, time, where, the error's kind and code, stack, flavor, platform, version, build and install id. The app may only add its own; nobody reads or changes one from the app |
 
 In the names above, `{photo}` is the first 16 characters of the photo's SHA-256.
@@ -480,7 +480,7 @@ Run from `in-vogue/`; on the owner's Mac, wrap Flutter and Dart commands in `zsh
 
 ## Testing
 
-`flutterN test` runs 857 tests in about a minute, with no native build. They cover:
+`flutterN test` runs 880 tests in about a minute, with no native build. They cover:
 
 - **The foundation:** the flavor and Firebase isolation, the iOS flavor wiring, language restore and fallback, real Hive and SQLite behaviour, complete translation files, and 320-point screens at 200% text.
 - **The design system:** every token, glyph path and component, checked against `../design-spec/` when it sits beside the repository.
@@ -526,7 +526,8 @@ From the owner's device test, October 18, in this order:
      "results": null, "task_status": "error"}}
    ```
 4. **Replace Makeup with a colour palette and My Wardrobe.** Done October 18 as the Mirror tab (see [Reading colours](#reading-colours)); user testing is the owner's. Makeup is gone: its looks, recipes, steps and pictures. The face photo and the skin analysis stay. The owner's design: the season and why, then the palette in round swatches, then My Wardrobe; no face photo on the page, since it belongs in Settings; without one, Mirror asks for a selfie.
-5. **My Wardrobe.** Done October 18 on Mirror: adding an outfit the person owns (photo, name, colour, weather, occasions), the grid, the details and Remove. Home's recommendations from the wardrobe, one for today and one for tomorrow beside the catalog's, wait for the owner's design.
+5. **My Wardrobe.** Done October 18 on Mirror: adding an outfit the person owns (photo, name, colours, weather, occasions), the grid, the details and Remove. Home's recommendations from the wardrobe, one for today and one for tomorrow beside the catalog's, wait for the owner's design.
+6. **Mirror and Settings after the owner's check.** Done October 18: a palette colour opens its name and how to wear it, "See your full analysis" opens the whole skin analysis as a sheet, an outfit takes several colours, and Settings' profile square shows the face photo or the initial, never bare Rose. Error reports now carry YouCam's codes, and widget publishes run one at a time.
 
 ### Open work
 
@@ -594,4 +595,5 @@ Each line is an owner decision, kept so that old ideas stay dead.
   - The skin analysis runs once per person; replacing the face photo keeps the colours unless the person redoes it from Settings.
   - Makeup gives way to a skin-tone colour palette and My Wardrobe on one page: the Mirror tab (Home, Mirror, Settings). It shows the season and why and the palette in round swatches, never the face photo, which belongs in Settings. Setup asks for the selfie for the skin tone and colour analysis, never for makeup.
   - Wardrobe uploads, dropped before, are planned, and the person's own outfits weigh more.
-  - My Wardrobe: a person adds photos of outfits they own with a name, colour, weather and occasions; Mirror shows them in a grid with their details. Home recommending from them waits for the owner.
+  - My Wardrobe: a person adds photos of outfits they own with a name, colours, weather and occasions; Mirror shows them in a grid with their details. Home recommending from them waits for the owner.
+  - After the owner's check: a palette colour opens its name and how to wear it, the full skin analysis opens as a sheet, and an outfit takes one or more colours.

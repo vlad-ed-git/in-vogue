@@ -111,9 +111,15 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
    - The season is In Vogue's own hardcoded suggestion from YouCam's sampled colours (`SeasonRules`); YouCam gives no season or undertone.
    - The skin analysis runs once per person, and its result is kept. A new face photo doesn't change who they are, so it keeps the colours; Settings offers "Redo skin analysis" when the face photo is replaced, and only that reads them again.
 5. [x] **My Wardrobe.** Done October 18, below the season on Mirror (`lib/features/wardrobe`). Owner decisions, October 18:
-   - A person adds a photo of an outfit they own, chosen from Photos or Gallery, with its name, colour, the weather it suits (feels-like bands and rain) and its occasions.
+   - A person adds a photo of an outfit they own, chosen from Photos or Gallery, with its name, its colours (one or more), the weather it suits (feels-like bands and rain) and its occasions.
    - Mirror shows their outfits in a grid; a tile opens the outfit's details, as the catalog's tiles do, with Remove, which asks first.
    - Home will recommend from the wardrobe too, one for today and one for tomorrow beside the catalog's. Not built until the owner decides how: don't implement it.
+6. [x] **Mirror and Settings after the owner's check.** Done October 18. Owner decisions, October 18:
+   - Tapping a palette colour opens its name, the nearest of 78 clothing colours (`ColourNames`), and how to wear it.
+   - "See your full analysis" opens the whole skin analysis as a sheet: the colours read from the photo, what the undertone, depth and contrast mean, and the season.
+   - An outfit in the wardrobe takes one or more colours.
+   - Fixed: Settings' profile square showed bare Rose after the face photo was replaced in Mirror, because Settings still held the deleted file's path. It now reloads whenever its tab is shown, and the initial stands in for a photo that can't be drawn.
+   - Found on the way: error reports held only "String" for a failed YouCam task; they now carry its code, and a network failure's kind. Widget publishes run one at a time, so two can't delete each other's pictures.
 
 **Also open:**
 
