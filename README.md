@@ -516,7 +516,7 @@ All checks run locally; the project has no CI by the owner's choice.
 From the owner's device test, October 18, in this order:
 
 1. **Animated loading everywhere.** Done October 18 with the running rule (see [Design system](#design-system)).
-2. **The widget's temperature on narrow widgets.** On a small Android phone, "26" shows as "2". The numeral must fit any width, on Android and iPhone.
+2. **The widget's temperature on narrow widgets.** Done October 18, waiting for the owner's build: the numeral fits any width on Android and iPhone.
 3. **Makeup doesn't work on the owner's phone.** The diagnosis starts with the `errors` reports in `in-vogue-dev` and with the skin analysis, which stays.
    - YouCam's photo errors reach the person as "Your photo is fine." That's wrong: they should say what to fix. For example:
 

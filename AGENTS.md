@@ -99,7 +99,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 **Next, in this order** (from the owner's device test, October 18):
 
 1. [x] **Animated loading everywhere.** Done October 18. The owner picked the running rule from three options: a 2-point bar runs along whatever is working, at every wait in the app. This overrides the spec's still Rose placeholders (`design-spec/guide/04-photography.md`, `06-motion.md`). How it works is in README's [Design system](README.md#design-system).
-2. [ ] **The widget's temperature on narrow widgets.** On a small Android phone, "26" shows as "2". Make the numeral fit any width, on Android and iPhone.
+2. [x] **The widget's temperature on narrow widgets.** Done October 18; the owner's build checks it. On Android, the numeral is sized to the widget's width, measured in its own font. On iPhone, it shrinks to a quarter of its size before it would wrap.
 3. [ ] **Makeup doesn't work on the owner's phone.** Diagnose it, starting with the reports in `in-vogue-dev`'s Firestore `errors` collection, read with the admin key. Begin with the skin analysis, which stays.
    - YouCam's photo errors, such as `error_face_angle_rightward` ("The face is turned too far to the right… turn head to the left"), reach the person as "Your photo is fine." (`makeupFailed`, `tryOnFailed`). That's wrong: say what to fix.
 4. [ ] **Replace Makeup with a colour palette and My Wardrobe** (owner, October 18). Users want their skin analysis to give the clothing colours that suit them, more than step-by-step makeup. The new page, top to bottom: the face with its skin-tone results and colour palette, then My Wardrobe. Steps:
