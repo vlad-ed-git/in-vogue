@@ -722,6 +722,10 @@
   "@defaultDay": {
     "description": "Settings row: the day Home opens on."
   },
+  "homeScreenWidget": "Home-screen widget",
+  "@homeScreenWidget": {
+    "description": "Settings row whose Add places the widget, for anyone who skipped setup's widget step."
+  },
   "defaultDayTomorrow": "Tomorrow, today from 6 to 9 am",
   "@defaultDayTomorrow": {
     "description": "Home opens on tomorrow, except early in the morning."

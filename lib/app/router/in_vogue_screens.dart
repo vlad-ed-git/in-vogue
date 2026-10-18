@@ -208,6 +208,7 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
             const SetupStepReached(SetupStep.welcome),
           ),
           bodyPhoto: () => locator<PhotoBloc>(param1: PhotoRole.body),
+          onAddWidget: locator<HomeWidgetRepository>().requestPin,
         ),
       ),
     ),

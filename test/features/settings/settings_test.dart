@@ -177,6 +177,8 @@ void main() {
     late _MockPhotoBloc body;
     late _MockLocationBloc location;
     late _MockDeleteAccountBloc deletion;
+    late bool placed;
+    late int widgetAsks;
 
     setUpAll(() {
       registerFallbackValue(const SettingsLoaded());
@@ -189,7 +191,11 @@ void main() {
     Future<void> pumpSettings(
       WidgetTester tester, {
       Stream<PhotoState> bodyStates = const Stream.empty(),
+      bool launcherPlaces = true,
+      TargetPlatform? platform,
     }) async {
+      placed = false;
+      widgetAsks = 0;
       settings = _MockSettingsBloc();
       profile = _MockProfileBloc();
       face = _MockPhotoBloc();
@@ -267,9 +273,15 @@ void main() {
             onLoggedOut: () {},
             onAccountDeleted: () {},
             bodyPhoto: () => body,
+            onAddWidget: () async {
+              widgetAsks++;
+              placed = launcherPlaces;
+              return launcherPlaces;
+            },
           ),
         ),
         scroll: false,
+        platform: platform,
       );
       await tester.pump();
     }
@@ -288,6 +300,7 @@ void main() {
         'Location',
         'Default day',
         'Language',
+        'Home-screen widget',
         'Log out',
         'Delete account',
       ]);
@@ -317,8 +330,59 @@ void main() {
       await pumpSettings(tester);
       await tester.tap(findLink('Replace'));
       verify(() => body.add(const PhotoChooseRequested())).called(1);
-      await tester.tap(findLink('Add'));
+      await tester.tap(findLink('Add').first);
       verify(() => face.add(const PhotoChooseRequested())).called(1);
+    });
+
+    Future<void> addWidget(WidgetTester tester) async {
+      final row = find.ancestor(
+        of: find.text('Home-screen widget'),
+        matching: find.byType(SettingsRow),
+      );
+      await tester.ensureVisible(row);
+      await tester.pump();
+      await tester.tap(find.descendant(of: row, matching: findLink('Add')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    testWidgets("Add on the widget row has Android's launcher place it", (
+      tester,
+    ) async {
+      await pumpSettings(tester);
+      await addWidget(tester);
+      expect(widgetAsks, 1);
+      expect(placed, isTrue);
+      expect(find.text('Add In Vogue to your home screen'), findsNothing);
+    });
+
+    testWidgets("says how to add it by hand when the launcher can't place "
+        'it', (tester) async {
+      await pumpSettings(tester, launcherPlaces: false);
+      await addWidget(tester);
+      expect(widgetAsks, 1);
+      expect(find.text('Add In Vogue to your home screen'), findsOneWidget);
+      expect(
+        find.text(
+          'Add it from your home screen: press and hold, tap Widgets, '
+          'choose In Vogue.',
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Done'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Add In Vogue to your home screen'), findsNothing);
+    });
+
+    testWidgets('shows the three steps on iPhone', (tester) async {
+      await pumpSettings(tester, platform: TargetPlatform.iOS);
+      await addWidget(tester);
+      expect(widgetAsks, 0);
+      expect(find.text('Add In Vogue to your home screen'), findsOneWidget);
+      expect(find.text('Press and hold your home screen'), findsOneWidget);
+      expect(find.text('Tap +'), findsOneWidget);
+      expect(find.text('Choose In Vogue'), findsOneWidget);
     });
 
     testWidgets("says when it changed a new photo's format, once kept", (

@@ -26,6 +26,7 @@ class SettingsScreen extends StatelessWidget {
     required this.onLoggedOut,
     required this.onAccountDeleted,
     required this.bodyPhoto,
+    required this.onAddWidget,
     super.key,
   });
 
@@ -37,6 +38,9 @@ class SettingsScreen extends StatelessWidget {
 
   /// Makes the body photo's bloc.
   final PhotoBloc Function() bodyPhoto;
+
+  /// Asks the launcher to place the widget; false when it can't.
+  final Future<bool> Function() onAddWidget;
 
   @override
   Widget build(BuildContext context) => MultiBlocListener(
@@ -92,6 +96,7 @@ class SettingsScreen extends StatelessWidget {
                   const _LocationRow(),
                   const _DefaultDayRow(),
                   const LanguageRow(),
+                  _WidgetRow(onAddWidget),
                   BlocBuilder<LogOutBloc, LogOutState>(
                     builder: (context, state) => SettingsRow.logOut(
                       context,
@@ -386,6 +391,52 @@ class _DefaultDayRow extends StatelessWidget {
         if (chosen != null && chosen != day) {
           bloc.add(SettingsDefaultDayChanged(chosen));
         }
+      },
+    );
+  }
+}
+
+/// The home-screen widget, for anyone who skipped setup's step: Android's
+/// launcher places it; when it can't, and on iPhone, a sheet says how.
+class _WidgetRow extends StatelessWidget {
+  const _WidgetRow(this.onAddWidget);
+
+  final Future<bool> Function() onAddWidget;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.translated;
+    return SettingsRow(
+      title: l10n.homeScreenWidget,
+      action: l10n.add,
+      onAction: () async {
+        final iPhone = context.isApplePlatform;
+        if (!iPhone && await onAddWidget()) return;
+        if (!context.mounted) return;
+        await showInVogueSheet<void>(
+          context: context,
+          builder: (context) => InVogueSheet(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                InVogueSheetHeader(title: l10n.addWidgetTitle),
+                if (iPhone)
+                  const WidgetSteps()
+                else
+                  Notice(
+                    icon: InVogueIcons.handTap,
+                    message: l10n.widgetAddByHand,
+                  ),
+                const SizedBox(height: InVogueSpace.s6),
+                InVogueButton.primary(
+                  label: l10n.done,
+                  icon: InVogueIcons.check,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }

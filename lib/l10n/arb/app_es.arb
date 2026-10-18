@@ -175,6 +175,7 @@
   "locationWhileUsing": "{city}, mientras usas la app",
   "locationNotSet": "Sin definir",
   "defaultDay": "Día predeterminado",
+  "homeScreenWidget": "Widget de la pantalla de inicio",
   "defaultDayTomorrow": "Mañana; hoy de 6 a 9 de la mañana",
   "defaultDayTitle": "Inicio se abre en",
   "deleteAccountTitle": "¿Eliminar tu cuenta?",

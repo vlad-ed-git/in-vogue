@@ -691,6 +691,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get defaultDay => 'Default day';
 
   @override
+  String get homeScreenWidget => 'Home-screen widget';
+
+  @override
   String get defaultDayTomorrow => 'Tomorrow, today from 6 to 9 am';
 
   @override

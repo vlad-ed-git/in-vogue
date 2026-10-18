@@ -692,6 +692,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get defaultDay => 'Día predeterminado';
 
   @override
+  String get homeScreenWidget => 'Widget de la pantalla de inicio';
+
+  @override
   String get defaultDayTomorrow => 'Mañana; hoy de 6 a 9 de la mañana';
 
   @override

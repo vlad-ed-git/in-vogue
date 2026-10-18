@@ -1155,6 +1155,12 @@ abstract class AppLocalizations {
   /// **'Default day'**
   String get defaultDay;
 
+  /// Settings row whose Add places the widget, for anyone who skipped setup's widget step.
+  ///
+  /// In en, this message translates to:
+  /// **'Home-screen widget'**
+  String get homeScreenWidget;
+
   /// Home opens on tomorrow, except early in the morning.
   ///
   /// In en, this message translates to:
