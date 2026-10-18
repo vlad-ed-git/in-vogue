@@ -98,11 +98,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 **Next, in this order** (from the owner's device test, October 18):
 
-1. [ ] **Animated loading everywhere.**
-   - Setup's buttons show nothing while they work, so the app looks frozen after sign-in.
-   - The outfit's making doesn't move, so it looks stuck. The Makeup screen has the same problem.
-   - Find every wait, design one moving treatment, then apply it everywhere.
-   - The spec says loading slots are still Rose blocks, "no shimmer, no spinner" (`design-spec/guide/04-photography.md`, `06-motion.md`). The owner overrides it: loading must visibly move. Show the owner the design before building it.
+1. [x] **Animated loading everywhere.** Done October 18. The owner picked the running rule from three options: a 2-point bar runs along whatever is working, at every wait in the app. This overrides the spec's still Rose placeholders (`design-spec/guide/04-photography.md`, `06-motion.md`). How it works is in README's [Design system](README.md#design-system).
 2. [ ] **The widget's temperature on narrow widgets.** On a small Android phone, "26" shows as "2". Make the numeral fit any width, on Android and iPhone.
 3. [ ] **Makeup doesn't work on the owner's phone.** Diagnose it, starting with the reports in `in-vogue-dev`'s Firestore `errors` collection, read with the admin key. Begin with the skin analysis, which stays.
    - YouCam's photo errors, such as `error_face_angle_rightward` ("The face is turned too far to the right… turn head to the left"), reach the person as "Your photo is fine." (`makeupFailed`, `tryOnFailed`). That's wrong: say what to fix.

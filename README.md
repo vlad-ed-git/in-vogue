@@ -271,6 +271,19 @@ English is the default whatever the phone's language. The person's choice is res
 
 `lib/core/presentation/` implements `../design-spec/` (Swiss Style on white, with Rouge and Rose): tokens, `InVogueTheme.paper` (the only theme; text scaling capped at 200%), foundations (icons, `Pressable`, photos, layout) and the spec's components grouped by area. The fonts are Sofia Sans and Sofia Sans Extra Condensed (variable, SIL OFL). Interface icons come from `phosphoricons_flutter`. The weather glyphs are drawn from the spec's Phosphor path data so rain and snow can animate. Launcher icons are generated from `../design-spec/assets/logo/`.
 
+**Loading** (owner, October 18; this overrides the spec's still Rose placeholders). Every wait shows `RunningRule`: a 2-point bar, a third of the rule's width, runs from start to end every 1.2 s with the curtain easing. With reduced motion, the bar fills the width and fades in and out.
+
+| Where it waits | What runs |
+| --- | --- |
+| Buttons and sign-in buttons (`busy`) | Along the bottom, in the label's colour. The button keeps its fill and ignores taps. Sign-in turns the other provider off and keeps running through the account's restore and save. |
+| Text links and Settings rows (`busy`) | In place of the underline. For Log out and Delete account, a Rouge rule under the title. |
+| Content still loading (`RunningRule.content`) | Over a hairline where the content will appear: Picks' weather and pieces, the Outfits tab, Shop, Your picks, and Makeup's first look-up and its steps before the recipe arrives. |
+| The outfit | `PhotoStage.looking`: along the bottom of the faded photo while the outfit is looked up. While it's being made, inside "Getting your outfit ready…". |
+| Makeup | Under the square of the step being made (the first without a picture), and along the bottom of "Your makeup follows your outfit…". |
+| Catalogue photos (`PhotoSlot.showLoading`) | Along the bottom of the Rose slot until the photo's first frame. |
+
+Busy controls tell screen readers "Loading". Only the thing being waited on moves.
+
 ### Native code
 
 - **Android widget:** `InVogueWidgetProvider` (Kotlin, `HomeWidgetProvider`) draws RemoteViews layouts in `res/layout/in_vogue_widget_*.xml` with the fonts in `res/font/` and vector glyphs in `res/drawable/`. The manifest registers it with home_widget's scheduled-update receiver.
@@ -502,10 +515,7 @@ All checks run locally; the project has no CI by the owner's choice.
 
 From the owner's device test, October 18, in this order:
 
-1. **Animated loading everywhere.**
-   - Setup's buttons show no progress, so the app looks frozen after sign-in.
-   - The outfit's making and the Makeup screen don't move while they wait, so they look stuck.
-   - Every wait gets one moving treatment, designed and shown to the owner first. This overrides the design spec, which asks for still Rose placeholders with no shimmer or spinner (guides 04 and 06).
+1. **Animated loading everywhere.** Done October 18 with the running rule (see [Design system](#design-system)).
 2. **The widget's temperature on narrow widgets.** On a small Android phone, "26" shows as "2". The numeral must fit any width, on Android and iPhone.
 3. **Makeup doesn't work on the owner's phone.** The diagnosis starts with the `errors` reports in `in-vogue-dev` and with the skin analysis, which stays.
    - YouCam's photo errors reach the person as "Your photo is fine." That's wrong: they should say what to fix. For example:
@@ -585,6 +595,6 @@ Each line is an owner decision, kept so that old ideas stay dead.
 - **October 18, later:** the catalog stays bundled, and App Check stays in the app, never enforced. The focus became an MVP for testers on the development flavor.
 - **October 18, last:** each photo and outfit is tried on once, and looks are kept per face photo. Error reports go to a Firestore `errors` collection.
 - **October 18, after the device test:**
-  - Loading must visibly move, overriding the spec's still placeholders.
+  - Loading must visibly move, overriding the spec's still placeholders. Of three options, the owner picked the running rule.
   - Makeup gives way to a skin-tone colour palette and My Wardrobe on one page.
   - Wardrobe uploads, dropped before, are planned, and the person's own outfits weigh more.
