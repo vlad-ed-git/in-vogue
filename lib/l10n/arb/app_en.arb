@@ -812,5 +812,16 @@
   "colourFailed": "We couldn’t read your colours this time.",
   "colourPhotoProblem": "We couldn’t read your face in this photo. A close-up, facing forward in daylight, works best.",
   "colourNoCredit": "No more colour readings can be made for now.",
-  "colourUnavailable": "Colour readings aren’t available in this version yet."
+  "colourUnavailable": "Colour readings aren’t available in this version yet.",
+  "redoAnalysisTitle": "Redo your skin analysis?",
+  "@redoAnalysisTitle": {
+    "description": "Offered in Settings after the face photo is replaced."
+  },
+  "redoAnalysisLine": "Your colours stay as they are: a new photo doesn’t change you. Redo the analysis to read them from this one.",
+  "redoAnalysis": "Redo skin analysis",
+  "keepColours": "Keep my colours",
+  "coloursUpdated": "Your colours are updated.",
+  "@coloursUpdated": {
+    "description": "After a redone skin analysis."
+  }
 }

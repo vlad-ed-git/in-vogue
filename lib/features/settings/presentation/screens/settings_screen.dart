@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,8 @@ import 'package:in_vogue/core/utils/failure_message.dart';
 import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
 import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
+import 'package:in_vogue/features/colours/presentation/bloc/skin_analysis_bloc.dart';
+import 'package:in_vogue/features/colours/presentation/widgets/redo_analysis_sheet.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
@@ -63,6 +66,15 @@ class SettingsScreen extends StatelessWidget {
         listenWhen: (previous, current) =>
             current.failure != null && previous.failure != current.failure,
         listener: (context, state) => _fail(context, state.failure!),
+      ),
+      BlocListener<SkinAnalysisBloc, SkinAnalysisState>(
+        listenWhen: (previous, current) => previous.status != current.status,
+        listener: (context, state) {
+          if (state.status == SkinAnalysisStatus.done) {
+            context.showSnack(message: context.translated.coloursUpdated);
+          }
+          if (state.failure case final failure?) _fail(context, failure);
+        },
       ),
       BlocListener<LocationBloc, LocationState>(
         listenWhen: (previous, current) => previous.status != current.status,
@@ -260,14 +272,44 @@ class _NameSheetState extends State<_NameSheet> {
 }
 
 /// A photo of the person; Replace (or Add) chooses another and keeps it.
-class _PhotoRow extends StatelessWidget {
+/// A face photo replacing another offers to redo the skin analysis, which
+/// otherwise keeps the colours already read.
+class _PhotoRow extends StatefulWidget {
   const _PhotoRow(this.role);
 
   final PhotoRole role;
 
   @override
+  State<_PhotoRow> createState() => _PhotoRowState();
+}
+
+class _PhotoRowState extends State<_PhotoRow> {
+  /// The photo kept before one is chosen.
+  String? _kept;
+
+  @override
+  void initState() {
+    super.initState();
+    final state = context.read<PhotoBloc>().state;
+    if (state.isKept) _kept = state.path;
+  }
+
+  Future<void> _offerRedo() async {
+    final analysis = context.read<SkinAnalysisBloc>();
+    if (await offerAnalysisRedo(context)) {
+      analysis.add(const SkinAnalysisRedone());
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = context.translated;
+    final face = widget.role == PhotoRole.face;
+    final redoing =
+        face &&
+        context.select<SkinAnalysisBloc, bool>(
+          (bloc) => bloc.state.status == SkinAnalysisStatus.redoing,
+        );
     return BlocConsumer<PhotoBloc, PhotoState>(
       listener: (context, state) {
         if (state.status == PhotoStatus.chosen &&
@@ -278,7 +320,11 @@ class _PhotoRow extends StatelessWidget {
         if (state.status == PhotoStatus.confirmed) {
           context.read<SettingsBloc>().add(const SettingsSetupChanged());
           if (state.converted) context.showSnack(message: l10n.photoConverted);
+          if (face && _kept != null && _kept != state.path) {
+            unawaited(_offerRedo());
+          }
         }
+        if (state.isKept) _kept = state.path;
         if (state.failure != null) {
           SettingsScreen._fail(context, state.failure!);
         }
@@ -287,14 +333,14 @@ class _PhotoRow extends StatelessWidget {
       builder: (context, state) {
         final has = state.path != null;
         return SettingsRow(
-          title: role == PhotoRole.body ? l10n.bodyPhoto : l10n.facePhoto,
+          title: face ? l10n.facePhoto : l10n.bodyPhoto,
           value: !has
               ? l10n.notAdded
-              : role == PhotoRole.body
-              ? l10n.bodyPhotoUse
-              : l10n.facePhotoUse,
+              : face
+              ? l10n.facePhotoUse
+              : l10n.bodyPhotoUse,
           action: has ? l10n.replace : l10n.add,
-          busy: state.busy,
+          busy: state.busy || redoing,
           onAction: () =>
               context.read<PhotoBloc>().add(const PhotoChooseRequested()),
         );

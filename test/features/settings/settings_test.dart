@@ -15,6 +15,7 @@ import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/entities/sign_in_method.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
+import 'package:in_vogue/features/colours/presentation/bloc/skin_analysis_bloc.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart';
 import 'package:in_vogue/features/location/presentation/bloc/location_bloc.dart';
@@ -61,6 +62,10 @@ class _MockPreferencesBloc extends MockBloc<PreferencesEvent, PreferencesState>
 class _MockDeleteAccountBloc
     extends MockBloc<DeleteAccountEvent, DeleteAccountState>
     implements DeleteAccountBloc {}
+
+class _MockSkinAnalysisBloc
+    extends MockBloc<SkinAnalysisEvent, SkinAnalysisState>
+    implements SkinAnalysisBloc {}
 
 @GenerateMocks([
   GetCurrentAccount,
@@ -177,6 +182,7 @@ void main() {
     late _MockPhotoBloc body;
     late _MockLocationBloc location;
     late _MockDeleteAccountBloc deletion;
+    late _MockSkinAnalysisBloc analysis;
     late bool placed;
     late int widgetAsks;
 
@@ -186,11 +192,15 @@ void main() {
       registerFallbackValue(const PhotoLoaded());
       registerFallbackValue(const LocationSettingsRequested());
       registerFallbackValue(const DeleteAccountConfirmed());
+      registerFallbackValue(const SkinAnalysisRedone());
     });
 
     Future<void> pumpSettings(
       WidgetTester tester, {
       Stream<PhotoState> bodyStates = const Stream.empty(),
+      PhotoState faceState = const PhotoState(),
+      Stream<PhotoState> faceStates = const Stream.empty(),
+      Stream<SkinAnalysisState> analysisStates = const Stream.empty(),
       bool launcherPlaces = true,
       TargetPlatform? platform,
     }) async {
@@ -226,10 +236,12 @@ void main() {
           name: 'Maya',
         ),
       );
+      whenListen(face, faceStates, initialState: faceState);
+      analysis = _MockSkinAnalysisBloc();
       whenListen(
-        face,
-        const Stream<PhotoState>.empty(),
-        initialState: const PhotoState(),
+        analysis,
+        analysisStates,
+        initialState: const SkinAnalysisState(),
       );
       whenListen(
         body,
@@ -268,6 +280,7 @@ void main() {
             BlocProvider<LogOutBloc>.value(value: logOut),
             BlocProvider<PreferencesBloc>.value(value: preferences),
             BlocProvider<DeleteAccountBloc>.value(value: deletion),
+            BlocProvider<SkinAnalysisBloc>.value(value: analysis),
           ],
           child: SettingsScreen(
             onLoggedOut: () {},
@@ -436,6 +449,65 @@ void main() {
             .map((row) => row.title),
         ['Body photo'],
       );
+    });
+
+    group('the skin analysis', () {
+      const kept = PhotoState(
+        status: PhotoStatus.chosen,
+        path: '/photos/face-1.jpg',
+        isKept: true,
+      );
+      const replaced = PhotoState(
+        status: PhotoStatus.confirmed,
+        path: '/photos/face-2.jpg',
+        isKept: true,
+      );
+
+      testWidgets('replacing the face photo offers to redo it', (tester) async {
+        await pumpSettings(
+          tester,
+          faceState: kept,
+          faceStates: Stream.value(replaced),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Redo your skin analysis?'), findsOneWidget);
+        await tester.tap(find.text('Redo skin analysis'));
+        await tester.pumpAndSettle();
+        verify(() => analysis.add(const SkinAnalysisRedone())).called(1);
+      });
+
+      testWidgets('Keep my colours keeps them', (tester) async {
+        await pumpSettings(
+          tester,
+          faceState: kept,
+          faceStates: Stream.value(replaced),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Keep my colours'));
+        await tester.pumpAndSettle();
+        verifyNever(() => analysis.add(any()));
+      });
+
+      testWidgets('a first face photo offers nothing: its colours are read '
+          'on Mirror', (tester) async {
+        await pumpSettings(tester, faceStates: Stream.value(replaced));
+        await tester.pumpAndSettle();
+        expect(find.text('Redo your skin analysis?'), findsNothing);
+      });
+
+      testWidgets('runs the rule on the face photo while it redoes, then '
+          'says so', (tester) async {
+        await pumpSettings(
+          tester,
+          faceState: kept,
+          analysisStates: Stream.fromIterable(const [
+            SkinAnalysisState(status: SkinAnalysisStatus.redoing),
+            SkinAnalysisState(status: SkinAnalysisStatus.done),
+          ]),
+        );
+        await tester.pump();
+        expect(find.text('Your colours are updated.'), findsOneWidget);
+      });
     });
 
     testWidgets('says why a new photo cannot be used', (tester) async {

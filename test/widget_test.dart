@@ -24,6 +24,7 @@ import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/colours/presentation/bloc/skin_analysis_bloc.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home_widget/data/repositories/unavailable_home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
@@ -85,6 +86,10 @@ class _MockDeleteAccountBloc
     extends MockBloc<DeleteAccountEvent, DeleteAccountState>
     implements DeleteAccountBloc {}
 
+class _MockSkinAnalysisBloc
+    extends MockBloc<SkinAnalysisEvent, SkinAnalysisState>
+    implements SkinAnalysisBloc {}
+
 void main() {
   late MockPreferencesRepository preferences;
   late MockSetupRepository setup;
@@ -139,6 +144,15 @@ void main() {
           initialState: const DeleteAccountState(),
         );
         return deletion;
+      })
+      ..registerFactory<SkinAnalysisBloc>(() {
+        final analysis = _MockSkinAnalysisBloc();
+        whenListen(
+          analysis,
+          const Stream<SkinAnalysisState>.empty(),
+          initialState: const SkinAnalysisState(),
+        );
+        return analysis;
       })
       ..registerFactory<SettingsBloc>(() {
         final settings = _MockSettingsBloc();

@@ -217,5 +217,10 @@
   "colourFailed": "Esta vez no pudimos analizar tus colores.",
   "colourPhotoProblem": "No pudimos leer tu cara en esta foto. Funciona mejor un primer plano, mirando al frente y con luz de día.",
   "colourNoCredit": "Por ahora no se pueden hacer más análisis de color.",
-  "colourUnavailable": "El análisis de color aún no está disponible en esta versión."
+  "colourUnavailable": "El análisis de color aún no está disponible en esta versión.",
+  "redoAnalysisTitle": "¿Repetir el análisis de tu piel?",
+  "redoAnalysisLine": "Tus colores siguen como están: una foto nueva no te cambia. Repite el análisis para leerlos de esta.",
+  "redoAnalysis": "Repetir el análisis",
+  "keepColours": "Mantener mis colores",
+  "coloursUpdated": "Tus colores están actualizados."
 }

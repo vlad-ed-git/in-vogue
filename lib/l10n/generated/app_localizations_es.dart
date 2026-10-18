@@ -844,4 +844,20 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get colourUnavailable =>
       'El análisis de color aún no está disponible en esta versión.';
+
+  @override
+  String get redoAnalysisTitle => '¿Repetir el análisis de tu piel?';
+
+  @override
+  String get redoAnalysisLine =>
+      'Tus colores siguen como están: una foto nueva no te cambia. Repite el análisis para leerlos de esta.';
+
+  @override
+  String get redoAnalysis => 'Repetir el análisis';
+
+  @override
+  String get keepColours => 'Mantener mis colores';
+
+  @override
+  String get coloursUpdated => 'Tus colores están actualizados.';
 }

@@ -1412,6 +1412,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Colour readings aren’t available in this version yet.'**
   String get colourUnavailable;
+
+  /// Offered in Settings after the face photo is replaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo your skin analysis?'**
+  String get redoAnalysisTitle;
+
+  /// No description provided for @redoAnalysisLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Your colours stay as they are: a new photo doesn’t change you. Redo the analysis to read them from this one.'**
+  String get redoAnalysisLine;
+
+  /// No description provided for @redoAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo skin analysis'**
+  String get redoAnalysis;
+
+  /// No description provided for @keepColours.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep my colours'**
+  String get keepColours;
+
+  /// After a redone skin analysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Your colours are updated.'**
+  String get coloursUpdated;
 }
 
 class _AppLocalizationsDelegate

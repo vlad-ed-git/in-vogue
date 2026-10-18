@@ -15,6 +15,7 @@ import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/your_picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/screens/your_picks_screen.dart';
 import 'package:in_vogue/features/colours/presentation/bloc/colours_bloc.dart';
+import 'package:in_vogue/features/colours/presentation/bloc/skin_analysis_bloc.dart';
 import 'package:in_vogue/features/colours/presentation/screens/mirror_screen.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home/presentation/bloc/shop_bloc.dart';
@@ -195,6 +196,7 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         ),
         BlocProvider(create: (_) => locator<LocationBloc>()),
         BlocProvider(create: (_) => locator<DeleteAccountBloc>()),
+        BlocProvider(create: (_) => locator<SkinAnalysisBloc>()),
       ],
       child: Builder(
         builder: (context) => SettingsScreen(
@@ -222,9 +224,12 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
       ],
       child: _OnTabShown(
         tab: InVogueTab.mirror,
-        // The face photo may have been replaced in Settings.
-        onShown: (context) =>
-            context.read<PhotoBloc>().add(const PhotoLoaded()),
+        // The face photo may have been replaced, or the skin analysis
+        // redone, in Settings.
+        onShown: (context) {
+          context.read<PhotoBloc>().add(const PhotoLoaded());
+          context.read<ColoursBloc>().add(const ColoursShown());
+        },
         child: const MirrorScreen(),
       ),
     ),

@@ -841,4 +841,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get colourUnavailable =>
       'Colour readings aren’t available in this version yet.';
+
+  @override
+  String get redoAnalysisTitle => 'Redo your skin analysis?';
+
+  @override
+  String get redoAnalysisLine =>
+      'Your colours stay as they are: a new photo doesn’t change you. Redo the analysis to read them from this one.';
+
+  @override
+  String get redoAnalysis => 'Redo skin analysis';
+
+  @override
+  String get keepColours => 'Keep my colours';
+
+  @override
+  String get coloursUpdated => 'Your colours are updated.';
 }

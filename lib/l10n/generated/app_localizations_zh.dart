@@ -793,4 +793,19 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get colourUnavailable => '此版本暂不支持色彩分析。';
+
+  @override
+  String get redoAnalysisTitle => '要重新进行肤色分析吗？';
+
+  @override
+  String get redoAnalysisLine => '你的颜色保持不变：换一张照片不会改变你。重新分析即可从这张照片读取。';
+
+  @override
+  String get redoAnalysis => '重新分析肤色';
+
+  @override
+  String get keepColours => '保留我的颜色';
+
+  @override
+  String get coloursUpdated => '你的颜色已更新。';
 }

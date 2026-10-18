@@ -12,6 +12,7 @@ import 'package:in_vogue/features/colours/domain/repositories/colour_profile_rep
 import 'package:in_vogue/features/colours/domain/repositories/skin_analysis_repository.dart';
 import 'package:in_vogue/features/colours/domain/services/analyse_face.dart';
 import 'package:in_vogue/features/colours/presentation/bloc/colours_bloc.dart';
+import 'package:in_vogue/features/colours/presentation/bloc/skin_analysis_bloc.dart';
 
 /// Without a YouCam client no colours can be read.
 void init(GetIt locator) {
@@ -54,6 +55,12 @@ void init(GetIt locator) {
       () => ColoursBloc(
         getCurrentAccount: locator(),
         getKeptPhoto: locator(),
+        analyseFace: locator(),
+      ),
+    )
+    ..registerFactory<SkinAnalysisBloc>(
+      () => SkinAnalysisBloc(
+        getCurrentAccount: locator(),
         analyseFace: locator(),
       ),
     );

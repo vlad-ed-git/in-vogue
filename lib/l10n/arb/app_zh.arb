@@ -217,5 +217,10 @@
   "colourFailed": "这次没能分析出你的颜色。",
   "colourPhotoProblem": "这张照片无法识别你的脸。白天光线下正面的特写效果最好。",
   "colourNoCredit": "暂时无法再进行色彩分析。",
-  "colourUnavailable": "此版本暂不支持色彩分析。"
+  "colourUnavailable": "此版本暂不支持色彩分析。",
+  "redoAnalysisTitle": "要重新进行肤色分析吗？",
+  "redoAnalysisLine": "你的颜色保持不变：换一张照片不会改变你。重新分析即可从这张照片读取。",
+  "redoAnalysis": "重新分析肤色",
+  "keepColours": "保留我的颜色",
+  "coloursUpdated": "你的颜色已更新。"
 }
