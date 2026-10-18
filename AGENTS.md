@@ -137,28 +137,7 @@ The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when i
 
 ### 2.3 Where the code is
 
-| Branch | Holds | State |
-| --- | --- | --- |
-| `main` | Foundation, design system, setup flow, sign-in, log out | 60 commits ahead of `origin/main`; not pushed |
-| `feat/first_outfit` | Everything in `main`, plus the account, the first try-on, Home, Shop and Settings | Not merged, not pushed |
-| `feat/makeup` | Everything in `feat/first_outfit`, plus the Makeup tab, two-day outfits in Firestore, photo rules, returning users and makeup that starts by itself | Not merged, not pushed |
-| `feat/settings_profile_initial` | Everything in `feat/makeup`, plus Settings' default profile picture | Not merged, not pushed |
-| `feat/logout_clears_pictures` | Everything in `feat/settings_profile_initial`, plus log out clearing the phone's outfit and makeup pictures | Not merged, not pushed |
-| `fix/plan_rules` | Everything in `feat/logout_clears_pictures`, plus Firestore rules that stop a person changing their own plan (deployed to `in-vogue-dev`) | Not merged, not pushed |
-| `feat/skip_refused_outfit` | Everything in `fix/plan_rules`, plus switching to another outfit when YouCam refuses a piece's photo | Not merged, not pushed |
-| `fix/favourites_across_phones` | Everything in `feat/skip_refused_outfit`, plus favourites that stay unloved across phones | Not merged, not pushed |
-| `feat/translate_kb_texts` | Everything in `fix/favourites_across_phones`, plus makeup steps and outfit reasons in Spanish and Chinese | Not merged, not pushed |
-| `docs/readme_refresh` | Everything in `feat/translate_kb_texts`, plus a README that describes the app as built (October 17) | Not merged, not pushed |
-| `chore/deterministic_outfit_builder` | Everything in `docs/readme_refresh`; the outfit builder fix itself lives in `resources/`, outside git (October 18) | Not merged, not pushed |
-| `fix/settings_initial_centred` | Everything in `chore/deterministic_outfit_builder`, plus the widget plan and the centred initial | Not merged, not pushed |
-| `fix/settings_log_out_delete_rouge` | Everything in `fix/settings_initial_centred`, plus Rouge Log out and Delete account | Not merged, not pushed |
-| `fix/home_occasion_on_resume` | Everything in `fix/settings_log_out_delete_rouge`, plus the fix for a day taking another day's occasion | Not merged, not pushed |
-| `feat/youcam_key_bundled` | Everything in `fix/home_occasion_on_resume`, plus widget steps 9a–9b and the YouCam key bundled in development builds | Not merged, not pushed |
-| `feat/android_widget` | Everything in `feat/youcam_key_bundled`, plus the Android widget: publishing from Home, taps, clearing, the native provider and layouts, the morning refresh | Not merged, not pushed |
-| `feat/app_check` | Everything in `feat/android_widget`, plus App Check, on but never enforced | Not merged, not pushed |
-| `feat/ios_widget` | Everything in `feat/app_check`, plus the owner's widget extension and the iPhone widget: content and pictures through the App Group, the SwiftUI widget, the morning refresh | Not merged, not pushed |
-| `feat/cached_results` | Everything in `feat/ios_widget`, plus each photo and outfit tried on once, and looks kept for each face photo and outfit, opening from the phone | Not merged, not pushed |
-| **`feat/settings_add_widget`** (current) | Everything in `feat/cached_results`, plus Settings' Home-screen widget row | Not merged, not pushed |
+Everything is on **`main`** (merged with the owner's go-ahead, October 18): the foundation, design system, setup and sign-in, then every feature branch up to `feat/settings_add_widget`, fast-forwarded so history stays one line. `main` is 187 commits ahead of `origin/main` and not pushed. The old feature branches are merged and kept; new work branches from `main`.
 
 The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
 
@@ -206,7 +185,6 @@ The owner committed the `ios/Podfile.lock` update for the new Firebase pods on O
 
 **Housekeeping**
 
-- [ ] Merge `feat/makeup` into `main`. *Blocked on the owner's go-ahead.*
 - [ ] Push to `origin`. *Blocked on the owner's go-ahead.*
 - [ ] Run each skill's evals in fresh sessions, with and without the skill, and record the results in §4.1. *Pending.*
 
