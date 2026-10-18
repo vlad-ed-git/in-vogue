@@ -111,7 +111,7 @@ class WardrobeSection extends StatelessWidget {
   );
 }
 
-/// An outfit's details over the tabs: its photo, colour, weather and
+/// An outfit's details over the tabs: its photo, colours, weather and
 /// occasions, and a way to remove it, which asks first.
 Future<void> showWardrobeOutfitSheet({
   required BuildContext context,
@@ -140,11 +140,25 @@ Future<void> showWardrobeOutfitSheet({
               ),
             ),
             const SizedBox(height: InVogueSpace.s4),
-            Row(
+            Wrap(
+              spacing: InVogueSpace.s4,
+              runSpacing: InVogueSpace.s1,
               children: [
-                Swatch(color: Color(details.colour.argb)),
-                const SizedBox(width: InVogueSpace.s2),
-                Text(details.colour.label(l10n), style: InVogueType.body),
+                for (final colour in OutfitColour.values)
+                  if (details.colours.contains(colour))
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Swatch(color: Color(colour.argb)),
+                        const SizedBox(width: InVogueSpace.s2),
+                        Flexible(
+                          child: Text(
+                            colour.label(l10n),
+                            style: InVogueType.body,
+                          ),
+                        ),
+                      ],
+                    ),
               ],
             ),
             const SizedBox(height: InVogueSpace.s1),

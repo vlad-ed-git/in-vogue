@@ -870,7 +870,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get outfitName => 'Nombre';
 
   @override
-  String get outfitColour => 'Color';
+  String get outfitColours => 'Colores';
 
   @override
   String get outfitWeather => 'Tiempo';

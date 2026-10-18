@@ -18,7 +18,7 @@ import 'package:path/path.dart' as p;
 
 const _details = OutfitDetails(
   name: 'Navy work suit',
-  colour: OutfitColour.navy,
+  colours: {OutfitColour.navy, OutfitColour.white},
   bands: {WarmthBand.mild, WarmthBand.cool},
   rain: true,
   occasions: {Occasion.work},
@@ -97,6 +97,7 @@ void main() {
         photoUrl: 'https://photos/a.jpg',
         createdAt: createdAt,
       );
+      expect(json['colours'], ['white', 'navy']);
       expect(json['bands'], ['mild', 'cool']);
       expect(json['occasions'], ['work']);
       expect(
@@ -123,15 +124,35 @@ void main() {
             photoUrl: 'u',
             createdAt: DateTime(2026),
           )..addAll({
-            'colour': 'chartreuse',
+            'colours': ['navy', 'chartreuse'],
             'bands': ['mild', 'tropical'],
             'occasions': ['work', 'gala'],
           });
       final outfit = WardrobeOutfitModel.fromJson('a', json)!;
-      expect(outfit.details.colour, OutfitColour.mixed);
+      expect(outfit.details.colours, {OutfitColour.navy, OutfitColour.mixed});
       expect(outfit.details.bands, {WarmthBand.mild});
       expect(outfit.details.occasions, {Occasion.work});
       expect(WardrobeOutfitModel.fromJson('b', const {'name': 'Bare'}), isNull);
+    });
+
+    test('reads an outfit saved with one colour, before several could be '
+        'chosen', () {
+      final json = WardrobeOutfitModel.toJson(
+        details: _details,
+        photoPath: 'p',
+        photoUrl: 'u',
+        createdAt: DateTime(2026),
+      );
+      final colours = json.remove('colours');
+      expect(colours, isNotNull);
+      expect(
+        WardrobeOutfitModel.fromJson('a', {
+          ...json,
+          'colour': 'navy',
+        })!.details.colours,
+        {OutfitColour.navy},
+      );
+      expect(WardrobeOutfitModel.fromJson('b', json), isNull);
     });
   });
 
@@ -201,7 +222,7 @@ void main() {
           photo: chosen,
           details: const OutfitDetails(
             name: 'Weekend jeans',
-            colour: OutfitColour.blue,
+            colours: {OutfitColour.blue},
             bands: {WarmthBand.warm},
             occasions: {Occasion.casual},
           ),

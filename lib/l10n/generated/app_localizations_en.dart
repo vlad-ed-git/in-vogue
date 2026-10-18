@@ -868,7 +868,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get outfitName => 'Name';
 
   @override
-  String get outfitColour => 'Colour';
+  String get outfitColours => 'Colours';
 
   @override
   String get outfitWeather => 'Weather';

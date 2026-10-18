@@ -1461,11 +1461,11 @@ abstract class AppLocalizations {
   /// **'Name'**
   String get outfitName;
 
-  /// No description provided for @outfitColour.
+  /// No description provided for @outfitColours.
   ///
   /// In en, this message translates to:
-  /// **'Colour'**
-  String get outfitColour;
+  /// **'Colours'**
+  String get outfitColours;
 
   /// No description provided for @outfitWeather.
   ///

@@ -833,7 +833,7 @@
   "@outfitName": {
     "description": "The name the person gives an outfit they own."
   },
-  "outfitColour": "Colour",
+  "outfitColours": "Colours",
   "outfitWeather": "Weather",
   "outfitOccasion": "Occasion",
   "saveOutfit": "Save to my wardrobe",

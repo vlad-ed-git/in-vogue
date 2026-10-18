@@ -22,7 +22,7 @@ import 'wardrobe_blocs_test.mocks.dart';
 
 const _details = OutfitDetails(
   name: 'Navy work suit',
-  colour: OutfitColour.navy,
+  colours: {OutfitColour.navy},
   bands: {WarmthBand.mild},
   occasions: {Occasion.work},
 );
@@ -134,7 +134,7 @@ void main() {
       seed: () => const AddOutfitState(photo: '/cache/look.jpg'),
       act: (bloc) => bloc
         ..add(const AddOutfitNameChanged('Navy work suit'))
-        ..add(const AddOutfitColourChosen(OutfitColour.navy))
+        ..add(const AddOutfitColourToggled(OutfitColour.navy))
         ..add(const AddOutfitBandToggled(WarmthBand.mild))
         ..add(const AddOutfitOccasionToggled(Occasion.work)),
       verify: (bloc) {
@@ -147,7 +147,7 @@ void main() {
       const ready = AddOutfitState(
         photo: '/cache/look.jpg',
         name: 'Navy work suit',
-        colour: OutfitColour.navy,
+        colours: {OutfitColour.navy},
         bands: {WarmthBand.mild},
         occasions: {Occasion.work},
       );
@@ -155,13 +155,30 @@ void main() {
       for (final missing in [
         ready.copyWith(photo: () => null),
         ready.copyWith(name: ' '),
-        ready.copyWith(colour: () => null),
+        ready.copyWith(colours: const {}),
         ready.copyWith(bands: const {}),
         ready.copyWith(occasions: const {}),
       ]) {
         expect(missing.canSave, isFalse);
       }
     });
+
+    blocTest<AddOutfitBloc, AddOutfitState>(
+      'takes several colours, and toggles one off again',
+      build: build,
+      act: (bloc) => bloc
+        ..add(const AddOutfitColourToggled(OutfitColour.navy))
+        ..add(const AddOutfitColourToggled(OutfitColour.white))
+        ..add(const AddOutfitColourToggled(OutfitColour.red))
+        ..add(const AddOutfitColourToggled(OutfitColour.navy)),
+      verify: (bloc) {
+        expect(bloc.state.colours, {OutfitColour.white, OutfitColour.red});
+        expect(bloc.state.details.colours, {
+          OutfitColour.white,
+          OutfitColour.red,
+        });
+      },
+    );
 
     blocTest<AddOutfitBloc, AddOutfitState>(
       'toggles a band, rain and an occasion off again',
@@ -190,7 +207,7 @@ void main() {
       seed: () => const AddOutfitState(
         photo: '/cache/look.jpg',
         name: 'Navy work suit',
-        colour: OutfitColour.navy,
+        colours: {OutfitColour.navy},
         bands: {WarmthBand.mild},
         occasions: {Occasion.work},
       ),
@@ -212,7 +229,7 @@ void main() {
       seed: () => const AddOutfitState(
         photo: '/cache/look.jpg',
         name: 'Navy work suit',
-        colour: OutfitColour.navy,
+        colours: {OutfitColour.navy},
         bands: {WarmthBand.mild},
         occasions: {Occasion.work},
       ),

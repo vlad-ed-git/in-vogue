@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
-/// The main colour of an outfit the person owns.
+/// A colour of an outfit the person owns.
 enum OutfitColour {
   black(0xFF141414),
   white(0xFFF7F7F5),
@@ -31,14 +31,16 @@ enum OutfitColour {
 class OutfitDetails extends Equatable {
   const OutfitDetails({
     required this.name,
-    required this.colour,
+    required this.colours,
     required this.bands,
     required this.occasions,
     this.rain = false,
   });
 
   final String name;
-  final OutfitColour colour;
+
+  /// The colours it is, one or more.
+  final Set<OutfitColour> colours;
 
   /// The weather it suits.
   final Set<WarmthBand> bands;
@@ -47,13 +49,16 @@ class OutfitDetails extends Equatable {
   final bool rain;
   final Set<Occasion> occasions;
 
-  /// Whether it says enough to recommend: a name, some weather and an
-  /// occasion.
+  /// Whether it says enough to recommend: a name, a colour, some weather
+  /// and an occasion.
   bool get complete =>
-      name.trim().isNotEmpty && bands.isNotEmpty && occasions.isNotEmpty;
+      name.trim().isNotEmpty &&
+      colours.isNotEmpty &&
+      bands.isNotEmpty &&
+      occasions.isNotEmpty;
 
   @override
-  List<Object?> get props => [name, colour, bands, rain, occasions];
+  List<Object?> get props => [name, colours, bands, rain, occasions];
 }
 
 /// An outfit the person owns, from their wardrobe.

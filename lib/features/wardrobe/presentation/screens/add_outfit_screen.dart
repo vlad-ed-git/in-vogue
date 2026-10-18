@@ -14,7 +14,7 @@ import 'package:in_vogue/features/wardrobe/presentation/wardrobe_text.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
 /// Adds an outfit the person owns: a photo from Photos or Gallery, its
-/// name, its colour, the weather and the occasions it suits.
+/// name, its colours, the weather and the occasions it suits.
 class AddOutfitScreen extends StatefulWidget {
   const AddOutfitScreen({required this.onDone, super.key});
 
@@ -76,11 +76,11 @@ class _AddOutfitScreenState extends State<AddOutfitScreen> {
                         controller: _name,
                         textCapitalization: TextCapitalization.sentences,
                       ),
-                      SectionHeading(l10n.outfitColour),
+                      SectionHeading(l10n.outfitColours),
                       _ColourChoice(
-                        chosen: state.colour,
-                        onChosen: (colour) =>
-                            bloc.add(AddOutfitColourChosen(colour)),
+                        chosen: state.colours,
+                        onToggled: (colour) =>
+                            bloc.add(AddOutfitColourToggled(colour)),
                       ),
                       SectionHeading(l10n.outfitWeather),
                       ChoiceChips(
@@ -199,12 +199,12 @@ class _AddOutfitScreenState extends State<AddOutfitScreen> {
   }
 }
 
-/// The outfit colours as round swatches; one is chosen.
+/// The outfit colours as round swatches; any number are chosen.
 class _ColourChoice extends StatelessWidget {
-  const _ColourChoice({required this.chosen, required this.onChosen});
+  const _ColourChoice({required this.chosen, required this.onToggled});
 
-  final OutfitColour? chosen;
-  final ValueChanged<OutfitColour> onChosen;
+  final Set<OutfitColour> chosen;
+  final ValueChanged<OutfitColour> onToggled;
 
   @override
   Widget build(BuildContext context) {
@@ -215,8 +215,8 @@ class _ColourChoice extends StatelessWidget {
       children: [
         for (final colour in OutfitColour.values)
           Pressable(
-            onTap: () => onChosen(colour),
-            toggled: colour == chosen,
+            onTap: () => onToggled(colour),
+            toggled: chosen.contains(colour),
             haptic: InVogueHaptic.selection,
             semanticLabel: colour.label(l10n),
             excludeSemantics: true,
@@ -226,7 +226,7 @@ class _ColourChoice extends StatelessWidget {
                 child: Swatch(
                   color: Color(colour.argb),
                   size: Swatch.large,
-                  selected: colour == chosen,
+                  selected: chosen.contains(colour),
                 ),
               ),
             ),

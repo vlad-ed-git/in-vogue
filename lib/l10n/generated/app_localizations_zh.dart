@@ -819,7 +819,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get outfitName => '名称';
 
   @override
-  String get outfitColour => '颜色';
+  String get outfitColours => '颜色';
 
   @override
   String get outfitWeather => '天气';

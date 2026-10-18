@@ -1,3 +1,5 @@
+import 'dart:ui' show Tristate;
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +26,7 @@ final _suit = WardrobeOutfit(
   id: 'outfit-1',
   details: const OutfitDetails(
     name: 'Navy work suit',
-    colour: OutfitColour.navy,
+    colours: {OutfitColour.navy, OutfitColour.white},
     bands: {WarmthBand.mild, WarmthBand.cool},
     rain: true,
     occasions: {Occasion.work},
@@ -37,7 +39,7 @@ final _jeans = WardrobeOutfit(
   id: 'outfit-2',
   details: const OutfitDetails(
     name: 'Weekend jeans',
-    colour: OutfitColour.blue,
+    colours: {OutfitColour.blue},
     bands: {WarmthBand.warm},
     occasions: {Occasion.casual},
   ),
@@ -55,7 +57,12 @@ void main() {
     late _MockWardrobeBloc wardrobe;
     late int adds;
 
-    Future<void> pumpSection(WidgetTester tester, WardrobeState state) async {
+    Future<void> pumpSection(
+      WidgetTester tester,
+      WardrobeState state, {
+      Size size = const Size(390, 844),
+      double textScale = 1,
+    }) async {
       wardrobe = _MockWardrobeBloc();
       adds = 0;
       whenListen(
@@ -72,6 +79,8 @@ void main() {
             imageFor: (_) => testImage,
           ),
         ),
+        size: size,
+        textScale: textScale,
       );
       await pumpWhileLoading(tester);
     }
@@ -112,6 +121,7 @@ void main() {
       await tester.tap(find.text('Navy work suit'));
       await pumpWhileLoading(tester);
       expect(find.text('Navy'), findsOneWidget);
+      expect(find.text('White'), findsOneWidget);
       expect(find.text('Mild · Cool · Rain'), findsOneWidget);
       expect(find.text('Work'), findsOneWidget);
       await tester.tap(findLink('Remove from my wardrobe'));
@@ -126,6 +136,31 @@ void main() {
       await pumpWhileLoading(tester);
       verify(() => wardrobe.add(WardrobeOutfitRemoved(_suit))).called(1);
       expect(find.text('Mild · Cool · Rain'), findsNothing);
+    });
+
+    testWidgets('the details of an outfit in every colour fit a 320-point '
+        'phone at 200% text', (tester) async {
+      final everything = WardrobeOutfit(
+        id: 'outfit-3',
+        details: OutfitDetails(
+          name: 'Patchwork coat',
+          colours: OutfitColour.values.toSet(),
+          bands: const {WarmthBand.cold},
+          occasions: const {Occasion.casual},
+        ),
+        photoUrl: 'https://photos/outfit-3.jpg',
+        createdAt: DateTime(2026, 10, 18, 11),
+      );
+      await pumpSection(
+        tester,
+        WardrobeState(status: WardrobeStatus.ready, outfits: [everything]),
+        size: const Size(320, 640),
+        textScale: 2,
+      );
+      await tester.tap(find.text('Patchwork coat'));
+      await pumpWhileLoading(tester);
+      expect(find.text('Mixed'), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('runs the rule while the outfits load', (tester) async {
@@ -165,12 +200,12 @@ void main() {
       find.widgetWithText(InVogueButton, 'Save to my wardrobe'),
     );
 
-    testWidgets('asks for the photo, the name, the colour, the weather and '
+    testWidgets('asks for the photo, the name, the colours, the weather and '
         'the occasion; Save waits for all of them', (tester) async {
       await pumpAdd(tester, const AddOutfitState());
       expect(find.text('Add an outfit'), findsOneWidget);
       expect(find.text('NAME'), findsOneWidget);
-      for (final heading in ['Colour', 'Weather', 'Occasion']) {
+      for (final heading in ['Colours', 'Weather', 'Occasion']) {
         expect(find.text(heading), findsOneWidget);
       }
       expect(save(tester).onPressed, isNull);
@@ -184,8 +219,12 @@ void main() {
       verify(() => add.add(const AddOutfitNameChanged('Navy work suit')));
       await tester.ensureVisible(find.bySemanticsLabel('Navy'));
       await tester.tap(find.bySemanticsLabel('Navy'));
+      await tester.tap(find.bySemanticsLabel('White'));
       verify(
-        () => add.add(const AddOutfitColourChosen(OutfitColour.navy)),
+        () => add.add(const AddOutfitColourToggled(OutfitColour.navy)),
+      ).called(1);
+      verify(
+        () => add.add(const AddOutfitColourToggled(OutfitColour.white)),
       ).called(1);
       await tester.ensureVisible(find.text('Rain'));
       await tester.tap(find.text('Mild'));
@@ -205,7 +244,7 @@ void main() {
       const ready = AddOutfitState(
         photo: '/cache/look.jpg',
         name: 'Navy work suit',
-        colour: OutfitColour.navy,
+        colours: {OutfitColour.navy},
         bands: {WarmthBand.mild},
         occasions: {Occasion.work},
       );
@@ -223,7 +262,7 @@ void main() {
         const AddOutfitState(
           photo: '/cache/look.jpg',
           name: 'Navy work suit',
-          colour: OutfitColour.navy,
+          colours: {OutfitColour.navy},
           bands: {WarmthBand.mild},
           occasions: {Occasion.work},
         ),
@@ -235,6 +274,36 @@ void main() {
         find.widgetWithText(InVogueButton, 'Save to my wardrobe'),
       );
       verify(() => add.add(const AddOutfitSaved())).called(1);
+    });
+
+    testWidgets('marks every chosen colour', (tester) async {
+      await pumpAdd(
+        tester,
+        const AddOutfitState(colours: {OutfitColour.navy, OutfitColour.white}),
+      );
+      final chosen = [
+        for (final swatch in tester.widgetList<Swatch>(find.byType(Swatch)))
+          if (swatch.selected) swatch.color,
+      ];
+      expect(chosen, [
+        Color(OutfitColour.white.argb),
+        Color(OutfitColour.navy.argb),
+      ]);
+      for (final (colour, toggled) in [
+        ('Navy', Tristate.isTrue),
+        ('White', Tristate.isTrue),
+        ('Black', Tristate.isFalse),
+      ]) {
+        expect(
+          tester
+              .getSemantics(find.bySemanticsLabel(colour))
+              .getSemanticsData()
+              .flagsCollection
+              .isToggled,
+          toggled,
+          reason: colour,
+        );
+      }
     });
 
     testWidgets('fits a 320-point phone at 200% text', (tester) async {

@@ -33,8 +33,8 @@ final class AddOutfitNameChanged extends AddOutfitEvent {
   List<Object?> get props => [name];
 }
 
-final class AddOutfitColourChosen extends AddOutfitEvent {
-  const AddOutfitColourChosen(this.colour);
+final class AddOutfitColourToggled extends AddOutfitEvent {
+  const AddOutfitColourToggled(this.colour);
   final OutfitColour colour;
 
   @override
@@ -72,7 +72,7 @@ class AddOutfitState extends Equatable {
     this.converted = false,
     this.choosing = false,
     this.name = '',
-    this.colour,
+    this.colours = const {},
     this.bands = const {},
     this.rain = false,
     this.occasions = const {},
@@ -88,7 +88,7 @@ class AddOutfitState extends Equatable {
   final bool converted;
   final bool choosing;
   final String name;
-  final OutfitColour? colour;
+  final Set<OutfitColour> colours;
   final Set<WarmthBand> bands;
   final bool rain;
   final Set<Occasion> occasions;
@@ -96,27 +96,23 @@ class AddOutfitState extends Equatable {
   final bool saved;
   final Failure? failure;
 
-  /// What was entered; null without a colour.
-  OutfitDetails? get details => switch (colour) {
-    final colour? => OutfitDetails(
-      name: name.trim(),
-      colour: colour,
-      bands: bands,
-      rain: rain,
-      occasions: occasions,
-    ),
-    null => null,
-  };
+  /// What was entered.
+  OutfitDetails get details => OutfitDetails(
+    name: name.trim(),
+    colours: colours,
+    bands: bands,
+    rain: rain,
+    occasions: occasions,
+  );
 
-  bool get canSave =>
-      photo != null && (details?.complete ?? false) && !saving && !saved;
+  bool get canSave => photo != null && details.complete && !saving && !saved;
 
   AddOutfitState copyWith({
     String? Function()? photo,
     bool? converted,
     bool? choosing,
     String? name,
-    OutfitColour? Function()? colour,
+    Set<OutfitColour>? colours,
     Set<WarmthBand>? bands,
     bool? rain,
     Set<Occasion>? occasions,
@@ -128,7 +124,7 @@ class AddOutfitState extends Equatable {
     converted: converted ?? this.converted,
     choosing: choosing ?? this.choosing,
     name: name ?? this.name,
-    colour: colour == null ? this.colour : colour(),
+    colours: colours ?? this.colours,
     bands: bands ?? this.bands,
     rain: rain ?? this.rain,
     occasions: occasions ?? this.occasions,
@@ -143,7 +139,7 @@ class AddOutfitState extends Equatable {
     converted,
     choosing,
     name,
-    colour,
+    colours,
     bands,
     rain,
     occasions,
@@ -165,8 +161,9 @@ class AddOutfitBloc extends Bloc<AddOutfitEvent, AddOutfitState> {
     on<AddOutfitNameChanged>(
       (event, emit) => emit(state.copyWith(name: event.name)),
     );
-    on<AddOutfitColourChosen>(
-      (event, emit) => emit(state.copyWith(colour: () => event.colour)),
+    on<AddOutfitColourToggled>(
+      (event, emit) =>
+          emit(state.copyWith(colours: _toggle(state.colours, event.colour))),
     );
     on<AddOutfitBandToggled>(
       (event, emit) =>
@@ -214,7 +211,7 @@ class AddOutfitBloc extends Bloc<AddOutfitEvent, AddOutfitState> {
   Future<void> _save(AddOutfitSaved event, Emitter<AddOutfitState> emit) async {
     final photo = state.photo;
     final details = state.details;
-    if (!state.canSave || photo == null || details == null) return;
+    if (!state.canSave || photo == null) return;
     emit(state.copyWith(saving: true, failure: () => null));
     final account = (await _getCurrentAccount(
       const NoParams(),

@@ -14,7 +14,10 @@ abstract final class WardrobeOutfitModel {
     required DateTime createdAt,
   }) => {
     'name': details.name.trim(),
-    'colour': details.colour.name,
+    'colours': [
+      for (final colour in OutfitColour.values)
+        if (details.colours.contains(colour)) colour.name,
+    ],
     'bands': [
       for (final band in WarmthBand.values)
         if (details.bands.contains(band)) band.name,
@@ -34,19 +37,19 @@ abstract final class WardrobeOutfitModel {
     Map<String, Object?> json, {
     String? photo,
   }) {
+    final colours = _coloursOf(json);
     if (json case {
       'name': final String name,
-      'colour': final String colour,
       'bands': final List<Object?> bands,
       'occasions': final List<Object?> occasions,
       'photo': {'url': final String url},
       'createdAt': final Timestamp createdAt,
-    }) {
+    } when colours != null) {
       return WardrobeOutfit(
         id: id,
         details: OutfitDetails(
           name: name,
-          colour: OutfitColour.values.asNameMap()[colour] ?? OutfitColour.mixed,
+          colours: colours,
           bands: {
             for (final band in bands) ?WarmthBand.values.asNameMap()[band],
           },
@@ -62,6 +65,21 @@ abstract final class WardrobeOutfitModel {
       );
     }
     return null;
+  }
+
+  /// An outfit's colours; one saved before several could be chosen
+  /// (October 18) has a single `colour`. A colour the app doesn't know
+  /// reads as mixed.
+  static Set<OutfitColour>? _coloursOf(Map<String, Object?> json) {
+    OutfitColour named(Object? name) =>
+        OutfitColour.values.asNameMap()[name] ?? OutfitColour.mixed;
+    return switch (json) {
+      {'colours': final List<Object?> names} => {
+        for (final name in names) named(name),
+      },
+      {'colour': final String name} => {named(name)},
+      _ => null,
+    };
   }
 
   /// Where an outfit's photo is kept in Storage.
