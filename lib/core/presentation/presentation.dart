@@ -41,6 +41,7 @@ export 'foundations/marked_text.dart';
 export 'foundations/overflow_hit_stack.dart';
 export 'foundations/photo_slot.dart';
 export 'foundations/pressable.dart';
+export 'foundations/running_rule.dart';
 export 'foundations/shift_switcher.dart';
 export 'foundations/size_reporter.dart';
 export 'foundations/svg_path.dart';

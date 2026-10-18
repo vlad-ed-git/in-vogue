@@ -23,6 +23,9 @@ abstract final class InVogueMotion {
   /// Curtain reveal.
   static const reveal = Duration(milliseconds: 720);
 
+  /// One pass of the loading rule, and one fade with reduced motion.
+  static const run = Duration(milliseconds: 1200);
+
   /// Delay before a rolling numeral enters.
   static const rollDelay = Duration(milliseconds: 40);
 
