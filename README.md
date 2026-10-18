@@ -37,11 +37,11 @@ Nothing leaves the phone before sign-in, and YouCam is called only after it.
 
 **Shop** lists every piece of the outfit with its photo, colour, name and material, and "Buy at Everlane", which opens that exact item. There are no prices. **Your picks** shows only the pieces the person loved; removing one asks first.
 
-**Mirror** shows the person's colour season, why (undertone, depth and contrast) and its palette in round swatches: colours that suit them, their neutrals, and colours to go easy on. YouCam reads the colours from the face photo once; the season is In Vogue's own suggestion. Without a face photo, Mirror asks for a selfie for the skin tone and colour analysis, kept as soon as it is chosen; the face photo itself is shown only in Settings. My wardrobe sits below, a stand-in until wardrobe uploads are built.
+**Mirror** shows the person's colour season, why (undertone, depth and contrast) and its palette in round swatches: colours that suit them, their neutrals, and colours to go easy on. YouCam reads the colours from the face photo once per person: a new face photo keeps them, unless the person redoes the skin analysis from Settings. The season is In Vogue's own suggestion. Without a face photo, Mirror asks for a selfie for the skin tone and colour analysis, kept as soon as it is chosen; the face photo itself is shown only in Settings. My wardrobe sits below, a stand-in until wardrobe uploads are built.
 
 **Settings** holds:
 - the profile: face photo, name, how the person signed in, and Edit. Without a face photo it shows the name's first letter on Rouge.
-- the body and face photos.
+- the body and face photos. Replacing the face photo offers to redo the skin analysis; otherwise the colours stay.
 - the membership (Pro or Free, shown only).
 - the location, the default day and the language.
 - the home-screen widget, whose Add places it, or says how.
@@ -128,14 +128,16 @@ MakeOutfit, once the day is claimed:
 
 ```
 ColoursBloc, when Mirror shows or a face photo is kept:
-AnalyseFace: colours of this photo on the account? (colorProfiles/{sha256(face)}) ─► show at once
-  else face ─► upright PNG, ≤ 1024 px ─► skin-tone-analysis at low strictness (20 units, once per photo)
-  poll 3 s, ≤ 2 min ─► colours (skin, brows, lips, hair, eyes) ─► colorProfiles
+AnalyseFace: the person's reading on the account? (the colorProfiles doc saved last) ─► show it
+  none yet ─► the face photo, upright PNG ≤ 1024 px ─► skin-tone-analysis, low strictness (20 units)
+  poll 3 s, ≤ 2 min ─► colours (skin, brows, lips, hair, eyes) ─► colorProfiles/{sha256(face)}
   SeasonRules: undertone + depth + contrast ─► one of 12 seasons ─► its palette
   refused photo ─► what to change (PhotoAdvice) and Choose a different photo
+Settings, face photo replaced ─► "Redo skin analysis?" ─► SkinAnalysisBloc ─► AnalyseFace(redo)
+  a photo read before ─► its reading again, free; else a new analysis of the current photo
 ```
 
-A reading is kept under the face photo's fingerprint, so the same photo is never analysed twice, and one cut short is checked again rather than paid for twice (Hive `analysis_tasks`). YouCam only samples the colours; the season and palette are In Vogue's own, a suggestion.
+The analysis runs once per person (owner, October 18): a new face photo doesn't change who they are, so the reading stays until they redo it from Settings. Readings are kept under each photo's fingerprint, and the one saved last is the person's. One cut short is checked again rather than paid for twice (Hive `analysis_tasks`). YouCam only samples the colours; the season and palette are In Vogue's own, a suggestion.
 
 ### The home-screen widgets
 
@@ -186,7 +188,7 @@ The app asks Open-Meteo for a 3-day hourly forecast at the person's location and
   - Body photos need at least 512 × 384, face photos at least 320 px a side.
   - The picker scales to 2048 px at JPEG quality 90.
   - There is no face or body detection.
-- **YouCam costs:** 2 units per try-on pass and 20 per face analysis, once per face photo; failed tasks are free. A new person's first day costs about 30 units (two outfits and the face analysis), then 4 to 6 a day.
+- **YouCam costs:** 2 units per try-on pass and 20 per face analysis, once per person unless they redo it; failed tasks are free. A new person's first day costs about 30 units (two outfits and the face analysis), then 4 to 6 a day.
 
 ## Architecture
 
@@ -348,7 +350,7 @@ The catalog isn't fetched by the app. On the Mac, `../resources/` pulls Everlane
 | `users/{uid}/days/{yyyy-mm-dd}_{occasion}` | Each day's outfit: cell, outfit, `status`, the phone making it, progress, `picturePath`, `problem` |
 | `users/{uid}/suggestions/{signature}` | When each outfit was suggested, and any piece whose photo YouCam refused |
 | `users/{uid}/tryOns/{photo}-{signature}` | The picture made of an outfit on a photo: the photo's fingerprint, the signature and the picture's path |
-| `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo: skin, brows, lips, hair, eyes, and whether the photo was clear |
+| `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo: skin, brows, lips, hair, eyes, whether the photo was clear, and `analysedAt`. The one analysed last is the person's reading |
 | `errors/{id}` | An error report: account, time, where, the error's kind and code, stack, flavor, platform, version, build and install id. The app may only add its own; nobody reads or changes one from the app |
 
 In the names above, `{photo}` is the first 16 characters of the photo's SHA-256.
@@ -585,5 +587,6 @@ Each line is an owner decision, kept so that old ideas stay dead.
 - **October 18, last:** each photo and outfit is tried on once, and looks are kept per face photo. Error reports go to a Firestore `errors` collection.
 - **October 18, after the device test:**
   - Loading must visibly move, overriding the spec's still placeholders. Of three options, the owner picked the running rule.
+  - The skin analysis runs once per person; replacing the face photo keeps the colours unless the person redoes it from Settings.
   - Makeup gives way to a skin-tone colour palette and My Wardrobe on one page: the Mirror tab (Home, Mirror, Settings). It shows the season and why and the palette in round swatches, never the face photo, which belongs in Settings. Setup asks for the selfie for the skin tone and colour analysis, never for makeup.
   - Wardrobe uploads, dropped before, are planned, and the person's own outfits weigh more.
