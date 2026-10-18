@@ -467,4 +467,56 @@ void main() {
       handle.dispose();
     });
   });
+
+  group('ChoiceChips', () {
+    testWidgets('toggles any number of chips, each said as on or off', (
+      tester,
+    ) async {
+      var selected = <int>{1};
+      await pumpInVogue(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) => ChoiceChips(
+            labels: const ['Hot', 'Warm', 'Mild'],
+            selected: selected,
+            onToggled: (index) => setState(
+              () => selected = selected.contains(index)
+                  ? ({...selected}..remove(index))
+                  : {...selected, index},
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Hot'));
+      await tester.pump();
+      expect(selected, {0, 1});
+      await tester.tap(find.text('Warm'));
+      await tester.pump();
+      expect(selected, {0});
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Hot')),
+        isSemantics(label: 'Hot', isToggled: true),
+      );
+    });
+
+    testWidgets('wraps onto lines on a narrow phone at 200% text', (
+      tester,
+    ) async {
+      await pumpInVogue(
+        tester,
+        ChoiceChips(
+          labels: const ['Hot', 'Warm', 'Mild', 'Cool', 'Cold', 'Rain'],
+          selected: const {},
+          onToggled: (_) {},
+        ),
+        size: const Size(320, 640),
+        textScale: 2,
+      );
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.getTopLeft(find.text('Rain')).dy,
+        greaterThan(tester.getTopLeft(find.text('Hot')).dy),
+      );
+    });
+  });
 }

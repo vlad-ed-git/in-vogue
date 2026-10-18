@@ -60,19 +60,65 @@ class CategoryChips extends StatelessWidget {
   );
 }
 
+/// Chips that wrap onto lines, any number of them selected, such as the
+/// weather an outfit suits.
+class ChoiceChips extends StatelessWidget {
+  const ChoiceChips({
+    required this.labels,
+    required this.selected,
+    required this.onToggled,
+    this.semanticLabel,
+    super.key,
+  });
+
+  final List<String> labels;
+
+  /// Indexes of the selected chips.
+  final Set<int> selected;
+  final ValueChanged<int> onToggled;
+
+  /// Screen-reader name of the group.
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    explicitChildNodes: true,
+    label: semanticLabel,
+    child: Wrap(
+      spacing: InVogueSpace.s2,
+      runSpacing: InVogueSpace.s2,
+      children: [
+        for (var i = 0; i < labels.length; i++)
+          _Chip(
+            label: labels[i],
+            selected: selected.contains(i),
+            reveal: false,
+            onTap: () => onToggled(i),
+          ),
+      ],
+    ),
+  );
+}
+
 class _Chip extends StatelessWidget {
   const _Chip({
     required this.label,
     required this.selected,
     required this.onTap,
+    this.reveal = true,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
+  /// Scrolls the chip into view when tapped, for a row that scrolls.
+  final bool reveal;
+
   void _select(BuildContext context) {
     onTap();
+    if (!reveal) return;
     Scrollable.ensureVisible(
       context,
       alignment: 0.5,
@@ -85,7 +131,7 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) => Pressable(
     onTap: () => _select(context),
     toggled: selected,
-    haptic: selected ? InVogueHaptic.none : InVogueHaptic.selection,
+    haptic: selected && reveal ? InVogueHaptic.none : InVogueHaptic.selection,
     semanticLabel: label,
     excludeSemantics: true,
     builder: (context, state) => DecoratedBox(
