@@ -29,7 +29,7 @@ Finder _button(String label) =>
 
 Future<void> _tapInView(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
-  await tester.pumpAndSettle();
+  await pumpWhileLoading(tester);
   await tester.tap(finder);
   await tester.pump();
 }
@@ -148,7 +148,7 @@ void main() {
       locale: locale,
       scroll: false,
     );
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
   }
 
   MakeupState ready({
@@ -245,6 +245,12 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Preparing'), findsNWidgets(2));
+    final working = [
+      for (final step in tester.widgetList<MakeupStep>(find.byType(MakeupStep)))
+        step.working,
+    ];
+    expect(working, [false, true, ...List.filled(working.length - 2, false)]);
+    expect(find.byType(RunningRule), findsOneWidget);
     expect(find.text('Before'), findsNothing);
     expect(find.byType(InVogueButton), findsNothing);
   });
@@ -366,6 +372,7 @@ void main() {
       find.text('Your makeup follows your outfit, which is on its way.'),
       findsOneWidget,
     );
+    expect(tester.widget<Notice>(find.byType(Notice)).busy, isTrue);
     expect(find.byType(InVogueButton), findsNothing);
   });
 

@@ -409,6 +409,35 @@ void main() {
       verify(() => settings.add(const SettingsSetupChanged())).called(1);
     });
 
+    testWidgets('Replace runs its rule while the new photo is kept', (
+      tester,
+    ) async {
+      await pumpSettings(
+        tester,
+        bodyStates: Stream.value(
+          const PhotoState(
+            status: PhotoStatus.chosen,
+            path: '/photos/body-4.jpg',
+            busy: true,
+          ),
+        ),
+      );
+      await tester.pump();
+      final replace = find.ancestor(
+        of: find.byWidgetPredicate(
+          (widget) => widget is TextLink && widget.label == 'Replace',
+        ),
+        matching: find.byType(SettingsRow),
+      );
+      expect(
+        tester
+            .widgetList<SettingsRow>(replace)
+            .where((row) => row.busy)
+            .map((row) => row.title),
+        ['Body photo'],
+      );
+    });
+
     testWidgets('says why a new photo cannot be used', (tester) async {
       await pumpSettings(
         tester,

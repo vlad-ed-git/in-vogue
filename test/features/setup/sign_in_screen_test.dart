@@ -68,7 +68,7 @@ void main() {
       textScale: textScale,
       scroll: false,
     );
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
   }
 
   testWidgets('asks to sign in at step 4 of 6, showing what is kept', (
@@ -103,17 +103,31 @@ void main() {
     ).called(1);
   });
 
-  testWidgets('keeps both buttons still while signing in', (tester) async {
+  testWidgets('runs Apple’s rule until signed in; Google is off', (
+    tester,
+  ) async {
     await pumpScreen(
       tester,
-      state: const SignInState(status: SignInStatus.signingIn),
+      state: const SignInState(
+        status: SignInStatus.signingIn,
+        method: SignInMethod.apple,
+      ),
     );
-    for (final provider in SignInProvider.values) {
-      expect(
-        tester.widget<SignInButton>(_provider(provider)).onPressed,
-        isNull,
-      );
-    }
+    expect(
+      tester.widget<SignInButton>(_provider(SignInProvider.apple)).busy,
+      isTrue,
+    );
+    expect(
+      find.descendant(
+        of: _provider(SignInProvider.apple),
+        matching: find.byType(RunningRule),
+      ),
+      findsOneWidget,
+    );
+    expect(
+      tester.widget<SignInButton>(_provider(SignInProvider.google)).onPressed,
+      isNull,
+    );
   });
 
   testWidgets('says when sign-in failed', (tester) async {

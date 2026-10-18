@@ -100,11 +100,10 @@ class SettingsScreen extends StatelessWidget {
                   BlocBuilder<LogOutBloc, LogOutState>(
                     builder: (context, state) => SettingsRow.logOut(
                       context,
-                      state.status == LogOutStatus.idle
-                          ? () => context.read<LogOutBloc>().add(
-                              const LogOutRequested(),
-                            )
-                          : null,
+                      () => context.read<LogOutBloc>().add(
+                        const LogOutRequested(),
+                      ),
+                      busy: state.status == LogOutStatus.loggingOut,
                     ),
                   ),
                   BlocBuilder<DeleteAccountBloc, DeleteAccountState>(
@@ -115,7 +114,7 @@ class SettingsScreen extends StatelessWidget {
                           if (await _confirmDelete(context)) {
                             bloc.add(const DeleteAccountConfirmed());
                           }
-                        }),
+                        }, busy: state.status == DeleteAccountStatus.deleting),
                   ),
                 ],
               ),
@@ -185,13 +184,12 @@ class _ProfileRow extends StatelessWidget {
         avatar: face == null ? null : FileImage(File(face)),
         value: method == null ? null : l10n.signedInWith(method),
         action: l10n.edit,
-        onAction: profile.status == ProfileStatus.saving
-            ? null
-            : () async {
-                final bloc = context.read<ProfileBloc>();
-                final name = await _editName(context, profile.name);
-                if (name != null) bloc.add(ProfileNameSaved(name));
-              },
+        busy: profile.status == ProfileStatus.saving,
+        onAction: () async {
+          final bloc = context.read<ProfileBloc>();
+          final name = await _editName(context, profile.name);
+          if (name != null) bloc.add(ProfileNameSaved(name));
+        },
       ),
     );
   }
@@ -296,10 +294,9 @@ class _PhotoRow extends StatelessWidget {
               ? l10n.bodyPhotoUse
               : l10n.facePhotoUse,
           action: has ? l10n.replace : l10n.add,
-          onAction: state.busy
-              ? null
-              : () =>
-                    context.read<PhotoBloc>().add(const PhotoChooseRequested()),
+          busy: state.busy,
+          onAction: () =>
+              context.read<PhotoBloc>().add(const PhotoChooseRequested()),
         );
       },
     );
@@ -344,11 +341,10 @@ class _LocationRow extends StatelessWidget {
       title: l10n.location,
       value: city == null ? l10n.locationNotSet : l10n.locationWhileUsing(city),
       action: l10n.change,
-      onAction: locating
-          ? null
-          : () => context.read<LocationBloc>().add(
-              LocationRequested(Localizations.localeOf(context).languageCode),
-            ),
+      busy: locating,
+      onAction: () => context.read<LocationBloc>().add(
+        LocationRequested(Localizations.localeOf(context).languageCode),
+      ),
     );
   }
 }
@@ -398,10 +394,25 @@ class _DefaultDayRow extends StatelessWidget {
 
 /// The home-screen widget, for anyone who skipped setup's step: Android's
 /// launcher places it; when it can't, and on iPhone, a sheet says how.
-class _WidgetRow extends StatelessWidget {
+class _WidgetRow extends StatefulWidget {
   const _WidgetRow(this.onAddWidget);
 
   final Future<bool> Function() onAddWidget;
+
+  @override
+  State<_WidgetRow> createState() => _WidgetRowState();
+}
+
+class _WidgetRowState extends State<_WidgetRow> {
+  /// Waiting for the launcher to place the widget.
+  bool _adding = false;
+
+  Future<bool> _place() async {
+    setState(() => _adding = true);
+    final placed = await widget.onAddWidget();
+    if (mounted) setState(() => _adding = false);
+    return placed;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -409,9 +420,10 @@ class _WidgetRow extends StatelessWidget {
     return SettingsRow(
       title: l10n.homeScreenWidget,
       action: l10n.add,
+      busy: _adding,
       onAction: () async {
         final iPhone = context.isApplePlatform;
-        if (!iPhone && await onAddWidget()) return;
+        if (!iPhone && await _place()) return;
         if (!context.mounted) return;
         await showInVogueSheet<void>(
           context: context,

@@ -80,9 +80,8 @@ class YourPhotoScreen extends StatelessWidget {
           example: example,
           chosen: path == null ? null : FileImage(File(path)),
           onChoose: () => bloc.add(const PhotoChooseRequested()),
-          onContinue: state.busy
-              ? null
-              : () => bloc.add(const PhotoConfirmed()),
+          onContinue: () => bloc.add(const PhotoConfirmed()),
+          busy: state.busy,
         ),
         PhotoNotices(state),
       ],

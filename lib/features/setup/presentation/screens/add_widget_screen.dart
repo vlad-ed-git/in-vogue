@@ -164,7 +164,8 @@ class _AddWidgetScreenState extends State<AddWidgetScreen> {
     ],
     InVogueButton.primary(
       label: context.translated.addToHomeScreen,
-      onPressed: _adding ? null : _add,
+      onPressed: _add,
+      busy: _adding,
     ),
     const SizedBox(height: InVogueSpace.s4),
     Align(

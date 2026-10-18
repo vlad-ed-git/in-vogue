@@ -96,6 +96,13 @@ class SignInScreen extends StatelessWidget {
                     final bloc = context.read<SignInBloc>();
                     final idle = state.status == SignInStatus.idle;
                     final failure = state.failure;
+                    final busy = state.status == SignInStatus.idle
+                        ? null
+                        : switch (state.method) {
+                            SignInMethod.apple => SignInProvider.apple,
+                            SignInMethod.google => SignInProvider.google,
+                            null => null,
+                          };
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -118,6 +125,7 @@ class SignInScreen extends StatelessWidget {
                                   const SignInRequested(SignInMethod.google),
                                 )
                               : null,
+                          busy: busy,
                         ),
                         const SizedBox(height: InVogueSpace.s5),
                       ],

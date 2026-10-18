@@ -77,9 +77,18 @@ class PicksScreen extends StatelessWidget {
               ),
             ),
             BlocBuilder<PicksBloc, PicksState>(
-              builder: (context, state) => state.pieces.isEmpty
-                  ? const SliverToBoxAdapter(child: SizedBox.shrink())
-                  : _pieces(context, state),
+              builder: (context, state) => state.pieces.isNotEmpty
+                  ? _pieces(context, state)
+                  : SliverToBoxAdapter(
+                      child:
+                          state.status == PicksStatus.loading &&
+                              context.select<ForecastBloc, bool>(
+                                (bloc) =>
+                                    bloc.state.status == ForecastStatus.ready,
+                              )
+                          ? const PageMargin(child: RunningRule.content())
+                          : const SizedBox.shrink(),
+                    ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: InVogueSpace.s6)),
           ],
@@ -118,7 +127,7 @@ class PicksScreen extends StatelessWidget {
             ),
           ),
         ),
-        ForecastStatus.loading => const SizedBox.shrink(),
+        ForecastStatus.loading => const RunningRule.content(),
       };
 
   Widget _pieces(BuildContext context, PicksState state) => SliverMainAxisGroup(

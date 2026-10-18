@@ -161,7 +161,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return InVogueButton.primary(
       label: context.translated.useMyLocation,
       icon: InVogueIcons.mapPin,
-      onPressed: state.status == LocationStatus.locating ? null : _locate,
+      onPressed: _locate,
+      busy: state.status == LocationStatus.locating,
     );
   }
 }

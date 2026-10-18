@@ -241,7 +241,7 @@ void main() {
     required String name,
   }) async {
     await tester.tap(find.text(tab));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     final languageRow = find.ancestor(
       of: find.text(row),
       matching: find.byType(SettingsRow),
@@ -249,20 +249,20 @@ void main() {
     await tester.tap(
       find.descendant(of: languageRow, matching: find.byType(TextLink)),
     );
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.tap(find.text(name).last);
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
   }
 
   testWidgets('opens setup until it is finished, then the tabs', (
     tester,
   ) async {
     await tester.pumpWidget(app(step: SetupStep.welcome));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.byType(InVogueTabBar), findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpWidget(app());
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.byType(InVogueTabBar), findsOneWidget);
   });
 
@@ -274,14 +274,14 @@ void main() {
       ),
     ).thenAnswer((_) async => const Right(_place));
     await tester.pumpWidget(app(step: SetupStep.welcome));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.tap(find.text('Use my location'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.text('2 / 6'), findsOneWidget);
     expect(find.text('Add a photo of you'), findsOneWidget);
     verify(setup.saveStep(SetupStep.photo)).called(1);
     await tester.tap(find.text('Back'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.text('Use my location'), findsOneWidget);
     verify(setup.saveStep(SetupStep.welcome)).called(1);
   });
@@ -290,10 +290,10 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(app(step: SetupStep.photo));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.ensureVisible(find.text('Continue'));
     await tester.tap(find.text('Continue'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.text('3 / 6'), findsOneWidget);
     verify(setup.saveStep(SetupStep.picks)).called(1);
   });
@@ -302,12 +302,12 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(app(step: SetupStep.widget));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.text('6 / 6'), findsOneWidget);
     await tester.ensureVisible(findLink('Skip'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.tap(findLink('Skip'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.byType(InVogueTabBar), findsOneWidget);
     verify(setup.saveStep(SetupStep.done)).called(1);
   });
@@ -317,13 +317,13 @@ void main() {
   ) async {
     profileStore.values[ProfileLocalDataSourceImpl.nameKey] = 'Maya';
     await tester.pumpWidget(app());
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.tap(find.text('Settings'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.ensureVisible(find.text('Log out'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.tap(find.text('Log out'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.text('4 / 6'), findsOneWidget);
     expect(find.byType(InVogueTabBar), findsNothing);
     verify(auth.signOut()).called(1);
@@ -337,7 +337,7 @@ void main() {
     tester.binding.platformDispatcher.localeTestValue = const Locale('es');
     addTearDown(tester.binding.platformDispatcher.clearLocaleTestValue);
     await tester.pumpWidget(app());
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Settings'), findsOneWidget);
   });
@@ -346,7 +346,7 @@ void main() {
     'renders a restored Chinese preference on the first localized frame',
     (tester) async {
       await tester.pumpWidget(app(language: SupportedLanguages.chinese));
-      await tester.pumpAndSettle();
+      await pumpWhileLoading(tester);
       expect(find.text('首页'), findsOneWidget);
       expect(find.text('Home'), findsNothing);
     },
@@ -359,7 +359,7 @@ void main() {
         preferences.setLanguage(SupportedLanguages.spanish),
       ).thenAnswer((_) async => const Right(SupportedLanguages.spanish));
       await tester.pumpWidget(app());
-      await tester.pumpAndSettle();
+      await pumpWhileLoading(tester);
       await chooseLanguage(
         tester,
         tab: 'Settings',
@@ -375,17 +375,17 @@ void main() {
 
   testWidgets('opens the language sheet over the tab bar', (tester) async {
     await tester.pumpWidget(app());
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.tap(find.text('Settings'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     final language = find.descendant(
       of: find.byType(LanguageRow),
       matching: find.byType(TextLink),
     );
     await tester.ensureVisible(language);
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.tap(language);
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.byType(InVogueSheet), findsOneWidget);
     expect(
       find.descendant(
@@ -403,7 +403,7 @@ void main() {
         preferences.setLanguage(any),
       ).thenAnswer((_) async => const Left(CacheFailure()));
       await tester.pumpWidget(app(language: SupportedLanguages.spanish));
-      await tester.pumpAndSettle();
+      await pumpWhileLoading(tester);
       await chooseLanguage(tester, tab: 'Ajustes', row: 'Idioma', name: '中文');
       expect(
         find.text('No pudimos guardar tus cambios. Inténtalo de nuevo.'),
@@ -436,7 +436,7 @@ void main() {
         await tester.pumpWidget(
           app(language: SupportedLanguages.spanish, step: step),
         );
-        await tester.pumpAndSettle();
+        await pumpWhileLoading(tester);
         expect(tester.takeException(), isNull);
         final context = tester.element(find.byType(Scaffold).first);
         expect(Theme.of(context).brightness, Brightness.light);

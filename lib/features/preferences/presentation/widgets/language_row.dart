@@ -23,7 +23,8 @@ class LanguageRow extends StatelessWidget {
           title: context.translated.language,
           value: state.language.nativeName,
           action: context.translated.change,
-          onAction: state.isSaving ? null : () => chooseLanguage(context),
+          busy: state.isSaving,
+          onAction: () => chooseLanguage(context),
         ),
       );
 }

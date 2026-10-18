@@ -52,6 +52,14 @@ Future<void> pumpInVogue(
   );
 }
 
+/// Pumps a second of frames, in place of [WidgetTester.pumpAndSettle] on
+/// a screen showing a [RunningRule], which runs until its work ends.
+Future<void> pumpWhileLoading(WidgetTester tester) async {
+  for (var i = 0; i < 20; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+}
+
 /// A 1 × 1 transparent PNG, for components that need a photograph.
 final testImage = MemoryImage(
   Uint8List.fromList(const [

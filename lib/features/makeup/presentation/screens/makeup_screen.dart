@@ -93,7 +93,9 @@ class MakeupScreen extends StatelessWidget {
     MakeupState state,
     PhotoState photo,
   ) {
-    if (state.status == MakeupStatus.loading) return const [];
+    if (state.status == MakeupStatus.loading) {
+      return const [RunningRule.content()];
+    }
     if (state.making case final steps?) return _making(context, steps);
     if (state.look case final look?) return _look(context, look);
     final last = state.lastLook;
@@ -124,7 +126,11 @@ class MakeupScreen extends StatelessWidget {
     return [
       if (day.outfitPending)
         _gap(
-          Notice(icon: InVogueIcons.image, message: l10n.makeupWaitsForOutfit),
+          Notice(
+            icon: InVogueIcons.image,
+            message: l10n.makeupWaitsForOutfit,
+            busy: true,
+          ),
         )
       else if (day.outfit == null)
         _gap(
@@ -160,6 +166,7 @@ class MakeupScreen extends StatelessWidget {
           optional: true,
           onChoose: () =>
               context.read<PhotoBloc>().add(const PhotoChooseRequested()),
+          busy: photo.busy,
         ),
       ],
       PhotoNotices(photo),
@@ -209,6 +216,8 @@ class MakeupScreen extends StatelessWidget {
         style: InVogueType.body.copyWith(color: InVogueColors.graphite),
       ),
     ),
+    // The steps show once the recipe is known.
+    if (steps.isEmpty) const RunningRule.content(),
     ..._steps(context, steps),
   ];
 
@@ -232,22 +241,27 @@ class MakeupScreen extends StatelessWidget {
     ];
   }
 
-  List<Widget> _steps(BuildContext context, List<LookStep> steps) => [
-    for (final (index, step) in steps.indexed)
-      MakeupStep(
-        number: index + 1,
-        title: step.title.of(context.language),
-        instructions: step.howTo.of(context.language),
-        product: step.productLine(context.language),
-        picture: step.picture == null ? null : FileImage(File(step.picture!)),
-        onPictureTap: step.picture == null
-            ? null
-            : () => onPicture(
-                step.picture!,
-                context.translated.faceAfterStep(index + 1),
-              ),
-      ),
-  ];
+  List<Widget> _steps(BuildContext context, List<LookStep> steps) {
+    // Steps are made in order: the first without a picture is being made.
+    final working = steps.indexWhere((step) => step.picture == null);
+    return [
+      for (final (index, step) in steps.indexed)
+        MakeupStep(
+          working: index == working,
+          number: index + 1,
+          title: step.title.of(context.language),
+          instructions: step.howTo.of(context.language),
+          product: step.productLine(context.language),
+          picture: step.picture == null ? null : FileImage(File(step.picture!)),
+          onPictureTap: step.picture == null
+              ? null
+              : () => onPicture(
+                  step.picture!,
+                  context.translated.faceAfterStep(index + 1),
+                ),
+        ),
+    ];
+  }
 
   static Widget _gap(Widget child) => Padding(
     padding: const EdgeInsets.only(top: InVogueSpace.s4),

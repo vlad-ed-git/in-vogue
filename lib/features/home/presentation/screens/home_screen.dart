@@ -289,6 +289,16 @@ class _HomeScreenState extends State<HomeScreen> {
           photo: photo,
           progress: piece == 0 ? null : l10n.tryOnPiece(piece, pieces),
         ),
+        // Home can look the outfit up only once it has the day's weather.
+        OutfitLooking()
+            when state.status == HomeStatus.loading ||
+                (state.status == HomeStatus.ready &&
+                    !state.shown.weatherFailed) =>
+          PhotoStage(
+            state: PhotoStageState.looking,
+            height: height,
+            photo: photo,
+          ),
         _ => PhotoStage(
           state: PhotoStageState.idle,
           height: height,
@@ -444,6 +454,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+            if (picks.status == PicksStatus.loading)
+              const SliverToBoxAdapter(
+                child: PageMargin(child: RunningRule.content()),
+              ),
             if (picks.status == PicksStatus.failed)
               SliverToBoxAdapter(
                 child: PageMargin(

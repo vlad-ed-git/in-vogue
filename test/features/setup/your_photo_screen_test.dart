@@ -49,7 +49,7 @@ void main() {
       textScale: textScale,
       scroll: false,
     );
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
   }
 
   testWidgets('asks for a photo with an example, at step 2 of 6', (
@@ -96,7 +96,7 @@ void main() {
         busy: true,
       ),
     );
-    expect(tester.widget<InVogueButton>(_button('Continue')).onPressed, isNull);
+    expect(tester.widget<InVogueButton>(_button('Continue')).busy, isTrue);
   });
 
   testWidgets('says when a photo cannot be opened', (tester) async {

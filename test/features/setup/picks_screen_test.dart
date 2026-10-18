@@ -102,7 +102,7 @@ Finder _tileOf(String name) =>
 /// Scrolls [finder] into view, then taps it.
 Future<void> _tapInView(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
-  await tester.pumpAndSettle();
+  await pumpWhileLoading(tester);
   await tester.tap(finder);
 }
 
@@ -146,7 +146,7 @@ void main() {
       textScale: textScale,
       scroll: false,
     );
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
   }
 
   testWidgets('shows tomorrow’s weather at step 3 of 6; zero picks proceed', (
@@ -233,7 +233,7 @@ void main() {
   testWidgets('opens a piece’s colours to love one', (tester) async {
     await pumpScreen(tester, _ready(), pieces: _pieces());
     await _tapInView(tester, find.text('The Way-High Jean'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     expect(find.byType(ColourSheet), findsOneWidget);
     await tester.tap(find.text('Love this colour'));
     verify(

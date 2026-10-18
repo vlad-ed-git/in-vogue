@@ -227,8 +227,24 @@ void main() {
     await pumpHome(tester, _state(const OutfitMaking(piece: 2, pieces: 3)));
     expect(find.text('Getting your outfit ready…'), findsOneWidget);
     expect(find.text('Piece 2 of 3'), findsOneWidget);
+    expect(
+      tester.widget<PhotoStage>(find.byType(PhotoStage)).state,
+      PhotoStageState.waiting,
+    );
+    expect(find.byType(RunningRule), findsOneWidget);
     expect(find.text('Shop'), findsNothing);
     expect(find.text('About this outfit'), findsNothing);
+  });
+
+  testWidgets('runs the rule over the faded photo while the outfit is '
+      'looked up', (tester) async {
+    await pumpHome(tester, _state(const OutfitLooking()));
+    expect(
+      tester.widget<PhotoStage>(find.byType(PhotoStage)).state,
+      PhotoStageState.looking,
+    );
+    expect(find.text('Getting your outfit ready…'), findsNothing);
+    expect(find.byType(RunningRule), findsOneWidget);
   });
 
   testWidgets('offers Try again after a failure worth trying again', (

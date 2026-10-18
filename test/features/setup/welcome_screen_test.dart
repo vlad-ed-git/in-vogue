@@ -75,7 +75,7 @@ void main() {
       textScale: textScale,
       scroll: false,
     );
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
   }
 
   testWidgets('changes the language from the icon at the top right', (
@@ -87,9 +87,9 @@ void main() {
     expect(icon.top, logo.top);
     expect(icon.right, logo.right);
     await tester.tap(find.bySemanticsLabel('Language'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     await tester.tap(find.text('Español'));
-    await tester.pumpAndSettle();
+    await pumpWhileLoading(tester);
     verify(
       () => preferences.add(
         any(
@@ -154,14 +154,23 @@ void main() {
     verify(() => bloc.add(const LocationRequested('es'))).called(1);
   });
 
-  testWidgets('cannot be tapped while the location is found', (tester) async {
+  testWidgets('works, with its rule running, while the location is found', (
+    tester,
+  ) async {
     await pumpWelcome(
       tester,
       state: const LocationState(status: LocationStatus.locating),
     );
     expect(
-      tester.widget<InVogueButton>(_button('Use my location')).onPressed,
-      isNull,
+      tester.widget<InVogueButton>(_button('Use my location')).busy,
+      isTrue,
+    );
+    expect(
+      find.descendant(
+        of: _button('Use my location'),
+        matching: find.byType(RunningRule),
+      ),
+      findsOneWidget,
     );
   });
 

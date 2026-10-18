@@ -121,6 +121,7 @@ class _AboutYouScreenState extends State<AboutYouScreen> {
                             onChoose: () => context.read<PhotoBloc>().add(
                               const PhotoChooseRequested(),
                             ),
+                            busy: face.busy,
                           ),
                           PhotoNotices(face),
                         ],
@@ -137,11 +138,8 @@ class _AboutYouScreenState extends State<AboutYouScreen> {
                     const SizedBox(height: InVogueSpace.s8),
                     InVogueButton.primary(
                       label: l10n.continueAction,
-                      onPressed:
-                          _name.text.trim().isEmpty ||
-                              profile.status == ProfileStatus.saving
-                          ? null
-                          : _save,
+                      onPressed: _name.text.trim().isEmpty ? null : _save,
+                      busy: profile.status == ProfileStatus.saving,
                     ),
                     const SizedBox(height: InVogueSpace.s6),
                   ],

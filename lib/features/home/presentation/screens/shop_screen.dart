@@ -48,6 +48,8 @@ class ShopScreen extends StatelessWidget {
                   const SizedBox(height: InVogueSpace.s3),
                   ScreenTitle(l10n.shopThisOutfit),
                   const SizedBox(height: InVogueSpace.s4),
+                  if (state.status == ShopStatus.loading)
+                    const RunningRule.content(),
                   if (state.status == ShopStatus.failed)
                     Notice(
                       icon: InVogueIcons.warning,

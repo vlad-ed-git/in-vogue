@@ -50,6 +50,8 @@ class YourPicksScreen extends StatelessWidget {
                         const SizedBox(height: InVogueSpace.s3),
                         ScreenTitle(l10n.yourPicks),
                         const SizedBox(height: InVogueSpace.s6),
+                        if (state.status == YourPicksStatus.loading)
+                          const RunningRule.content(),
                         if (state.status == YourPicksStatus.ready &&
                             state.picks.isEmpty)
                           Text(
