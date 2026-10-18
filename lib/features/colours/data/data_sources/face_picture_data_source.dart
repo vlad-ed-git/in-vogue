@@ -15,8 +15,8 @@ abstract interface class FacePictureDataSource {
 class FacePictureDataSourceImpl implements FacePictureDataSource {
   const FacePictureDataSourceImpl();
 
-  /// Longest side, in pixels: under Makeup VTO's 1080-pixel height and
-  /// well over the skin-tone analysis's 320-pixel minimum.
+  /// Longest side, in pixels: the analysis reads images up to 1080 pixels
+  /// and needs at least 320.
   static const maxSide = 1024;
 
   /// The size [width] × [height] scales to so its longest side is at most

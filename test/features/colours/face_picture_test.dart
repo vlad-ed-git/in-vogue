@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:in_vogue/features/makeup/data/data_sources/face_picture_data_source.dart';
+import 'package:in_vogue/features/colours/data/data_sources/face_picture_data_source.dart';
 import 'package:in_vogue/features/photos/data/photo_exception.dart';
 
 /// A [width] × [height] PNG.

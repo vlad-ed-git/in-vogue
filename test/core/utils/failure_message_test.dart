@@ -24,8 +24,8 @@ void main() {
     expect(
       await messageOf(
         tester,
-        const MakeupFailure(
-          MakeupProblem.photo,
+        const AnalysisFailure(
+          AnalysisProblem.photo,
           advice: PhotoAdvice.lookStraight,
         ),
       ),
@@ -35,8 +35,8 @@ void main() {
     expect(
       await messageOf(
         tester,
-        const MakeupFailure(
-          MakeupProblem.photo,
+        const AnalysisFailure(
+          AnalysisProblem.photo,
           advice: PhotoAdvice.moveCloser,
         ),
       ),
@@ -56,7 +56,7 @@ void main() {
   ) async {
     for (final advice in [null, ...PhotoAdvice.values]) {
       for (final failure in [
-        MakeupFailure(MakeupProblem.photo, advice: advice),
+        AnalysisFailure(AnalysisProblem.photo, advice: advice),
         TryOnFailure(TryOnProblem.photo, advice: advice),
       ]) {
         expect(

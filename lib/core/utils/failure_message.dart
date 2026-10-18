@@ -22,12 +22,12 @@ extension FailureMessage on Failure {
       TryOnProblem.noCredit => context.translated.tryOnNoCredit,
       TryOnProblem.unavailable => context.translated.tryOnUnavailable,
     },
-    MakeupFailure(:final problem, :final advice) => switch (problem) {
-      MakeupProblem.failed => context.translated.makeupFailed,
-      MakeupProblem.photo =>
-        _advice(context, advice) ?? context.translated.makeupPhotoProblem,
-      MakeupProblem.noCredit => context.translated.makeupNoCredit,
-      MakeupProblem.unavailable => context.translated.makeupUnavailable,
+    AnalysisFailure(:final problem, :final advice) => switch (problem) {
+      AnalysisProblem.failed => context.translated.colourFailed,
+      AnalysisProblem.photo =>
+        _advice(context, advice) ?? context.translated.colourPhotoProblem,
+      AnalysisProblem.noCredit => context.translated.colourNoCredit,
+      AnalysisProblem.unavailable => context.translated.colourUnavailable,
     },
     LocationFailure(:final needsSettings) =>
       needsSettings

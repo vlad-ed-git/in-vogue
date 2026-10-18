@@ -112,9 +112,9 @@ final class TryOnFailure extends Failure {
   List<Object?> get props => [problem, advice];
 }
 
-/// Why a makeup look could not be made.
-enum MakeupProblem {
-  /// Making it failed; trying again may work.
+/// Why a face's colours could not be read.
+enum AnalysisProblem {
+  /// Reading them failed; trying again may work.
   failed,
 
   /// The face photo could not be used.
@@ -123,13 +123,13 @@ enum MakeupProblem {
   /// YouCam's units are spent.
   noCredit,
 
-  /// This build cannot make makeup looks.
+  /// This build cannot read colours.
   unavailable,
 }
 
-final class MakeupFailure extends Failure {
-  const MakeupFailure(this.problem, {this.advice});
-  final MakeupProblem problem;
+final class AnalysisFailure extends Failure {
+  const AnalysisFailure(this.problem, {this.advice});
+  final AnalysisProblem problem;
 
   /// What to change about the photo, when it is the problem.
   final PhotoAdvice? advice;

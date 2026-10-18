@@ -1,5 +1,5 @@
-import 'package:in_vogue/features/makeup/domain/entities/skin_profile.dart';
-import 'package:in_vogue/features/makeup/domain/services/skin_rules.dart';
+import 'package:in_vogue/features/colours/domain/entities/face_colours.dart';
+import 'package:in_vogue/features/colours/domain/services/season_rules.dart';
 
 /// The face's colours as the skin-tone analysis reports them
 /// (`data.results`: `face_quality` and `color`) and as the account keeps
@@ -24,11 +24,17 @@ abstract final class FaceColoursModel {
         {'face_quality': final Map<String, Object?> quality} => quality,
         _ => null,
       };
+      final eye = switch (results) {
+        {'color': {'eye_color': final String eye}} when _hex.hasMatch(eye) =>
+          eye.toUpperCase(),
+        _ => null,
+      };
       return FaceColours(
         skin: skin.toUpperCase(),
         eyebrow: eyebrow.toUpperCase(),
         lip: lip.toUpperCase(),
         hair: hair.toUpperCase(),
+        eye: eye,
         clear:
             quality == null ||
             quality['has_face'] == true &&
@@ -39,7 +45,7 @@ abstract final class FaceColoursModel {
                 ].every((check) => quality[check] == 'good'),
       );
     }
-    return SkinRules.neutralColours;
+    return SeasonRules.neutralColours;
   }
 
   static Map<String, Object?> toJson(FaceColours colours) => {
@@ -47,6 +53,7 @@ abstract final class FaceColoursModel {
     'eyebrow': colours.eyebrow,
     'lip': colours.lip,
     'hair': colours.hair,
+    'eye': ?colours.eye,
     'clear': colours.clear,
   };
 
@@ -64,6 +71,7 @@ abstract final class FaceColoursModel {
         eyebrow: eyebrow,
         lip: lip,
         hair: hair,
+        eye: json['eye'] is String ? json['eye']! as String : null,
         clear: clear,
       ),
     _ => null,
