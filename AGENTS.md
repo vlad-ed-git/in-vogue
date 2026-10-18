@@ -1,389 +1,128 @@
-# AGENTS.md: In Vogue
+# AGENTS.md
 
-The single source of truth for anyone, human or AI, working on In Vogue. Last checked against the code on **October 18, 2026** (branch `feat/android_widget`). It replaces the earlier version of this file and the workspace's old `checkpoint.md` and `plan.md`. Keep it true (§1.8).
+In Vogue is a Flutter weather app for Android and iPhone. Each day it shows the person, head to toe, in a real outfit from a partner catalog (Everlane today) picked for the day's weather and occasion, with step-by-step makeup to match, a link to buy each piece and a home-screen widget.
 
-**In Vogue** is a weather app with a home-screen widget. Every day it shows the person, head to toe, wearing a real outfit from a partner fashion brand that suits that day's weather and plans. It adds step-by-step makeup to match and a link to buy each piece. We are building a **scalable, production-ready MVP**. The current partner catalog is Everlane's women's collection. Rights to the catalog and brand content are in place, so the work is engineering.
+- **Read [README.md](README.md)** for the system design, architecture, data model and APIs. Area details are in the skills (below).
+- **Focus now (owner, October 18):** an MVP for testers on the development flavor (`com.invogue.app.dev`, Firebase `in-vogue-dev`). Production waits.
+- **Stack:** Flutter 3.44.4, Dart 3.12.2, BLoC, GetIt, dartz, Equatable, Firebase (Auth, Firestore, Storage), Hive, SQLite, YouCam, Open-Meteo, `home_widget` and `workmanager`, a Kotlin Android widget and a SwiftUI iPhone widget.
+- **Workspace** (`weather-dot-me/`, not a git repo): `in-vogue/` is this app and the only repository. `design-spec/` is the design specification (read-only). `resources/` holds the catalog, the knowledge base and their Python tools. `app certs and profiles/` is the owner's.
 
-| Workspace folder (`/Users/vlad/Desktop/vlad/mine/weather-dot-me/`, not a git repo) | What it is |
-| --- | --- |
-| `in-vogue/` | The Flutter app, and the only git repository |
-| `design-spec/` | The design specification. Read-only |
-| `resources/` | The clothing catalog, the knowledge base and their Python tools |
-| `.claude/skills/` | Skills for the AI (§4) |
-| `app certs and profiles/` | The owner's signing files. Don't touch |
+## Commands
 
-This file lives in `in-vogue/`. Its paths are relative to the workspace root unless a command runs from `in-vogue/`. A session started in `in-vogue/` loads this file at the start, but not the skills in `weather-dot-me/.claude/skills/`. A session started in `weather-dot-me/` loads the skills at the start, and loads this file once Claude reads a file inside `in-vogue/`.
-
----
-
-## 1. How to work here
-
-### 1.1 Golden rules
-
-1. **Think logically about what you are doing** (the owner's own words). Before you build something, check it against the product rules, the costs and how it could be abused, not only against an older plan. For example, nothing calls YouCam before sign-in, because anonymous use would spend units with nobody to track them.
-2. **Plan, then build.** For a task with more than one step, first write down what is wrong today, the design, the tests and the build order (1a, 1b, …). Ask the owner only the decisions that are really theirs. Then build one step at a time, each with its tests and commits.
-3. **Build in screen order.** If a screen needs a service that doesn't exist yet, give it an honest **stand-in**: a placeholder that says "not available yet" and never fakes success. Never undo or scale back work that is already done.
-4. **The owner's latest decision wins**, over older notes, the design spec's mockups and your own ideas. If something you remember conflicts with this file, this file wins.
-5. **Ask before swapping.** If a package or approach the owner named doesn't work, stop and offer 2–3 options with a recommendation. Never quietly substitute your own. Version conflicts are different: see §1.4.
-6. **Be plain and honest.** Say what you are about to do before long steps. Report real results: exact test counts, real failures, skipped steps.
-
-### 1.2 Commands
-
-Run every Flutter and Dart command from `in-vogue/` through an interactive zsh, because `flutterN` is a shell alias. Use `flutterN`, never `flutter` (owner rule). Some SDK, network and git commands need the sandbox lifted.
+Run from `in-vogue/` through an interactive zsh, because `flutterN` is a shell alias. Never use `flutter`.
 
 | Task | Command |
 | --- | --- |
-| Get packages | `zsh -ic 'flutterN pub get'` |
-| Generate translations (after editing `.arb` files) | `zsh -ic 'flutterN gen-l10n'` |
-| Generate Mockito mocks | `zsh -ic 'dart run build_runner build --delete-conflicting-outputs'` |
-| Format | `zsh -ic 'dart format lib test integration_test test_visual'` |
-| **Analyze** | `zsh -ic 'flutterN analyze'` |
-| **Test** (everything, about 1 minute) | `zsh -ic 'flutterN test'` |
-| Test one file | `zsh -ic 'flutterN test test/features/outfits/make_outfit_test.dart'` |
-| Visual boards (optional) | `zsh -ic 'flutterN test test_visual'`, which writes PNGs to `build/visual/` |
-| Re-export bundled data | `python3 scripts/export_catalog.py`, then `export_outfits.py`, then `export_makeup.py` (they stop if `resources/kb/translations.v1.json` lacks a text) |
-| Bundle the YouCam key in development builds | `python3 scripts/write_development_key.py` (writes the git-ignored `assets/development/youcam_api_key.txt` from `secrets/youcam_api.txt`; rebuild afterwards) |
-| Check the Firestore rules (emulator; needs Java 21) | `JAVA_HOME=/Users/vlad/Development/java/jdk-21.0.1.jdk/Contents/Home firebase emulators:exec --only firestore --project demo-in-vogue "python3 scripts/check_firestore_rules.py"` |
-| Deploy rules (development only) | `GOOGLE_APPLICATION_CREDENTIALS="$PWD/secrets/in-vogue-dev-firebase-adminsdk-fbsvc-517e1ce146.json" firebase deploy --only firestore:rules,storage --project in-vogue-dev --non-interactive` |
-| Native Firebase files | `scripts/configure_firebase.sh development` (or `production`) |
-| Launcher icons | `scripts/generate_app_icons.sh` |
-| Widget glyphs (Android drawables and iPhone images from the spec paths) | `python3 scripts/generate_widget_glyphs.py` |
+| Packages | `zsh -ic 'flutterN pub get'` |
+| Translations, after editing `.arb` files | `zsh -ic 'flutterN gen-l10n'` |
+| Mocks, after changing `@GenerateMocks` or a mocked interface | `zsh -ic 'dart run build_runner build --delete-conflicting-outputs'` |
+| Format | `zsh -ic 'dart format lib test integration_test'` |
+| Analyze | `zsh -ic 'flutterN analyze'` |
+| Test (about a minute) | `zsh -ic 'flutterN test'`; one file: `zsh -ic 'flutterN test test/features/outfits/make_outfit_test.dart'` |
 | Type-check the iPhone widget (no build) | `xcrun swiftc -typecheck -parse-as-library -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target arm64-apple-ios17.0 "ios/In Vogue Widget/"*.swift` |
 
-A task is **done** only when analyze says "No issues found!" and every test passes.
+The other commands (data exports, widget glyphs, Firebase rules and native files, the development YouCam key, launcher icons) are in README's [Commands](README.md#commands).
 
-**Don't run these unless the owner asks:** `flutterN build …`, `flutterN run`, simulators, `integration_test/`. They take minutes, and the owner's own device runs are the native check.
+A task is done only when analyze says "No issues found!" and every test passes.
 
-### 1.3 Git
+## Boundaries
 
-- The app repository is `in-vogue/` (remote `origin` = github.com/vlad-ed-git/in-vogue). The workspace root is not a repo; don't make it one.
-- Work on a feature branch. Make small commits, each about one area, with a scoped subject, for example `feat(outfits): …`, `fix(account): …`, `refactor(…)`, `test(…)`, `chore(firebase): …` or `docs: …`. Plan the commit groups before a multi-part task, and keep each part's commits together. If history ever needs regrouping, rebuild it on a new branch with cherry-picks, and check the final tree is identical before moving the branch.
-- **Never add an AI co-author** (no `Co-Authored-By` line).
-- **Never push, and never merge into `main`, without the owner's go-ahead.**
-- The owner commits too. Read before you edit, and never overwrite their work. When CocoaPods rewrites `project.pbxproj` to object version 54, keep the Xcode-saved version.
-- No GitHub workflows and no CI/CD of any kind. All checks run locally.
+**Always**
+- Think it through against the product rules, the costs and how it could be abused before you build ("think logically about what you are doing", the owner's words).
+- Follow the owner's latest decision over older notes, the design spec, your memory and your own ideas.
+- Say what you're about to do before long steps. Report real results: exact test counts, real failures, skipped steps.
+- Give a service that isn't ready an honest stand-in that says so, never a fake success.
 
-### 1.4 Code
+**Ask first**
+- Pushing, merging into `main` or tagging.
+- Swapping a package or approach the owner named: offer 2–3 options with a recommendation.
+- Decisions that are the owner's: product rules, pricing, membership, what testers see.
+- Subagents and long jobs, such as skill evals or a catalog rebuild.
 
-- **Architecture:** feature-first Clean Architecture. `domain` is pure Dart, then comes `data`, then `presentation` (BLoC), and `di` wires it all with GetIt. Hive keeps small values on the phone and SQLite keeps the cache. Results are `Either` (dartz) and values use Equatable. Write the test first (red, then green).
-- **Text on screen:** read it through `context.translated.<key>` from `lib/l10n/arb/app_en.arb` (the default), `app_es.arb` and `app_zh.arb` (Simplified Chinese). Every string goes into all three files.
-- **Comments:** short, saying what the code is or does. Never say where it's used, and no product stories.
-- **Packages:** always the newest version, and never downgrade. Settle version clashes yourself with `dependency_overrides` plus a one-line reason, without asking.
-- **Tests:** test our app, never the packages. Mock each package the way its own docs say. A thin wrapper around an SDK gets no tests. Tests never call YouCam or real Firebase.
-- **Screens:** each app screen is its own screen. Never reuse a setup screen; share widgets instead.
-- **Platform setup is the owner's job:** Xcode capabilities, entitlements, signing, URL types and Firebase or Apple console settings. Give the owner an exact list and don't hand-edit. For a simple package, follow its README rather than digging through its source.
+**Never**
+- Spend YouCam units yourself. Real YouCam runs are the owner's.
+- Run `flutterN build`, `flutterN run`, simulators or `integration_test/` unless asked. The owner's device runs are the native check.
+- Edit Xcode capabilities, entitlements, signing or URL types, or Firebase and Apple console settings. Give the owner exact steps instead.
+- Deploy to production (`in-vogue`). The admin key is for `in-vogue-dev` only.
+- Print, log or commit a secret (see Security).
+- Add an AI co-author (`Co-Authored-By`), GitHub workflows or any CI/CD.
+- Undo or scale back finished work.
+- Touch `design-spec/`, the owner's signing files, or the reference projects Kostuma and Utano.
 
-### 1.5 Product rules: never break these
+## Workflow
 
-- The app is **In Vogue**. Never write its old working name anywhere.
-- **No clothing prices anywhere.** The only price in the app is on Go Pro: $7.99 a month or $59.99 a year.
-- **Photos are uploaded, never taken:** from Photos (iOS) or Gallery (Android) only. No camera, and never the words "take a photo". Trust the person's photo: no detection or checking of any kind beyond the size and format rules.
-- **YouCam:** no call before sign-in. **No units cap or counter, ever.** Everything runs in the app: **no Cloud Functions or servers.** **You never spend units yourself**; real YouCam runs are the owner's.
-- **No partner credits.** Never show "AI preview · Outfits by {Brand}" or "Outfits by {Brand}"; "Buy at {Brand}" is fine. In Vogue is its own brand presenting many partner houses. Everlane is the current partner catalog, and no design decision is ever based on a partner.
-- **One white theme.** Never dark mode, a theme switch or an appearance setting. `design-spec/` is read-only. When the app follows a newer owner decision, record it here, not in the spec.
-- **Clothes only:** no shoes, bags or accessories, and the person keeps their own shoes in try-ons. **Face makeup only:** never hair.
-- **Outfits come from the whole collection.** Loved pieces only add weight. Outfits never suggested before come first; once all have been suggested, the one suggested longest ago comes back.
-- **Rights to the catalog and brand content are already in place.** Don't raise licensing; focus on engineering.
+1. Branch from `main` for each task: `feat/…`, `fix/…`, `docs/…`.
+2. Read only what the task needs. Plan what's wrong today, the design, the tests and the build order.
+3. Write the test first, then the code, then run the checks (the `verifying-changes` skill).
+4. Review the change, then commit in small groups with scoped subjects, such as `feat(outfits): …`, `fix(account): …`, `test(…)`, `chore(…)` or `docs: …`. The subjects alone should tell the story.
+5. Update the docs in the same task: tick Open work, record owner decisions (rules here, how things work in README) with the date, and update any skill whose facts changed.
 
-### 1.6 Secrets
+The owner commits too: read before you edit, and never overwrite their work. When CocoaPods rewrites `ios/Runner.xcodeproj/project.pbxproj`, keep the version Xcode saved.
 
-`in-vogue/secrets/` is git-ignored. It holds `youcam_api.txt`, `youcam_secret.txt` and the development Firebase admin key (`development.json` is no longer used). `assets/development/youcam_api_key.txt` is git-ignored too: development builds bundle it, no flag needed, and production builds never do (owner, October 18). **Never print, log or commit any of them.** The native Firebase files (`google-services.json`, `GoogleService-Info.plist`) are git-ignored too.
+## Code style
 
-### 1.7 Other projects
+- Feature-first Clean Architecture in `lib/features/<name>/`: `domain` (pure Dart), `data` (Firebase, Hive, SQLite, dio, assets), `presentation` (BLoC and screens) and `di/init.dart` (GetIt).
+- Repositories return `Either<Failure, T>`. Data sources throw, and repositories translate. Values use Equatable.
+- Every string on screen goes through `context.translated.<key>` and into all three of `lib/l10n/arb/app_en.arb` (the default), `app_es.arb` and `app_zh.arb`.
+- Build screens from the design system in `lib/core/presentation/` (import `presentation.dart`). Each screen is its own; never reuse a setup screen, share widgets instead.
+- Comments are short and say what the code is or does. Never where it's used, and no product stories.
+- Packages: always the newest version, never downgrade. Settle version clashes with `dependency_overrides` and a one-line reason.
 
-Kostuma (`/Users/vlad/Desktop/vlad/mine/kostuma/kostuma`) and Utano (`/Users/vlad/Desktop/vlad/mine/utano_apps`) are read-only references. Never touch their code, keys, YouCam credits or data.
+## Testing
 
-### 1.8 Keep this file true
+- Test our code, never the packages, and mock each package the way its own docs say. A thin wrapper around an SDK gets no tests.
+- Tests never call YouCam or real Firebase: fakes, `fake_cloud_firestore`, Mockito and bloc_test.
+- Native code can't be compiled here. Keep `test/core/android_widget_configuration_test.dart` and `ios_widget_configuration_test.dart` in step, type-check Swift, and ask the owner to build.
 
-At the end of every task:
+## Product rules: never break these
 
-- Tick what's done in §3 and move it into §2, with the date.
-- Write new owner decisions into the right section, with the date, and delete what they replace. Don't stack old and new.
-- Change numbers (like the test count) only after a real run.
-- If a skill's facts changed, update that skill in the same task.
-- Put an agreed plan under its §3 item as sub-steps. Don't create separate checkpoint or plan files.
+- The app is In Vogue. No clothing prices anywhere; the only price is Go Pro's ($7.99 a month or $59.99 a year).
+- Photos are chosen from Photos or Gallery, never taken: no camera, and never the words "take a photo". Trust the photo: no checks beyond the size and format rules.
+- YouCam: nothing before sign-in, and no units cap, counter or quota, ever. Everything runs in the app, with no servers or Cloud Functions (a YouCam proxy is to be reconsidered before release).
+- No partner credits such as "Outfits by {Brand}"; "Buy at {Brand}" is fine. No design decision rests on a partner. Rights to the catalog and brand content are in place, so don't raise licensing.
+- One white theme: never dark mode or an appearance setting.
+- Clothes only: no shoes, bags or accessories, and people keep their own shoes. Face makeup only, never hair.
+- Outfits come from the whole collection. Loved pieces add weight; never-suggested outfits come first, then the one suggested longest ago.
+- English unless the person picks another language; never follow the phone's.
 
----
+**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · loading the catalog from Firebase (it stays bundled) · enforcing App Check · wardrobe uploads, AI chat, social features, calendar or trip planning, quizzes, skin reports, hair changes, in-app checkout or endless feeds.
 
-## 2. What is built
+## Security
 
-Checked on October 18, 2026, by reading the code and running the checks: **`flutterN analyze`: no issues. `flutterN test`: 809 tests pass.** Everything below runs on the development **flavor** (the app's development build, using Firebase project `in-vogue-dev`).
+- `secrets/` is git-ignored. It holds the YouCam key and secret and the development Firebase admin key. `assets/development/youcam_api_key.txt` is git-ignored too: development builds bundle it, production builds never do. The native Firebase files are git-ignored. Never print, log or commit any of them.
+- Firestore and Storage rules give each person only `users/{uid}/**`, and nobody can change their own `plan`. Check a rules change on the emulator before deploying it to development.
 
-### 2.1 What a person can do today
+## Open work
 
-| Part | What works |
-| --- | --- |
-| **Setup**: six screens that reopen where you left off | **1 Welcome:** the logo, "Use my location" (approximate location only) and a language icon. **2 Your photo:** a full-body photo from the gallery. **3** Tomorrow's weather, plus a few pieces you like (hearts). **4** Sign in with Apple (iPhone only) or Google. **5 About you:** your name (filled in when Apple, Google or your old account knows it) and an optional face photo. **6 Add the widget:** on Android, the launcher's "Add to home screen?" dialog places it, or the step says how where the launcher can't; iPhone shows the three steps. |
-| **Home tab** | City and ♡ Your picks at the top, then a Today / Tomorrow / Outfits switch (tap or swipe). The weather that matters: temperature, feels-like, rain timing and strong wind. The occasion (Work, Casual, Going out, Staying in) with Change. Then the person wearing the day's outfit, or "Getting your outfit ready… Piece n of N", or why it failed, with Try again. Below that, Shop and "About this outfit". **Outfits** shows the whole collection grouped by weather (Hot, Warm, Mild, Cool, Cold, Rain), with hearts. |
-| **Shop** | Every piece of the outfit: photo, colour, name, material and "Buy at Everlane", which opens that exact item on Everlane's site. No prices. |
-| **Your picks** | Only the pieces you loved. Removing one asks first. |
-| **Makeup tab** | It follows Home's day and occasion. Once there is a face photo and an outfit, the look starts by itself: Before / After, one sentence tying it to the outfit, and 3–6 numbered steps showing your face after each step (tap to zoom). Steps appear as they finish. |
-| **Settings** | Profile (face photo, name, how you signed in, edit name; without a face photo, the name's first letter centred in white on a Rouge square, owner October 18), replace the body or face photo, membership (shows Pro or Free; display only), location (Change), default day (tomorrow with the morning rule, or always today), language, the home-screen widget (Add places it on Android, or a sheet says how; the three steps on iPhone; owner, October 18), Log out (it also clears the account's outfit and makeup pictures from this phone, keeping the body and face photos and the picks; added October 17), and Delete account, which removes the account's data from Firebase and from this phone. Log out and Delete account are Rouge, text and icon (owner, October 18). |
-| **Home-screen widget** (Android; iPhone in development, not yet built) | The day's weather on a Rouge slab beside the person in the day's outfit, in Small (weather only), Medium and Large. It picks the day as Home does, switching at 06:00, 09:00 and midnight, shows the person's photo faded under "Getting ready" until the outfit is made and the saved time when it has nothing newer, and a tap opens Home on that day and occasion. A morning job refreshes it (October 18). Log out and Delete account clear it. Built October 18; not yet built or checked on a phone (§3). |
-| **Languages** | English (the default), Spanish and Simplified Chinese, including the knowledge base's texts: makeup steps (titles, how-tos, product kinds) and outfit reasons (added October 17). A makeup look saved before then stays in English. |
+*Pending* means nothing blocks it. *Blocked* names who it waits on. Details are in README's [Roadmap](README.md#roadmap); the production release has its own [checklist](README.md#production-checklist).
 
-The day rule: Home opens on **tomorrow**, except from **06:00 to 08:59**, when it opens on today. The occasion defaults to **Work Monday to Friday and Casual on Saturday and Sunday**; a changed occasion stays with its own date only (fixed October 18: a reload had carried the selected day's occasion onto the other day, so Sunday showed Workday).
-
-### 2.2 How it works underneath
-
-- **Outfits.** 1,749 ready-made outfits from the knowledge base are bundled in the app, sorted into 96 *cells* (a weather class combined with an occasion). For each day the app picks one: outfits never suggested come first, scored 80% on the knowledge base's rank and 20% on how many of the pieces you loved; after that, the one suggested longest ago. It then *claims* the day in Firestore in an all-or-nothing write (a transaction), so two phones, or today and tomorrow, never clash. YouCam then dresses the person **piece by piece**: bottom, then top, then outer layer; a dress goes in one pass. Progress is saved after each piece. Another phone takes over if nothing changes for 10 minutes, and an interrupted job resumes within 2 hours. If YouCam refuses a piece's photo (`error_invalid_ref`), that piece is recorded on the outfit's suggestion, no outfit with it is chosen again, and the day switches to another outfit in the same claim transaction; after 3 refused outfits in one making, or with none left, the day shows the failure, and Try again takes another outfit (added October 17). The finished picture is kept on the phone and in Firebase Storage. A photo and outfit are tried on once (October 18): each picture is also listed under the photo's fingerprint (the SHA-256 of its bytes, the same on every phone) and the outfit's signature, in `users/{uid}/tryOns` and on the phone, and a later day with them takes that picture at once, with no YouCam call and no second upload.
-- **Makeup.** YouCam reads the face's colours once per face photo, and the result is kept in Firestore under the photo's fingerprint. The app turns those colours into a skin profile (shade group and contrast) and picks one of 720 recipes, chosen by occasion, outfit palette, shade, contrast and weather. YouCam then applies each step on top of the previous step's picture. Skin smoothing is always off. Looks are kept for each face photo and outfit (October 18), named `{fingerprint start}-{signature}`, so a new face photo gets its own look and the same face and outfit never call YouCam again; each look's record sits beside its pictures on the phone, so the Makeup tab opens it without Firestore, even offline. A look made before that is taken by the first face photo that finds it.
-- **Photo rules.** Every chosen photo is checked. If it's too small, the app asks for another. If it isn't JPEG or PNG, it is converted to PNG and the app shows a note. If it's too big, it is scaled down. There is no face or body detection.
-- **Account.** The profile, favourites, photos and records live in Firestore (Firebase's database) and Storage (Firebase's file store) under `users/{uid}`. Each person can reach only their own data, and nobody can change their own `plan`: a new account starts with no plan or the demo plan, and only the console changes it (October 17). The rules are deployed to `in-vogue-dev`. A returning person gets their name, face photo and favourites back at sign-in. Saving never wipes favourites, and photos are replaced only when their content changes. Favourites follow the account across phones: each save merges with what that phone last saved, so a favourite unloved on one phone stays gone on the others, and each phone picks up the others' loves and unloves at its next save (sign-in or a new day's outfit; added October 17). **Every new account is created on the Pro plan** (set in `features/account/data/models/account_model.dart`).
-- **Widget.** Owner decision, October 18: the app updates the widget, plus a morning refresh. Home's days become snapshots with their words already in the person's language, saved through `home_widget` with the pictures' paths; the Kotlin provider picks the day with Home's rule and redraws at 06:00, 09:00 and midnight through scheduled updates. A WorkManager job, daily from 05:30, fetches the weather again and the pictures of days already made (on another phone too) for the account signed in on the phone. It never calls YouCam. On iPhone (development only, until production has its own App Group) the same content goes through the App Group `group.com.invogue.app.dev`, with the pictures copied into its container; the SwiftUI widget in `ios/In Vogue Widget/` picks the day with the same rule, its timeline turning at 06:00, 09:00 and midnight, and background app refresh runs the morning refresh about daily, when iOS allows. The `building-home-widgets` skill holds the details.
-- **Weather.** Open-Meteo (no key), cached for 2 days. Offline, the app shows the saved forecast with a note. °F in the US, °C elsewhere.
-- **Foundation.** Two flavors: development uses `in-vogue-dev` and production uses `in-vogue`, with a startup check that the flavor and project match. Hive and SQLite on the phone. The design system in `lib/core/presentation/` (tokens, theme, 28 components) matches the spec, including the curtain reveal of a new outfit. Launcher icons are made from the logo. Errors are logged only in debug builds (`LogMessagesImpl`), so release builds report nothing yet. App Check is on (debug tokens in debug builds, Play Integrity on Android, App Attest on iPhone) but never enforced (owner, October 18), so it changes nothing and needs no console setup.
-- **Data tools.** These live outside the app, in `resources/`: the Everlane catalog pull (from Shopify's Global Catalog), the knowledge base (weather, occasions, styling, outfits, skin, makeup, YouCam reference) and their Python builders. `in-vogue/scripts/export_*.py` copies what the app needs into `assets/`. They stay bundled (owner, October 18), so a catalog change ships with an app release.
-
-### 2.3 Where the code is
-
-Everything is on **`main`** (merged with the owner's go-ahead, October 18): the foundation, design system, setup and sign-in, then every feature branch up to `feat/settings_add_widget`, fast-forwarded so history stays one line. `main` is 187 commits ahead of `origin/main` and not pushed. The old feature branches are merged and kept; new work branches from `main`.
-
-The owner committed the `ios/Podfile.lock` update for the new Firebase pods on October 17 (`cleanup`).
-
-### 2.4 What has been checked on a real phone
-
-- Confirmed by the owner on October 16: Google sign-in works, and an Apple sign-in saved the profile, both photos and 4 favourites to Firebase.
-- **Not yet checked against the real YouCam API.** The last record (October 17) says no real call had been made: try-on and makeup have only run on test fakes. If the owner has run them since, update this line.
-- The October 17 work (two-day outfits, photo rules, returning users, makeup by itself) is waiting for the owner's device run.
-- The Android widget (October 18) hasn't been built or run on a phone yet.
-- October 18: the owner tested the development build with the bundled YouCam key (no flag), the occasion fix and the Settings changes (centred initial, Rouge Log out and Delete account) on a device and reported "test went well".
-
----
-
-## 3. What is left
-
-**Pending** means nothing blocks it; it just isn't done. **Blocked** means it waits on the person or decision named. Tick `[x]` when done and move the item to §2.
-
-**Focus now (owner, October 18): an MVP for testers on the development flavor** (`com.invogue.app.dev`, Firebase `in-vogue-dev`). Production (§3.b) waits.
-
-### 3.a What's left to build
-
-**App features**
-
-- [ ] **Build and check the Android widget on a phone.** *Owner.* The native side is checked only by static tests until it's built. Place it from setup step 6 or the launcher; check Large, Medium and Small, the switch at 06:00, 09:00 and midnight, a tap opening Home on that day, the waiting and stale states, and the morning refresh (about 05:30, network on).
-- [ ] **Build and check the iPhone widget on a phone.** *Owner.* The Swift is only type-checked, and `AppDelegate`'s refresh registration only by static tests, until it's built. Build the development flavor, add the widget (press and hold, +, In Vogue), and check Large, Medium and Small, the switch at 06:00, 09:00 and midnight, a tap opening Home on that day, and the waiting and stale states. The morning refresh needs Background App Refresh on, and iOS picks its time. The extension target is `In Vogue WidgetExtension` (bundle IDs `com.invogue.app.dev.In-Vogue-Widget` and `com.invogue.app.In-Vogue-Widget`, iOS 17.0 while the app keeps 15.0).
-- [ ] **Membership rules for the MVP.** *Blocked on an owner decision.* The plan so far (October 14): Free gives 14 outfits and 3 makeup looks over the account's whole life, never reset, and one outfit a day. Pro is shown at $7.99 a month or $59.99 a year. Go Pro adds the person to a waiting list, with no payments. Today every new account is created Pro. Confirm these rules for production, including whether Pro takes real payments.
-- [ ] **Free-plan limits.** *Pending, after the decision above.* Count outfits shown and makeup looks made; an outfit counts once however many YouCam calls it took, and replacing a photo resets nothing. When they run out, the last outfit stays on screen with Go Pro. Lock the counters in `firestore.rules` so the app can only raise them, and add cases to `scripts/check_firestore_rules.py`. Without a server they can't be fully tamper-proof: a person can still delete and recreate their own account document, which resets it to the demo plan and fresh counters.
-- [ ] **Go Pro screen.** *Pending, after the decision above.* "In Vogue Pro", four benefits and the price. Go Pro joins the waiting list and shows "You're on the list" with a drawn check, and every Go Pro afterwards reads "On the Pro list ✓". The design-system pieces already exist (`ProOffer`, `ProConfirmation`, `PlanLine`, and locked `ProductTile` and `OutfitTiles`). The list must live under `users/{uid}`, or the rules need changing.
-- [ ] **Free-plan locks.** *Pending, after the decision above.* The plan line at the bottom of Home, Settings' membership row with Go Pro, and browsing limited to about 30 current-season pieces.
-- [ ] **"Other outfits" on Home** (Pro: up to 3 more outfits a day; tapping one swaps it in at once). *Blocked on an owner decision.* Home's switch became Today / Tomorrow / Outfits on October 16, and each extra outfit is a full try-on (4–6 units).
-- [ ] **Holiday and evening occasions.** *Blocked on owner input.* Public holidays should count as casual days, which needs a dated holiday list for each supported country. Still open: whether evenings default to Staying in (Monday to Thursday) and Going out (Friday to Sunday).
-- [ ] **Trim the on-screen wording.** *The owner leads this;* they find the copy too wordy.
-
-**Production readiness**
-
-- [ ] **Crash and error reporting.** *Pending; the owner picks the tool* (Firebase Crashlytics fits the stack). Release builds report nothing today.
-- [ ] **Old pictures and records.** *Pending; the owner picks how long to keep them.* Each active person adds two outfit pictures, makeup pictures and day records every day, and only Delete account ever removes them. A Storage lifecycle rule and Firestore TTL policies can clean up without a server. Never expire `suggestions`, because they drive the no-repeat rule. Days can share a picture now (a repeated photo and outfit reuses it), so a clean-up must remove the `tryOns` entry of every picture it deletes, or keep pictures still listed.
-- [ ] **Keep the catalog fresh.** *Pending.* The catalog is a snapshot from October 14. Re-run the pull and the exports regularly, and mark pieces that are no longer for sale on Shop instead of sending people to a dead page. The outfit builder is deterministic since October 18: the same catalog always gives the same outfits. Today's bundle was built before that fix and can't be rebuilt as it is; a rebuild of the October 14 catalog gives 1,809 outfits instead of 1,749, reshuffling about 40%, and every piece in it already has Spanish and Chinese names.
-
-**Checks only the owner can do**
-
-- [ ] **The first real YouCam run** (try-on and makeup end to end on a device). *Blocked on the owner*, because only the owner spends units.
-- [ ] **A device run of the October 17 work**: two-day outfits, photo rules, returning users and makeup by itself. *Blocked on the owner.*
-- [ ] **Open a sample of Everlane product links** in a browser and check each opens the right item. Everlane blocks this Mac, so they were never opened here. *Owner.*
-
-**Housekeeping**
-
+- [ ] Build and check both home-screen widgets on phones. *Owner.*
+- [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*
+- [ ] Open a sample of Everlane product links. *Owner.*
+- [ ] Membership rules for the MVP. *Blocked on the owner.* Then the Free-plan limits, the Go Pro screen and the Free-plan locks.
+- [ ] Error reports to a Firestore `errors` collection (owner, October 18), so testers' errors reach the team. *Pending: next.*
+- [ ] How testers get the app. *Blocked: the owner picks the channel* (Firebase App Distribution recommended).
+- [ ] "Other outfits" on Home. *Blocked on the owner.*
+- [ ] Holiday and evening occasions. *Blocked on owner input.*
+- [ ] Trim the on-screen wording. *The owner leads.*
+- [ ] How long to keep old pictures and records. *Blocked on the owner.*
+- [ ] Keep the catalog fresh. *Pending; ask first, because a rebuild reshuffles outfits.*
+- [ ] Run each skill's evals and record them below. *Pending; ask first, because it uses subagents.*
 - [ ] Push to `origin`. *Blocked on the owner's go-ahead.*
-- [ ] Run each skill's evals in fresh sessions, with and without the skill, and record the results in §4.1. *Pending.*
 
-### 3.b Production release checklist
+## Skills
 
-Development is the everyday flavor. These steps make the **production** flavor (`com.invogue.app`, Firebase `in-vogue`) ready to release.
-
-- [ ] Check that the Firestore `(default)` database and Storage exist in `in-vogue` (Storage needs the Blaze plan). They exist in development; production hasn't been checked. *Owner.*
-- [ ] Deploy `firestore.rules` and `storage.rules` to `in-vogue`. *Owner;* the AI's admin key works for development only.
-- [ ] Turn on the Apple and Google providers in Firebase Auth for `in-vogue`. *Owner.*
-- [ ] Create the Android release key and the git-ignored `android/key.properties` (see `android/key.properties.example`). Add the key's SHA-1 and SHA-256 to the `in-vogue` Android app in Firebase. *Owner.*
-- [ ] After the two steps above, refresh production's native Firebase files with `scripts/configure_firebase.sh production`. *AI or owner.*
-- [ ] iOS: the Sign in with Apple capability for `com.invogue.app` (team `Q56R6X96PZ`), distribution signing, and an App Store Connect record. Production's Google URL scheme is already in the project. *Owner.*
-- [ ] **Decide how production gets the YouCam key.** *Blocked on the owner.* Production carries no key today, so it makes no outfits or makeup. Development builds bundle theirs from a git-ignored file (owner, October 18), and production could do the same, but any key inside an app can be extracted and used to spend the YouCam units.
-- [ ] **Reconsider Cloud Functions for YouCam before release.** *Owner, October 18.* The standard secure way keeps the key on a server: one callable function holds it in Secret Manager, answers only signed-in people with App Check, applies per-person limits, and makes the YouCam calls, so the app never holds the key. Everything else stays in the app.
-- [ ] Keep the YouCam account funded for production use. When its units run out, outfits and makeup stop for everyone ("No more outfits can be made for now."). *Owner.*
-- [ ] The store requirements for the chosen channel: a privacy policy, the App Store privacy details and Google Play's data-safety form. Photos go to YouCam and Firebase. *Owner.*
-- [ ] The widget built and checked on both platforms (§3.a).
-- [ ] The iPhone widget for production: production entitlements for Runner and the extension with `group.com.invogue.app` (owner, in Xcode; Runner has one entitlements file for every configuration today, so production shares development's group), then `HomeWidgetDataSourceImpl.appGroupOf(production)` (AI); the widget already reads production's group. Also match the extension's version and build number to the app's (Xcode left `1.0` and `1`). *Owner, then the AI.*
-- [ ] Build the production flavor and check on a device: Apple and Google sign-in, the first outfit, makeup and Delete account. *Owner.*
-- [ ] Release builds signed with the release keys, uploaded to the chosen channel (TestFlight, App Store, Google Play). *Owner.*
-- [ ] Merge to `main`, push and tag the release. *Owner's go-ahead.*
-
-### 3.c Dropped: don't build these (owner decisions)
-
-Cloud Functions, servers, webhooks or schedulers (except that a YouCam proxy function is to be reconsidered before release, §3.b) · any YouCam units cap, counter, quota or kill switch · a guest outfit, or any YouCam call before sign-in · face or body detection on photos · the camera · dark mode or a theme switch · partner credit lines · the rolling temperature (replaced by a sideways shift) · category chips on the picks screen · the "You've seen every outfit" dead end · loading the catalog or knowledge base from Firebase: they stay bundled (owner, October 18) · enforcing App Check, or its console setup (owner, October 18) · wardrobe uploads, AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout and endless feeds.
-
----
-
-## 4. Skills (for the AI)
-
-A skill is a folder of instructions that Claude Code loads only when a task needs it (Anthropic's Agent Skills). Only each skill's name and description are always in context. The body loads when the task matches, and reference files load only when opened. That is how this file stays short while the details stay available.
-
-### 4.1 Skills in place
-
-They live at `weather-dot-me/.claude/skills/<name>/`, each with a `SKILL.md`, optional `references/` and an `evals/evals.json` holding three test prompts. All eight pass Anthropic's `quick_validate.py`.
+Each lives in `../.claude/skills/<name>/`: a `SKILL.md`, optional `references/` and `evals/evals.json`. A session started in `weather-dot-me/` loads them; one started in `in-vogue/` doesn't, so read the matching `SKILL.md` when a task enters its area.
 
 | Skill | Use it for | Evals |
 | --- | --- | --- |
-| `verifying-changes` | the local check loop and honest reporting | written, not run |
-| `writing-tests` | tests the owner's way; how each package is mocked here | written, not run |
-| `building-features` | Clean Architecture slices, DI, routing, stand-ins; the feature map | written, not run |
-| `building-ui` | the design system, the spec and the owner's overrides of it, copy, motion, accessibility | written, not run |
-| `calling-youcam` | try-on, face analysis, makeup calls, costs, keys and the owner's YouCam rules | written, not run |
-| `managing-firebase` | the data model, rules deploys, sync, account save, restore and delete | written, not run |
-| `updating-bundled-data` | the catalog and knowledge-base pipeline and the asset exports | written, not run |
-| `building-home-widgets` | the widget's content, day rule, taps, the Android provider and layouts, the morning refresh, the iPhone widget to come | written, not run |
+| `verifying-changes` | the check loop and honest reporting | not run |
+| `writing-tests` | tests the owner's way; how each package is mocked here | not run |
+| `building-features` | Clean Architecture slices, DI, routing, stand-ins; the feature map | not run |
+| `building-ui` | the design system, the spec and the owner's overrides, copy, motion, accessibility | not run |
+| `calling-youcam` | try-on, face analysis, makeup calls, costs, keys and the owner's YouCam rules | not run |
+| `managing-firebase` | the data model, rules, sync, account save, restore and delete | not run |
+| `updating-bundled-data` | the catalog and knowledge-base pipeline and the asset exports | not run |
+| `building-home-widgets` | both home-screen widgets: content, day rule, taps, native code, the morning refresh | not run |
 
-Also available, from the owner's personal skills in `~/.claude/skills/`: `logo-design`, for logo and app-icon work.
-
-### 4.2 How to obtain a new skill (Anthropic's recommended method)
-
-```
-- [ ] 1. Do the task without a skill. Note what you had to look up, and every correction the owner made.
-- [ ] 2. When the same context is needed a second time, or the owner corrects the same thing twice, it's a skill.
-- [ ] 3. Write 3 realistic test prompts first, in evals/evals.json:
-         {skill_name, evals: [{id, prompt, expected_output, files, expectations}]}.
-         Record how a fresh session does without the skill (the baseline).
-- [ ] 4. Write the smallest SKILL.md that closes the gaps:
-         name: lowercase-and-hyphens, 64 chars at most, gerund form (building-widgets), no "claude" or "anthropic".
-         description: third person; what it does and when to use it, key use first; 1,024 chars at most; no angle brackets.
-         Body under 500 lines. Details go in references/*.md linked straight from SKILL.md (one level deep;
-         a table of contents if a file passes 100 lines). Scripts for anything deterministic. No dated "before X" text.
-- [ ] 5. Validate: python quick_validate.py <skill-dir>, from the skill-creator skill (needs PyYAML; use a scratch venv).
-- [ ] 6. In a fresh session, run the eval prompts with and without the skill. Watch which files it reads, and tighten.
-         Test on every model you use: Haiku needs more detail, Opus less.
-- [ ] 7. Add it to §4.1. Whenever code changes a skill's facts, update the skill in the same task.
-```
-
-The `anthropic-skills:skill-creator` skill automates steps 3–6: test runs, grading, a review viewer and description tuning.
-
-### 4.3 Skills to obtain next
-
-| Skill | Obtain it | Because |
-| --- | --- | --- |
-| `diagnosing-device-reports` | the next time the owner reports a bug from a device | the repeating pattern: a full restart after native plugins, Firebase error codes in logs, read-only admin checks |
-| `releasing-builds` | when the production checklist (§3.b) starts | signing, store and TestFlight uploads, the hand-offs to the owner |
-| `translating-copy` | if the knowledge-base translation outgrows `updating-bundled-data` | the ARB and knowledge-base translation workflow |
-
----
-
-## 5. Knowledge base (for the AI)
-
-Facts that aren't obvious from the code. The skills hold the details.
-
-**Identity and tools**
-- App IDs: `com.invogue.app.dev` ("In Vogue Dev") and `com.invogue.app` ("In Vogue"). Firebase projects: `in-vogue-dev` and `in-vogue`. Development is the everyday flavor, and plain `flutterN run` uses it. A flavor that doesn't match its Firebase project fails at startup.
-- Apple team: Conduct Wellness Pal Co. Ltd., `Q56R6X96PZ`. Google iOS URL schemes: development `com.googleusercontent.apps.184104161725-h701r3ame556n3gnng2fgppa84sfp5ig`, production `com.googleusercontent.apps.854510811606-n3o3e82qpcks173om632be5bqjqq17ne`. Android development debug SHA-1 `14:66:6A:…:E2:D5` is registered in development.
-- Tools: Flutter 3.44.4 and Dart 3.12.2 (`/Users/vlad/Development/flutter`), Xcode 26.3, CocoaPods 1.16.2 (plugins through CocoaPods, not SPM; open `ios/Runner.xcworkspace`), Java 17, iOS 15.0+, Android minSdk 24, FlutterFire CLI 1.4.0, Firebase CLI at `/opt/homebrew/bin/firebase`, ImageMagick `magick`.
-- `.vscode/launch.json` holds both flavors, with no extra flags: development builds read the YouCam key from the bundled `assets/development/youcam_api_key.txt`.
-
-**Product logic**
-- Welcome's tagline: "Meet tomorrow's weather in style."
-- Language: English unless the person chose another; it never follows the phone. It is restored before the first frame.
-- Weather class: the feels-like band of the window's **coldest** hour (hot, warm, mild, cool, cold) × precipitation (dry, wet, snow; snow only when cool or cold; drizzle counts as dry) × wind (gusts of 39 km/h or more are windy). That makes 24 classes × 4 occasions = 96 cells, keyed `band|precipitation|wind|context`, with 29–100 outfits each.
-- Day records: `making`, then `ready` or `failed`. The lease is 10 minutes and a try-on job is valid for 2 hours. Today and tomorrow never share an outfit. A day keeps its outfit even if the forecast later moves it to another cell.
-- Makeup: the shade group comes from ITA° (light from 41°, medium from 10°, deep below; within 2° above an edge counts as the deeper group). Contrast is ΔL* between the skin and the darker of brows and hair (medium from 25, high from 45). Concealer is the skin's OKLab L +0.03; nude lip is the lips' L −0.03 with chroma ×0.9. A photo that isn't clear gets neutral medium/medium. Looks have 3 steps for Staying in, 4 for Casual, 5 for Work and 6 for Going out.
-- Photos: JPEG or PNG, at most 10 MB and 4096 px. Body photos need at least 512 × 384, face photos at least 320 px a side. The picker scales to 2048 px at JPEG quality 90.
-- YouCam costs: 2 units per try-on pass, 20 per face analysis, 1 per makeup step; failed tasks are free. One new person's first day costs about 2 outfits × 4–6 units, plus 20 for the face analysis, plus 3–6 per makeup look. Balance on October 16: 40 units, expiring 2027-10-16.
-
-**History, so old ideas stay dead**
-- October 14: screen-by-screen walkthrough. Everlane's women's collection became the first catalog. Piece-by-piece try-on was chosen, with fallback B (Everlane's whole-outfit photos) held in reserve.
-- October 15: the design became Swiss Style on white with Rouge and Rose (magenta, ultramarine and full colour fields were rejected), and the logo was finalised. `phosphor_flutter` broke on Flutter 3.44, so the owner chose `phosphoricons_flutter`.
-- October 16: setup reordered (photo before sign-in, no guest outfit). "JUST TRUST THE USER": no photo checks. No native builds unless asked. Never test packages. No screen reuse. The temperature roll was removed.
-- October 17: no units cap ever, everything in the app, newest package versions without asking, and makeup starts by itself. This file replaced `checkpoint.md` and `plan.md`. The focus became a scalable, production-ready MVP, with rights to the catalog and brand content in place.
-- October 18: development builds bundle the YouCam key, with a YouCam function to reconsider before release. The app updates the widget, plus a morning refresh. The catalog and knowledge base stay bundled. App Check stays in the app, never enforced. The focus became an MVP for testers on the development flavor.
-
----
-
-## 6. System design
-
-**The big picture**
-
-```
-                  ┌─────────────── the phone: In Vogue (Flutter) ────────────────┐
-Open-Meteo  ◄─────┤ weather (dio; cached 2 days in SQLite)                        │
-YouCam API  ◄─────┤ try-on · face colours · makeup steps   (signed in; dev key)   │
-Firebase    ◄─────┤ Auth (Apple, Google) · Firestore users/{uid} · Storage        │
-Everlane    ◄─────┤ "Buy at Everlane" opens the exact item (url_launcher)         │
-                  │ bundled: catalog · 1,749 outfits · 720 makeup recipes         │
-                  └───────────────────────────────────────────────────────────────┘
-On the Mac, offline: Shopify Global Catalog ─► resources/ (Python: catalog + knowledge base)
-                     ─► in-vogue/scripts/export_*.py ─► in-vogue/assets/
-```
-
-**Inside the app**
-
-```
-main_development.dart ┐                        main_production.dart passes no YouCam key ─► stand-ins
-main_production.dart  ┴► bootstrap ─► MainInit.init
-   flavor ↔ Firebase check ─► Firebase ─► Hive + SQLite ─► core DI ─► 14 feature DIs
-   ─► language + saved setup step (before the first frame) ─► InVogueApp ─► EnsureAccount
-InVogueApp (MaterialApp.router, Paper theme only) ─► go_router (redirect: setup ⇄ tabs)
-   ├─ /setup ► /photo ► /picks ► /sign-in ► /about-you ► /widget        (nested, so Back works)
-   └─ tab shell (indexed stack; HomeBloc above the tabs)
-        ├─ /home      ─► Shop, Your picks (over the tabs)
-        ├─ /makeup    ─► picture viewer   (built on first visit, follows Home's day)
-        └─ /settings
-features/<name>/  presentation (BLoC, screens) ─► domain (pure Dart) ◄─ data (Firebase, Hive, dio, assets)
-                  di/init.dart registers it all in GetIt
-```
-
-**Setup**
-
-```
-Welcome ─► Your photo ─► Weather + picks ─► Sign in ─────────────► About you ─► Add widget ─► Home
-location   body photo    hearts             Apple | Google          name, face    stand-in
-                                            restore ─► save         photo
-├──────────── nothing leaves the phone ─────┤├──── account in Firebase; YouCam allowed from here ────┤
-The step is saved in Hive; the app reopens on it with the earlier screens beneath for Back.
-```
-
-**A day's outfit**
-
-```
-HomeBloc ─► FollowDay(day on screen), then FollowDay(other day)   (one claim at a time per phone)
-FollowDay watches users/{uid}/days/{date}_{occasion} (cache first):
-  no record ─► ChooseOutfit (no refused pieces) ─► transaction: day = making(this phone) + suggestion recorded
-  making, this phone, stopped ─► resume (Hive job, same photo, < 2 h)
-  making, other phone ─► show its progress; unchanged 10 min ─► take over, same outfit
-  ready ─► show the picture (phone copy, else Storage)      failed ─► reason + Try again (same outfit)
-MakeOutfit, per piece (bottom ─► top ─► outer | dress ─► outer):
-  write progress (stop if another phone took the day) ─► cloth-v4 (poll 5 s, ≤ 4 min)
-  last piece ─► download ─► phone + Storage ─► ready
-  YouCam refused ─► failed for every phone      network/server error ─► stays making, resumes later
-  a piece's photo refused ─► suggestion.refusedPiece ─► transaction: another outfit (≤ 3 per making),
-                             else failed(reference) for every phone; Try again ─► another outfit
-```
-
-**The widget** (Android)
-
-```
-HomeBloc ─► HomeWidgetSync ─► WidgetContentText (person's language) ─► HomeWidgetBloc ─► PublishWidget
-  ─► home_widget: 'in_vogue_widget' JSON + 'in_vogue_widget_refresh' ─► redraw; redraws at 06:00 · 09:00 · 00:00
-InVogueWidgetProvider: Home's day rule ─► Small | Medium | Large ─► tap: invogue://home?date&occasion ─► Home
-WorkManager, daily from 05:30 ─► widgetRefreshDispatcher ─► RefreshWidget: weather + made pictures (never YouCam)
-```
-
-**A makeup look**
-
-```
-MakeupBloc starts when: face photo kept ∧ the outfit has no look ∧ none being made ∧ last try didn't fail
-MakeLook: face ─► before.png (upright, ≤ 1024 px)
-  colours ─► colorProfiles/{sha256(face)}, else skin-tone-analysis (20 units, once per photo)
-  SkinRules ─► shade + contrast (+ concealer, brow, nude-lip colours)
-  key occasion|palette|shade|contrast|weather ─► recipe: 3–6 steps
-  each step: makeup-vto on the previous picture (1 unit; poll 3 s, ≤ 2 min) ─► keep ─► show
-  done ─► users/{uid}/makeupLooks/{signature} + pictures in Storage and on the phone
-```
-
-**Where data lives**
-
-```
-PHONE      <support>/in_vogue/<flavor>/
-           Hive preferences_<flavor>: language, default_day, setup_step, location, picks, picks_synced,
-                profile_name, photo_body, photo_face, install_id, try_on_jobs, makeup_jobs
-           SQLite cache.sqlite (forecasts) · files: photos/ outfits/{uid}/ makeup/{uid}/ downloads/
-           SharedPreferences HomeWidgetPreferences: in_vogue_widget, in_vogue_widget_refresh (Android widget)
-FIRESTORE  users/{uid} profile · wishlist/ · days/ · suggestions/ · makeupLooks/ · colorProfiles/
-STORAGE    users/{uid}/ photos/ · days/ · makeup/
-ASSETS     catalog/everlane_women.json · outfits/outfits.json · makeup/recipes.json · fonts · images
-```
+New skills follow Anthropic's method: write three eval prompts first, then the smallest `SKILL.md` that passes them, validate it with `quick_validate.py` from the skill-creator skill, and test it with and without the skill.
