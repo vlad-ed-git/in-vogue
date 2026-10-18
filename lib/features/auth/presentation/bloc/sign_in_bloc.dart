@@ -29,16 +29,20 @@ enum SignInStatus { idle, signingIn, signedIn }
 class SignInState extends Equatable {
   const SignInState({
     this.status = SignInStatus.idle,
+    this.method,
     this.account,
     this.failure,
   });
 
   final SignInStatus status;
+
+  /// The provider signing in.
+  final SignInMethod? method;
   final Account? account;
   final Failure? failure;
 
   @override
-  List<Object?> get props => [status, account, failure];
+  List<Object?> get props => [status, method, account, failure];
 }
 
 /// One sign-in at a time; cancelling is not a failure. Before it is signed
@@ -61,7 +65,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     SignInRequested event,
     Emitter<SignInState> emit,
   ) async {
-    emit(const SignInState(status: SignInStatus.signingIn));
+    emit(SignInState(status: SignInStatus.signingIn, method: event.method));
     final result = await _signIn(event.method);
     final account = result.fold<Account?>((_) => null, (account) => account);
     if (account == null) {

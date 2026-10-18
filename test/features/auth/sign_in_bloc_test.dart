@@ -46,7 +46,10 @@ void main() {
     build: buildBloc,
     act: (bloc) => bloc.add(const SignInRequested(SignInMethod.apple)),
     expect: () => [
-      const SignInState(status: SignInStatus.signingIn),
+      const SignInState(
+        status: SignInStatus.signingIn,
+        method: SignInMethod.apple,
+      ),
       const SignInState(status: SignInStatus.signedIn, account: _maya),
     ],
     verify: (_) => verify(auth.signIn(SignInMethod.apple)).called(1),
@@ -68,7 +71,10 @@ void main() {
     },
     act: (bloc) => bloc.add(const SignInRequested(SignInMethod.apple)),
     expect: () => [
-      const SignInState(status: SignInStatus.signingIn),
+      const SignInState(
+        status: SignInStatus.signingIn,
+        method: SignInMethod.apple,
+      ),
       const SignInState(status: SignInStatus.signedIn, account: _maya),
     ],
     verify: (_) => verify(saveSetup('uid-1')).called(1),
@@ -96,7 +102,10 @@ void main() {
     },
     act: (bloc) => bloc.add(const SignInRequested(SignInMethod.apple)),
     expect: () => [
-      const SignInState(status: SignInStatus.signingIn),
+      const SignInState(
+        status: SignInStatus.signingIn,
+        method: SignInMethod.apple,
+      ),
       const SignInState(status: SignInStatus.signedIn, account: _maya),
     ],
   );
@@ -111,7 +120,10 @@ void main() {
     },
     act: (bloc) => bloc.add(const SignInRequested(SignInMethod.google)),
     expect: () => [
-      const SignInState(status: SignInStatus.signingIn),
+      const SignInState(
+        status: SignInStatus.signingIn,
+        method: SignInMethod.google,
+      ),
       const SignInState(failure: SignInFailure(SignInProblem.failed)),
     ],
   );
@@ -126,7 +138,10 @@ void main() {
     },
     act: (bloc) => bloc.add(const SignInRequested(SignInMethod.google)),
     expect: () => [
-      const SignInState(status: SignInStatus.signingIn),
+      const SignInState(
+        status: SignInStatus.signingIn,
+        method: SignInMethod.google,
+      ),
       const SignInState(),
     ],
     verify: (_) => verifyNever(saveSetup(any)),
