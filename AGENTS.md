@@ -110,7 +110,10 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
    - Setup and Settings say the face photo is for the skin tone and colour analysis. Never mention makeup.
    - The season is In Vogue's own hardcoded suggestion from YouCam's sampled colours (`SeasonRules`); YouCam gives no season or undertone.
    - The skin analysis runs once per person, and its result is kept. A new face photo doesn't change who they are, so it keeps the colours; Settings offers "Redo skin analysis" when the face photo is replaced, and only that reads them again.
-5. [ ] **My Wardrobe**, part of item 4, later. People upload their own outfits, with the details recommendation needs. Their outfits weigh more than the catalog's when choosing.
+5. [x] **My Wardrobe.** Done October 18, below the season on Mirror (`lib/features/wardrobe`). Owner decisions, October 18:
+   - A person adds a photo of an outfit they own, chosen from Photos or Gallery, with its name, colour, the weather it suits (feels-like bands and rain) and its occasions.
+   - Mirror shows their outfits in a grid; a tile opens the outfit's details, as the catalog's tiles do, with Remove, which asks first.
+   - Home will recommend from the wardrobe too, one for today and one for tomorrow beside the catalog's. Not built until the owner decides how: don't implement it.
 
 **Also open:**
 
