@@ -104,7 +104,9 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - [ ] How testers get the app. *Blocked: the owner picks the channel* (Firebase App Distribution recommended).
 - [ ] "Other outfits" on Home. *Blocked on the owner.*
 - [ ] Holiday and evening occasions. *Blocked on owner input.*
-- [ ] Trim the on-screen wording. *The owner leads.*
+- [ ] Review the copy, every word in the app, in all three languages (owner, October 18). *Owner.*
+- [ ] A landing page with the terms, a privacy policy, issue reporting, SEO and a wishlist (owner, October 18). *Owner.*
+- [ ] Link the landing page's terms, privacy policy and issue reporting from the app. *Blocked on the landing page.*
 - [ ] How long to keep old pictures and records. *Blocked on the owner.*
 - [ ] Keep the catalog fresh. *Pending; ask first, because a rebuild reshuffles outfits.*
 - [ ] Run each skill's evals and record them below. *Pending; ask first, because it uses subagents.*

@@ -484,7 +484,8 @@ All checks run locally; the project has no CI by the owner's choice.
 - **Holiday and evening occasions (owner input).**
   - Public holidays should count as casual days, which needs a dated holiday list for each country.
   - Still open: whether evenings default to Staying in (Monday to Thursday) and Going out (Friday to Sunday).
-- **Trim the on-screen wording (the owner leads).**
+- **Review the copy (owner).** Every word in the app, in all three languages.
+- **A landing page (owner):** the terms, a privacy policy, issue reporting, SEO and a wishlist. Once it exists, the app links its terms, privacy policy and issue reporting (in Settings), and the stores get its privacy policy.
 - **Old pictures and records (owner decision on how long to keep them).**
   - Only Delete account removes them today. A Storage lifecycle rule and Firestore TTL policies could clean up without a server.
   - Never expire `suggestions`.
@@ -506,7 +507,7 @@ The production flavor (`com.invogue.app`, Firebase `in-vogue`) needs these befor
 - [ ] iOS: Sign in with Apple for `com.invogue.app` (team `Q56R6X96PZ`), distribution signing and an App Store Connect record.
 - [ ] Decide how production gets the YouCam key, and reconsider a YouCam proxy function: one callable function holding the key in Secret Manager, answering signed-in people with App Check and applying per-person limits.
 - [ ] Keep the YouCam account funded.
-- [ ] The store requirements: a privacy policy, the App Store privacy details and Google Play's data-safety form.
+- [ ] The store requirements: the privacy policy (from the landing page), the App Store privacy details and Google Play's data-safety form.
 - [ ] The iPhone widget for production:
   - production entitlements for Runner and the extension with `group.com.invogue.app` (owner, in Xcode);
   - `HomeWidgetDataSourceImpl.appGroupOf(production)` (AI);
