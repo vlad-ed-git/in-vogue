@@ -85,7 +85,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - Outfits come from the whole collection. Loved pieces add weight; never-suggested outfits come first, then the one suggested longest ago.
 - English unless the person picks another language; never follow the phone's.
 
-**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · loading the catalog from Firebase (it stays bundled) · enforcing App Check · wardrobe uploads, AI chat, social features, calendar or trip planning, quizzes, skin reports, hair changes, in-app checkout or endless feeds.
+**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · loading the catalog from Firebase (it stays bundled) · enforcing App Check · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5).
 
 ## Security
 
@@ -95,6 +95,26 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 ## Open work
 
 *Pending* means nothing blocks it. *Blocked* names who it waits on. Details are in README's [Roadmap](README.md#roadmap); the production release has its own [checklist](README.md#production-checklist).
+
+**Next, in this order** (from the owner's device test, October 18):
+
+1. [ ] **Animated loading everywhere.**
+   - Setup's buttons show nothing while they work, so the app looks frozen after sign-in.
+   - The outfit's making doesn't move, so it looks stuck. The Makeup screen has the same problem.
+   - Find every wait, design one moving treatment, then apply it everywhere.
+   - The spec says loading slots are still Rose blocks, "no shimmer, no spinner" (`design-spec/guide/04-photography.md`, `06-motion.md`). The owner overrides it: loading must visibly move. Show the owner the design before building it.
+2. [ ] **The widget's temperature on narrow widgets.** On a small Android phone, "26" shows as "2". Make the numeral fit any width, on Android and iPhone.
+3. [ ] **Makeup doesn't work on the owner's phone.** Diagnose it, starting with the reports in `in-vogue-dev`'s Firestore `errors` collection, read with the admin key. Begin with the skin analysis, which stays.
+   - YouCam's photo errors, such as `error_face_angle_rightward` ("The face is turned too far to the right… turn head to the left"), reach the person as "Your photo is fine." (`makeupFailed`, `tryOnFailed`). That's wrong: say what to fix.
+4. [ ] **Replace Makeup with a colour palette and My Wardrobe** (owner, October 18). Users want their skin analysis to give the clothing colours that suit them, more than step-by-step makeup. The new page, top to bottom: the face with its skin-tone results and colour palette, then My Wardrobe. Steps:
+   1. Scrap makeup, keeping the face photo and the skin analysis.
+   2. Research. Study YouCam's skin-tone analysis in depth: every result and error, and what to tell the person. Study colour analysis too, for a hardcoded recommender from YouCam's results to clothing colours, shown visually.
+   3. A design spec for the page.
+   4. Build it.
+   5. User testing.
+5. [ ] **My Wardrobe**, part of item 4, later. People upload their own outfits, with the details recommendation needs. Their outfits weigh more than the catalog's when choosing.
+
+**Also open:**
 
 - [ ] Build and check both home-screen widgets on phones. *Owner.*
 - [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*

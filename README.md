@@ -37,7 +37,7 @@ Nothing leaves the phone before sign-in, and YouCam is called only after it.
 
 **Shop** lists every piece of the outfit with its photo, colour, name and material, and "Buy at Everlane", which opens that exact item. There are no prices. **Your picks** shows only the pieces the person loved; removing one asks first.
 
-**Makeup** follows Home's day and occasion. Once there is a face photo and an outfit, the look starts by itself: Before / After, a sentence tying it to the outfit, and 3 to 6 numbered steps, each showing the face after that step (tap to zoom). Steps appear as they finish.
+**Makeup** (being replaced by a colour palette and My Wardrobe; see [Roadmap](#roadmap)) follows Home's day and occasion. Once there is a face photo and an outfit, the look starts by itself: Before / After, a sentence tying it to the outfit, and 3 to 6 numbered steps, each showing the face after that step (tap to zoom). Steps appear as they finish.
 
 **Settings** holds:
 - the profile: face photo, name, how the person signed in, and Edit. Without a face photo it shows the name's first letter on Rouge.
@@ -498,6 +498,31 @@ All checks run locally; the project has no CI by the owner's choice.
 - **Owner's device test (October 18):** the development build with the bundled YouCam key, the occasion fix and the Settings changes all passed.
 - **Still to check:** a real end-to-end YouCam run, the October 17 work (two-day outfits, photo rules, returning users, makeup by itself), and both widgets.
 
+### Next
+
+From the owner's device test, October 18, in this order:
+
+1. **Animated loading everywhere.**
+   - Setup's buttons show no progress, so the app looks frozen after sign-in.
+   - The outfit's making and the Makeup screen don't move while they wait, so they look stuck.
+   - Every wait gets one moving treatment, designed and shown to the owner first. This overrides the design spec, which asks for still Rose placeholders with no shimmer or spinner (guides 04 and 06).
+2. **The widget's temperature on narrow widgets.** On a small Android phone, "26" shows as "2". The numeral must fit any width, on Android and iPhone.
+3. **Makeup doesn't work on the owner's phone.** The diagnosis starts with the `errors` reports in `in-vogue-dev` and with the skin analysis, which stays.
+   - YouCam's photo errors reach the person as "Your photo is fine." That's wrong: they should say what to fix. For example:
+
+   ```json
+   {"status": 200, "data": {"error": "error_face_angle_rightward",
+     "error_message": "The face is turned too far to the right for accurate analysis. Slightly turn head to the left and try again.",
+     "results": null, "task_status": "error"}}
+   ```
+4. **Replace Makeup with a colour palette and My Wardrobe.** Feedback says people want their skin analysis to give the clothing colours that suit them, shown visually, more than step-by-step makeup. They also want to add their own outfits. Both go on one page, top to bottom: the face with its skin-tone results and colour palette, then My Wardrobe. Steps:
+   1. Scrap makeup, keeping the face photo and the skin analysis.
+   2. Research YouCam's skin-tone analysis in depth (every result and error, and what to tell the person), and colour analysis, for a hardcoded recommender from YouCam's results to clothing colours.
+   3. A design spec.
+   4. Build it.
+   5. User testing.
+5. **My Wardrobe** (later, part of item 4): people upload their own outfits with the details recommendation needs, and their own outfits weigh more than the catalog's when choosing.
+
 ### Open work
 
 - **Check both widgets on phones (owner).**
@@ -559,3 +584,7 @@ Each line is an owner decision, kept so that old ideas stay dead.
 - **October 18, morning:** Saturday and Sunday default to Casual. Development builds bundle the YouCam key, and a YouCam function is to be reconsidered before release. The app updates the widget, plus a morning refresh.
 - **October 18, later:** the catalog stays bundled, and App Check stays in the app, never enforced. The focus became an MVP for testers on the development flavor.
 - **October 18, last:** each photo and outfit is tried on once, and looks are kept per face photo. Error reports go to a Firestore `errors` collection.
+- **October 18, after the device test:**
+  - Loading must visibly move, overriding the spec's still placeholders.
+  - Makeup gives way to a skin-tone colour palette and My Wardrobe on one page.
+  - Wardrobe uploads, dropped before, are planned, and the person's own outfits weigh more.
