@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +9,8 @@ import 'package:get_it/get_it.dart';
 import 'package:in_vogue/app/widget_refresh.dart';
 import 'package:in_vogue/core/config/app_check.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
+import 'package:in_vogue/core/data/errors/error_report_remote_data_source.dart';
+import 'package:in_vogue/core/data/errors/error_reports.dart';
 import 'package:in_vogue/core/di/init.dart' as core_di;
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
@@ -33,6 +37,7 @@ import 'package:in_vogue/features/setup/di/init.dart' as setup_di;
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/get_setup_step.dart';
 import 'package:in_vogue/features/weather/di/init.dart' as weather_di;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -77,6 +82,7 @@ abstract final class MainInit {
       rethrow;
     }
     final installId = await InstallIdStore.read(store);
+    final package = await PackageInfo.fromPlatform();
     core_di.init(
       locator,
       installId: installId,
@@ -85,6 +91,23 @@ abstract final class MainInit {
       keyValueStore: store,
       sqliteCache: cache,
       youCamApiKey: youCamApiKey,
+      errorReports: ErrorReports(
+        remote: ErrorReportRemoteDataSourceImpl(FirebaseFirestore.instance),
+        accounts: FirebaseAuth.instance.authStateChanges().map(
+          (user) => user?.uid,
+        ),
+        origin: ErrorReportOrigin(
+          flavor: environment.name,
+          platform: Platform.operatingSystem,
+          version: '${package.version}+${package.buildNumber}',
+          build: kReleaseMode
+              ? 'release'
+              : kProfileMode
+              ? 'profile'
+              : 'debug',
+          install: installId.value,
+        ),
+      ),
     );
     try {
       preferences_di.init(locator);

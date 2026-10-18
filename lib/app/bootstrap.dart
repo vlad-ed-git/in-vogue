@@ -7,6 +7,8 @@ import 'package:in_vogue/app/in_vogue_app.dart';
 import 'package:in_vogue/app/router/in_vogue_screens.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
+import 'package:in_vogue/core/data/errors/uncaught_errors.dart';
+import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/core/ui/screens/startup_failure_screen.dart';
 import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
@@ -27,6 +29,7 @@ Future<void> bootstrap({
       firebaseOptions: firebaseOptions,
       youCamApiKey: youCamApiKey,
     );
+    reportUncaughtErrors(GetIt.I<LogMessages>());
     runApp(
       InVogueApp(
         createPreferencesBloc: () =>

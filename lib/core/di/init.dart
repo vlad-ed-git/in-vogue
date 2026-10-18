@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
+import 'package:in_vogue/core/data/errors/error_reports.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
 import 'package:in_vogue/core/domain/entities/install_id.dart';
@@ -11,7 +12,8 @@ import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/core/persistence/sqlite_cache.dart';
 
 /// Register initialized resources; no service can observe unopened storage.
-/// The YouCam client is registered only with a [youCamApiKey].
+/// The YouCam client is registered only with a [youCamApiKey]; errors are
+/// filed only with [errorReports].
 void init(
   GetIt locator, {
   required AppEnvironment environment,
@@ -20,6 +22,7 @@ void init(
   required SqliteCache sqliteCache,
   required InstallId installId,
   String? youCamApiKey,
+  ErrorReports? errorReports,
 }) {
   final key = youCamApiKey?.trim() ?? '';
   if (key.isNotEmpty) {
@@ -47,7 +50,7 @@ void init(
     ..registerSingleton<AppEnvironment>(environment)
     ..registerSingleton<InstallId>(installId)
     ..registerSingleton<AppDirectory>(directory)
-    ..registerSingleton<LogMessages>(LogMessagesImpl())
+    ..registerSingleton<LogMessages>(LogMessagesImpl(reports: errorReports))
     ..registerSingleton<PhotoFingerprints>(PhotoFingerprints())
     ..registerSingleton<KeyValueStore>(
       keyValueStore,
