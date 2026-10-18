@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:in_vogue/core/data/you_cam/you_cam_model.dart';
 import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
+import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 
 void main() {
@@ -215,15 +216,69 @@ void main() {
       YouCamTask failed(String code) => YouCamModel.taskOf({
         'data': {'task_status': 'error', 'error': code},
       });
-      expect(failed('error_pose'), const YouCamTaskFailed(YouCamProblem.photo));
+      expect(
+        failed('error_decode_image'),
+        const YouCamTaskFailed(YouCamProblem.photo, code: 'error_decode_image'),
+      );
       expect(
         failed('error_invalid_ref'),
-        const YouCamTaskFailed(YouCamProblem.reference),
+        const YouCamTaskFailed(
+          YouCamProblem.reference,
+          code: 'error_invalid_ref',
+        ),
       );
       expect(
         failed('unknown_internal_error'),
-        const YouCamTaskFailed(YouCamProblem.failed),
+        const YouCamTaskFailed(
+          YouCamProblem.failed,
+          code: 'unknown_internal_error',
+        ),
       );
+    });
+
+    test('says what to change in a photo the engine refused', () {
+      YouCamTask failed(String code) => YouCamModel.taskOf({
+        'data': {'task_status': 'error', 'error': code},
+      });
+      for (final code in [
+        'error_face_angle_invalid',
+        'error_face_not_forward_facing',
+        'error_face_angle_upward',
+        'error_face_angle_downward',
+        'error_face_angle_leftward',
+        'error_face_angle_rightward',
+        'error_face_angle_left_tilt',
+        'error_face_angle_right_tilt',
+      ]) {
+        expect(
+          failed(code),
+          YouCamTaskFailed(
+            YouCamProblem.photo,
+            advice: PhotoAdvice.lookStraight,
+            code: code,
+          ),
+          reason: code,
+        );
+      }
+      PhotoAdvice? adviceFor(String code) => switch (failed(code)) {
+        YouCamTaskFailed(:final advice) => advice,
+        _ => null,
+      };
+      expect(
+        adviceFor('error_face_position_too_small'),
+        PhotoAdvice.moveCloser,
+      );
+      expect(
+        adviceFor('error_face_position_out_of_boundary'),
+        PhotoAdvice.showWholeFace,
+      );
+      expect(
+        adviceFor('error_face_position_invalid'),
+        PhotoAdvice.showWholeFace,
+      );
+      expect(adviceFor('error_multi_person'), PhotoAdvice.onlyYou);
+      expect(adviceFor('error_pose'), PhotoAdvice.standHeadToToe);
+      expect(adviceFor('error_decode_image'), isNull);
     });
 
     test('names why a call was refused', () {

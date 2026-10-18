@@ -1,4 +1,5 @@
 import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
+import 'package:in_vogue/core/domain/errors/failures.dart';
 
 /// Where YouCam's File API takes a file's bytes.
 typedef YouCamUpload = ({
@@ -18,6 +19,13 @@ abstract final class YouCamModel {
     'error_face_position_too_small',
     'error_face_position_out_of_boundary',
     'error_face_angle_invalid',
+    'error_face_not_forward_facing',
+    'error_face_angle_upward',
+    'error_face_angle_downward',
+    'error_face_angle_leftward',
+    'error_face_angle_rightward',
+    'error_face_angle_left_tilt',
+    'error_face_angle_right_tilt',
     'error_face_parsing',
     'error_pose',
     'error_invalid_src',
@@ -28,6 +36,24 @@ abstract final class YouCamModel {
     'exceed_max_filesize',
     'error_decode_image',
     'error_nsfw_content_detected',
+  };
+
+  /// What to change about the photo for the [photoErrors] that say.
+  static const photoAdvice = {
+    'error_face_angle_invalid': PhotoAdvice.lookStraight,
+    'error_face_not_forward_facing': PhotoAdvice.lookStraight,
+    'error_face_angle_upward': PhotoAdvice.lookStraight,
+    'error_face_angle_downward': PhotoAdvice.lookStraight,
+    'error_face_angle_leftward': PhotoAdvice.lookStraight,
+    'error_face_angle_rightward': PhotoAdvice.lookStraight,
+    'error_face_angle_left_tilt': PhotoAdvice.lookStraight,
+    'error_face_angle_right_tilt': PhotoAdvice.lookStraight,
+    'error_face_position_too_small': PhotoAdvice.moveCloser,
+    'error_face_position_out_of_boundary': PhotoAdvice.showWholeFace,
+    'error_face_position_invalid': PhotoAdvice.showWholeFace,
+    'error_multi_person': PhotoAdvice.onlyYou,
+    'error_pose': PhotoAdvice.standHeadToToe,
+    'error_apply_region_mismatch': PhotoAdvice.standHeadToToe,
   };
 
   /// Engine errors caused by the reference photo.
@@ -82,13 +108,20 @@ abstract final class YouCamModel {
     final data = dataOf(body);
     return switch (data['task_status']) {
       'success' => YouCamTaskSucceeded(data['results']),
-      'error' => YouCamTaskFailed(switch (data['error']) {
-        final Object error when photoErrors.contains(error) =>
-          YouCamProblem.photo,
-        final Object error when referenceErrors.contains(error) =>
-          YouCamProblem.reference,
-        _ => YouCamProblem.failed,
-      }),
+      'error' => YouCamTaskFailed(
+        switch (data['error']) {
+          final Object error when photoErrors.contains(error) =>
+            YouCamProblem.photo,
+          final Object error when referenceErrors.contains(error) =>
+            YouCamProblem.reference,
+          _ => YouCamProblem.failed,
+        },
+        advice: photoAdvice[data['error']],
+        code: switch (data['error']) {
+          final Object error => '$error',
+          null => null,
+        },
+      ),
       _ => const YouCamTaskRunning(),
     };
   }

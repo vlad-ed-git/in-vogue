@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/data/you_cam/you_cam_model.dart';
+import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 
 /// YouCam's AI tools, by the path of their tasks.
@@ -68,11 +69,17 @@ final class YouCamTaskSucceeded extends YouCamTask {
 
 /// Failed; YouCam charges nothing for it.
 final class YouCamTaskFailed extends YouCamTask {
-  const YouCamTaskFailed(this.problem);
+  const YouCamTaskFailed(this.problem, {this.advice, this.code});
   final YouCamProblem problem;
 
+  /// What to change about the photo, for a [YouCamProblem.photo].
+  final PhotoAdvice? advice;
+
+  /// YouCam's error code, such as `error_face_angle_rightward`.
+  final String? code;
+
   @override
-  List<Object?> get props => [problem];
+  List<Object?> get props => [problem, advice, code];
 }
 
 /// YouCam's task and File APIs.

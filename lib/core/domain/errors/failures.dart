@@ -102,11 +102,14 @@ enum TryOnProblem {
 }
 
 final class TryOnFailure extends Failure {
-  const TryOnFailure(this.problem);
+  const TryOnFailure(this.problem, {this.advice});
   final TryOnProblem problem;
 
+  /// What to change about the photo, when it is the problem.
+  final PhotoAdvice? advice;
+
   @override
-  List<Object?> get props => [problem];
+  List<Object?> get props => [problem, advice];
 }
 
 /// Why a makeup look could not be made.
@@ -125,9 +128,30 @@ enum MakeupProblem {
 }
 
 final class MakeupFailure extends Failure {
-  const MakeupFailure(this.problem);
+  const MakeupFailure(this.problem, {this.advice});
   final MakeupProblem problem;
 
+  /// What to change about the photo, when it is the problem.
+  final PhotoAdvice? advice;
+
   @override
-  List<Object?> get props => [problem];
+  List<Object?> get props => [problem, advice];
+}
+
+/// What to change about a photo YouCam could not use.
+enum PhotoAdvice {
+  /// Face straight ahead, head level: not turned, tilted, up or down.
+  lookStraight,
+
+  /// The face should fill more of the photo.
+  moveCloser,
+
+  /// The whole face should show, centred.
+  showWholeFace,
+
+  /// Only the person should be in the photo.
+  onlyYou,
+
+  /// The person should be standing, head to toe.
+  standHeadToToe,
 }
