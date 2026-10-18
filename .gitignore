@@ -32,3 +32,6 @@ secrets/
 # The YouCam key development builds bundle; only the folder is kept.
 assets/development/*
 !assets/development/.gitkeep
+
+# Release builds from scripts/build_release.sh
+/release/
