@@ -11,15 +11,27 @@ import 'package:in_vogue/features/colours/presentation/bloc/colours_bloc.dart';
 import 'package:in_vogue/features/colours/presentation/colours_text.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/photos/presentation/widgets/photo_notices.dart';
+import 'package:in_vogue/features/wardrobe/presentation/widgets/wardrobe_section.dart';
 
 /// The Mirror tab: the person's colour season, why, and the colours that
-/// suit them, read from their face photo; then My Wardrobe. Without a face
-/// photo it asks for a selfie, kept as soon as it is chosen.
+/// suit them, read from their face photo; then My Wardrobe, the outfits
+/// they own. Without a face photo it asks for a selfie, kept as soon as it
+/// is chosen.
 ///
 /// Its [PhotoBloc] is the face photo's; a face photo newly kept, here or
 /// in Settings, is read.
 class MirrorScreen extends StatelessWidget {
-  const MirrorScreen({super.key});
+  const MirrorScreen({
+    required this.onAddOutfit,
+    this.imageFor = WardrobeSection.networkImage,
+    super.key,
+  });
+
+  /// Opens the screen that adds an outfit to the wardrobe.
+  final VoidCallback onAddOutfit;
+
+  /// The image at a URL.
+  final ImageProvider Function(String url) imageFor;
 
   /// A catalogue close-up that shows what a good selfie looks like.
   static const example = AssetImage('assets/images/example_face.jpg');
@@ -60,13 +72,7 @@ class MirrorScreen extends StatelessWidget {
                     child: ScreenTitle(context.translated.tabMirror),
                   ),
                   ..._colours(context, state, photo),
-                  SectionHeading(context.translated.wardrobeTitle),
-                  Text(
-                    context.translated.wardrobeLine,
-                    style: InVogueType.body.copyWith(
-                      color: InVogueColors.graphite,
-                    ),
-                  ),
+                  WardrobeSection(onAddOutfit: onAddOutfit, imageFor: imageFor),
                   const SizedBox(height: InVogueSpace.s10),
                 ],
               ),

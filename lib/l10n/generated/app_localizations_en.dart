@@ -825,10 +825,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wardrobeTitle => 'My wardrobe';
 
   @override
-  String get wardrobeLine =>
-      'Soon you can add your own clothes, and your outfits will use them.';
-
-  @override
   String get colourFailed => 'We couldn’t read your colours this time.';
 
   @override
@@ -857,4 +853,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coloursUpdated => 'Your colours are updated.';
+
+  @override
+  String get wardrobeEmpty => 'Add photos of outfits you own.';
+
+  @override
+  String get addOutfit => 'Add an outfit';
+
+  @override
+  String get addOutfitLine =>
+      'A photo of an outfit you own, and what it’s for.';
+
+  @override
+  String get outfitName => 'Name';
+
+  @override
+  String get outfitColour => 'Colour';
+
+  @override
+  String get outfitWeather => 'Weather';
+
+  @override
+  String get outfitOccasion => 'Occasion';
+
+  @override
+  String get saveOutfit => 'Save to my wardrobe';
+
+  @override
+  String get removeOutfit => 'Remove from my wardrobe';
+
+  @override
+  String get removeOutfitTitle => 'Remove this outfit?';
+
+  @override
+  String get colourBlack => 'Black';
+
+  @override
+  String get colourWhite => 'White';
+
+  @override
+  String get colourGrey => 'Grey';
+
+  @override
+  String get colourBeige => 'Beige';
+
+  @override
+  String get colourBrown => 'Brown';
+
+  @override
+  String get colourNavy => 'Navy';
+
+  @override
+  String get colourBlue => 'Blue';
+
+  @override
+  String get colourGreen => 'Green';
+
+  @override
+  String get colourRed => 'Red';
+
+  @override
+  String get colourPink => 'Pink';
+
+  @override
+  String get colourPurple => 'Purple';
+
+  @override
+  String get colourYellow => 'Yellow';
+
+  @override
+  String get colourOrange => 'Orange';
+
+  @override
+  String get colourMixed => 'Mixed';
 }

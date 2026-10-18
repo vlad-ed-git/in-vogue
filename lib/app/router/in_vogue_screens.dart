@@ -38,6 +38,9 @@ import 'package:in_vogue/features/setup/presentation/screens/picks_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/sign_in_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/welcome_screen.dart';
 import 'package:in_vogue/features/setup/presentation/screens/your_photo_screen.dart';
+import 'package:in_vogue/features/wardrobe/presentation/bloc/add_outfit_bloc.dart';
+import 'package:in_vogue/features/wardrobe/presentation/bloc/wardrobe_bloc.dart';
+import 'package:in_vogue/features/wardrobe/presentation/screens/add_outfit_screen.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 
 /// The app's screens, with their blocs from [locator].
@@ -217,6 +220,9 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
           create: (_) => locator<ColoursBloc>()..add(const ColoursShown()),
         ),
         BlocProvider(
+          create: (_) => locator<WardrobeBloc>()..add(const WardrobeStarted()),
+        ),
+        BlocProvider(
           create: (_) =>
               locator<PhotoBloc>(param1: PhotoRole.face)
                 ..add(const PhotoLoaded()),
@@ -230,7 +236,19 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
           context.read<PhotoBloc>().add(const PhotoLoaded());
           context.read<ColoursBloc>().add(const ColoursShown());
         },
-        child: const MirrorScreen(),
+        child: Builder(
+          builder: (context) => MirrorScreen(
+            onAddOutfit: () => _push(
+              context,
+              (context) => BlocProvider(
+                create: (_) => locator<AddOutfitBloc>(),
+                child: AddOutfitScreen(
+                  onDone: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     ),
   },

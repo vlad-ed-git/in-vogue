@@ -805,10 +805,6 @@
   },
   "coloursUnclear": "The photo wasn’t clear, so this is a starting point. A selfie in daylight, facing forward, reads better.",
   "wardrobeTitle": "My wardrobe",
-  "wardrobeLine": "Soon you can add your own clothes, and your outfits will use them.",
-  "@wardrobeLine": {
-    "description": "A stand-in until wardrobe uploads are built."
-  },
   "colourFailed": "We couldn’t read your colours this time.",
   "colourPhotoProblem": "We couldn’t read your face in this photo. A close-up, facing forward in daylight, works best.",
   "colourNoCredit": "No more colour readings can be made for now.",
@@ -823,5 +819,41 @@
   "coloursUpdated": "Your colours are updated.",
   "@coloursUpdated": {
     "description": "After a redone skin analysis."
+  },
+  "wardrobeEmpty": "Add photos of outfits you own.",
+  "@wardrobeEmpty": {
+    "description": "Mirror, when the wardrobe is empty."
+  },
+  "addOutfit": "Add an outfit",
+  "@addOutfit": {
+    "description": "The button on Mirror and the title of the screen it opens."
+  },
+  "addOutfitLine": "A photo of an outfit you own, and what it’s for.",
+  "outfitName": "Name",
+  "@outfitName": {
+    "description": "The name the person gives an outfit they own."
+  },
+  "outfitColour": "Colour",
+  "outfitWeather": "Weather",
+  "outfitOccasion": "Occasion",
+  "saveOutfit": "Save to my wardrobe",
+  "removeOutfit": "Remove from my wardrobe",
+  "removeOutfitTitle": "Remove this outfit?",
+  "colourBlack": "Black",
+  "colourWhite": "White",
+  "colourGrey": "Grey",
+  "colourBeige": "Beige",
+  "colourBrown": "Brown",
+  "colourNavy": "Navy",
+  "colourBlue": "Blue",
+  "colourGreen": "Green",
+  "colourRed": "Red",
+  "colourPink": "Pink",
+  "colourPurple": "Purple",
+  "colourYellow": "Yellow",
+  "colourOrange": "Orange",
+  "colourMixed": "Mixed",
+  "@colourMixed": {
+    "description": "Several colours, or a print."
   }
 }

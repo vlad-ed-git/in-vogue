@@ -9,6 +9,7 @@ import 'package:in_vogue/features/colours/domain/services/season_rules.dart';
 import 'package:in_vogue/features/colours/presentation/bloc/colours_bloc.dart';
 import 'package:in_vogue/features/colours/presentation/screens/mirror_screen.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
+import 'package:in_vogue/features/wardrobe/presentation/bloc/wardrobe_bloc.dart';
 import 'package:mocktail/mocktail.dart' as mocktail;
 
 import '../../helpers/pump_in_vogue.dart';
@@ -18,6 +19,20 @@ class _MockColoursBloc extends MockBloc<ColoursEvent, ColoursState>
 
 class _MockPhotoBloc extends MockBloc<PhotoEvent, PhotoState>
     implements PhotoBloc {}
+
+class _MockWardrobeBloc extends MockBloc<WardrobeEvent, WardrobeState>
+    implements WardrobeBloc {}
+
+/// An empty wardrobe, read.
+_MockWardrobeBloc _wardrobe() {
+  final bloc = _MockWardrobeBloc();
+  whenListen(
+    bloc,
+    const Stream<WardrobeState>.empty(),
+    initialState: const WardrobeState(status: WardrobeStatus.ready),
+  );
+  return bloc;
+}
 
 /// Golden blonde hair on peachy fair skin: Light Spring.
 const _colours = FaceColours(
@@ -58,8 +73,9 @@ void main() {
         providers: [
           BlocProvider<ColoursBloc>.value(value: colours),
           BlocProvider<PhotoBloc>.value(value: photo),
+          BlocProvider<WardrobeBloc>.value(value: _wardrobe()),
         ],
-        child: const MirrorScreen(),
+        child: MirrorScreen(onAddOutfit: () {}),
       ),
       scroll: false,
       size: size,
@@ -209,8 +225,9 @@ void main() {
         providers: [
           BlocProvider<ColoursBloc>.value(value: colours),
           BlocProvider<PhotoBloc>.value(value: photo),
+          BlocProvider<WardrobeBloc>.value(value: _wardrobe()),
         ],
-        child: const MirrorScreen(),
+        child: MirrorScreen(onAddOutfit: () {}),
       ),
       scroll: false,
     );

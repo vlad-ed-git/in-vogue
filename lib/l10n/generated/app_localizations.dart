@@ -1383,12 +1383,6 @@ abstract class AppLocalizations {
   /// **'My wardrobe'**
   String get wardrobeTitle;
 
-  /// A stand-in until wardrobe uploads are built.
-  ///
-  /// In en, this message translates to:
-  /// **'Soon you can add your own clothes, and your outfits will use them.'**
-  String get wardrobeLine;
-
   /// No description provided for @colourFailed.
   ///
   /// In en, this message translates to:
@@ -1442,6 +1436,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your colours are updated.'**
   String get coloursUpdated;
+
+  /// Mirror, when the wardrobe is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photos of outfits you own.'**
+  String get wardrobeEmpty;
+
+  /// The button on Mirror and the title of the screen it opens.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an outfit'**
+  String get addOutfit;
+
+  /// No description provided for @addOutfitLine.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo of an outfit you own, and what it’s for.'**
+  String get addOutfitLine;
+
+  /// The name the person gives an outfit they own.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get outfitName;
+
+  /// No description provided for @outfitColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get outfitColour;
+
+  /// No description provided for @outfitWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather'**
+  String get outfitWeather;
+
+  /// No description provided for @outfitOccasion.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasion'**
+  String get outfitOccasion;
+
+  /// No description provided for @saveOutfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to my wardrobe'**
+  String get saveOutfit;
+
+  /// No description provided for @removeOutfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from my wardrobe'**
+  String get removeOutfit;
+
+  /// No description provided for @removeOutfitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this outfit?'**
+  String get removeOutfitTitle;
+
+  /// No description provided for @colourBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get colourBlack;
+
+  /// No description provided for @colourWhite.
+  ///
+  /// In en, this message translates to:
+  /// **'White'**
+  String get colourWhite;
+
+  /// No description provided for @colourGrey.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get colourGrey;
+
+  /// No description provided for @colourBeige.
+  ///
+  /// In en, this message translates to:
+  /// **'Beige'**
+  String get colourBeige;
+
+  /// No description provided for @colourBrown.
+  ///
+  /// In en, this message translates to:
+  /// **'Brown'**
+  String get colourBrown;
+
+  /// No description provided for @colourNavy.
+  ///
+  /// In en, this message translates to:
+  /// **'Navy'**
+  String get colourNavy;
+
+  /// No description provided for @colourBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get colourBlue;
+
+  /// No description provided for @colourGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get colourGreen;
+
+  /// No description provided for @colourRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get colourRed;
+
+  /// No description provided for @colourPink.
+  ///
+  /// In en, this message translates to:
+  /// **'Pink'**
+  String get colourPink;
+
+  /// No description provided for @colourPurple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get colourPurple;
+
+  /// No description provided for @colourYellow.
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow'**
+  String get colourYellow;
+
+  /// No description provided for @colourOrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get colourOrange;
+
+  /// Several colours, or a print.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get colourMixed;
 }
 
 class _AppLocalizationsDelegate

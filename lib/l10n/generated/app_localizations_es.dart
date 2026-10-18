@@ -827,10 +827,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get wardrobeTitle => 'Mi armario';
 
   @override
-  String get wardrobeLine =>
-      'Pronto podrás añadir tu propia ropa y tus conjuntos la usarán.';
-
-  @override
   String get colourFailed => 'Esta vez no pudimos analizar tus colores.';
 
   @override
@@ -860,4 +856,76 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get coloursUpdated => 'Tus colores están actualizados.';
+
+  @override
+  String get wardrobeEmpty => 'Añade fotos de conjuntos que tengas.';
+
+  @override
+  String get addOutfit => 'Añadir un conjunto';
+
+  @override
+  String get addOutfitLine => 'Una foto de un conjunto tuyo y para qué es.';
+
+  @override
+  String get outfitName => 'Nombre';
+
+  @override
+  String get outfitColour => 'Color';
+
+  @override
+  String get outfitWeather => 'Tiempo';
+
+  @override
+  String get outfitOccasion => 'Ocasión';
+
+  @override
+  String get saveOutfit => 'Guardar en mi armario';
+
+  @override
+  String get removeOutfit => 'Quitar de mi armario';
+
+  @override
+  String get removeOutfitTitle => '¿Quitar este conjunto?';
+
+  @override
+  String get colourBlack => 'Negro';
+
+  @override
+  String get colourWhite => 'Blanco';
+
+  @override
+  String get colourGrey => 'Gris';
+
+  @override
+  String get colourBeige => 'Beis';
+
+  @override
+  String get colourBrown => 'Marrón';
+
+  @override
+  String get colourNavy => 'Azul marino';
+
+  @override
+  String get colourBlue => 'Azul';
+
+  @override
+  String get colourGreen => 'Verde';
+
+  @override
+  String get colourRed => 'Rojo';
+
+  @override
+  String get colourPink => 'Rosa';
+
+  @override
+  String get colourPurple => 'Morado';
+
+  @override
+  String get colourYellow => 'Amarillo';
+
+  @override
+  String get colourOrange => 'Naranja';
+
+  @override
+  String get colourMixed => 'Varios';
 }

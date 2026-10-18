@@ -36,6 +36,7 @@ import 'package:in_vogue/features/settings/di/init.dart' as settings_di;
 import 'package:in_vogue/features/setup/di/init.dart' as setup_di;
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/get_setup_step.dart';
+import 'package:in_vogue/features/wardrobe/di/init.dart' as wardrobe_di;
 import 'package:in_vogue/features/weather/di/init.dart' as weather_di;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
@@ -128,6 +129,7 @@ abstract final class MainInit {
       account_di.init(locator);
       outfits_di.init(locator);
       colours_di.init(locator);
+      wardrobe_di.init(locator);
       home_di.init(locator);
       settings_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());

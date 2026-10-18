@@ -780,9 +780,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get wardrobeTitle => '我的衣橱';
 
   @override
-  String get wardrobeLine => '很快你就可以添加自己的衣服，搭配会用上它们。';
-
-  @override
   String get colourFailed => '这次没能分析出你的颜色。';
 
   @override
@@ -808,4 +805,76 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get coloursUpdated => '你的颜色已更新。';
+
+  @override
+  String get wardrobeEmpty => '添加你自己衣服搭配的照片。';
+
+  @override
+  String get addOutfit => '添加一套搭配';
+
+  @override
+  String get addOutfitLine => '一张你自己的搭配照片，以及它适合什么。';
+
+  @override
+  String get outfitName => '名称';
+
+  @override
+  String get outfitColour => '颜色';
+
+  @override
+  String get outfitWeather => '天气';
+
+  @override
+  String get outfitOccasion => '场合';
+
+  @override
+  String get saveOutfit => '保存到我的衣橱';
+
+  @override
+  String get removeOutfit => '从我的衣橱移除';
+
+  @override
+  String get removeOutfitTitle => '要移除这套搭配吗？';
+
+  @override
+  String get colourBlack => '黑色';
+
+  @override
+  String get colourWhite => '白色';
+
+  @override
+  String get colourGrey => '灰色';
+
+  @override
+  String get colourBeige => '米色';
+
+  @override
+  String get colourBrown => '棕色';
+
+  @override
+  String get colourNavy => '藏青色';
+
+  @override
+  String get colourBlue => '蓝色';
+
+  @override
+  String get colourGreen => '绿色';
+
+  @override
+  String get colourRed => '红色';
+
+  @override
+  String get colourPink => '粉色';
+
+  @override
+  String get colourPurple => '紫色';
+
+  @override
+  String get colourYellow => '黄色';
+
+  @override
+  String get colourOrange => '橙色';
+
+  @override
+  String get colourMixed => '多色';
 }
