@@ -9,6 +9,7 @@ import 'package:in_vogue/core/utils/failure_message.dart';
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
 import 'package:in_vogue/features/colours/presentation/bloc/colours_bloc.dart';
 import 'package:in_vogue/features/colours/presentation/colours_text.dart';
+import 'package:in_vogue/features/colours/presentation/widgets/analysis_sheet.dart';
 import 'package:in_vogue/features/colours/presentation/widgets/palette_colour_sheet.dart';
 import 'package:in_vogue/features/photos/presentation/bloc/photo_bloc.dart';
 import 'package:in_vogue/features/photos/presentation/widgets/photo_notices.dart';
@@ -177,6 +178,13 @@ class MirrorScreen extends StatelessWidget {
       Text(
         reading.facts(l10n),
         style: InVogueType.meta.copyWith(color: InVogueColors.graphite),
+      ),
+      Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextLink(
+          label: l10n.analysisLink,
+          onTap: () => showAnalysisSheet(context: context, reading: reading),
+        ),
       ),
       if (!reading.clear)
         Padding(

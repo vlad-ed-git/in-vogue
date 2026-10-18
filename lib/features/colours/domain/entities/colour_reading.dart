@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:in_vogue/features/colours/domain/entities/face_colours.dart';
 
 /// Whether the skin leans golden, pink or neither.
 enum Undertone { warm, neutral, cool }
@@ -46,6 +47,7 @@ class ColourPalette extends Equatable {
 /// What a face's colours say: the season, why, and its palette.
 class ColourReading extends Equatable {
   const ColourReading({
+    required this.colours,
     required this.season,
     required this.undertone,
     required this.depth,
@@ -54,6 +56,8 @@ class ColourReading extends Equatable {
     required this.clear,
   });
 
+  /// The colours it was read from.
+  final FaceColours colours;
   final ColourSeason season;
   final Undertone undertone;
   final Depth depth;
@@ -65,6 +69,7 @@ class ColourReading extends Equatable {
 
   @override
   List<Object?> get props => [
+    colours,
     season,
     undertone,
     depth,

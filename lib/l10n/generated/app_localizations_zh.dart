@@ -973,4 +973,70 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get tipGoEasy => '远离脸部，或穿在下身：裤子和裙子。';
+
+  @override
+  String get analysisLink => '查看完整分析';
+
+  @override
+  String get analysisTitle => '你的肤色分析';
+
+  @override
+  String get analysisRead => '从你的照片读取';
+
+  @override
+  String get featureSkin => '皮肤';
+
+  @override
+  String get featureHair => '头发';
+
+  @override
+  String get featureBrows => '眉毛';
+
+  @override
+  String get featureEyes => '眼睛';
+
+  @override
+  String get featureLips => '嘴唇';
+
+  @override
+  String get analysisUndertone => '肤色底调';
+
+  @override
+  String get analysisDepth => '深浅';
+
+  @override
+  String get analysisContrast => '对比度';
+
+  @override
+  String undertoneAbout(String undertone) {
+    String _temp0 = intl.Intl.selectLogic(undertone, {
+      'warm': '暖调：你的皮肤偏金黄，所以温暖的大地色和金色会让你更有光彩。',
+      'cool': '冷调：你的皮肤偏粉，所以清爽的冷色最适合你。',
+      'other': '中性：你的皮肤介于金黄与粉之间，两种都能穿；你的发色会决定偏向。',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String depthAbout(String depth) {
+    String _temp0 = intl.Intl.selectLogic(depth, {
+      'light': '浅：你的皮肤和头发偏浅，所以更浅、更柔和的颜色让你更出众。',
+      'deep': '深：你的整体色彩偏深，所以浓郁深沉的颜色最适合你。',
+      'other': '中等：你的整体色彩居中，所以中等深浅的颜色最适合你。',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String contrastAbout(String contrast) {
+    String _temp0 = intl.Intl.selectLogic(contrast, {
+      'high': '高：你的发色与肤色对比鲜明，所以大胆的搭配最适合你。',
+      'low': '低：你的五官色彩柔和融合，所以同色系搭配最适合你。',
+      'other': '中等：你的五官对比柔和，所以中等对比效果最好。',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get analysisNote => 'YouCam 从你的照片读取这些颜色。季型是我们据此给出的建议。';
 }

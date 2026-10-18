@@ -106,6 +106,7 @@ abstract final class SeasonRules {
             : ColourSeason.trueSummer,
     };
     return ColourReading(
+      colours: colours,
       season: season,
       undertone: undertone,
       depth: depth,

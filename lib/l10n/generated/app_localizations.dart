@@ -1604,6 +1604,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep it away from your face, or wear it lower down: trousers and skirts.'**
   String get tipGoEasy;
+
+  /// The link under the season on Mirror.
+  ///
+  /// In en, this message translates to:
+  /// **'See your full analysis'**
+  String get analysisLink;
+
+  /// No description provided for @analysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your skin analysis'**
+  String get analysisTitle;
+
+  /// No description provided for @analysisRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read from your photo'**
+  String get analysisRead;
+
+  /// No description provided for @featureSkin.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin'**
+  String get featureSkin;
+
+  /// No description provided for @featureHair.
+  ///
+  /// In en, this message translates to:
+  /// **'Hair'**
+  String get featureHair;
+
+  /// No description provided for @featureBrows.
+  ///
+  /// In en, this message translates to:
+  /// **'Brows'**
+  String get featureBrows;
+
+  /// No description provided for @featureEyes.
+  ///
+  /// In en, this message translates to:
+  /// **'Eyes'**
+  String get featureEyes;
+
+  /// No description provided for @featureLips.
+  ///
+  /// In en, this message translates to:
+  /// **'Lips'**
+  String get featureLips;
+
+  /// No description provided for @analysisUndertone.
+  ///
+  /// In en, this message translates to:
+  /// **'Undertone'**
+  String get analysisUndertone;
+
+  /// No description provided for @analysisDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth'**
+  String get analysisDepth;
+
+  /// No description provided for @analysisContrast.
+  ///
+  /// In en, this message translates to:
+  /// **'Contrast'**
+  String get analysisContrast;
+
+  /// What the undertone means for the person.
+  ///
+  /// In en, this message translates to:
+  /// **'{undertone, select, warm{Warm: your skin leans golden, so warm, earthy and golden colours glow on you.} cool{Cool: your skin leans pink, so cool, crisp colours suit you.} other{Neutral: your skin sits between golden and pink, so you can wear both; your hair tips the balance.}}'**
+  String undertoneAbout(String undertone);
+
+  /// What the depth means for the person.
+  ///
+  /// In en, this message translates to:
+  /// **'{depth, select, light{Light: your skin and hair are light, so lighter, softer colours keep you in focus.} deep{Deep: your colouring is deep, so rich, deep colours suit you.} other{Medium: your colouring sits in the middle, so mid-depth colours suit you best.}}'**
+  String depthAbout(String depth);
+
+  /// What the contrast means for the person.
+  ///
+  /// In en, this message translates to:
+  /// **'{contrast, select, high{High: your hair stands out against your skin, so bold pairings suit you.} low{Low: your features blend softly, so tone-on-tone looks suit you.} other{Medium: your features contrast gently, so medium contrast works best.}}'**
+  String contrastAbout(String contrast);
+
+  /// No description provided for @analysisNote.
+  ///
+  /// In en, this message translates to:
+  /// **'YouCam reads these colours from your photo. The season is our suggestion from them.'**
+  String get analysisNote;
 }
 
 class _AppLocalizationsDelegate

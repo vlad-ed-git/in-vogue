@@ -867,5 +867,47 @@
   },
   "tipSuits": "Wear it near your face: tops, shirts, knits and jackets.",
   "tipNeutrals": "A base that goes with your colours: trousers, skirts and coats.",
-  "tipGoEasy": "Keep it away from your face, or wear it lower down: trousers and skirts."
+  "tipGoEasy": "Keep it away from your face, or wear it lower down: trousers and skirts.",
+  "analysisLink": "See your full analysis",
+  "@analysisLink": {
+    "description": "The link under the season on Mirror."
+  },
+  "analysisTitle": "Your skin analysis",
+  "analysisRead": "Read from your photo",
+  "featureSkin": "Skin",
+  "featureHair": "Hair",
+  "featureBrows": "Brows",
+  "featureEyes": "Eyes",
+  "featureLips": "Lips",
+  "analysisUndertone": "Undertone",
+  "analysisDepth": "Depth",
+  "analysisContrast": "Contrast",
+  "undertoneAbout": "{undertone, select, warm{Warm: your skin leans golden, so warm, earthy and golden colours glow on you.} cool{Cool: your skin leans pink, so cool, crisp colours suit you.} other{Neutral: your skin sits between golden and pink, so you can wear both; your hair tips the balance.}}",
+  "@undertoneAbout": {
+    "description": "What the undertone means for the person.",
+    "placeholders": {
+      "undertone": {
+        "type": "String"
+      }
+    }
+  },
+  "depthAbout": "{depth, select, light{Light: your skin and hair are light, so lighter, softer colours keep you in focus.} deep{Deep: your colouring is deep, so rich, deep colours suit you.} other{Medium: your colouring sits in the middle, so mid-depth colours suit you best.}}",
+  "@depthAbout": {
+    "description": "What the depth means for the person.",
+    "placeholders": {
+      "depth": {
+        "type": "String"
+      }
+    }
+  },
+  "contrastAbout": "{contrast, select, high{High: your hair stands out against your skin, so bold pairings suit you.} low{Low: your features blend softly, so tone-on-tone looks suit you.} other{Medium: your features contrast gently, so medium contrast works best.}}",
+  "@contrastAbout": {
+    "description": "What the contrast means for the person.",
+    "placeholders": {
+      "contrast": {
+        "type": "String"
+      }
+    }
+  },
+  "analysisNote": "YouCam reads these colours from your photo. The season is our suggestion from them."
 }

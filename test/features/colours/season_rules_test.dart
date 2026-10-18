@@ -57,6 +57,11 @@ void main() {
     }
   });
 
+  test('keeps the colours it was read from', () {
+    final face = _face('#EBC9C3', '#1A1A1A', '#222222');
+    expect(SeasonRules.readingOf(face).colours, face);
+  });
+
   test('says why: undertone, depth and contrast', () {
     final reading = SeasonRules.readingOf(
       _face('#EBC9C3', '#1A1A1A', '#222222'),

@@ -1025,4 +1025,77 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tipGoEasy =>
       'Keep it away from your face, or wear it lower down: trousers and skirts.';
+
+  @override
+  String get analysisLink => 'See your full analysis';
+
+  @override
+  String get analysisTitle => 'Your skin analysis';
+
+  @override
+  String get analysisRead => 'Read from your photo';
+
+  @override
+  String get featureSkin => 'Skin';
+
+  @override
+  String get featureHair => 'Hair';
+
+  @override
+  String get featureBrows => 'Brows';
+
+  @override
+  String get featureEyes => 'Eyes';
+
+  @override
+  String get featureLips => 'Lips';
+
+  @override
+  String get analysisUndertone => 'Undertone';
+
+  @override
+  String get analysisDepth => 'Depth';
+
+  @override
+  String get analysisContrast => 'Contrast';
+
+  @override
+  String undertoneAbout(String undertone) {
+    String _temp0 = intl.Intl.selectLogic(undertone, {
+      'warm':
+          'Warm: your skin leans golden, so warm, earthy and golden colours glow on you.',
+      'cool': 'Cool: your skin leans pink, so cool, crisp colours suit you.',
+      'other':
+          'Neutral: your skin sits between golden and pink, so you can wear both; your hair tips the balance.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String depthAbout(String depth) {
+    String _temp0 = intl.Intl.selectLogic(depth, {
+      'light':
+          'Light: your skin and hair are light, so lighter, softer colours keep you in focus.',
+      'deep': 'Deep: your colouring is deep, so rich, deep colours suit you.',
+      'other':
+          'Medium: your colouring sits in the middle, so mid-depth colours suit you best.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String contrastAbout(String contrast) {
+    String _temp0 = intl.Intl.selectLogic(contrast, {
+      'high':
+          'High: your hair stands out against your skin, so bold pairings suit you.',
+      'low': 'Low: your features blend softly, so tone-on-tone looks suit you.',
+      'other':
+          'Medium: your features contrast gently, so medium contrast works best.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get analysisNote =>
+      'YouCam reads these colours from your photo. The season is our suggestion from them.';
 }

@@ -1027,4 +1027,80 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get tipGoEasy =>
       'Mantenlo lejos de la cara o úsalo más abajo: pantalones y faldas.';
+
+  @override
+  String get analysisLink => 'Ver tu análisis completo';
+
+  @override
+  String get analysisTitle => 'Tu análisis de piel';
+
+  @override
+  String get analysisRead => 'Leído de tu foto';
+
+  @override
+  String get featureSkin => 'Piel';
+
+  @override
+  String get featureHair => 'Pelo';
+
+  @override
+  String get featureBrows => 'Cejas';
+
+  @override
+  String get featureEyes => 'Ojos';
+
+  @override
+  String get featureLips => 'Labios';
+
+  @override
+  String get analysisUndertone => 'Subtono';
+
+  @override
+  String get analysisDepth => 'Profundidad';
+
+  @override
+  String get analysisContrast => 'Contraste';
+
+  @override
+  String undertoneAbout(String undertone) {
+    String _temp0 = intl.Intl.selectLogic(undertone, {
+      'warm':
+          'Cálido: tu piel tira a dorado, así que los colores cálidos, tierra y dorados te iluminan.',
+      'cool':
+          'Frío: tu piel tira a rosado, así que te favorecen los colores fríos y nítidos.',
+      'other':
+          'Neutro: tu piel está entre dorado y rosado, así que puedes llevar ambos; tu pelo inclina la balanza.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String depthAbout(String depth) {
+    String _temp0 = intl.Intl.selectLogic(depth, {
+      'light':
+          'Claro: tu piel y tu pelo son claros, así que los colores más claros y suaves te favorecen.',
+      'deep':
+          'Profundo: tu colorido es profundo, así que te favorecen los colores intensos y profundos.',
+      'other':
+          'Medio: tu colorido está en un punto medio, así que te favorecen los colores de profundidad media.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String contrastAbout(String contrast) {
+    String _temp0 = intl.Intl.selectLogic(contrast, {
+      'high':
+          'Alto: tu pelo destaca sobre tu piel, así que te favorecen las combinaciones atrevidas.',
+      'low':
+          'Bajo: tus rasgos se funden con suavidad, así que te favorecen los looks tono sobre tono.',
+      'other':
+          'Medio: tus rasgos contrastan con suavidad, así que el contraste medio funciona mejor.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get analysisNote =>
+      'YouCam lee estos colores de tu foto. La estación es nuestra sugerencia a partir de ellos.';
 }

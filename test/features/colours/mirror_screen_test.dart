@@ -159,6 +159,58 @@ void main() {
     );
   });
 
+  testWidgets('See your full analysis opens what was read and what it '
+      'means', (tester) async {
+    await pumpMirror(
+      tester,
+      ColoursState(
+        status: ColoursStatus.ready,
+        reading: SeasonRules.readingOf(
+          const FaceColours(
+            skin: '#F3D3B5',
+            eyebrow: '#A07850',
+            lip: '#C98276',
+            hair: '#C9A26B',
+            eye: '#5A3B2B',
+            clear: true,
+          ),
+        ),
+      ),
+    );
+    await tester.tap(findLink('See your full analysis'));
+    await pumpWhileLoading(tester);
+    expect(find.text('Your skin analysis'), findsOneWidget);
+    for (final feature in ['Skin', 'Hair', 'Brows', 'Eyes', 'Lips']) {
+      expect(find.text(feature), findsOneWidget, reason: feature);
+    }
+    for (final about in [
+      'Warm: your skin leans golden, so warm, earthy and golden colours glow '
+          'on you.',
+      'Light: your skin and hair are light, so lighter, softer colours keep '
+          'you in focus.',
+      'Medium: your features contrast gently, so medium contrast works best.',
+    ]) {
+      await tester.ensureVisible(find.text(about));
+      expect(find.text(about), findsOneWidget);
+    }
+    await tester.ensureVisible(
+      find.text(
+        'YouCam reads these colours from your photo. The season is our '
+        'suggestion from them.',
+      ),
+    );
+  });
+
+  testWidgets('the full analysis leaves out eyes read before they were kept', (
+    tester,
+  ) async {
+    await pumpMirror(tester, ready);
+    await tester.tap(findLink('See your full analysis'));
+    await pumpWhileLoading(tester);
+    expect(find.text('Skin'), findsOneWidget);
+    expect(find.text('Eyes'), findsNothing);
+  });
+
   testWidgets('says when the photo was too unclear to trust', (tester) async {
     await pumpMirror(
       tester,
