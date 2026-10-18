@@ -5,6 +5,7 @@ import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/presentation/components/weather/weather_glyph.dart';
 import 'package:in_vogue/core/presentation/components/weather/weather_glyph_paths.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/home_widget_data_source.dart';
+import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
 
 const _extension = 'ios/In Vogue Widget';
 
@@ -69,6 +70,33 @@ void main() {
       );
     }
     expect(swift, contains('"widget_glyph_"'));
+  });
+
+  test('the morning refresh may run in the background: its task is '
+      'permitted, and registered at launch with the app\'s plugins', () {
+    const task = WorkmanagerWidgetRefreshScheduler.task;
+    final info = File('ios/Runner/Info.plist').readAsStringSync();
+    expect(
+      info,
+      matches(
+        RegExp(
+          r'<key>BGTaskSchedulerPermittedIdentifiers</key>\s*<array>\s*'
+          '<string>$task</string>',
+        ),
+      ),
+    );
+    expect(
+      info,
+      matches(
+        RegExp(r'<key>UIBackgroundModes</key>\s*<array>\s*<string>fetch'),
+      ),
+    );
+    final delegate = File('ios/Runner/AppDelegate.swift').readAsStringSync();
+    expect(delegate, contains('withIdentifier: "$task"'));
+    expect(
+      delegate,
+      contains('GeneratedPluginRegistrant.register(with: registry)'),
+    );
   });
 
   test("the widget sets its type in the app's fonts", () {
