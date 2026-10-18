@@ -7,9 +7,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.text.Layout
 import android.text.SpannableString
 import android.text.Spanned
+import android.text.TextPaint
 import android.text.style.RelativeSizeSpan
 import android.util.TypedValue
 import android.view.View
@@ -39,8 +42,9 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
   ) {
     val content = widgetData.getString(CONTENT_KEY, null)?.let(::parse)
     for (id in appWidgetIds) {
-      val size = sizeOf(appWidgetManager.getAppWidgetOptions(id))
-      appWidgetManager.updateAppWidget(id, views(context, content, size))
+      val options = appWidgetManager.getAppWidgetOptions(id)
+      val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+      appWidgetManager.updateAppWidget(id, views(context, content, sizeOf(options), width))
     }
   }
 
@@ -82,7 +86,7 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
   /** The day on show, with its kicker, date line and spoken label as they read now. */
   private class Shown(val day: Day, val kicker: String, val dateLine: String, val spoken: String)
 
-  private fun views(context: Context, content: Content?, size: Size): RemoteViews {
+  private fun views(context: Context, content: Content?, size: Size, width: Int): RemoteViews {
     val shown = content?.let { shown(it, Calendar.getInstance()) }
     if (shown == null) {
       return RemoteViews(context.packageName, R.layout.in_vogue_widget_empty).apply {
@@ -100,13 +104,12 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
           if (shown.kicker.isEmpty()) View.GONE else View.VISIBLE,
       )
       if (size != Size.SMALL) setTextViewText(R.id.widget_date, shown.dateLine)
-      setTextViewText(R.id.widget_numeral, numeral(day.temperature))
-      // Three figures, or a minus sign, would not fit at full size.
-      val figures = day.temperature.toString().length
+      val numeral = numeral(day.temperature)
+      setTextViewText(R.id.widget_numeral, numeral)
       setTextViewTextSize(
           R.id.widget_numeral,
           TypedValue.COMPLEX_UNIT_DIP,
-          if (figures > 2) size.numeral * 0.7f else size.numeral,
+          numeralSize(context, numeral, size, width),
       )
       setImageViewResource(R.id.widget_glyph, glyph(day.glyph))
       setTextViewText(R.id.widget_condition, day.condition)
@@ -188,6 +191,46 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
         "wind" -> R.drawable.widget_glyph_wind
         else -> R.drawable.widget_glyph_cloud
       }
+
+  /**
+   * The numeral's size in dp: its size class's, or smaller so [numeral] fits on one line in the
+   * room the slab of a widget [width] dp wide leaves it.
+   */
+  private fun numeralSize(context: Context, numeral: CharSequence, size: Size, width: Int): Float {
+    // The slab less its padding, plus the numeral's -5 dp start margin.
+    val room =
+        when (size) {
+          Size.SMALL -> width - 25f
+          // The condition keeps the rest of the row.
+          Size.MEDIUM -> (width * 206f / 338f - 25f) * 0.72f
+          Size.LARGE -> width * 154f / 338f - 11f
+        }
+    if (width == 0 || room <= 0f) return size.numeral
+    val wide = measured(context, numeral, size.numeral) ?: estimated(numeral, size.numeral)
+    // A little to spare for the view's own rounding.
+    val fits = room * 0.96f
+    return if (wide <= fits) size.numeral else size.numeral * fits / wide
+  }
+
+  /** How wide [numeral] is at [textSize] in the widget's numeral type; null below Android 8. */
+  private fun measured(context: Context, numeral: CharSequence, textSize: Float): Float? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null
+    return runCatching {
+          val paint =
+              TextPaint().apply {
+                setTypeface(context.resources.getFont(R.font.sofia_sans_extra_condensed))
+                setFontVariationSettings("'wght' 300")
+                letterSpacing = -0.025f
+                this.textSize = textSize
+              }
+          Layout.getDesiredWidth(numeral, paint)
+        }
+        .getOrNull()
+  }
+
+  /** Below Android 8 the widget draws in the system font: its figures are wider than ours. */
+  private fun estimated(numeral: CharSequence, textSize: Float): Float =
+      textSize * (0.56f * (numeral.length - 1) + 0.4f)
 
   /** The temperature with its degree sign at 86%. */
   private fun numeral(temperature: Int): CharSequence =

@@ -99,6 +99,14 @@ void main() {
     );
   });
 
+  test('the numeral stays on one line and shrinks to fit any width', () {
+    final numeral = RegExp(
+      r'struct Numeral: View \{[\s\S]*?\n\}',
+    ).firstMatch(swift)!.group(0)!;
+    expect(numeral, contains('.lineLimit(1)'));
+    expect(numeral, contains('.minimumScaleFactor(0.25)'));
+  });
+
   test("the widget sets its type in the app's fonts", () {
     final info = File('$_extension/Info.plist').readAsStringSync();
     for (final (file, postScriptName) in [

@@ -65,6 +65,18 @@ void main() {
     }
   });
 
+  test('the numeral is sized to fit the widget\'s width on one line, so '
+      '"26°" never shows as "2"', () {
+    expect(provider, contains('OPTION_APPWIDGET_MIN_WIDTH'));
+    expect(provider, contains('Layout.getDesiredWidth'));
+    expect(provider, contains('numeralSize(context, numeral, size, width)'));
+    final styles = File('$_res/values/widget_styles.xml').readAsStringSync();
+    final numeral = RegExp(
+      r'<style name="WidgetNumeral"[^>]*>([\s\S]*?)</style>',
+    ).firstMatch(styles)!.group(1)!;
+    expect(numeral, contains('<item name="android:maxLines">1</item>'));
+  });
+
   test("the widget sets its type in the app's fonts", () {
     for (final font in ['sofia_sans', 'sofia_sans_extra_condensed']) {
       expect(File('$_res/font/$font.ttf').existsSync(), isTrue, reason: font);

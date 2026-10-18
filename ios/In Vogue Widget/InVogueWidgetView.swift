@@ -170,7 +170,7 @@ struct DateLine: View {
 }
 
 /// The temperature, light and tight, with a lighter degree sign at 86%. It
-/// shrinks only when the figures don't fit.
+/// stays on one line, shrinking only when the figures don't fit the width.
 struct Numeral: View {
   let temperature: Int
   let size: CGFloat
@@ -181,7 +181,7 @@ struct Numeral: View {
       .tracking(-0.025 * size)
       .foregroundStyle(WidgetColor.rose)
       .lineLimit(1)
-      .minimumScaleFactor(0.5)
+      .minimumScaleFactor(0.25)
       // The spec's line height, 0.74 of the size, out of the font's 1.2.
       .padding(.top, -0.345 * size)
       .padding(.bottom, -0.115 * size)
