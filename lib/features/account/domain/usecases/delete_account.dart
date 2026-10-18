@@ -13,6 +13,7 @@ import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_reposit
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
+import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_repository.dart';
 
 /// Deletes the signed-in account: the person confirms with their provider,
 /// then the account's data and files go from the server, then the account
@@ -29,6 +30,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     required this._days,
     required this._jobs,
     required this._analyses,
+    required this._wardrobe,
     required this._widget,
   });
 
@@ -41,6 +43,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
   final DayRepository _days;
   final TryOnJobRepository _jobs;
   final AnalysisJobRepository _analyses;
+  final WardrobeRepository _wardrobe;
   final HomeWidgetRepository _widget;
 
   @override
@@ -69,6 +72,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     await _days.forgetPictures(signedIn.id);
     await _jobs.clearAccount(signedIn.id);
     await _analyses.forgetAccount(signedIn.id);
+    await _wardrobe.forgetPhotos(signedIn.id);
     await _widget.clear();
     return const Right(unit);
   }

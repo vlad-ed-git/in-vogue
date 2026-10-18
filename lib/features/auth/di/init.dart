@@ -32,6 +32,7 @@ void init(GetIt locator) {
         profile: locator(),
         days: locator(),
         analyses: locator(),
+        wardrobe: locator(),
         widget: locator(),
       ),
     )

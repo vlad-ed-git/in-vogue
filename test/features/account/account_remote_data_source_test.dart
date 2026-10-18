@@ -16,6 +16,7 @@ const _collections = [
   'days',
   'suggestions',
   'colorProfiles',
+  'wardrobe',
   'tryOns',
 ];
 

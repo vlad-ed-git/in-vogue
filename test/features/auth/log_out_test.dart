@@ -9,6 +9,7 @@ import 'package:in_vogue/features/colours/domain/repositories/analysis_job_repos
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
+import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_repository.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -21,6 +22,7 @@ const _done = Right<Failure, Unit>(unit);
   ProfileRepository,
   DayRepository,
   AnalysisJobRepository,
+  WardrobeRepository,
   HomeWidgetRepository,
 ])
 void main() {
@@ -28,6 +30,7 @@ void main() {
   late MockProfileRepository profile;
   late MockDayRepository days;
   late MockAnalysisJobRepository analyses;
+  late MockWardrobeRepository wardrobe;
   late MockHomeWidgetRepository widget;
   late LogOut logOut;
 
@@ -36,12 +39,14 @@ void main() {
     profile = MockProfileRepository();
     days = MockDayRepository();
     analyses = MockAnalysisJobRepository();
+    wardrobe = MockWardrobeRepository();
     widget = MockHomeWidgetRepository();
     logOut = LogOut(
       auth: auth,
       profile: profile,
       days: days,
       analyses: analyses,
+      wardrobe: wardrobe,
       widget: widget,
     );
     when(
@@ -51,16 +56,18 @@ void main() {
     when(profile.clearName()).thenAnswer((_) async => _done);
     when(days.forgetPictures(any)).thenAnswer((_) async => _done);
     when(analyses.forgetAccount(any)).thenAnswer((_) async {});
+    when(wardrobe.forgetPhotos(any)).thenAnswer((_) async {});
     when(widget.clear()).thenAnswer((_) async => _done);
   });
 
-  test('signs out, then forgets the name, the account\'s outfit pictures '
-      'and its colour readings under way', () async {
+  test('signs out, then forgets the name, the account\'s outfit pictures, '
+      'its wardrobe\'s photos and its colour readings under way', () async {
     expect(await logOut(const NoParams()), _done);
     verifyInOrder([
       auth.signOut(),
       days.forgetPictures('uid-1'),
       analyses.forgetAccount('uid-1'),
+      wardrobe.forgetPhotos('uid-1'),
       widget.clear(),
       profile.clearName(),
     ]);
@@ -74,6 +81,7 @@ void main() {
     );
     verifyZeroInteractions(days);
     verifyZeroInteractions(analyses);
+    verifyZeroInteractions(wardrobe);
     verifyZeroInteractions(widget);
     verifyNever(profile.clearName());
   });

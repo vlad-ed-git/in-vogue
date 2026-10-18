@@ -7,10 +7,11 @@ import 'package:in_vogue/features/colours/domain/repositories/analysis_job_repos
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
+import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_repository.dart';
 
 /// Signs out, then forgets what the phone keeps for the account: its outfit
-/// pictures, its colour readings under way, what the widget shows, and its
-/// name, so the next account brings its own. The body and face photos and
+/// pictures, its wardrobe's photos, its colour readings under way, what the
+/// widget shows, and its name, so the next account brings its own. The body and face photos and
 /// the picks stay.
 class LogOut implements UseCase<Unit, NoParams> {
   const LogOut({
@@ -18,6 +19,7 @@ class LogOut implements UseCase<Unit, NoParams> {
     required this._profile,
     required this._days,
     required this._analyses,
+    required this._wardrobe,
     required this._widget,
   });
 
@@ -25,6 +27,7 @@ class LogOut implements UseCase<Unit, NoParams> {
   final ProfileRepository _profile;
   final DayRepository _days;
   final AnalysisJobRepository _analyses;
+  final WardrobeRepository _wardrobe;
   final HomeWidgetRepository _widget;
 
   @override
@@ -39,6 +42,7 @@ class LogOut implements UseCase<Unit, NoParams> {
       // One that cannot be removed does not undo the rest.
       await _days.forgetPictures(account.id);
       await _analyses.forgetAccount(account.id);
+      await _wardrobe.forgetPhotos(account.id);
       await _widget.clear();
     }
     return _profile.clearName();

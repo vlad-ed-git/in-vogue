@@ -60,6 +60,7 @@ void init(GetIt locator) {
         days: locator(),
         jobs: locator(),
         analyses: locator(),
+        wardrobe: locator(),
         widget: locator(),
       ),
     )

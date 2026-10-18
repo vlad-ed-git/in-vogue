@@ -17,6 +17,7 @@ import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_reposit
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
+import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_repository.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -34,6 +35,7 @@ const _done = Right<Failure, Unit>(unit);
   DayRepository,
   TryOnJobRepository,
   AnalysisJobRepository,
+  WardrobeRepository,
   HomeWidgetRepository,
 ])
 void main() {
@@ -46,6 +48,7 @@ void main() {
   late MockDayRepository days;
   late MockTryOnJobRepository jobs;
   late MockAnalysisJobRepository analyses;
+  late MockWardrobeRepository wardrobe;
   late MockHomeWidgetRepository widget;
   late DeleteAccount delete;
 
@@ -59,6 +62,7 @@ void main() {
     days = MockDayRepository();
     jobs = MockTryOnJobRepository();
     analyses = MockAnalysisJobRepository();
+    wardrobe = MockWardrobeRepository();
     widget = MockHomeWidgetRepository();
     delete = DeleteAccount(
       auth: auth,
@@ -70,6 +74,7 @@ void main() {
       days: days,
       jobs: jobs,
       analyses: analyses,
+      wardrobe: wardrobe,
       widget: widget,
     );
     when(
@@ -85,6 +90,7 @@ void main() {
     when(days.forgetPictures(any)).thenAnswer((_) async => _done);
     when(jobs.clearAccount(any)).thenAnswer((_) async => _done);
     when(analyses.forgetAccount(any)).thenAnswer((_) async {});
+    when(wardrobe.forgetPhotos(any)).thenAnswer((_) async {});
     when(widget.clear()).thenAnswer((_) async => _done);
   });
 
@@ -95,6 +101,7 @@ void main() {
     verifyNever(location.forget());
     verifyNever(days.forgetPictures(any));
     verifyNever(analyses.forgetAccount(any));
+    verifyNever(wardrobe.forgetPhotos(any));
     verifyNever(widget.clear());
   }
 
@@ -114,6 +121,7 @@ void main() {
         days.forgetPictures('uid-1'),
         jobs.clearAccount('uid-1'),
         analyses.forgetAccount('uid-1'),
+        wardrobe.forgetPhotos('uid-1'),
         widget.clear(),
       ]);
     },

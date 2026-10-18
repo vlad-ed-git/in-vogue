@@ -59,7 +59,7 @@ import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 import 'package:mockito/mockito.dart';
 
 import 'features/auth/log_out_test.mocks.dart'
-    show MockAnalysisJobRepository, MockDayRepository;
+    show MockAnalysisJobRepository, MockDayRepository, MockWardrobeRepository;
 import 'features/auth/sign_in_bloc_test.mocks.dart';
 import 'features/location/location_repository_test.mocks.dart';
 import 'features/photos/photo_repository_test.mocks.dart';
@@ -179,6 +179,7 @@ void main() {
             profile: profile,
             days: MockDayRepository(),
             analyses: MockAnalysisJobRepository(),
+            wardrobe: MockWardrobeRepository(),
             widget: const UnavailableHomeWidgetRepository(),
           ),
         ),

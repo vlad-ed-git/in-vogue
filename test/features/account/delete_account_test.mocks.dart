@@ -27,13 +27,13 @@ import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.d
 import 'package:in_vogue/features/colours/domain/repositories/analysis_job_repository.dart'
     as _i25;
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart'
-    as _i27;
-import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart'
-    as _i28;
-import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
     as _i29;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart'
+    as _i30;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
+    as _i31;
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart'
-    as _i26;
+    as _i28;
 import 'package:in_vogue/features/location/domain/entities/user_location.dart'
     as _i19;
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart'
@@ -55,6 +55,10 @@ import 'package:in_vogue/features/photos/domain/repositories/photo_repository.da
     as _i12;
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart'
     as _i17;
+import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart'
+    as _i27;
+import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_repository.dart'
+    as _i26;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -965,11 +969,85 @@ class MockAnalysisJobRepository extends _i1.Mock
           as _i4.Future<void>);
 }
 
+/// A class which mocks [WardrobeRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockWardrobeRepository extends _i1.Mock
+    implements _i26.WardrobeRepository {
+  MockWardrobeRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Stream<_i2.Either<_i5.Failure, List<_i27.WardrobeOutfit>>> watch(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#watch, [accountId]),
+            returnValue:
+                _i4.Stream<
+                  _i2.Either<_i5.Failure, List<_i27.WardrobeOutfit>>
+                >.empty(),
+          )
+          as _i4.Stream<_i2.Either<_i5.Failure, List<_i27.WardrobeOutfit>>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i27.WardrobeOutfit>> add(
+    String? accountId, {
+    required String? photo,
+    required _i27.OutfitDetails? details,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #add,
+              [accountId],
+              {#photo: photo, #details: details},
+            ),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, _i27.WardrobeOutfit>>.value(
+                  _FakeEither_0<_i5.Failure, _i27.WardrobeOutfit>(
+                    this,
+                    Invocation.method(
+                      #add,
+                      [accountId],
+                      {#photo: photo, #details: details},
+                    ),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i27.WardrobeOutfit>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> remove(
+    String? accountId,
+    _i27.WardrobeOutfit? outfit,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#remove, [accountId, outfit]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#remove, [accountId, outfit]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+
+  @override
+  _i4.Future<void> forgetPhotos(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#forgetPhotos, [accountId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+}
+
 /// A class which mocks [HomeWidgetRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockHomeWidgetRepository extends _i1.Mock
-    implements _i26.HomeWidgetRepository {
+    implements _i28.HomeWidgetRepository {
   MockHomeWidgetRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -984,8 +1062,8 @@ class MockHomeWidgetRepository extends _i1.Mock
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> publish(
-    _i27.WidgetContent? content, {
-    _i28.WidgetRefreshContext? refresh,
+    _i29.WidgetContent? content, {
+    _i30.WidgetRefreshContext? refresh,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#publish, [content], {#refresh: refresh}),
@@ -1012,10 +1090,10 @@ class MockHomeWidgetRepository extends _i1.Mock
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 
   @override
-  _i4.Stream<_i29.WidgetTap> taps() =>
+  _i4.Stream<_i31.WidgetTap> taps() =>
       (super.noSuchMethod(
             Invocation.method(#taps, []),
-            returnValue: _i4.Stream<_i29.WidgetTap>.empty(),
+            returnValue: _i4.Stream<_i31.WidgetTap>.empty(),
           )
-          as _i4.Stream<_i29.WidgetTap>);
+          as _i4.Stream<_i31.WidgetTap>);
 }
