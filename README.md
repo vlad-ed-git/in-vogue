@@ -2,7 +2,7 @@
 
 In Vogue is a weather app for Android and iPhone. Each day it shows the person, head to toe, wearing a real outfit from a partner fashion house, chosen for that day's weather and plans. It adds step-by-step makeup to match, a link to buy every piece, and a home-screen widget. The current partner catalog is Everlane's women's collection; rights to the catalog and brand content are in place.
 
-**Status (October 18, 2026):** an MVP for testers on the development flavor. Analyze is clean and 849 tests pass. Rules for AI agents working on the code are in [AGENTS.md](AGENTS.md).
+**Status (October 18, 2026):** an MVP for testers on the development flavor. Analyze is clean and 857 tests pass. Rules for AI agents working on the code are in [AGENTS.md](AGENTS.md).
 
 ## Contents
 
@@ -60,7 +60,7 @@ Nothing leaves the phone before sign-in, and YouCam is called only after it.
                 ┌──────────────────── the phone: In Vogue (Flutter) ──────────────────────┐
 Open-Meteo ◄────┤ weather: 3-day hourly forecast (dio), cached 2 days in SQLite            │
 YouCam     ◄────┤ try-on · face colours · makeup steps (after sign-in; key in dev builds)  │
-Firebase   ◄────┤ Auth (Apple, Google) · Firestore users/{uid} · Storage · App Check       │
+Firebase   ◄────┤ Auth: Apple, Google · Firestore users/{uid}, errors · Storage, App Check │
 Everlane   ◄────┤ "Buy at Everlane" opens the exact item (url_launcher)                    │
                 │ bundled: catalog · 1,749 outfits · 720 makeup recipes                    │
                 │ home-screen widget: Kotlin (Android) · SwiftUI (iPhone, App Group)       │
@@ -171,6 +171,7 @@ The app asks Open-Meteo for a 3-day hourly forecast at the person's location and
 | Unfinished try-ons and looks | Hive (`try_on_jobs`, `makeup_jobs`), resumed within 2 hours | the day's progress |
 | Photo fingerprints | memory, once per photo file | — |
 | The widget's content | home_widget's storage (Android), the App Group (iPhone) | — |
+| Error reports | memory, until someone signs in | `errors` |
 
 ### Rules worth knowing
 
@@ -253,7 +254,14 @@ go_router 18. A redirect sends the person to setup or to the tabs. Setup routes 
 
 ### Errors and logging
 
-Repositories log each infrastructure failure through `LogMessages` before turning it into a `Failure`. `LogMessagesImpl` logs categories and error codes, never exception messages that may carry personal data. Today it writes to the debug console only, so release builds report nothing; reports to a Firestore `errors` collection are next (see [Roadmap](#roadmap)).
+Repositories log each infrastructure failure through `LogMessages` before turning it into a `Failure`, and uncaught framework and platform errors go the same way. `LogMessagesImpl` writes to the debug console in debug builds and files a report in the Firestore `errors` collection from every build (owner, October 18), so testers' errors reach the team.
+
+- **What a report holds:** the account, when, where (class and method), the error's kind and code, a trimmed stack, and the flavor, platform, app version, build and install id. It never holds the exception's message, which may carry personal data.
+- **When it's sent:** for the person signed in. Reports made before sign-in wait in memory for it.
+- **How many:** each distinct error is filed once a run, at most 50 in all. A report that fails is dropped without reporting itself.
+- **The background widget refresh** still logs to the console only.
+
+Read the reports in the Firebase console under Firestore, `errors`.
 
 ### Localization
 
@@ -332,6 +340,7 @@ The catalog isn't fetched by the app. On the Mac, `../resources/` pulls Everlane
 | `users/{uid}/tryOns/{photo}-{signature}` | The picture made of an outfit on a photo: the photo's fingerprint, the signature and the picture's path |
 | `users/{uid}/makeupLooks/{face}-{signature}` | A look: its face photo's fingerprint, the outfit, palette, cheek and lip colours, steps (texts in three languages) and picture names. Looks made before October 18 are named by the signature alone |
 | `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo |
+| `errors/{id}` | An error report: account, time, where, the error's kind and code, stack, flavor, platform, version, build and install id. The app may only add its own; nobody reads or changes one from the app |
 
 In the names above, `{photo}` and `{face}` are the first 16 characters of the photo's SHA-256.
 
@@ -434,7 +443,7 @@ Run from `in-vogue/`; on the owner's Mac, wrap Flutter and Dart commands in `zsh
 
 ## Testing
 
-`flutterN test` runs 849 tests in about a minute, with no native build. They cover:
+`flutterN test` runs 857 tests in about a minute, with no native build. They cover:
 
 - **The foundation:** the flavor and Firebase isolation, the iOS flavor wiring, language restore and fallback, real Hive and SQLite behaviour, complete translation files, and 320-point screens at 200% text.
 - **The design system:** every token, glyph path and component, checked against `../design-spec/` when it sits beside the repository.
@@ -447,14 +456,16 @@ All checks run locally; the project has no CI by the owner's choice.
 
 ## Security and privacy
 
-- **Rules:** `firestore.rules` and `storage.rules` let each person reach only `users/{uid}/**`. Uploads must be images under 10 MB. Nobody can change their own plan; `scripts/check_firestore_rules.py` keeps the rules in step with the app on the emulator.
+- **Rules:** `firestore.rules` and `storage.rules` let each person reach only `users/{uid}/**`. Uploads must be images under 10 MB. Nobody can change their own plan.
+  - The one exception is `errors`: a signed-in person may add their own report, with fixed fields and sizes, and nothing more.
+  - `scripts/check_firestore_rules.py` keeps the rules in step with the app on the emulator.
 - **Keys:** `secrets/` (the YouCam key and the development admin key), the bundled development key and the native Firebase files are git-ignored.
   - A key inside an app can be extracted, so production carries none yet.
   - A YouCam proxy function, holding the key on a server behind App Check, is to be reconsidered before release.
 - **Photos and pictures:** they go to YouCam (to make outfits and makeup) and to Firebase.
   - Log out removes this account's outfit and makeup pictures from the phone.
   - Delete account removes everything from Firebase and the phone.
-- **Logs:** they never carry exception messages, which may hold personal data.
+- **Error reports:** they carry the account id and never the exception's message. They stay after Delete account, since the app can't delete them.
 
 ## Roadmap
 
@@ -466,7 +477,6 @@ All checks run locally; the project has no CI by the owner's choice.
 
 ### Open work
 
-- **Error reports to Firestore.** Owner, October 18: `LogMessagesImpl` should send each report to a Firebase `errors` collection, so testers' errors reach the team. Release builds report nothing today.
 - **Check both widgets on phones (owner).**
   - Android: Large, Medium and Small; the switch at 06:00, 09:00 and midnight; a tap opening Home on that day; the waiting and stale states; the morning refresh (about 05:30, network on).
   - iPhone: the same, with Background App Refresh on, since iOS picks when the refresh runs.

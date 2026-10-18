@@ -90,7 +90,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 ## Security
 
 - `secrets/` is git-ignored. It holds the YouCam key and secret and the development Firebase admin key. `assets/development/youcam_api_key.txt` is git-ignored too: development builds bundle it, production builds never do. The native Firebase files are git-ignored. Never print, log or commit any of them.
-- Firestore and Storage rules give each person only `users/{uid}/**`, and nobody can change their own `plan`. Check a rules change on the emulator before deploying it to development.
+- Firestore and Storage rules give each person only `users/{uid}/**`, and nobody can change their own `plan`. The one exception is `errors`, where a signed-in person may only add their own report. Check a rules change on the emulator before deploying it to development.
 
 ## Open work
 
@@ -100,7 +100,6 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*
 - [ ] Open a sample of Everlane product links. *Owner.*
 - [ ] Membership rules for the MVP. *Blocked on the owner.* Then the Free-plan limits, the Go Pro screen and the Free-plan locks.
-- [ ] Error reports to a Firestore `errors` collection (owner, October 18), so testers' errors reach the team. *Pending: next.*
 - [ ] How testers get the app. *Blocked: the owner picks the channel* (Firebase App Distribution recommended).
 - [ ] "Other outfits" on Home. *Blocked on the owner.*
 - [ ] Holiday and evening occasions. *Blocked on owner input.*
