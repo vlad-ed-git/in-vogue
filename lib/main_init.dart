@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/app/widget_refresh.dart';
+import 'package:in_vogue/core/config/app_check.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/di/init.dart' as core_di;
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
@@ -55,6 +56,7 @@ abstract final class MainInit {
       throw StateError('MainInit has already initialized this application.');
     }
     await Firebase.initializeApp(options: firebaseOptions);
+    await activateAppCheck();
     final support = await getApplicationSupportDirectory();
     final directory = Directory(
       path.join(support.path, 'in_vogue', environment.name),
