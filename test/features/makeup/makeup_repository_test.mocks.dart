@@ -83,12 +83,9 @@ class MockMakeupRemoteDataSource extends _i1.Mock
           as _i3.Future<void>);
 
   @override
-  _i3.Future<Map<String, Object?>?> look(
-    String? accountId,
-    String? signature,
-  ) =>
+  _i3.Future<Map<String, Object?>?> look(String? accountId, String? look) =>
       (super.noSuchMethod(
-            Invocation.method(#look, [accountId, signature]),
+            Invocation.method(#look, [accountId, look]),
             returnValue: _i3.Future<Map<String, Object?>?>.value(),
           )
           as _i3.Future<Map<String, Object?>?>);
@@ -104,11 +101,20 @@ class MockMakeupRemoteDataSource extends _i1.Mock
   @override
   _i3.Future<void> writeLook(
     String? accountId,
-    String? signature,
+    String? look,
     Map<String, Object?>? record,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#writeLook, [accountId, signature, record]),
+            Invocation.method(#writeLook, [accountId, look, record]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> setLookFace(String? accountId, String? look, String? face) =>
+      (super.noSuchMethod(
+            Invocation.method(#setLookFace, [accountId, look, face]),
             returnValue: _i3.Future<void>.value(),
             returnValueForMissingStub: _i3.Future<void>.value(),
           )

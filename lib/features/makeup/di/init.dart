@@ -44,6 +44,7 @@ void init(GetIt locator) {
         assetDataSource: locator(),
         remoteDataSource: locator(),
         pictureDataSource: locator(),
+        fingerprints: locator(),
         logMessages: locator(),
       ),
     )
@@ -65,7 +66,9 @@ void init(GetIt locator) {
             )
           : const UnavailableMakeupServiceRepository(),
     )
-    ..registerLazySingleton<GetMakeupLook>(() => GetMakeupLook(locator()))
+    ..registerLazySingleton<GetMakeupLook>(
+      () => GetMakeupLook(locator(), locator()),
+    )
     ..registerLazySingleton<GetLatestMakeupLook>(
       () => GetLatestMakeupLook(locator()),
     )

@@ -996,24 +996,33 @@ class MockMakeupRepository extends _i1.Mock implements _i25.MakeupRepository {
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, String?>> keptPicture(
-    String? accountId,
-    String? outfitSignature,
-    String? fileName,
-  ) =>
+    String? accountId, {
+    required String? facePhoto,
+    required String? outfitSignature,
+    required String? fileName,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#keptPicture, [
-              accountId,
-              outfitSignature,
-              fileName,
-            ]),
+            Invocation.method(
+              #keptPicture,
+              [accountId],
+              {
+                #facePhoto: facePhoto,
+                #outfitSignature: outfitSignature,
+                #fileName: fileName,
+              },
+            ),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, String?>>.value(
               _FakeEither_0<_i5.Failure, String?>(
                 this,
-                Invocation.method(#keptPicture, [
-                  accountId,
-                  outfitSignature,
-                  fileName,
-                ]),
+                Invocation.method(
+                  #keptPicture,
+                  [accountId],
+                  {
+                    #facePhoto: facePhoto,
+                    #outfitSignature: outfitSignature,
+                    #fileName: fileName,
+                  },
+                ),
               ),
             ),
           )
@@ -1021,27 +1030,36 @@ class MockMakeupRepository extends _i1.Mock implements _i25.MakeupRepository {
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, String>> keepPicture(
-    String? accountId,
-    String? outfitSignature,
-    String? name,
-    List<int>? picture,
-  ) =>
+    String? accountId, {
+    required String? facePhoto,
+    required String? outfitSignature,
+    required String? name,
+    required List<int>? picture,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#keepPicture, [
-              accountId,
-              outfitSignature,
-              name,
-              picture,
-            ]),
+            Invocation.method(
+              #keepPicture,
+              [accountId],
+              {
+                #facePhoto: facePhoto,
+                #outfitSignature: outfitSignature,
+                #name: name,
+                #picture: picture,
+              },
+            ),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, String>>.value(
               _FakeEither_0<_i5.Failure, String>(
                 this,
-                Invocation.method(#keepPicture, [
-                  accountId,
-                  outfitSignature,
-                  name,
-                  picture,
-                ]),
+                Invocation.method(
+                  #keepPicture,
+                  [accountId],
+                  {
+                    #facePhoto: facePhoto,
+                    #outfitSignature: outfitSignature,
+                    #name: name,
+                    #picture: picture,
+                  },
+                ),
               ),
             ),
           )
@@ -1050,14 +1068,23 @@ class MockMakeupRepository extends _i1.Mock implements _i25.MakeupRepository {
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> record(
     String? accountId,
-    _i28.MakeupLook? look,
-  ) =>
+    _i28.MakeupLook? look, {
+    required String? facePhoto,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#record, [accountId, look]),
+            Invocation.method(
+              #record,
+              [accountId, look],
+              {#facePhoto: facePhoto},
+            ),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
               _FakeEither_0<_i5.Failure, _i2.Unit>(
                 this,
-                Invocation.method(#record, [accountId, look]),
+                Invocation.method(
+                  #record,
+                  [accountId, look],
+                  {#facePhoto: facePhoto},
+                ),
               ),
             ),
           )
@@ -1065,16 +1092,28 @@ class MockMakeupRepository extends _i1.Mock implements _i25.MakeupRepository {
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i28.MakeupLook?>> look(
-    String? accountId,
-    String? outfitSignature,
-  ) =>
+    String? accountId, {
+    required String? facePhoto,
+    required String? outfitSignature,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#look, [accountId, outfitSignature]),
+            Invocation.method(
+              #look,
+              [accountId],
+              {#facePhoto: facePhoto, #outfitSignature: outfitSignature},
+            ),
             returnValue:
                 _i4.Future<_i2.Either<_i5.Failure, _i28.MakeupLook?>>.value(
                   _FakeEither_0<_i5.Failure, _i28.MakeupLook?>(
                     this,
-                    Invocation.method(#look, [accountId, outfitSignature]),
+                    Invocation.method(
+                      #look,
+                      [accountId],
+                      {
+                        #facePhoto: facePhoto,
+                        #outfitSignature: outfitSignature,
+                      },
+                    ),
                   ),
                 ),
           )

@@ -259,6 +259,32 @@ void main() {
       );
     });
 
+    test('names a look by its face photo and outfit; one made before looks '
+        'were kept by face photo is named by its outfit', () {
+      final face = '0123456789abcdef' * 4;
+      expect(
+        MakeupLookModel.idOf(face, 'coat+tee'),
+        '0123456789abcdef-coat+tee',
+      );
+      final json = MakeupLookModel.toJson(_look);
+      expect(json['signature'], _look.outfitSignature);
+      expect(
+        MakeupLookModel.fromJson('anything', json)!.outfitSignature,
+        _look.outfitSignature,
+      );
+      expect(
+        MakeupLookModel.fromJson(
+          'dress',
+          {...json}..remove('signature'),
+        )!.outfitSignature,
+        'dress',
+      );
+      expect(
+        MakeupLookModel.storagePath('uid-1', 'look-1', 'before.png'),
+        'users/uid-1/makeup/look-1/before.png',
+      );
+    });
+
     test("keeps every language of the steps' texts, and reads a look kept "
         'in English only', () {
       final json = MakeupLookModel.toJson(_look);

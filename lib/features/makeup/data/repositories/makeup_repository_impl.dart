@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
+import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/features/makeup/data/data_sources/look_picture_local_data_source.dart';
 import 'package:in_vogue/features/makeup/data/data_sources/makeup_asset_data_source.dart';
 import 'package:in_vogue/features/makeup/data/data_sources/makeup_remote_data_source.dart';
@@ -19,15 +19,17 @@ import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.d
 import 'package:path/path.dart' as p;
 
 /// The bundled recipes, read once and kept in memory; the looks and face
-/// colours on the account, with a copy of each picture on the phone.
+/// colours on the account, with a copy of each look on the phone.
 ///
-/// A face photo's colours are kept under the SHA-256 of its bytes, so they
-/// always belong to that very photo.
+/// A face photo's colours are kept under its fingerprint, and a look under
+/// its face photo's fingerprint and outfit, so they always belong to that
+/// very photo. A look on the phone opens without the account.
 class MakeupRepositoryImpl implements MakeupRepository {
   MakeupRepositoryImpl({
     required MakeupAssetDataSource assetDataSource,
     required MakeupRemoteDataSource remoteDataSource,
     required LookPictureLocalDataSource pictureDataSource,
+    required this._fingerprints,
     required LogMessages logMessages,
   }) : _asset = assetDataSource,
        _remote = remoteDataSource,
@@ -37,6 +39,7 @@ class MakeupRepositoryImpl implements MakeupRepository {
   final MakeupAssetDataSource _asset;
   final MakeupRemoteDataSource _remote;
   final LookPictureLocalDataSource _pictures;
+  final PhotoFingerprints _fingerprints;
   final LogMessages _logger;
 
   /// How long a call to the account may take before it counts as offline.
@@ -67,7 +70,10 @@ class MakeupRepositoryImpl implements MakeupRepository {
     String accountId,
     String facePhoto,
   ) => _guard('faceColours', () async {
-    final json = await _remote.colours(accountId, await _photoId(facePhoto));
+    final json = await _remote.colours(
+      accountId,
+      await _fingerprints.of(facePhoto),
+    );
     return json == null ? null : FaceColoursModel.fromJson(json);
   });
 
@@ -79,7 +85,7 @@ class MakeupRepositoryImpl implements MakeupRepository {
   ) => _guard('saveFaceColours', () async {
     await _remote.saveColours(
       accountId,
-      await _photoId(facePhoto),
+      await _fingerprints.of(facePhoto),
       FaceColoursModel.toJson(colours),
     );
     return unit;
@@ -87,62 +93,96 @@ class MakeupRepositoryImpl implements MakeupRepository {
 
   @override
   Future<Either<Failure, String?>> keptPicture(
-    String accountId,
-    String outfitSignature,
-    String fileName,
-  ) => _guard(
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+    required String fileName,
+  }) => _guard(
     'keptPicture',
-    () async => _pictures.kept(accountId, outfitSignature, fileName),
+    () async => _pictures.kept(
+      accountId,
+      await _lookOf(facePhoto, outfitSignature),
+      fileName,
+    ),
   );
 
   @override
   Future<Either<Failure, String>> keepPicture(
-    String accountId,
-    String outfitSignature,
-    String name,
-    List<int> picture,
-  ) => _guard(
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+    required String name,
+    required List<int> picture,
+  }) => _guard(
     'keepPicture',
-    () => _pictures.keep(
+    () async => _pictures.keep(
       accountId,
-      outfitSignature,
+      await _lookOf(facePhoto, outfitSignature),
       '$name.${MakeupLookModel.extensionOf(picture)}',
       picture,
     ),
   );
 
   @override
-  Future<Either<Failure, Unit>> record(String accountId, MakeupLook look) =>
-      _guard('record', limit: picturesTimeLimit, () async {
-        for (final picture in [
-          look.before,
-          for (final step in look.steps) step.picture!,
-        ]) {
-          final name = p.basename(picture);
-          await _remote.upload(
-            MakeupLookModel.storagePath(accountId, look.outfitSignature, name),
-            await File(picture).readAsBytes(),
-            contentType: MakeupLookModel.contentType(name),
-          );
-        }
-        await _remote.writeLook(
-          accountId,
-          look.outfitSignature,
-          MakeupLookModel.toJson(look),
-        );
-        return unit;
-      });
+  Future<Either<Failure, Unit>> record(
+    String accountId,
+    MakeupLook look, {
+    required String facePhoto,
+  }) => _guard('record', limit: picturesTimeLimit, () async {
+    final face = await _fingerprints.of(facePhoto);
+    final id = MakeupLookModel.idOf(face, look.outfitSignature);
+    for (final picture in [
+      look.before,
+      for (final step in look.steps) step.picture!,
+    ]) {
+      final name = p.basename(picture);
+      await _remote.upload(
+        MakeupLookModel.storagePath(accountId, id, name),
+        await File(picture).readAsBytes(),
+        contentType: MakeupLookModel.contentType(name),
+      );
+    }
+    final record = {...MakeupLookModel.toJson(look), 'face': face};
+    await _remote.writeLook(accountId, id, record);
+    await _pictures.keepRecord(accountId, id, record);
+    return unit;
+  });
 
   @override
   Future<Either<Failure, MakeupLook?>> look(
-    String accountId,
-    String outfitSignature,
-  ) => _guard('look', limit: picturesTimeLimit, () async {
-    final json = await _remote.look(accountId, outfitSignature);
-    final look = json == null
-        ? null
-        : MakeupLookModel.fromJson(outfitSignature, json);
-    return look == null ? null : _onPhone(accountId, look);
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+  }) => _guard('look', limit: picturesTimeLimit, () async {
+    final face = await _fingerprints.of(facePhoto);
+    final id = MakeupLookModel.idOf(face, outfitSignature);
+    // A look made before looks were kept by face photo is named by its
+    // outfit, and belongs to the first face photo that finds it.
+    for (final name in [id, outfitSignature]) {
+      final kept = _pictures.record(accountId, name);
+      if (kept?['face'] != face) continue;
+      final look = MakeupLookModel.fromJson(name, kept!);
+      if (look != null) return _onPhone(accountId, name, look);
+    }
+    var name = id;
+    var record = await _remote.look(accountId, id);
+    if (record == null) {
+      name = outfitSignature;
+      record = await _remote.look(accountId, outfitSignature);
+      if (record != null && record['face'] == null) {
+        await _remote.setLookFace(accountId, outfitSignature, face);
+        record = {...record, 'face': face};
+      }
+      if (record?['face'] != face) return null;
+    }
+    final look = record == null ? null : MakeupLookModel.fromJson(name, record);
+    if (look == null) return null;
+    final onPhone = await _onPhone(accountId, name, look);
+    await _pictures.keepRecord(accountId, name, {
+      ...MakeupLookModel.toJson(look),
+      'face': face,
+    });
+    return onPhone;
   });
 
   @override
@@ -150,9 +190,9 @@ class MakeupRepositoryImpl implements MakeupRepository {
       _guard('latestLook', limit: picturesTimeLimit, () async {
         final latest = await _remote.latestLook(accountId);
         if (latest == null) return null;
-        final (signature, json) = latest;
-        final look = MakeupLookModel.fromJson(signature, json);
-        return look == null ? null : _onPhone(accountId, look);
+        final (name, json) = latest;
+        final look = MakeupLookModel.fromJson(name, json);
+        return look == null ? null : _onPhone(accountId, name, look);
       });
 
   @override
@@ -162,22 +202,25 @@ class MakeupRepositoryImpl implements MakeupRepository {
         return unit;
       });
 
-  /// [look], whose pictures are file names, with each picture on the
-  /// phone, fetched from the account when missing.
-  Future<MakeupLook> _onPhone(String accountId, MakeupLook look) async {
-    final signature = look.outfitSignature;
-    Future<String> picture(String name) async =>
-        _pictures.kept(accountId, signature, name) ??
+  /// The look [name], whose pictures are file names, with each picture on
+  /// the phone, fetched from the account when missing.
+  Future<MakeupLook> _onPhone(
+    String accountId,
+    String name,
+    MakeupLook look,
+  ) async {
+    Future<String> picture(String file) async =>
+        _pictures.kept(accountId, name, file) ??
         await _pictures.keep(
           accountId,
-          signature,
           name,
+          file,
           await _remote.download(
-            MakeupLookModel.storagePath(accountId, signature, name),
+            MakeupLookModel.storagePath(accountId, name, file),
           ),
         );
     return MakeupLook(
-      outfitSignature: signature,
+      outfitSignature: look.outfitSignature,
       date: look.date,
       occasion: look.occasion,
       palette: look.palette,
@@ -192,13 +235,10 @@ class MakeupRepositoryImpl implements MakeupRepository {
     );
   }
 
-  static Future<String> _photoId(String path) async {
-    try {
-      return sha256.convert(await File(path).readAsBytes()).toString();
-    } on FileSystemException catch (error, stack) {
-      throw CacheException(error, stack);
-    }
-  }
+  /// The name of the look of [outfitSignature] on the face photo at
+  /// [facePhoto].
+  Future<String> _lookOf(String facePhoto, String outfitSignature) async =>
+      MakeupLookModel.idOf(await _fingerprints.of(facePhoto), outfitSignature);
 
   Future<Either<Failure, T>> _guard<T>(
     String method,

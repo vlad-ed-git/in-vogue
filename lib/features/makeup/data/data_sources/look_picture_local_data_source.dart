@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:in_vogue/core/persistence/cache_exception.dart';
@@ -19,7 +20,20 @@ abstract interface class LookPictureLocalDataSource {
     List<int> picture,
   );
 
-  /// Deletes every picture of [accountId]. Throws [CacheException].
+  /// The record kept with the look [look]'s pictures; null when there is
+  /// none. Throws [CacheException].
+  Map<String, Object?>? record(String accountId, String look);
+
+  /// Keeps [record] with the look [look]'s pictures. Throws
+  /// [CacheException].
+  Future<void> keepRecord(
+    String accountId,
+    String look,
+    Map<String, Object?> record,
+  );
+
+  /// Deletes every picture and record of [accountId]. Throws
+  /// [CacheException].
   Future<void> forget(String accountId);
 }
 
@@ -61,6 +75,32 @@ class LookPictureLocalDataSourceImpl implements LookPictureLocalDataSource {
       throw CacheException(error, stack);
     }
   }
+
+  /// The record's file: not a picture's name, as those have an image type.
+  static const _record = 'look.json';
+
+  @override
+  Map<String, Object?>? record(String accountId, String look) {
+    final file = File(_file(accountId, look, _record));
+    try {
+      if (!file.existsSync()) return null;
+      return switch (jsonDecode(file.readAsStringSync())) {
+        final Map<String, Object?> record => record,
+        _ => null,
+      };
+    } on FileSystemException catch (error, stack) {
+      throw CacheException(error, stack);
+    } on FormatException {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> keepRecord(
+    String accountId,
+    String look,
+    Map<String, Object?> record,
+  ) => keep(accountId, look, _record, utf8.encode(jsonEncode(record)));
 
   @override
   Future<void> forget(String accountId) async {

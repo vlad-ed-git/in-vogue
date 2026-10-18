@@ -4,9 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 
-/// The makeup looks of each account (`users/{uid}/makeupLooks/{outfit
-/// signature}`), their pictures in Storage, and the colours analysed from
-/// each face photo (`users/{uid}/colorProfiles/{photo id}`).
+/// The makeup looks of each account (`users/{uid}/makeupLooks/{look}`, as
+/// MakeupLookModel names them), their pictures in Storage, and the colours
+/// analysed from each face photo (`users/{uid}/colorProfiles/{photo id}`).
 ///
 /// Every method throws [NetworkException] or [ServerException].
 abstract interface class MakeupRemoteDataSource {
@@ -20,20 +20,22 @@ abstract interface class MakeupRemoteDataSource {
     Map<String, Object?> colours,
   );
 
-  /// The record of the look for [signature]; null when there is none.
-  Future<Map<String, Object?>?> look(String accountId, String signature);
+  /// The record of the look [look]; null when there is none.
+  Future<Map<String, Object?>?> look(String accountId, String look);
 
-  /// The signature and record of the look made last; null when there is
-  /// none.
+  /// The name and record of the look made last; null when there is none.
   Future<(String, Map<String, Object?>)?> latestLook(String accountId);
 
-  /// Writes the record of the look for [signature] with the time it was
-  /// made.
+  /// Writes the record of the look [look] with the time it was made.
   Future<void> writeLook(
     String accountId,
-    String signature,
+    String look,
     Map<String, Object?> record,
   );
+
+  /// Records on the look [look] that it was made on the face photo with the
+  /// fingerprint [face].
+  Future<void> setLookFace(String accountId, String look, String face);
 
   /// Uploads [picture] to the Storage [path].
   Future<void> upload(
@@ -93,8 +95,8 @@ class MakeupRemoteDataSourceImpl implements MakeupRemoteDataSource {
   );
 
   @override
-  Future<Map<String, Object?>?> look(String accountId, String signature) =>
-      _guard(() async => (await _looks(accountId).doc(signature).get()).data());
+  Future<Map<String, Object?>?> look(String accountId, String look) =>
+      _guard(() async => (await _looks(accountId).doc(look).get()).data());
 
   @override
   Future<(String, Map<String, Object?>)?> latestLook(String accountId) =>
@@ -110,14 +112,17 @@ class MakeupRemoteDataSourceImpl implements MakeupRemoteDataSource {
   @override
   Future<void> writeLook(
     String accountId,
-    String signature,
+    String look,
     Map<String, Object?> record,
   ) => _guard(
-    () => _looks(accountId).doc(signature).set({
-      ...record,
-      'createdAt': FieldValue.serverTimestamp(),
-    }),
+    () => _looks(
+      accountId,
+    ).doc(look).set({...record, 'createdAt': FieldValue.serverTimestamp()}),
   );
+
+  @override
+  Future<void> setLookFace(String accountId, String look, String face) =>
+      _guard(() => _looks(accountId).doc(look).update({'face': face}));
 
   @override
   Future<void> upload(

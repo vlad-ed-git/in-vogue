@@ -237,6 +237,19 @@ void main() {
     expect(service.steps, hasLength(3));
   });
 
+  test('a new face photo gets its own look of the same outfit', () async {
+    await make();
+    photos.face = const UserPhoto(
+      role: PhotoRole.face,
+      path: '/support/photos/face-2.jpg',
+      revision: 2,
+    );
+    expect((await make()).last, isA<MakeupDone>());
+    expect(service.analyses, hasLength(2));
+    expect(service.steps, hasLength(6));
+    expect(looks.recorded, hasLength(2));
+  });
+
   test('uses neutral colours when the photo was not clear', () async {
     service.analysed = const FaceColours(
       skin: '#E8C4AE',
@@ -391,7 +404,7 @@ void main() {
       expect(service.analyses, ['file-1']);
 
       looks.recorded.clear();
-      looks.made = null;
+      looks.made.clear();
       await jobs.save(
         MakeupJob(
           accountId: 'uid-1',
@@ -445,7 +458,9 @@ class _FakeLooks implements MakeupRepository {
   final colours = <String, FaceColours>{};
   final kept = <String>{};
   final recorded = <MakeupLook>[];
-  MakeupLook? made;
+
+  /// By face photo and outfit.
+  final made = <(String, String), MakeupLook>{};
 
   @override
   Future<Either<Failure, MakeupRecipe?>> recipe(String key) async =>
@@ -469,21 +484,23 @@ class _FakeLooks implements MakeupRepository {
 
   @override
   Future<Either<Failure, String?>> keptPicture(
-    String accountId,
-    String outfitSignature,
-    String fileName,
-  ) async {
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+    required String fileName,
+  }) async {
     final path = '/phone/$outfitSignature/$fileName';
     return Right(kept.contains(path) ? path : null);
   }
 
   @override
   Future<Either<Failure, String>> keepPicture(
-    String accountId,
-    String outfitSignature,
-    String name,
-    List<int> picture,
-  ) async {
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+    required String name,
+    required List<int> picture,
+  }) async {
     final path =
         '/phone/$outfitSignature/$name.${picture.first == 0x89 ? 'png' : 'jpg'}';
     kept.add(path);
@@ -493,22 +510,24 @@ class _FakeLooks implements MakeupRepository {
   @override
   Future<Either<Failure, Unit>> record(
     String accountId,
-    MakeupLook look,
-  ) async {
+    MakeupLook look, {
+    required String facePhoto,
+  }) async {
     recorded.add(look);
-    made = look;
+    made[(facePhoto, look.outfitSignature)] = look;
     return const Right(unit);
   }
 
   @override
   Future<Either<Failure, MakeupLook?>> look(
-    String accountId,
-    String outfitSignature,
-  ) async => Right(made?.outfitSignature == outfitSignature ? made : null);
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+  }) async => Right(made[(facePhoto, outfitSignature)]);
 
   @override
   Future<Either<Failure, MakeupLook?>> latestLook(String accountId) async =>
-      Right(made);
+      Right(recorded.lastOrNull);
 
   @override
   Future<Either<Failure, Unit>> forgetPictures(String accountId) =>

@@ -6,13 +6,20 @@ import 'package:in_vogue/features/makeup/domain/services/makeup_rules.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
 import 'package:path/path.dart' as p;
 
-/// A look as its record in `users/{uid}/makeupLooks/{outfit signature}`
-/// holds it: pictures by file name, kept in Storage under
-/// `users/{uid}/makeup/{outfit signature}/`.
+/// A look as its record in `users/{uid}/makeupLooks/{look}` holds it:
+/// pictures by file name, kept in Storage under `users/{uid}/makeup/{look}/`
+/// and on the phone in a folder of the same name. A look is named by its
+/// face photo and outfit ([idOf]); one made before looks were kept by face
+/// photo is named by its outfit's signature.
 abstract final class MakeupLookModel {
-  /// Where the picture [name] of the look for [signature] is in Storage.
-  static String storagePath(String accountId, String signature, String name) =>
-      'users/$accountId/makeup/$signature/$name';
+  /// The name of the look of the outfit [signature] on the face photo with
+  /// the fingerprint [face].
+  static String idOf(String face, String signature) =>
+      '${face.substring(0, 16)}-$signature';
+
+  /// Where the picture [name] of the look [look] is in Storage.
+  static String storagePath(String accountId, String look, String name) =>
+      'users/$accountId/makeup/$look/$name';
 
   /// "jpg" or "png", from the picture's first bytes; "jpg" when unknown.
   static String extensionOf(List<int> picture) =>
@@ -29,6 +36,7 @@ abstract final class MakeupLookModel {
 
   /// The record's fields, without its creation time; pictures by file name.
   static Map<String, Object?> toJson(MakeupLook look) => {
+    'signature': look.outfitSignature,
     'forDate': TryOnJob.dateKey(look.date),
     'occasion': look.occasion.name,
     'palette': MakeupRules.palettes[look.palette],
@@ -47,9 +55,13 @@ abstract final class MakeupLookModel {
     ],
   };
 
-  /// The look in [json], its pictures by file name; null when it is not a
-  /// readable look.
-  static MakeupLook? fromJson(String signature, Map<String, Object?> json) {
+  /// The look [look] in [json], its pictures by file name; null when it is
+  /// not a readable look.
+  static MakeupLook? fromJson(String look, Map<String, Object?> json) {
+    final signature = switch (json['signature']) {
+      final String signature => signature,
+      _ => look,
+    };
     if (json case {
       'forDate': final String forDate,
       'occasion': final String occasion,

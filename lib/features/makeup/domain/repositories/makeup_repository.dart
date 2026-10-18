@@ -25,32 +25,42 @@ abstract interface class MakeupRepository {
     FaceColours colours,
   );
 
-  /// The picture [fileName] of the look for [outfitSignature] on the
-  /// phone; null when there is none.
+  /// The picture [fileName] of the look for [outfitSignature] on the face
+  /// photo at [facePhoto], on the phone; null when there is none.
   Future<Either<Failure, String?>> keptPicture(
-    String accountId,
-    String outfitSignature,
-    String fileName,
-  );
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+    required String fileName,
+  });
 
   /// Keeps [picture] on the phone as [name] of the look for
-  /// [outfitSignature], with its image type's extension; its file.
+  /// [outfitSignature] on the face photo at [facePhoto], with its image
+  /// type's extension; its file.
   Future<Either<Failure, String>> keepPicture(
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+    required String name,
+    required List<int> picture,
+  });
+
+  /// Saves [look], made on the face photo at [facePhoto], with its pictures
+  /// on the account, and its record on the phone.
+  Future<Either<Failure, Unit>> record(
     String accountId,
-    String outfitSignature,
-    String name,
-    List<int> picture,
-  );
+    MakeupLook look, {
+    required String facePhoto,
+  });
 
-  /// Saves [look] and its pictures on the account.
-  Future<Either<Failure, Unit>> record(String accountId, MakeupLook look);
-
-  /// The look made for the outfit [outfitSignature], with its pictures on
-  /// the phone; null when none was made.
+  /// The look made for the outfit [outfitSignature] on the face photo at
+  /// [facePhoto], with its pictures on the phone: from the phone when it
+  /// has it, else from the account; null when none was made.
   Future<Either<Failure, MakeupLook?>> look(
-    String accountId,
-    String outfitSignature,
-  );
+    String accountId, {
+    required String facePhoto,
+    required String outfitSignature,
+  });
 
   /// The look made last for [accountId]; null when none was.
   Future<Either<Failure, MakeupLook?>> latestLook(String accountId);

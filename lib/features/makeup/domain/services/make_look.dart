@@ -48,7 +48,8 @@ class MakeLookParams extends Equatable {
 /// analyses the face's colours once per photo, takes the knowledge base's
 /// recipe for the outfit, its occasion, the face and the weather, renders
 /// each step on the picture of the step before, keeps every picture and
-/// records the look. A look already made is never made again.
+/// records the look. A look already made on the face photo is never made
+/// again; a new face photo gets its own.
 ///
 /// Progress is kept after each step, so a look cut short goes on where it
 /// stopped. One making per look runs at a time; asking again follows it.
@@ -113,14 +114,18 @@ class MakeLook {
     final accountId = params.accountId;
     final outfit = params.outfit;
     final signature = outfit.outfit.signature;
-    final made = await _looks.look(accountId, signature);
-    if (made case Left(value: final failure)) return MakeupFailed(failure);
-    if (made.getOrElse(() => null) case final MakeupLook look) {
-      return MakeupDone(look);
-    }
     final face = await _face();
     if (face == null) {
       return const MakeupFailed(MakeupFailure(MakeupProblem.photo));
+    }
+    final made = await _looks.look(
+      accountId,
+      facePhoto: face.path,
+      outfitSignature: signature,
+    );
+    if (made case Left(value: final failure)) return MakeupFailed(failure);
+    if (made.getOrElse(() => null) case final MakeupLook look) {
+      return MakeupDone(look);
     }
     var job =
         await _resumable(params, face) ??
@@ -153,7 +158,7 @@ class MakeLook {
     // The face as the service takes it, kept as the look's before.
     var before = job.before == null
         ? null
-        : await _kept(accountId, signature, job.before!);
+        : await _kept(accountId, face, signature, job.before!);
     if (before == null) {
       final prepared = await _service.prepareFace(face.path);
       if (prepared case Left(value: final failure)) {
@@ -161,9 +166,10 @@ class MakeLook {
       }
       final kept = await _looks.keepPicture(
         accountId,
-        signature,
-        'before',
-        prepared.getOrElse(() => const []),
+        facePhoto: face.path,
+        outfitSignature: signature,
+        name: 'before',
+        picture: prepared.getOrElse(() => const []),
       );
       if (kept case Left(value: final failure)) return MakeupFailed(failure);
       before = kept.getOrElse(() => throw StateError('kept'));
@@ -221,7 +227,12 @@ class MakeLook {
     }
     final steps = _steps(recipe);
     for (var index = 0; index < job.pictures.length; index++) {
-      final picture = await _kept(accountId, signature, job.pictures[index]);
+      final picture = await _kept(
+        accountId,
+        face,
+        signature,
+        job.pictures[index],
+      );
       if (picture == null || index >= steps.length) {
         // What was kept is gone; the look starts again next time.
         await _jobs.clear(job.key);
@@ -268,9 +279,10 @@ class MakeLook {
       }
       final kept = await _looks.keepPicture(
         accountId,
-        signature,
-        'step-${index + 1}',
-        picture.getOrElse(() => const []),
+        facePhoto: face.path,
+        outfitSignature: signature,
+        name: 'step-${index + 1}',
+        picture: picture.getOrElse(() => const []),
       );
       if (kept case Left(value: final failure)) return MakeupFailed(failure);
       final path = kept.getOrElse(() => throw StateError('kept'));
@@ -291,7 +303,7 @@ class MakeLook {
       steps: List.unmodifiable(steps),
       matched: profile.matched,
     );
-    final recorded = await _looks.record(accountId, look);
+    final recorded = await _looks.record(accountId, look, facePhoto: face.path);
     if (recorded case Left(value: final failure)) return MakeupFailed(failure);
     await _jobs.clear(job.key);
     return MakeupDone(look);
@@ -303,12 +315,14 @@ class MakeLook {
 
   Future<String?> _kept(
     String accountId,
+    UserPhoto face,
     String signature,
     String name,
   ) async => (await _looks.keptPicture(
     accountId,
-    signature,
-    name,
+    facePhoto: face.path,
+    outfitSignature: signature,
+    fileName: name,
   )).fold<String?>((_) => null, (path) => path);
 
   /// The recipe [key]; a [CacheFailure] when the knowledge base has none.
