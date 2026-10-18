@@ -59,8 +59,7 @@ void init(GetIt locator) {
         location: locator(),
         days: locator(),
         jobs: locator(),
-        makeup: locator(),
-        makeupJobs: locator(),
+        analyses: locator(),
         widget: locator(),
       ),
     )

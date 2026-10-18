@@ -165,7 +165,6 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
     'wishlist',
     'days',
     'suggestions',
-    'makeupLooks',
     'colorProfiles',
     'tryOns',
   ];

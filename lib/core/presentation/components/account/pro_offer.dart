@@ -8,7 +8,7 @@ import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// The Pro plan: name, line, four benefits, prices and a Go Pro button.
+/// The Pro plan: name, line, three benefits, prices and a Go Pro button.
 class ProOffer extends StatelessWidget {
   const ProOffer({required this.onGoPro, super.key});
 
@@ -21,7 +21,6 @@ class ProOffer extends StatelessWidget {
       l10n.proBenefitDaily,
       l10n.proBenefitChoice,
       l10n.proBenefitCollection,
-      l10n.proBenefitMakeup,
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

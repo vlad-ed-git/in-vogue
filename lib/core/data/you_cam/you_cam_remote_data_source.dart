@@ -9,9 +9,6 @@ enum YouCamTool {
   /// AI Clothes.
   clothes('cloth-v4'),
 
-  /// Makeup VTO.
-  makeup('makeup-vto'),
-
   /// Facial Color Tones Analyzer.
   skinTone('skin-tone-analysis');
 

@@ -98,9 +98,9 @@ void main() {
     test('calls each tool at its own path', () async {
       apiServer
         ..onPost(
-          '/s2s/v2.0/task/makeup-vto',
+          '/s2s/v2.0/task/skin-tone-analysis',
           (server) => server.reply(200, {
-            'data': {'task_id': 'makeup-1'},
+            'data': {'task_id': 'analysis-1'},
           }),
           data: Matchers.any,
         )
@@ -110,7 +110,7 @@ void main() {
             'data': {'task_status': 'running'},
           }),
         );
-      expect(await youCam.start(YouCamTool.makeup, const {}), 'makeup-1');
+      expect(await youCam.start(YouCamTool.skinTone, const {}), 'analysis-1');
       expect(
         await youCam.task(YouCamTool.skinTone, 'skin-1'),
         const YouCamTaskRunning(),

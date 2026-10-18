@@ -382,15 +382,11 @@ void main() {
       var goPro = 0;
       await pumpInVogue(
         tester,
-        PlanLine.free(
-          outfitsLeft: 9,
-          makeupLooksLeft: 3,
-          onGoPro: () => goPro++,
-        ),
+        PlanLine.free(outfitsLeft: 9, onGoPro: () => goPro++),
       );
       expect(
         find.textContaining(
-          'Free plan · 9 outfits and 3 makeup looks left · ',
+          'Free plan · 9 outfits left · ',
           findRichText: true,
         ),
         findsOneWidget,
@@ -421,17 +417,15 @@ void main() {
         tester,
         Column(
           children: [
-            PlanLine.free(outfitsLeft: 1, makeupLooksLeft: 1, onGoPro: () {}),
-            PlanLine.free(outfitsLeft: 0, makeupLooksLeft: 3, onGoPro: () {}),
-            PlanLine.makeup(makeupLooksLeft: 3, onGoPro: () {}),
+            PlanLine.free(outfitsLeft: 1, onGoPro: () {}),
+            PlanLine.free(outfitsLeft: 0, onGoPro: () {}),
             const PlanLine.onProList(),
           ],
         ),
       );
       for (final line in [
-        'Free plan · 1 outfit and 1 makeup look left · ',
+        'Free plan · 1 outfit left · ',
         'Free plan · no outfits left · ',
-        'Free plan · 3 makeup looks left · ',
         'On the Pro list ✓',
       ]) {
         expect(
@@ -440,7 +434,7 @@ void main() {
           reason: line,
         );
       }
-      expect(find.byType(TextLink), findsNWidgets(3));
+      expect(find.byType(TextLink), findsNWidgets(2));
     });
   });
 }

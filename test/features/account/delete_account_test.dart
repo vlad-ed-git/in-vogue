@@ -9,10 +9,9 @@ import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
+import 'package:in_vogue/features/colours/domain/repositories/analysis_job_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
@@ -34,8 +33,7 @@ const _done = Right<Failure, Unit>(unit);
   LocationRepository,
   DayRepository,
   TryOnJobRepository,
-  MakeupRepository,
-  MakeupJobRepository,
+  AnalysisJobRepository,
   HomeWidgetRepository,
 ])
 void main() {
@@ -47,8 +45,7 @@ void main() {
   late MockLocationRepository location;
   late MockDayRepository days;
   late MockTryOnJobRepository jobs;
-  late MockMakeupRepository makeup;
-  late MockMakeupJobRepository makeupJobs;
+  late MockAnalysisJobRepository analyses;
   late MockHomeWidgetRepository widget;
   late DeleteAccount delete;
 
@@ -61,8 +58,7 @@ void main() {
     location = MockLocationRepository();
     days = MockDayRepository();
     jobs = MockTryOnJobRepository();
-    makeup = MockMakeupRepository();
-    makeupJobs = MockMakeupJobRepository();
+    analyses = MockAnalysisJobRepository();
     widget = MockHomeWidgetRepository();
     delete = DeleteAccount(
       auth: auth,
@@ -73,8 +69,7 @@ void main() {
       location: location,
       days: days,
       jobs: jobs,
-      makeup: makeup,
-      makeupJobs: makeupJobs,
+      analyses: analyses,
       widget: widget,
     );
     when(
@@ -89,8 +84,7 @@ void main() {
     when(location.forget()).thenAnswer((_) async => _done);
     when(days.forgetPictures(any)).thenAnswer((_) async => _done);
     when(jobs.clearAccount(any)).thenAnswer((_) async => _done);
-    when(makeup.forgetPictures(any)).thenAnswer((_) async => _done);
-    when(makeupJobs.clearAccount(any)).thenAnswer((_) async => _done);
+    when(analyses.forgetAccount(any)).thenAnswer((_) async {});
     when(widget.clear()).thenAnswer((_) async => _done);
   });
 
@@ -100,7 +94,7 @@ void main() {
     verifyNever(profile.clearName());
     verifyNever(location.forget());
     verifyNever(days.forgetPictures(any));
-    verifyNever(makeup.forgetPictures(any));
+    verifyNever(analyses.forgetAccount(any));
     verifyNever(widget.clear());
   }
 
@@ -119,8 +113,7 @@ void main() {
         location.forget(),
         days.forgetPictures('uid-1'),
         jobs.clearAccount('uid-1'),
-        makeup.forgetPictures('uid-1'),
-        makeupJobs.clearAccount('uid-1'),
+        analyses.forgetAccount('uid-1'),
         widget.clear(),
       ]);
     },

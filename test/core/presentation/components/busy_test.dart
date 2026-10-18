@@ -171,20 +171,6 @@ void main() {
     });
   });
 
-  group('Notice', () {
-    testWidgets('busy, a rule runs along its bottom edge', (tester) async {
-      await pumpInVogue(
-        tester,
-        const Notice(icon: InVogueIcons.image, message: 'Soon', busy: true),
-      );
-      expect(rule(color: InVogueColors.ink), findsOneWidget);
-      expect(
-        tester.getBottomLeft(find.byType(RunningRule)),
-        tester.getBottomLeft(find.byType(Notice)),
-      );
-    });
-  });
-
   group('PhotoStage', () {
     testWidgets('waiting, the rule runs along the bottom of the message', (
       tester,
@@ -230,27 +216,6 @@ void main() {
         tester,
         PhotoStage(state: PhotoStageState.idle, height: 400, photo: testImage),
       );
-      expect(rule(), findsNothing);
-    });
-  });
-
-  group('MakeupStep', () {
-    testWidgets('the step being made runs a rule under its square', (
-      tester,
-    ) async {
-      await pumpInVogue(
-        tester,
-        const MakeupStep(number: 2, title: 'Brows', working: true),
-      );
-      expect(rule(color: InVogueColors.ink), findsOneWidget);
-      expect(
-        tester.getSize(find.byType(RunningRule)).width,
-        MakeupStep.pictureSize,
-      );
-    });
-
-    testWidgets('a step waiting its turn stays still', (tester) async {
-      await pumpInVogue(tester, const MakeupStep(number: 3, title: 'Mascara'));
       expect(rule(), findsNothing);
     });
   });

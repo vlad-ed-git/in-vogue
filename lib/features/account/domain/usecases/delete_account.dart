@@ -5,10 +5,9 @@ import 'package:in_vogue/features/account/domain/repositories/account_repository
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
+import 'package:in_vogue/features/colours/domain/repositories/analysis_job_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/location/domain/repositories/location_repository.dart';
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
@@ -29,8 +28,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     required this._location,
     required this._days,
     required this._jobs,
-    required this._makeup,
-    required this._makeupJobs,
+    required this._analyses,
     required this._widget,
   });
 
@@ -42,8 +40,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
   final LocationRepository _location;
   final DayRepository _days;
   final TryOnJobRepository _jobs;
-  final MakeupRepository _makeup;
-  final MakeupJobRepository _makeupJobs;
+  final AnalysisJobRepository _analyses;
   final HomeWidgetRepository _widget;
 
   @override
@@ -71,8 +68,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     await _location.forget();
     await _days.forgetPictures(signedIn.id);
     await _jobs.clearAccount(signedIn.id);
-    await _makeup.forgetPictures(signedIn.id);
-    await _makeupJobs.clearAccount(signedIn.id);
+    await _analyses.forgetAccount(signedIn.id);
     await _widget.clear();
     return const Right(unit);
   }

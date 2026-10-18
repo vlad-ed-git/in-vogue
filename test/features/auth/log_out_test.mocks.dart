@@ -14,26 +14,16 @@ import 'package:in_vogue/features/auth/domain/entities/sign_in_method.dart'
     as _i7;
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart'
     as _i3;
-import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart'
-    as _i19;
-import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart'
-    as _i20;
-import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
-    as _i21;
-import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart'
-    as _i18;
-import 'package:in_vogue/features/makeup/domain/entities/makeup_job.dart'
-    as _i17;
-import 'package:in_vogue/features/makeup/domain/entities/makeup_look.dart'
-    as _i15;
-import 'package:in_vogue/features/makeup/domain/entities/makeup_recipe.dart'
-    as _i13;
-import 'package:in_vogue/features/makeup/domain/entities/skin_profile.dart'
-    as _i14;
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart'
-    as _i16;
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart'
+import 'package:in_vogue/features/colours/domain/repositories/analysis_job_repository.dart'
     as _i12;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart'
+    as _i14;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart'
+    as _i15;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
+    as _i16;
+import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart'
+    as _i13;
 import 'package:in_vogue/features/outfits/domain/entities/day.dart' as _i10;
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart'
     as _i9;
@@ -493,297 +483,56 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 }
 
-/// A class which mocks [MakeupRepository].
+/// A class which mocks [AnalysisJobRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMakeupRepository extends _i1.Mock implements _i12.MakeupRepository {
-  MockMakeupRepository() {
+class MockAnalysisJobRepository extends _i1.Mock
+    implements _i12.AnalysisJobRepository {
+  MockAnalysisJobRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i13.MakeupRecipe?>> recipe(String? key) =>
+  _i4.Future<String?> task(String? key) =>
       (super.noSuchMethod(
-            Invocation.method(#recipe, [key]),
-            returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i13.MakeupRecipe?>>.value(
-                  _FakeEither_0<_i5.Failure, _i13.MakeupRecipe?>(
-                    this,
-                    Invocation.method(#recipe, [key]),
-                  ),
-                ),
+            Invocation.method(#task, [key]),
+            returnValue: _i4.Future<String?>.value(),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i13.MakeupRecipe?>>);
+          as _i4.Future<String?>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i14.FaceColours?>> faceColours(
-    String? accountId,
-    String? facePhoto,
-  ) =>
+  _i4.Future<void> save(String? key, String? taskId) =>
       (super.noSuchMethod(
-            Invocation.method(#faceColours, [accountId, facePhoto]),
-            returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i14.FaceColours?>>.value(
-                  _FakeEither_0<_i5.Failure, _i14.FaceColours?>(
-                    this,
-                    Invocation.method(#faceColours, [accountId, facePhoto]),
-                  ),
-                ),
+            Invocation.method(#save, [key, taskId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i14.FaceColours?>>);
+          as _i4.Future<void>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> saveFaceColours(
-    String? accountId,
-    String? facePhoto,
-    _i14.FaceColours? colours,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#saveFaceColours, [
-              accountId,
-              facePhoto,
-              colours,
-            ]),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
-              _FakeEither_0<_i5.Failure, _i2.Unit>(
-                this,
-                Invocation.method(#saveFaceColours, [
-                  accountId,
-                  facePhoto,
-                  colours,
-                ]),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, String?>> keptPicture(
-    String? accountId, {
-    required String? facePhoto,
-    required String? outfitSignature,
-    required String? fileName,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #keptPicture,
-              [accountId],
-              {
-                #facePhoto: facePhoto,
-                #outfitSignature: outfitSignature,
-                #fileName: fileName,
-              },
-            ),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, String?>>.value(
-              _FakeEither_0<_i5.Failure, String?>(
-                this,
-                Invocation.method(
-                  #keptPicture,
-                  [accountId],
-                  {
-                    #facePhoto: facePhoto,
-                    #outfitSignature: outfitSignature,
-                    #fileName: fileName,
-                  },
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, String?>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, String>> keepPicture(
-    String? accountId, {
-    required String? facePhoto,
-    required String? outfitSignature,
-    required String? name,
-    required List<int>? picture,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #keepPicture,
-              [accountId],
-              {
-                #facePhoto: facePhoto,
-                #outfitSignature: outfitSignature,
-                #name: name,
-                #picture: picture,
-              },
-            ),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, String>>.value(
-              _FakeEither_0<_i5.Failure, String>(
-                this,
-                Invocation.method(
-                  #keepPicture,
-                  [accountId],
-                  {
-                    #facePhoto: facePhoto,
-                    #outfitSignature: outfitSignature,
-                    #name: name,
-                    #picture: picture,
-                  },
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, String>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> record(
-    String? accountId,
-    _i15.MakeupLook? look, {
-    required String? facePhoto,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #record,
-              [accountId, look],
-              {#facePhoto: facePhoto},
-            ),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
-              _FakeEither_0<_i5.Failure, _i2.Unit>(
-                this,
-                Invocation.method(
-                  #record,
-                  [accountId, look],
-                  {#facePhoto: facePhoto},
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, _i15.MakeupLook?>> look(
-    String? accountId, {
-    required String? facePhoto,
-    required String? outfitSignature,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #look,
-              [accountId],
-              {#facePhoto: facePhoto, #outfitSignature: outfitSignature},
-            ),
-            returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i15.MakeupLook?>>.value(
-                  _FakeEither_0<_i5.Failure, _i15.MakeupLook?>(
-                    this,
-                    Invocation.method(
-                      #look,
-                      [accountId],
-                      {
-                        #facePhoto: facePhoto,
-                        #outfitSignature: outfitSignature,
-                      },
-                    ),
-                  ),
-                ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, _i15.MakeupLook?>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, _i15.MakeupLook?>> latestLook(
-    String? accountId,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#latestLook, [accountId]),
-            returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i15.MakeupLook?>>.value(
-                  _FakeEither_0<_i5.Failure, _i15.MakeupLook?>(
-                    this,
-                    Invocation.method(#latestLook, [accountId]),
-                  ),
-                ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, _i15.MakeupLook?>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> forgetPictures(
-    String? accountId,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#forgetPictures, [accountId]),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
-              _FakeEither_0<_i5.Failure, _i2.Unit>(
-                this,
-                Invocation.method(#forgetPictures, [accountId]),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
-}
-
-/// A class which mocks [MakeupJobRepository].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockMakeupJobRepository extends _i1.Mock
-    implements _i16.MakeupJobRepository {
-  MockMakeupJobRepository() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, _i17.MakeupJob?>> job(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#job, [key]),
-            returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i17.MakeupJob?>>.value(
-                  _FakeEither_0<_i5.Failure, _i17.MakeupJob?>(
-                    this,
-                    Invocation.method(#job, [key]),
-                  ),
-                ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, _i17.MakeupJob?>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> save(_i17.MakeupJob? job) =>
-      (super.noSuchMethod(
-            Invocation.method(#save, [job]),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
-              _FakeEither_0<_i5.Failure, _i2.Unit>(
-                this,
-                Invocation.method(#save, [job]),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> clear(String? key) =>
+  _i4.Future<void> clear(String? key) =>
       (super.noSuchMethod(
             Invocation.method(#clear, [key]),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
-              _FakeEither_0<_i5.Failure, _i2.Unit>(
-                this,
-                Invocation.method(#clear, [key]),
-              ),
-            ),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+          as _i4.Future<void>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> clearAccount(
-    String? accountId,
-  ) =>
+  _i4.Future<void> forgetAccount(String? accountId) =>
       (super.noSuchMethod(
-            Invocation.method(#clearAccount, [accountId]),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
-              _FakeEither_0<_i5.Failure, _i2.Unit>(
-                this,
-                Invocation.method(#clearAccount, [accountId]),
-              ),
-            ),
+            Invocation.method(#forgetAccount, [accountId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [HomeWidgetRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockHomeWidgetRepository extends _i1.Mock
-    implements _i18.HomeWidgetRepository {
+    implements _i13.HomeWidgetRepository {
   MockHomeWidgetRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -798,8 +547,8 @@ class MockHomeWidgetRepository extends _i1.Mock
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> publish(
-    _i19.WidgetContent? content, {
-    _i20.WidgetRefreshContext? refresh,
+    _i14.WidgetContent? content, {
+    _i15.WidgetRefreshContext? refresh,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#publish, [content], {#refresh: refresh}),
@@ -826,10 +575,10 @@ class MockHomeWidgetRepository extends _i1.Mock
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 
   @override
-  _i4.Stream<_i21.WidgetTap> taps() =>
+  _i4.Stream<_i16.WidgetTap> taps() =>
       (super.noSuchMethod(
             Invocation.method(#taps, []),
-            returnValue: _i4.Stream<_i21.WidgetTap>.empty(),
+            returnValue: _i4.Stream<_i16.WidgetTap>.empty(),
           )
-          as _i4.Stream<_i21.WidgetTap>);
+          as _i4.Stream<_i16.WidgetTap>);
 }

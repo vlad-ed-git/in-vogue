@@ -5,9 +5,8 @@ import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/auth/domain/usecases/log_out.dart';
+import 'package:in_vogue/features/colours/domain/repositories/analysis_job_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_job_repository.dart';
-import 'package:in_vogue/features/makeup/domain/repositories/makeup_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
 import 'package:mockito/annotations.dart';
@@ -21,16 +20,14 @@ const _done = Right<Failure, Unit>(unit);
   AuthRepository,
   ProfileRepository,
   DayRepository,
-  MakeupRepository,
-  MakeupJobRepository,
+  AnalysisJobRepository,
   HomeWidgetRepository,
 ])
 void main() {
   late MockAuthRepository auth;
   late MockProfileRepository profile;
   late MockDayRepository days;
-  late MockMakeupRepository makeup;
-  late MockMakeupJobRepository makeupJobs;
+  late MockAnalysisJobRepository analyses;
   late MockHomeWidgetRepository widget;
   late LogOut logOut;
 
@@ -38,15 +35,13 @@ void main() {
     auth = MockAuthRepository();
     profile = MockProfileRepository();
     days = MockDayRepository();
-    makeup = MockMakeupRepository();
-    makeupJobs = MockMakeupJobRepository();
+    analyses = MockAnalysisJobRepository();
     widget = MockHomeWidgetRepository();
     logOut = LogOut(
       auth: auth,
       profile: profile,
       days: days,
-      makeup: makeup,
-      makeupJobs: makeupJobs,
+      analyses: analyses,
       widget: widget,
     );
     when(
@@ -55,19 +50,17 @@ void main() {
     when(auth.signOut()).thenAnswer((_) async => _done);
     when(profile.clearName()).thenAnswer((_) async => _done);
     when(days.forgetPictures(any)).thenAnswer((_) async => _done);
-    when(makeup.forgetPictures(any)).thenAnswer((_) async => _done);
-    when(makeupJobs.clearAccount(any)).thenAnswer((_) async => _done);
+    when(analyses.forgetAccount(any)).thenAnswer((_) async {});
     when(widget.clear()).thenAnswer((_) async => _done);
   });
 
-  test('signs out, then forgets the name and the account\'s outfit and '
-      'makeup pictures', () async {
+  test('signs out, then forgets the name, the account\'s outfit pictures '
+      'and its colour readings under way', () async {
     expect(await logOut(const NoParams()), _done);
     verifyInOrder([
       auth.signOut(),
       days.forgetPictures('uid-1'),
-      makeup.forgetPictures('uid-1'),
-      makeupJobs.clearAccount('uid-1'),
+      analyses.forgetAccount('uid-1'),
       widget.clear(),
       profile.clearName(),
     ]);
@@ -80,8 +73,7 @@ void main() {
       const Left<Failure, Unit>(NetworkFailure()),
     );
     verifyZeroInteractions(days);
-    verifyZeroInteractions(makeup);
-    verifyZeroInteractions(makeupJobs);
+    verifyZeroInteractions(analyses);
     verifyZeroInteractions(widget);
     verifyNever(profile.clearName());
   });
@@ -90,11 +82,8 @@ void main() {
     when(
       days.forgetPictures(any),
     ).thenAnswer((_) async => const Left(CacheFailure()));
-    when(
-      makeup.forgetPictures(any),
-    ).thenAnswer((_) async => const Left(CacheFailure()));
     expect(await logOut(const NoParams()), _done);
-    verify(makeupJobs.clearAccount('uid-1')).called(1);
+    verify(analyses.forgetAccount('uid-1')).called(1);
     verify(profile.clearName()).called(1);
   });
 
@@ -106,8 +95,7 @@ void main() {
       verify(auth.signOut()).called(1);
       verify(profile.clearName()).called(1);
       verifyZeroInteractions(days);
-      verifyZeroInteractions(makeup);
-      verifyZeroInteractions(makeupJobs);
+      verifyZeroInteractions(analyses);
     },
   );
 }

@@ -31,8 +31,7 @@ void init(GetIt locator) {
         auth: locator(),
         profile: locator(),
         days: locator(),
-        makeup: locator(),
-        makeupJobs: locator(),
+        analyses: locator(),
         widget: locator(),
       ),
     )

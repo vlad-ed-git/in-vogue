@@ -152,7 +152,7 @@ void main() {
   });
 
   group('ProOffer', () {
-    testWidgets('name, four benefits, the price and Go Pro', (tester) async {
+    testWidgets('name, three benefits, the price and Go Pro', (tester) async {
       var goPro = 0;
       await pumpInVogue(tester, ProOffer(onGoPro: () => goPro++));
       expect(find.text('In Vogue Pro'), findsOneWidget);
@@ -164,11 +164,10 @@ void main() {
         'A new outfit every day',
         'Other outfits to choose from',
         'The whole collection to browse',
-        'Makeup for every outfit',
       ]) {
         expect(find.text(benefit), findsOneWidget);
       }
-      expect(findIcon(InVogueIcons.check), findsNWidgets(4));
+      expect(findIcon(InVogueIcons.check), findsNWidgets(3));
       expect(
         tester
             .widget<Text>(find.text('\$7.99 a month · or \$59.99 a year'))

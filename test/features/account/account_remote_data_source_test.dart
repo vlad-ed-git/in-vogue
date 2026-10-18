@@ -15,7 +15,6 @@ const _collections = [
   'wishlist',
   'days',
   'suggestions',
-  'makeupLooks',
   'colorProfiles',
   'tryOns',
 ];

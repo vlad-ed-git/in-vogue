@@ -77,7 +77,6 @@ flutter:
   assets:
     - assets/catalog/
     - assets/outfits/
-    - assets/makeup/
     - assets/images/
     # Development builds only: the YouCam key (git-ignored).
     - path: assets/development/
