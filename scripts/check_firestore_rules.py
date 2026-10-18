@@ -35,7 +35,13 @@ def token(uid):
     return f"{b64({'alg': 'none', 'typ': 'JWT'})}.{b64(payload)}."
 
 
+class Time(str):
+    """An RFC 3339 time, sent as a Firestore timestamp."""
+
+
 def value(v):
+    if isinstance(v, Time):
+        return {"timestampValue": v}
     return {"integerValue": str(v)} if isinstance(v, int) else {"stringValue": v}
 
 
@@ -71,6 +77,12 @@ def replace(path, uid, data):
 
 
 ALLOW, DENY = 200, 403
+REPORT = {
+    "account": "a", "at": Time("2026-10-18T09:30:00Z"), "where": "DayRepositoryImpl.watch",
+    "error": "FirebaseException cloud_firestore/unavailable", "stack": "#0 main",
+    "flavor": "development", "platform": "ios", "version": "1.0.0+7", "build": "release",
+    "install": "install-1",
+}
 cases = [
     ("new account on the demo plan", lambda: create("users/a", "a", {"name": "A", "plan": "pro"}), ALLOW),
     ("new account with no plan", lambda: create("users/c", "c", {"name": "C"}), ALLOW),
@@ -97,6 +109,16 @@ cases = [
     ("delete under your account", lambda: call("DELETE", "users/a/wishlist/w", "a"), ALLOW),
     ("delete someone else's account", lambda: call("DELETE", "users/c", "a"), DENY),
     ("delete your account", lambda: call("DELETE", "users/a", "a"), ALLOW),
+    ("file an error report", lambda: create("errors/r1", "a", REPORT), ALLOW),
+    ("file a report as someone else", lambda: create("errors/r2", "b", REPORT), DENY),
+    ("file a report signed out", lambda: create("errors/r3", None, REPORT), DENY),
+    ("file a report with another field", lambda: create("errors/r4", "a", {**REPORT, "message": "x"}), DENY),
+    ("file a report missing a field", lambda: create("errors/r5", "a", {k: v for k, v in REPORT.items() if k != "install"}), DENY),
+    ("file a report with a long stack", lambda: create("errors/r6", "a", {**REPORT, "stack": "x" * 4001}), DENY),
+    ("file a report from another platform", lambda: create("errors/r7", "a", {**REPORT, "platform": "web"}), DENY),
+    ("read an error report", lambda: call("GET", "errors/r1", "a"), DENY),
+    ("change an error report", lambda: merge("errors/r1", "a", {"where": "x"}), DENY),
+    ("delete an error report", lambda: call("DELETE", "errors/r1", "a"), DENY),
 ]
 failed = 0
 for name, run, expected in cases:

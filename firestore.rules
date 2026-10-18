@@ -21,5 +21,28 @@ service cloud.firestore {
         allow read, write: if isOwner(uid);
       }
     }
+
+    // Error reports: a signed-in person files their own, with fixed fields
+    // and sizes. Nobody reads, changes or deletes one from the app.
+    match /errors/{report} {
+      allow create: if request.auth != null && isReport(request.resource.data);
+    }
+
+    function isReport(data) {
+      let fields = ['account', 'at', 'where', 'error', 'stack', 'flavor',
+        'platform', 'version', 'build', 'install'];
+      return data.keys().hasOnly(fields)
+        && data.keys().hasAll(fields)
+        && data.account == request.auth.uid
+        && data.at is timestamp
+        && data.where is string && data.where.size() <= 200
+        && data.error is string && data.error.size() <= 300
+        && data.stack is string && data.stack.size() <= 4000
+        && data.flavor in ['development', 'production']
+        && data.platform in ['android', 'ios']
+        && data.version is string && data.version.size() <= 40
+        && data.build in ['debug', 'profile', 'release']
+        && data.install is string && data.install.size() <= 64;
+    }
   }
 }
