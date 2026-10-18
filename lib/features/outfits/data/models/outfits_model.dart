@@ -16,13 +16,6 @@ abstract final class OutfitsModel {
     'outer': GarmentCategory.outer,
   };
 
-  static const _palettes = {
-    'warm_neutral': OutfitPalette.warmNeutral,
-    'cool_neutral': OutfitPalette.coolNeutral,
-    'mixed_neutral': OutfitPalette.mixedNeutral,
-    'colourful': OutfitPalette.colourful,
-  };
-
   /// The service's name of [category].
   static String categoryName(GarmentCategory category) =>
       _categories.entries.firstWhere((entry) => entry.value == category).key;
@@ -52,12 +45,11 @@ abstract final class OutfitsModel {
 
   static Outfit _outfit(String id, Object? json) => switch (json) {
     {
-          'signature': final String signature,
-          'pieces': final List<Object?> pieces,
-          'passes': final List<Object?> passes,
-          'reasons': final Map<String, Object?> reasons,
-        } &&
-        final Map<String, Object?> fields =>
+      'signature': final String signature,
+      'pieces': final List<Object?> pieces,
+      'passes': final List<Object?> passes,
+      'reasons': final Map<String, Object?> reasons,
+    } =>
       Outfit(
         id: id,
         signature: signature,
@@ -67,7 +59,6 @@ abstract final class OutfitsModel {
           for (final MapEntry(key: cell, value: reason) in reasons.entries)
             cell: ?LocalizedText.fromJson(reason),
         },
-        palette: _palettes[fields['palette']],
       ),
     _ => throw FormatException('Not an outfit', id),
   };
