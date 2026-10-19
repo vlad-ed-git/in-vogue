@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""Export the pulled catalog as the app's picks asset.
+"""Export the pulled catalog as the asset Shop reads.
 
     python3 scripts/export_catalog.py [catalog.json] [out.json]
 
 Reads ../resources/catalog/everlane.women.json (the Shopify Global Catalog
 pull) and writes assets/catalog/everlane_women.json: one entry per style with
-its colourways, worn photo, product link, material, warmth bands and whether
-it is documented as water-resistant. Prices are left out: the app never
-shows them.
+its colourways, worn and flat-lay photos, product link and material. Prices
+are left out: the app never shows them.
 """
 import json
 import statistics
@@ -18,8 +17,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent / "resources/catalog/everlane.women.json"
 OUT = Path(sys.argv[2]) if len(sys.argv) > 2 else ROOT / "assets/catalog/everlane_women.json"
-
-BAND_ORDER = ["hot", "warm", "mild", "cool", "cold"]
 
 # Colour for a family nobody measured.
 NEUTRAL = "#9a9a98"
@@ -59,14 +56,8 @@ def main():
         style = styles.setdefault(key, {
             "id": product["handle"],
             "name": product["title"],
-            "category": product["category"],
-            "bands": set(),
-            "rain": False,
             "colourways": [],
         })
-        style["bands"].update(product.get("warmthBands") or [])
-        # Only documented water resistance counts; nothing is called waterproof.
-        style["rain"] = style["rain"] or product.get("rainProtection") == "water_resistant"
         style["colourways"].append({
             "id": product["id"],
             "name": product["colorName"],
@@ -79,10 +70,7 @@ def main():
     out = {
         "retailer": catalog["retailer"],
         "source": "Shopify Global Catalog",
-        "pieces": [
-            {**style, "bands": [b for b in BAND_ORDER if b in style["bands"]]}
-            for style in styles.values()
-        ],
+        "pieces": list(styles.values()),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
