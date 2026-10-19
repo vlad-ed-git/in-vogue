@@ -11,7 +11,6 @@ void main() {
     InVogueIcons.arrowRight,
     InVogueIcons.arrowUpRight,
     InVogueIcons.caretLeft,
-    InVogueIcons.close,
     InVogueIcons.check,
     InVogueIcons.image,
     InVogueIcons.lock,

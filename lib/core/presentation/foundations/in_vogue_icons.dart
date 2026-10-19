@@ -8,7 +8,6 @@ abstract final class InVogueIcons {
   static const IconData arrowRight = PhosphorIconsRegular.arrowRight;
   static const IconData arrowUpRight = PhosphorIconsRegular.arrowUpRight;
   static const IconData caretLeft = PhosphorIconsRegular.caretLeft;
-  static const IconData close = PhosphorIconsRegular.x;
   static const IconData check = PhosphorIconsRegular.check;
   static const IconData image = PhosphorIconsRegular.image;
   static const IconData lock = PhosphorIconsRegular.lockSimple;

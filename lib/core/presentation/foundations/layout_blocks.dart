@@ -1,23 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
-import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
-import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
-
-/// A full-width 1-point line.
-class Hairline extends StatelessWidget {
-  const Hairline({this.color = InVogueColors.rule, super.key});
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-    height: InVogueLayout.strokeHairline,
-    width: double.infinity,
-    child: ColoredBox(color: color),
-  );
-}
 
 /// Pads [child] with the horizontal page margin.
 class PageMargin extends StatelessWidget {

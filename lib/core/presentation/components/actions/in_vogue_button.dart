@@ -22,21 +22,6 @@ enum InVogueButtonKind {
 /// trailing icon. Darkens while pressed; studio grey when disabled; keeps
 /// its colours and runs a [RunningRule] along its bottom while [busy].
 class InVogueButton extends StatelessWidget {
-  const InVogueButton({
-    required this.label,
-    required this.onPressed,
-    this.kind = InVogueButtonKind.primary,
-    this.icon,
-    this.iconColor,
-    this.compact = false,
-    this.onRose = false,
-    this.semanticLabel,
-    this.focusNode,
-    this.autofocus = false,
-    this.busy = false,
-    super.key,
-  });
-
   /// A Rouge primary button.
   const InVogueButton.primary({
     required this.label,

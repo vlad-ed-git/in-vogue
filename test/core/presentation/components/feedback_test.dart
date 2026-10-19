@@ -106,25 +106,6 @@ void main() {
       expect(notice.right - button.right, 16);
     });
 
-    testWidgets('offline reads plainly', (tester) async {
-      await pumpInVogue(
-        tester,
-        Builder(
-          builder: (context) => Notice.offline(
-            context: context,
-            savedAt: 'Thu 16 Oct at 9:12 pm',
-          ),
-        ),
-      );
-      expect(
-        find.text(
-          'You’re offline. This is the outfit saved on Thu 16 Oct at 9:12 pm.',
-        ),
-        findsOneWidget,
-      );
-      expect(find.byType(InVogueButton), findsNothing);
-    });
-
     testWidgets('wraps at 200% text on a small phone without clipping', (
       tester,
     ) async {

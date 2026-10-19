@@ -46,9 +46,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get back => 'Atrás';
 
   @override
-  String get close => 'Cerrar';
-
-  @override
   String setupFolio(int step, int total) {
     return '$step / $total';
   }
@@ -230,11 +227,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get openSettings => 'Abrir ajustes';
 
   @override
-  String offlineSaved(String savedAt) {
-    return 'No tienes conexión. Este es el conjunto guardado el $savedAt.';
-  }
-
-  @override
   String savedAt(String date, String time) {
     return '$date a las $time';
   }
@@ -317,43 +309,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Ejemplo: un rostro fotografiado de cerca, de frente, con luz natural';
 
   @override
-  String get otherOutfitsPreparing => 'Otros conjuntos están en camino.';
-
-  @override
-  String get otherOutfitsLocked => 'Los otros conjuntos vienen con Pro.';
-
-  @override
   String get goPro => 'Hazte Pro';
 
   @override
-  String outfitTileSpoken(int index, int count) {
-    return 'Conjunto $index de $count';
-  }
-
-  @override
-  String outfitTileShownSpoken(int index, int count) {
-    return 'Conjunto $index de $count, en pantalla';
-  }
-
-  @override
   String get lockedSpoken => 'Incluido en Pro';
-
-  @override
-  String planFree(int outfits) {
-    String _temp0 = intl.Intl.pluralLogic(
-      outfits,
-      locale: localeName,
-      other: '$outfits conjuntos',
-      one: '1 conjunto',
-    );
-    return 'Plan gratuito · te quedan $_temp0';
-  }
-
-  @override
-  String get planNoOutfits => 'Plan gratuito · no te quedan conjuntos';
-
-  @override
-  String get onProList => 'En la lista de Pro ✓';
 
   @override
   String loveSpoken(String name) {
@@ -405,33 +364,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get deleteAccount => 'Eliminar cuenta';
-
-  @override
-  String get proName => 'In Vogue Pro';
-
-  @override
-  String get proLine => 'Más conjuntos y más opciones.';
-
-  @override
-  String get proBenefitDaily => 'Un conjunto nuevo cada día';
-
-  @override
-  String get proBenefitChoice => 'Otros conjuntos para elegir';
-
-  @override
-  String get proBenefitCollection => 'Toda la colección para explorar';
-
-  @override
-  String get proPrice => '\$7.99 al mes · o \$59.99 al año';
-
-  @override
-  String get onTheList => 'Estás en la lista.';
-
-  @override
-  String get proSoon => 'Pro abre pronto y serás la primera en saberlo.';
-
-  @override
-  String get backToInVogue => 'Volver a In Vogue';
 
   @override
   String get widgetStepHold => 'Mantén pulsada la pantalla de inicio';

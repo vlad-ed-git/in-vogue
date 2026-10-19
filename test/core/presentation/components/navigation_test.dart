@@ -113,19 +113,6 @@ void main() {
       await pumpInVogue(tester, BackBar(onBack: () {}));
       expect(find.textContaining('/'), findsNothing);
     });
-
-    testWidgets('Go Pro closes with an x on the right', (tester) async {
-      final handle = tester.ensureSemantics();
-      var closed = 0;
-      await pumpInVogue(tester, BackBar.close(onClose: () => closed++));
-      expect(find.text('Back'), findsNothing);
-      final close = tester.getRect(findIcon(InVogueIcons.close));
-      expect(close.right, 370);
-      expect(close.size, const Size.square(24));
-      await tester.tap(find.bySemanticsLabel('Close'));
-      expect(closed, 1);
-      handle.dispose();
-    });
   });
 
   group('InVogueTabBar', () {

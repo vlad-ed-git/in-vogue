@@ -42,9 +42,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get back => '返回';
 
   @override
-  String get close => '关闭';
-
-  @override
   String setupFolio(int step, int total) {
     return '$step / $total';
   }
@@ -226,11 +223,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get openSettings => '打开设置';
 
   @override
-  String offlineSaved(String savedAt) {
-    return '当前离线。这是 $savedAt 保存的穿搭。';
-  }
-
-  @override
   String savedAt(String date, String time) {
     return '$date $time';
   }
@@ -308,37 +300,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exampleFaceSpoken => '示例：一张在自然光下拍摄的正面脸部近照';
 
   @override
-  String get otherOutfitsPreparing => '其他穿搭正在准备中。';
-
-  @override
-  String get otherOutfitsLocked => '其他穿搭为 Pro 专享。';
-
-  @override
   String get goPro => '升级 Pro';
 
   @override
-  String outfitTileSpoken(int index, int count) {
-    return '第 $index 套，共 $count 套';
-  }
-
-  @override
-  String outfitTileShownSpoken(int index, int count) {
-    return '第 $index 套，共 $count 套，当前显示';
-  }
-
-  @override
   String get lockedSpoken => 'Pro 专享';
-
-  @override
-  String planFree(int outfits) {
-    return '免费版 · 还剩 $outfits 套穿搭';
-  }
-
-  @override
-  String get planNoOutfits => '免费版 · 穿搭已用完';
-
-  @override
-  String get onProList => '已加入 Pro 名单 ✓';
 
   @override
   String loveSpoken(String name) {
@@ -384,33 +349,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deleteAccount => '删除账户';
-
-  @override
-  String get proName => 'In Vogue Pro';
-
-  @override
-  String get proLine => '更多穿搭，更多选择。';
-
-  @override
-  String get proBenefitDaily => '每天一套新穿搭';
-
-  @override
-  String get proBenefitChoice => '更多穿搭任你挑选';
-
-  @override
-  String get proBenefitCollection => '浏览完整系列';
-
-  @override
-  String get proPrice => '每月 \$7.99 · 或每年 \$59.99';
-
-  @override
-  String get onTheList => '你已在名单上。';
-
-  @override
-  String get proSoon => 'Pro 即将开放，你会第一个知道。';
-
-  @override
-  String get backToInVogue => '返回 In Vogue';
 
   @override
   String get widgetStepHold => '长按主屏幕';

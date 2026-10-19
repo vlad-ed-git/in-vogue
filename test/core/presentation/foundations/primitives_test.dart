@@ -156,15 +156,6 @@ void main() {
   });
 
   group('layout blocks', () {
-    testWidgets('a hairline is one point of rule', (tester) async {
-      await pumpInVogue(tester, const Hairline());
-      expect(tester.getSize(find.byType(Hairline)).height, 1);
-      expect(
-        tester.widget<ColoredBox>(find.byType(ColoredBox).last).color,
-        InVogueColors.rule,
-      );
-    });
-
     testWidgets('the page margin narrows below 360 points', (tester) async {
       for (final (width, margin) in [(390.0, 20.0), (320.0, 16.0)]) {
         await pumpInVogue(

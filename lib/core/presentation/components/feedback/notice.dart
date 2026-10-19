@@ -33,17 +33,6 @@ class Notice extends StatelessWidget {
     ),
   );
 
-  /// Offline, with the time [savedAt] the content was saved.
-  factory Notice.offline({
-    required BuildContext context,
-    required String savedAt,
-    Key? key,
-  }) => Notice(
-    key: key,
-    icon: InVogueIcons.offline,
-    message: context.translated.offlineSaved(savedAt),
-  );
-
   /// A failed try-on; offers Try again.
   factory Notice.tryOnFailed({
     required BuildContext context,

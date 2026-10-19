@@ -17,10 +17,6 @@
   "@back": {
     "description": "Back bar action."
   },
-  "close": "Close",
-  "@close": {
-    "description": "Close action on Go Pro."
-  },
   "setupFolio": "{step} / {total}",
   "@setupFolio": {
     "description": "Setup progress folio, such as 2 / 6.",
@@ -249,15 +245,6 @@
     "description": "The phone could not find its position; shown with Try again."
   },
   "openSettings": "Open settings",
-  "offlineSaved": "You’re offline. This is the outfit saved on {savedAt}.",
-  "@offlineSaved": {
-    "description": "savedAt is a date and time such as Thu 16 Oct at 9:12 pm.",
-    "placeholders": {
-      "savedAt": {
-        "type": "String"
-      }
-    }
-  },
   "savedAt": "{date} at {time}",
   "@savedAt": {
     "placeholders": {
@@ -326,42 +313,8 @@
   "bodyPhotoPrivacy": "Your photo is only used to dress you in outfits. You can replace it any time.",
   "exampleBodySpoken": "Example: a woman photographed head to toe, facing forward, in even light",
   "exampleFaceSpoken": "Example: a face photographed close up, facing forward, in daylight",
-  "otherOutfitsPreparing": "Other outfits are on their way.",
-  "otherOutfitsLocked": "Other outfits come with Pro.",
   "goPro": "Go Pro",
-  "outfitTileSpoken": "Outfit {index} of {count}",
-  "@outfitTileSpoken": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "outfitTileShownSpoken": "Outfit {index} of {count}, shown",
-  "@outfitTileShownSpoken": {
-    "placeholders": {
-      "index": {
-        "type": "int"
-      },
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "lockedSpoken": "Part of Pro",
-  "planFree": "Free plan · {outfits, plural, =0{no outfits} =1{1 outfit} other{{outfits} outfits}} left",
-  "@planFree": {
-    "placeholders": {
-      "outfits": {
-        "type": "int"
-      }
-    }
-  },
-  "planNoOutfits": "Free plan · no outfits left",
-  "onProList": "On the Pro list ✓",
   "loveSpoken": "Love {name}",
   "@loveSpoken": {
     "placeholders": {
@@ -418,18 +371,6 @@
   },
   "logOut": "Log out",
   "deleteAccount": "Delete account",
-  "proName": "In Vogue Pro",
-  "proLine": "More outfits, more choice.",
-  "proBenefitDaily": "A new outfit every day",
-  "proBenefitChoice": "Other outfits to choose from",
-  "proBenefitCollection": "The whole collection to browse",
-  "proPrice": "$7.99 a month · or $59.99 a year",
-  "@proPrice": {
-    "description": "The only price in the app."
-  },
-  "onTheList": "You’re on the list.",
-  "proSoon": "Pro opens soon, and you’ll be the first to know.",
-  "backToInVogue": "Back to In Vogue",
   "widgetStepHold": "Press and hold your home screen",
   "widgetStepPlus": "Tap +",
   "widgetStepChoose": "Choose In Vogue",

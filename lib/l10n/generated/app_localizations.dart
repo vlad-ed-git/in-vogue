@@ -166,12 +166,6 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get back;
 
-  /// Close action on Go Pro.
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get close;
-
   /// Setup progress folio, such as 2 / 6.
   ///
   /// In en, this message translates to:
@@ -399,12 +393,6 @@ abstract class AppLocalizations {
   /// **'Open settings'**
   String get openSettings;
 
-  /// savedAt is a date and time such as Thu 16 Oct at 9:12 pm.
-  ///
-  /// In en, this message translates to:
-  /// **'You’re offline. This is the outfit saved on {savedAt}.'**
-  String offlineSaved(String savedAt);
-
   /// No description provided for @savedAt.
   ///
   /// In en, this message translates to:
@@ -555,59 +543,17 @@ abstract class AppLocalizations {
   /// **'Example: a face photographed close up, facing forward, in daylight'**
   String get exampleFaceSpoken;
 
-  /// No description provided for @otherOutfitsPreparing.
-  ///
-  /// In en, this message translates to:
-  /// **'Other outfits are on their way.'**
-  String get otherOutfitsPreparing;
-
-  /// No description provided for @otherOutfitsLocked.
-  ///
-  /// In en, this message translates to:
-  /// **'Other outfits come with Pro.'**
-  String get otherOutfitsLocked;
-
   /// No description provided for @goPro.
   ///
   /// In en, this message translates to:
   /// **'Go Pro'**
   String get goPro;
 
-  /// No description provided for @outfitTileSpoken.
-  ///
-  /// In en, this message translates to:
-  /// **'Outfit {index} of {count}'**
-  String outfitTileSpoken(int index, int count);
-
-  /// No description provided for @outfitTileShownSpoken.
-  ///
-  /// In en, this message translates to:
-  /// **'Outfit {index} of {count}, shown'**
-  String outfitTileShownSpoken(int index, int count);
-
   /// No description provided for @lockedSpoken.
   ///
   /// In en, this message translates to:
   /// **'Part of Pro'**
   String get lockedSpoken;
-
-  /// No description provided for @planFree.
-  ///
-  /// In en, this message translates to:
-  /// **'Free plan · {outfits, plural, =0{no outfits} =1{1 outfit} other{{outfits} outfits}} left'**
-  String planFree(int outfits);
-
-  /// No description provided for @planNoOutfits.
-  ///
-  /// In en, this message translates to:
-  /// **'Free plan · no outfits left'**
-  String get planNoOutfits;
-
-  /// No description provided for @onProList.
-  ///
-  /// In en, this message translates to:
-  /// **'On the Pro list ✓'**
-  String get onProList;
 
   /// No description provided for @loveSpoken.
   ///
@@ -674,60 +620,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete account'**
   String get deleteAccount;
-
-  /// No description provided for @proName.
-  ///
-  /// In en, this message translates to:
-  /// **'In Vogue Pro'**
-  String get proName;
-
-  /// No description provided for @proLine.
-  ///
-  /// In en, this message translates to:
-  /// **'More outfits, more choice.'**
-  String get proLine;
-
-  /// No description provided for @proBenefitDaily.
-  ///
-  /// In en, this message translates to:
-  /// **'A new outfit every day'**
-  String get proBenefitDaily;
-
-  /// No description provided for @proBenefitChoice.
-  ///
-  /// In en, this message translates to:
-  /// **'Other outfits to choose from'**
-  String get proBenefitChoice;
-
-  /// No description provided for @proBenefitCollection.
-  ///
-  /// In en, this message translates to:
-  /// **'The whole collection to browse'**
-  String get proBenefitCollection;
-
-  /// The only price in the app.
-  ///
-  /// In en, this message translates to:
-  /// **'\$7.99 a month · or \$59.99 a year'**
-  String get proPrice;
-
-  /// No description provided for @onTheList.
-  ///
-  /// In en, this message translates to:
-  /// **'You’re on the list.'**
-  String get onTheList;
-
-  /// No description provided for @proSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'Pro opens soon, and you’ll be the first to know.'**
-  String get proSoon;
-
-  /// No description provided for @backToInVogue.
-  ///
-  /// In en, this message translates to:
-  /// **'Back to In Vogue'**
-  String get backToInVogue;
 
   /// No description provided for @widgetStepHold.
   ///

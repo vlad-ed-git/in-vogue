@@ -43,9 +43,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get back => 'Back';
 
   @override
-  String get close => 'Close';
-
-  @override
   String setupFolio(int step, int total) {
     return '$step / $total';
   }
@@ -228,11 +225,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get openSettings => 'Open settings';
 
   @override
-  String offlineSaved(String savedAt) {
-    return 'You’re offline. This is the outfit saved on $savedAt.';
-  }
-
-  @override
   String savedAt(String date, String time) {
     return '$date at $time';
   }
@@ -315,44 +307,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Example: a face photographed close up, facing forward, in daylight';
 
   @override
-  String get otherOutfitsPreparing => 'Other outfits are on their way.';
-
-  @override
-  String get otherOutfitsLocked => 'Other outfits come with Pro.';
-
-  @override
   String get goPro => 'Go Pro';
 
   @override
-  String outfitTileSpoken(int index, int count) {
-    return 'Outfit $index of $count';
-  }
-
-  @override
-  String outfitTileShownSpoken(int index, int count) {
-    return 'Outfit $index of $count, shown';
-  }
-
-  @override
   String get lockedSpoken => 'Part of Pro';
-
-  @override
-  String planFree(int outfits) {
-    String _temp0 = intl.Intl.pluralLogic(
-      outfits,
-      locale: localeName,
-      other: '$outfits outfits',
-      one: '1 outfit',
-      zero: 'no outfits',
-    );
-    return 'Free plan · $_temp0 left';
-  }
-
-  @override
-  String get planNoOutfits => 'Free plan · no outfits left';
-
-  @override
-  String get onProList => 'On the Pro list ✓';
 
   @override
   String loveSpoken(String name) {
@@ -404,33 +362,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccount => 'Delete account';
-
-  @override
-  String get proName => 'In Vogue Pro';
-
-  @override
-  String get proLine => 'More outfits, more choice.';
-
-  @override
-  String get proBenefitDaily => 'A new outfit every day';
-
-  @override
-  String get proBenefitChoice => 'Other outfits to choose from';
-
-  @override
-  String get proBenefitCollection => 'The whole collection to browse';
-
-  @override
-  String get proPrice => '\$7.99 a month · or \$59.99 a year';
-
-  @override
-  String get onTheList => 'You’re on the list.';
-
-  @override
-  String get proSoon => 'Pro opens soon, and you’ll be the first to know.';
-
-  @override
-  String get backToInVogue => 'Back to In Vogue';
 
   @override
   String get widgetStepHold => 'Press and hold your home screen';

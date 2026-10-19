@@ -1,8 +1,6 @@
 /// Design tokens, theme and shared widgets.
 library;
 
-export 'components/account/pro_confirmation.dart';
-export 'components/account/pro_offer.dart';
 export 'components/account/settings_row.dart';
 export 'components/actions/in_vogue_button.dart';
 export 'components/actions/love_toggle.dart';
@@ -15,9 +13,7 @@ export 'components/navigation/day_switch.dart';
 export 'components/navigation/in_vogue_tab_bar.dart';
 export 'components/navigation/top_bar.dart';
 export 'components/outfit/occasion_line.dart';
-export 'components/outfit/outfit_tiles.dart';
 export 'components/outfit/photo_stage.dart';
-export 'components/outfit/plan_line.dart';
 export 'components/setup/in_vogue_text_field.dart';
 export 'components/setup/photo_picker.dart';
 export 'components/setup/sign_in_buttons.dart';
