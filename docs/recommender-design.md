@@ -317,7 +317,7 @@ Everything else reads the copy: setup's 40 sample outfits in `order`; Home's cat
 
 ### 7.2 The day
 
-For the occasion's window (work 07–19, casual 09–20, going out 18–23, as today), each hour's feels-like falls in a weather band.
+For the occasion's window (work 07–19, casual 09–20, going out 18–23, as today), each hour's feels-like falls in a weather band. `DayWeatherRules.bands` gives them as `DayBands`.
 
 - **Cold band** `c`: the band of the coldest hour. **Warm band** `w`: of the warmest.
 - **Staying in:** one band from the mean feels-like over 09–20, held between Cool and Warm (homes are heated and cooled).
@@ -339,7 +339,7 @@ Denver gets outfits like o0004 (black blazer, white shirt, light jeans): Cool wi
 
 ### 7.4 Scoring
 
-Each term is 0–1; `U = Σ wₖ·sₖ`. Weights live in a bundled `stylist.json`, to tune without code.
+Each term is 0–1; `U = Σ wₖ·sₖ`. The weights live in `StylistWeights`. The weather term is 0.6 × the share of the day's bands covered plus 0.4 × the warmth placement; on a wet and windy day the protection term is the mean of its rain and wind parts.
 
 | Term | Weight | Reads |
 | --- | --- | --- |
@@ -474,6 +474,16 @@ lib/features/stylist/
 3. **A year's simulation:** ten cities, a year of hourly weather, every season and occasion. Targets: no rule broken; no outfit repeated within 30 days per season, city and occasion where the cell holds ≥ 30 outfits; the most-used outfit ≤ 5% of a city-year; mean passes no higher than today's.
 4. **The owner's look:** shadow mode on the phone, and the coverage report ([§5.6](#56-coverage)) after every catalog change.
 
+Built October 19 (`test/features/stylist/`): the rule tests ran 400 seeded random days (−30 to 42 °C) for every occasion and the 12 seasons and none, 20,800 choices; the five real days come from Open-Meteo's archive; the year is October 2025 to September 2026 in Denver, Chicago, New York, Seattle, London, Berlin, Moscow, Dubai, Shanghai and Sydney (`test/fixtures/weather_year.json.gz`, from `scripts/fetch_weather_year.py`), on the real catalog (`test/fixtures/catalog_v2.json.gz`, from `scripts/export_catalog_fixture.py`). The year's results, over 189,800 choices (10 cities × 365 days × 4 occasions × 13 colour settings):
+
+| Target | Result |
+| --- | --- |
+| No rule broken | Met: every day had an outfit, and none broke a rule |
+| Rules given up only when nothing meets them | The warmest hours on 549 days, rain or snow on 176 (0.4% in all), each said in the reason |
+| No repeat within 30 days where the cell holds ≥ 30 outfits | 431 repeats on the 62,117 days with 30 or more candidates (0.7%), each when fewer than 30 scored within 15% of the day's best (the owner's rule) |
+| The most-used outfit ≤ 5% of a city-year | Not met in 212 of the 520 city, season and occasion runs: a day has 30.4 candidates on average (Work 24.3, Casual 55.0, Going out 36.3, Staying in 6.0), fewer than 30 on 67% of days, where outfits repeat within 30 days |
+| Mean passes no higher than today's | 2.30 against 2.54 |
+
 ---
 
 ## 13. Delivery plan
@@ -485,7 +495,7 @@ Each phase gets its own branch with tests first, a clean analyze, the whole suit
 | 1. Catalog | `resources/` (no repo) | Labels, colours, 500 outfits, sample, build | **Done** October 19 |
 | 2. Firebase | `feat/outfit_catalog` | Rules, emulator checks, upload to `in-vogue-dev` | **Done** October 19 (not committed) |
 | 3. Catalog in the app | `feat/catalog_v2` | `OutfitCatalogRepository` with its phone copy, onboarding sample, Home browser, favourites as outfits, Shop for an outfit, six weather bands | **Done** October 19 (not merged) |
-| 4. Recommender | `feat/stylist_engine` | Day bands (six), candidates, scorer, chooser, reasons, shadow panel, simulation | — |
+| 4. Recommender | `feat/stylist_engine` | Day bands (six), candidates, scorer, chooser, reasons, simulation | **Done** October 19 (not merged) |
 | 5. On Home | `feat/stylist_on_home` | `MakeOutfit` integration, Day v2 fields, the widget; then remove the knowledge-base path | — |
 | 6. Learning | `feat/stylist_signals` | Taste model, signals, Buy logging | — |
 | 7. Wardrobe | `feat/wardrobe_on_home` | [§9](#9-onboarding-home-and-the-wardrobe): the person's own outfit at the bottom of the Today and Tomorrow tabs (owner) | — |

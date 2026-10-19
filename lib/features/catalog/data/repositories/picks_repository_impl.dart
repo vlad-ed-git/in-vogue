@@ -30,9 +30,7 @@ class PicksRepositoryImpl implements PicksRepository {
   }
 
   @override
-  Future<Either<Failure, Set<String>>> addPicks(
-    Set<String> outfitIds,
-  ) async {
+  Future<Either<Failure, Set<String>>> addPicks(Set<String> outfitIds) async {
     try {
       final picks = {..._local.picks(), ...outfitIds};
       await _local.save(picks);
