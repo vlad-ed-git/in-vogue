@@ -42,6 +42,8 @@ class Time(str):
 def value(v):
     if isinstance(v, Time):
         return {"timestampValue": v}
+    if isinstance(v, bool):
+        return {"booleanValue": v}
     return {"integerValue": str(v)} if isinstance(v, int) else {"stringValue": v}
 
 
@@ -64,6 +66,25 @@ def call(method, path, uid, data=None, query=""):
 
 def create(path, uid, data):
     return call("PATCH", path, uid, data, "?currentDocument.exists=false")
+
+
+def query(collection, uid, sample_only=False):
+    """Lists a collection, like the app's where('sample', isEqualTo: true) when sample_only."""
+    structured = {"from": [{"collectionId": collection}]}
+    if sample_only:
+        structured["where"] = {"fieldFilter": {
+            "field": {"fieldPath": "sample"}, "op": "EQUAL", "value": {"booleanValue": True}}}
+    request = urllib.request.Request(
+        f"{BASE}:runQuery", method="POST", data=json.dumps({"structuredQuery": structured}).encode(),
+        headers={"Content-Type": "application/json"},
+    )
+    if uid is not None:
+        request.add_header("Authorization", f"Bearer {token(uid)}")
+    try:
+        with urllib.request.urlopen(request) as response:
+            return response.status
+    except urllib.error.HTTPError as error:
+        return error.code
 
 
 def merge(path, uid, data):
@@ -119,6 +140,20 @@ cases = [
     ("read an error report", lambda: call("GET", "errors/r1", "a"), DENY),
     ("change an error report", lambda: merge("errors/r1", "a", {"where": "x"}), DENY),
     ("delete an error report", lambda: call("DELETE", "errors/r1", "a"), DENY),
+    ("the admin key writes a sample outfit", lambda: create("outfits/s1", "admin", {"name": "S", "sample": True}), ALLOW),
+    ("the admin key writes another outfit", lambda: create("outfits/n1", "admin", {"name": "N", "sample": False}), ALLOW),
+    ("the admin key writes the catalog summary", lambda: create("catalog/outfits", "admin", {"count": 2}), ALLOW),
+    ("read a sample outfit signed out", lambda: call("GET", "outfits/s1", None), ALLOW),
+    ("read another outfit signed out", lambda: call("GET", "outfits/n1", None), DENY),
+    ("read another outfit signed in", lambda: call("GET", "outfits/n1", "a"), ALLOW),
+    ("list the sample signed out", lambda: query("outfits", None, sample_only=True), ALLOW),
+    ("list every outfit signed out", lambda: query("outfits", None), DENY),
+    ("list every outfit signed in", lambda: query("outfits", "a"), ALLOW),
+    ("write an outfit", lambda: create("outfits/x1", "a", {"name": "X", "sample": True}), DENY),
+    ("change an outfit", lambda: merge("outfits/s1", "a", {"name": "Y"}), DENY),
+    ("delete an outfit", lambda: call("DELETE", "outfits/s1", "a"), DENY),
+    ("read the catalog summary signed out", lambda: call("GET", "catalog/outfits", None), ALLOW),
+    ("change the catalog summary", lambda: merge("catalog/outfits", "a", {"count": 3}), DENY),
 ]
 failed = 0
 for name, run, expected in cases:

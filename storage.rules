@@ -11,5 +11,14 @@ service firebase.storage {
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
     }
+
+    // The outfit catalog's pictures, written only with the admin key: the
+    // onboarding sample's are public, the rest need a signed-in person.
+    match /catalog/{version}/sample/{file} {
+      allow read: if true;
+    }
+    match /catalog/{version}/outfits/{file} {
+      allow read: if request.auth != null;
+    }
   }
 }

@@ -22,6 +22,17 @@ service cloud.firestore {
       }
     }
 
+    // The outfit catalog, written only with the admin key. Anyone reads the
+    // onboarding sample; a signed-in person reads every outfit.
+    match /outfits/{outfit} {
+      allow read: if resource.data.sample == true || request.auth != null;
+    }
+
+    // The catalog's summary: its version, size and onboarding sample.
+    match /catalog/{summary} {
+      allow read: if true;
+    }
+
     // Error reports: a signed-in person files their own, with fixed fields
     // and sizes. Nobody reads, changes or deletes one from the app.
     match /errors/{report} {
