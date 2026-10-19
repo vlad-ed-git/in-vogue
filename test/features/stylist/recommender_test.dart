@@ -9,10 +9,12 @@ import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
 import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
 import 'package:in_vogue/features/stylist/domain/services/candidate_rules.dart';
 import 'package:in_vogue/features/stylist/domain/services/outfit_chooser.dart';
 import 'package:in_vogue/features/stylist/domain/services/outfit_scorer.dart';
 import 'package:in_vogue/features/stylist/domain/services/reason_rules.dart';
+import 'package:in_vogue/features/stylist/domain/services/taste_model.dart';
 import 'package:in_vogue/features/stylist/domain/usecases/recommend_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_bands.dart';
 import 'package:in_vogue/features/weather/domain/entities/forecast.dart';
@@ -518,6 +520,49 @@ void main() {
         expect(offline, const Left<Failure, Recommendation?>(NetworkFailure()));
       },
     );
+  });
+
+  test('the taste lifts what the person loves: loving the day’s runner-up '
+      'makes it the choice', () {
+    final recommend = RecommendOutfit(_Catalog(Right(catalogFixture)));
+    final features = TasteFeatures(catalogFixture);
+    final byId = {for (final outfit in catalogFixture) outfit.id: outfit};
+    final day = _day();
+    final asked = RecommendParams(
+      day: day,
+      date: _date,
+      occasion: Occasion.work,
+    );
+    final first = recommend.choose(catalogFixture, asked)!.outfit;
+    // The best of the rest, once the first was suggested.
+    final runnerUp = recommend
+        .choose(
+          catalogFixture,
+          asked.withHistory(OutfitHistory(suggestedAt: {first.id: _date})),
+        )!
+        .outfit;
+    expect(runnerUp, isNot(first));
+    final weights = TasteModel.learn(
+      [
+        for (var i = 0; i < 10; i++)
+          TasteSignal(
+            id: 'loved-$i',
+            kind: TasteSignalKind.loved,
+            at: _date,
+            outfitId: runnerUp.id,
+          ),
+      ],
+      features: features,
+      catalog: byId,
+    ).mean();
+    final liked = recommend.choose(
+      catalogFixture,
+      asked.withHistory(
+        const OutfitHistory(),
+        taste: (outfit) => TasteModel.score(weights, features.of(outfit)),
+      ),
+    )!;
+    expect(liked.outfit, runnerUp);
   });
 
   // Seeded random days from −30 to 42 °C, with swings, rain, snow and wind,

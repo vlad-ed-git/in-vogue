@@ -37,6 +37,7 @@ void init(GetIt locator) {
         profile: locator(),
         photos: locator(),
         picks: locator(),
+        taste: locator(),
       ),
     )
     ..registerLazySingleton<SaveSetupToAccount>(
@@ -46,6 +47,7 @@ void init(GetIt locator) {
         location: locator(),
         photos: locator(),
         picks: locator(),
+        taste: locator(),
       ),
     )
     ..registerLazySingleton<GetPlan>(() => GetPlan(locator()))
@@ -62,6 +64,7 @@ void init(GetIt locator) {
         analyses: locator(),
         wardrobe: locator(),
         widget: locator(),
+        taste: locator(),
       ),
     )
     ..registerFactory<DeleteAccountBloc>(

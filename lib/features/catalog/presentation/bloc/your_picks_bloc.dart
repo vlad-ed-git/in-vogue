@@ -1,4 +1,5 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:clock/clock.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
@@ -7,6 +8,8 @@ import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
+import 'package:in_vogue/features/stylist/domain/usecases/record_signal.dart';
 
 sealed class YourPicksEvent extends Equatable {
   const YourPicksEvent();
@@ -56,6 +59,7 @@ class YourPicksBloc extends Bloc<YourPicksEvent, YourPicksState> {
     required this._getPicks,
     required this._getOutfits,
     required this._setPick,
+    required this._recordSignal,
   }) : super(const YourPicksState()) {
     on<YourPicksLoaded>(_load, transformer: droppable());
     on<YourPickRemoved>(_remove, transformer: sequential());
@@ -64,6 +68,7 @@ class YourPicksBloc extends Bloc<YourPicksEvent, YourPicksState> {
   final GetPicks _getPicks;
   final GetOutfits _getOutfits;
   final SetPick _setPick;
+  final RecordSignal _recordSignal;
 
   Future<void> _load(
     YourPicksLoaded event,
@@ -106,6 +111,16 @@ class YourPicksBloc extends Bloc<YourPicksEvent, YourPicksState> {
               if (pick.id != event.outfitId) pick,
           ],
         ),
+      ),
+    );
+    if (removed.isLeft()) return;
+    final now = clock.now();
+    await _recordSignal(
+      TasteSignal(
+        id: 'unloved-${event.outfitId}-${now.microsecondsSinceEpoch}',
+        kind: TasteSignalKind.unloved,
+        at: now,
+        outfitId: event.outfitId,
       ),
     );
   }

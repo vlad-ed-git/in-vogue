@@ -7,6 +7,7 @@ import 'package:in_vogue/features/colours/domain/repositories/analysis_job_repos
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
+import 'package:in_vogue/features/stylist/domain/repositories/taste_repository.dart';
 import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_repository.dart';
 
 /// Signs out, then forgets what the phone keeps for the account: its outfit
@@ -21,6 +22,7 @@ class LogOut implements UseCase<Unit, NoParams> {
     required this._analyses,
     required this._wardrobe,
     required this._widget,
+    required this._taste,
   });
 
   final AuthRepository _auth;
@@ -29,6 +31,7 @@ class LogOut implements UseCase<Unit, NoParams> {
   final AnalysisJobRepository _analyses;
   final WardrobeRepository _wardrobe;
   final HomeWidgetRepository _widget;
+  final TasteRepository _taste;
 
   @override
   Future<Either<Failure, Unit>> call(NoParams params) async {
@@ -45,6 +48,8 @@ class LogOut implements UseCase<Unit, NoParams> {
       await _wardrobe.forgetPhotos(account.id);
       await _widget.clear();
     }
+    // The account keeps its own copy, for the next sign-in.
+    await _taste.clear();
     return _profile.clearName();
   }
 }

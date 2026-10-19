@@ -18,6 +18,7 @@ const _collections = [
   'colorProfiles',
   'wardrobe',
   'tryOns',
+  'stylist',
 ];
 
 MockListResult _listed({

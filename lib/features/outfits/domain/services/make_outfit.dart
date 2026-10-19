@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
@@ -25,8 +26,12 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
 import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
+import 'package:in_vogue/features/stylist/domain/repositories/taste_repository.dart';
 import 'package:in_vogue/features/stylist/domain/services/outfit_scorer.dart';
+import 'package:in_vogue/features/stylist/domain/services/taste_model.dart';
 import 'package:in_vogue/features/stylist/domain/usecases/recommend_outfit.dart';
+import 'package:in_vogue/features/stylist/domain/usecases/record_signal.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_bands.dart';
 
 class MakeOutfitParams extends Equatable {
@@ -58,7 +63,8 @@ class MakeOutfitParams extends Equatable {
 /// Claims the day first: a day another phone made is shown, one it is
 /// making is left to it. A new day saves the setup on the account and
 /// takes the recommender's outfit from the catalog for its weather, the
-/// person's colours and what they were suggested and wore lately. The
+/// person's colours and taste, and what they were suggested and wore
+/// lately. The
 /// outfit is then tried on piece by piece, in its passes' order, each piece
 /// reported on the day, and the picture kept with the day.
 ///
@@ -73,6 +79,8 @@ class MakeOutfit {
     required this._catalog,
     required this._recommend,
     required this._colours,
+    required this._taste,
+    required this._recordSignal,
     required this._days,
     required this._tryOn,
     required this._jobs,
@@ -86,6 +94,8 @@ class MakeOutfit {
   final OutfitCatalogRepository _catalog;
   final RecommendOutfit _recommend;
   final ColourProfileRepository _colours;
+  final TasteRepository _taste;
+  final RecordSignal _recordSignal;
   final DayRepository _days;
   final TryOnRepository _tryOn;
   final TryOnJobRepository _jobs;
@@ -294,6 +304,7 @@ class MakeOutfit {
     final file = kept.getOrElse(() => null);
     if (file == null) return TryOnElsewhere(day);
     await _drop(job!);
+    await _kept(day);
     return TryOnDone(_dayOutfit(day, outfit, file));
   }
 
@@ -315,6 +326,7 @@ class MakeOutfit {
     if (file == null) return TryOnElsewhere(day);
     // A try-on kept from before isn't needed any more.
     await _jobs.clear(params.key);
+    await _kept(day);
     return TryOnDone(_dayOutfit(day, outfit, file));
   }
 
@@ -460,11 +472,34 @@ class MakeOutfit {
             ),
       ],
     );
+    // The person's taste, drawn the same on every phone for this day.
+    final features = TasteFeatures(outfits);
+    final weights = TasteModel.learn(
+      (await _taste.signals()).getOrElse(() => const []),
+      features: features,
+      catalog: byId,
+    ).draw(math.Random(TasteModel.seed(params.key)));
     return Right((
-      recommendation: _recommend.choose(outfits, asked.withHistory(history)),
+      recommendation: _recommend.choose(
+        outfits,
+        asked.withHistory(
+          history,
+          taste: (outfit) => TasteModel.score(weights, features.of(outfit)),
+        ),
+      ),
       suggested: suggested,
     ));
   }
+
+  /// Tells the taste model the person kept [day]'s outfit.
+  Future<void> _kept(Day day) => _recordSignal(
+    TasteSignal(
+      id: 'kept-${day.key}',
+      kind: TasteSignalKind.kept,
+      at: clock.now(),
+      outfitId: day.outfitId,
+    ),
+  );
 
   /// The person's colour season, from a clear reading only.
   Future<ColourSeason?> _season(String accountId) async {

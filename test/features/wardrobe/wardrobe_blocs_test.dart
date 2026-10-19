@@ -9,6 +9,7 @@ import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart'
 import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/usecases/choose_photo.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
 import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart';
 import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_repository.dart';
 import 'package:in_vogue/features/wardrobe/domain/usecases/wardrobe_usecases.dart';
@@ -18,6 +19,7 @@ import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/taste.dart';
 import 'wardrobe_blocs_test.mocks.dart';
 
 const _details = OutfitDetails(
@@ -36,11 +38,13 @@ final _outfit = WardrobeOutfit(
 
 @GenerateMocks([GetCurrentAccount, ChoosePhoto, WardrobeRepository])
 void main() {
+  late MemoryTaste taste;
   late MockGetCurrentAccount account;
   late MockChoosePhoto choose;
   late MockWardrobeRepository wardrobe;
 
   setUp(() {
+    taste = MemoryTaste();
     provideDummy<Either<Failure, Account?>>(const Right(null));
     provideDummy<Either<Failure, ChosenPhoto?>>(const Right(null));
     provideDummy<Either<Failure, WardrobeOutfit>>(Right(_outfit));
@@ -108,6 +112,7 @@ void main() {
       getCurrentAccount: account,
       choosePhoto: choose,
       addToWardrobe: AddToWardrobe(wardrobe),
+      recordSignal: recordSignalInto(taste),
     );
 
     blocTest<AddOutfitBloc, AddOutfitState>(
@@ -216,6 +221,12 @@ void main() {
         isA<AddOutfitState>().having((state) => state.saving, 'saving', true),
         isA<AddOutfitState>().having((state) => state.saved, 'saved', true),
       ],
+      // Its colours teach the taste model.
+      verify: (_) {
+        expect(taste.phone.single.kind, TasteSignalKind.wardrobe);
+        expect(taste.phone.single.families, {'navy'});
+        expect(taste.phone.single.outfitId, isNull);
+      },
     );
 
     blocTest<AddOutfitBloc, AddOutfitState>(
@@ -238,6 +249,7 @@ void main() {
         expect(bloc.state.failure, const NetworkFailure());
         expect(bloc.state.saved, isFalse);
         expect(bloc.state.details, _details);
+        expect(taste.phone, isEmpty);
       },
     );
   });

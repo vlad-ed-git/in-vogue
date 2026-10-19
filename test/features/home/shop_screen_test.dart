@@ -9,9 +9,11 @@ import 'package:in_vogue/features/catalog/domain/repositories/catalog_repository
 import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 import 'package:in_vogue/features/home/presentation/bloc/shop_bloc.dart';
 import 'package:in_vogue/features/home/presentation/screens/shop_screen.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
 
 import '../../helpers/catalog_outfits.dart';
 import '../../helpers/pump_in_vogue.dart';
+import '../../helpers/taste.dart';
 
 class _MockShopBloc extends MockBloc<ShopEvent, ShopState>
     implements ShopBloc {}
@@ -132,9 +134,26 @@ void main() {
   });
 
   group('ShopBloc', () {
+    test('a Buy tap teaches the taste model the outfit was liked', () async {
+      final taste = MemoryTaste();
+      final bloc = ShopBloc(
+        getOutfitShop: GetOutfitShop(_Catalog()),
+        recordSignal: recordSignalInto(taste),
+      )..add(ShopOutfitRequested(outfit('o7')));
+      await Future<void>.delayed(Duration.zero);
+      bloc.add(const ShopBought());
+      await Future<void>.delayed(Duration.zero);
+      expect(taste.phone.single.kind, TasteSignalKind.bought);
+      expect(taste.phone.single.outfitId, 'o7');
+      await bloc.close();
+    });
+
     blocTest<ShopBloc, ShopState>(
       'shows a catalog outfit’s pieces, outer layer first',
-      build: () => ShopBloc(getOutfitShop: GetOutfitShop(_Catalog())),
+      build: () => ShopBloc(
+        getOutfitShop: GetOutfitShop(_Catalog()),
+        recordSignal: recordSignalInto(MemoryTaste()),
+      ),
       act: (bloc) => bloc.add(ShopOutfitRequested(outfit('o1'))),
       verify: (bloc) {
         expect(bloc.state.status, ShopStatus.ready);

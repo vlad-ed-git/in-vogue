@@ -61,6 +61,7 @@ void init(GetIt locator) {
         getCatalogPage: locator(),
         getPicks: locator(),
         setPick: locator(),
+        recordSignal: locator(),
       ),
     )
     ..registerFactory<YourPicksBloc>(
@@ -68,6 +69,7 @@ void init(GetIt locator) {
         getPicks: locator(),
         getOutfits: locator(),
         setPick: locator(),
+        recordSignal: locator(),
       ),
     );
 }

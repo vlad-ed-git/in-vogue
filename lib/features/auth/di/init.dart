@@ -34,6 +34,7 @@ void init(GetIt locator) {
         analyses: locator(),
         wardrobe: locator(),
         widget: locator(),
+        taste: locator(),
       ),
     )
     ..registerFactory<SignInBloc>(

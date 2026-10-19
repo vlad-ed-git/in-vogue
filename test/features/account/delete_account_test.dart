@@ -21,6 +21,7 @@ import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_reposito
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/taste.dart';
 import 'delete_account_test.mocks.dart';
 
 const _done = Right<Failure, Unit>(unit);
@@ -39,6 +40,7 @@ const _done = Right<Failure, Unit>(unit);
   HomeWidgetRepository,
 ])
 void main() {
+  late MemoryTaste taste;
   late MockAuthRepository auth;
   late MockAccountRepository account;
   late MockPhotoRepository photos;
@@ -53,6 +55,7 @@ void main() {
   late DeleteAccount delete;
 
   setUp(() {
+    taste = MemoryTaste();
     auth = MockAuthRepository();
     account = MockAccountRepository();
     photos = MockPhotoRepository();
@@ -76,6 +79,7 @@ void main() {
       analyses: analyses,
       wardrobe: wardrobe,
       widget: widget,
+      taste: taste,
     );
     when(
       auth.currentAccount(),
@@ -103,6 +107,7 @@ void main() {
     verifyNever(analyses.forgetAccount(any));
     verifyNever(wardrobe.forgetPhotos(any));
     verifyNever(widget.clear());
+    expect(taste.clears, 0);
   }
 
   test(
@@ -124,6 +129,7 @@ void main() {
         wardrobe.forgetPhotos('uid-1'),
         widget.clear(),
       ]);
+      expect(taste.clears, 1);
     },
   );
 

@@ -67,6 +67,7 @@ import 'features/setup/setup_repository_test.mocks.dart';
 import 'features/weather/weather_repository_test.mocks.dart';
 import 'helpers/memory_store.dart';
 import 'helpers/pump_in_vogue.dart';
+import 'helpers/taste.dart';
 
 const _place = UserLocation(latitude: 1, longitude: 2);
 const _photo = UserPhoto(
@@ -180,6 +181,7 @@ void main() {
             analyses: MockAnalysisJobRepository(),
             wardrobe: MockWardrobeRepository(),
             widget: const UnavailableHomeWidgetRepository(),
+            taste: MemoryTaste(),
           ),
         ),
       )
@@ -203,6 +205,7 @@ void main() {
           getCatalogPage: const GetCatalogPage(_NoOutfits()),
           getPicks: GetPicks(picks),
           setPick: SetPick(picks),
+          recordSignal: recordSignalInto(MemoryTaste()),
         );
       })
       ..registerFactory<ForecastBloc>(

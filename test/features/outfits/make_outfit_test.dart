@@ -37,6 +37,7 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
 import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
 import 'package:in_vogue/features/stylist/domain/usecases/recommend_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:mockito/mockito.dart';
@@ -45,6 +46,7 @@ import 'package:path/path.dart' as p;
 import '../../helpers/catalog_outfits.dart';
 import '../../helpers/day_bands.dart';
 import '../../helpers/memory_store.dart';
+import '../../helpers/taste.dart';
 import '../auth/sign_in_bloc_test.mocks.dart';
 
 final _cool = bandsFor(WarmthBand.cool, rain: true);
@@ -79,6 +81,7 @@ CatalogOutfit _top(String id) =>
     outfitOf(id, [('everlane:$id', GarmentCategory.upperBody, 'tee')]);
 
 void main() {
+  late MemoryTaste taste;
   late DateTime time;
   late FakeFirebaseFirestore firestore;
   late Directory phone;
@@ -107,6 +110,8 @@ void main() {
     installId: InstallId(device),
     checkEvery: Duration.zero,
     passTimeLimit: passTimeLimit,
+    taste: taste,
+    recordSignal: recordSignalInto(taste, accountId: 'uid-1'),
   );
 
   // The fake's transactions write without waiting: let the writes land.
@@ -143,6 +148,7 @@ void main() {
       TryOnJobLocalDataSourceImpl(store).jobs()[_params().key];
 
   setUp(() async {
+    taste = MemoryTaste();
     time = DateTime.utc(2026, 10, 17, 8);
     firestore = FakeFirebaseFirestore(clock: Clock(() => time));
     phone = await Directory.systemTemp.createTemp('outfits');
@@ -278,6 +284,27 @@ void main() {
         (await firestore.doc('users/uid-1/suggestions/${_coat.id}').get())
             .data();
     expect(suggestion?['times'], 1);
+  });
+
+  test('keeps the day’s outfit as a signal for the taste model', () async {
+    await make();
+    expect(taste.phone.single.id, 'kept-2026-10-17_work');
+    expect(taste.phone.single.kind, TasteSignalKind.kept);
+    expect(taste.phone.single.outfitId, 'o1');
+    expect(taste.accounts['uid-1'], hasLength(1));
+  });
+
+  test('chooses with the taste the phone keeps', () async {
+    await taste.keep(
+      TasteSignal(
+        id: 'loved-o2',
+        kind: TasteSignalKind.loved,
+        at: time,
+        outfitId: 'o2',
+      ),
+    );
+    await make();
+    expect(taste.reads, 1);
   });
 
   test(

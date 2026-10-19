@@ -13,6 +13,7 @@ import 'package:in_vogue/features/wardrobe/domain/repositories/wardrobe_reposito
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/taste.dart';
 import 'log_out_test.mocks.dart';
 
 const _done = Right<Failure, Unit>(unit);
@@ -26,6 +27,7 @@ const _done = Right<Failure, Unit>(unit);
   HomeWidgetRepository,
 ])
 void main() {
+  late MemoryTaste taste;
   late MockAuthRepository auth;
   late MockProfileRepository profile;
   late MockDayRepository days;
@@ -35,6 +37,7 @@ void main() {
   late LogOut logOut;
 
   setUp(() {
+    taste = MemoryTaste();
     auth = MockAuthRepository();
     profile = MockProfileRepository();
     days = MockDayRepository();
@@ -48,6 +51,7 @@ void main() {
       analyses: analyses,
       wardrobe: wardrobe,
       widget: widget,
+      taste: taste,
     );
     when(
       auth.currentAccount(),
@@ -71,6 +75,8 @@ void main() {
       widget.clear(),
       profile.clearName(),
     ]);
+    // Only the phone's copy of the taste goes; the account keeps its own.
+    expect(taste.clears, 1);
   });
 
   test('keeps everything when signing out fails', () async {
@@ -84,6 +90,7 @@ void main() {
     verifyZeroInteractions(wardrobe);
     verifyZeroInteractions(widget);
     verifyNever(profile.clearName());
+    expect(taste.clears, 0);
   });
 
   test('a picture that cannot be removed does not stop the rest', () async {

@@ -9,11 +9,13 @@ import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart'
 import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../helpers/catalog_outfits.dart';
+import '../../helpers/taste.dart';
 import 'picks_bloc_test.mocks.dart';
 
 final _sample = [outfit('o1', sample: true), outfit('o2', sample: true)];
@@ -24,6 +26,7 @@ final _catalog = [
 
 @GenerateMocks([OutfitCatalogRepository, PicksRepository])
 void main() {
+  late MemoryTaste taste;
   late MockOutfitCatalogRepository catalog;
   late MockPicksRepository picks;
 
@@ -32,9 +35,11 @@ void main() {
     getCatalogPage: GetCatalogPage(catalog),
     getPicks: GetPicks(picks),
     setPick: SetPick(picks),
+    recordSignal: recordSignalInto(taste),
   );
 
   setUp(() {
+    taste = MemoryTaste();
     catalog = MockOutfitCatalogRepository();
     picks = MockPicksRepository();
     when(catalog.sample()).thenAnswer((_) async => Right(_sample));
@@ -156,6 +161,57 @@ void main() {
       ),
     ],
   );
+
+  group('teaches the taste model', () {
+    setUp(() {
+      when(
+        picks.setPick(any, loved: anyNamed('loved')),
+      ).thenAnswer((_) async => const Right({}));
+    });
+
+    Future<List<(TasteSignalKind, String?)>> signals(
+      PicksEvent shown,
+      List<PickToggled> toggles,
+    ) async {
+      final bloc = buildBloc()..add(shown);
+      await Future<void>.delayed(Duration.zero);
+      for (final toggle in toggles) {
+        bloc.add(toggle);
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+      await bloc.close();
+      return [for (final signal in taste.phone) (signal.kind, signal.outfitId)];
+    }
+
+    test('a heart in setup is a pick; on Home, a love', () async {
+      expect(
+        await signals(const PicksRequested.sample(), [
+          const PickToggled('o1', loved: true),
+        ]),
+        [(TasteSignalKind.picked, 'o1')],
+      );
+      taste.phone.clear();
+      expect(
+        await signals(const PicksRequested.catalog(), [
+          const PickToggled('c3', loved: true),
+          const PickToggled('c3', loved: false),
+        ]),
+        [(TasteSignalKind.loved, 'c3'), (TasteSignalKind.unloved, 'c3')],
+      );
+    });
+
+    test('a heart that can’t be saved teaches nothing', () async {
+      when(
+        picks.setPick('o1', loved: true),
+      ).thenAnswer((_) async => const Left(CacheFailure()));
+      expect(
+        await signals(const PicksRequested.sample(), [
+          const PickToggled('o1', loved: true),
+        ]),
+        isEmpty,
+      );
+    });
+  });
 
   test('the sample never asks for more pages', () async {
     final bloc = buildBloc()..add(const PicksRequested.sample());

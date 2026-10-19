@@ -1,4 +1,5 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:clock/clock.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
@@ -7,6 +8,8 @@ import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
+import 'package:in_vogue/features/stylist/domain/usecases/record_signal.dart';
 
 sealed class PicksEvent extends Equatable {
   const PicksEvent();
@@ -113,6 +116,7 @@ class PicksBloc extends Bloc<PicksEvent, PicksState> {
     required this._getCatalogPage,
     required this._getPicks,
     required this._setPick,
+    required this._recordSignal,
   }) : super(const PicksState()) {
     on<PicksRequested>(_load, transformer: restartable());
     on<PicksMoreRequested>(_more, transformer: droppable());
@@ -123,6 +127,7 @@ class PicksBloc extends Bloc<PicksEvent, PicksState> {
   final GetCatalogPage _getCatalogPage;
   final GetPicks _getPicks;
   final SetPick _setPick;
+  final RecordSignal _recordSignal;
 
   Future<void> _load(PicksRequested event, Emitter<PicksState> emit) async {
     final filter = event.filter;
@@ -203,6 +208,21 @@ class PicksBloc extends Bloc<PicksEvent, PicksState> {
           failure: failure,
         ),
         (picks) => state.copyWith(picks: picks, loadFailure: state.loadFailure),
+      ),
+    );
+    if (saved.isLeft()) return;
+    final kind = !event.loved
+        ? TasteSignalKind.unloved
+        : state.filter == null
+        ? TasteSignalKind.picked
+        : TasteSignalKind.loved;
+    final now = clock.now();
+    await _recordSignal(
+      TasteSignal(
+        id: '${kind.name}-${event.outfitId}-${now.microsecondsSinceEpoch}',
+        kind: kind,
+        at: now,
+        outfitId: event.outfitId,
       ),
     );
   }

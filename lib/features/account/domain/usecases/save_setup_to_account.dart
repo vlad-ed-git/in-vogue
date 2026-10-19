@@ -8,6 +8,7 @@ import 'package:in_vogue/features/location/domain/repositories/location_reposito
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
+import 'package:in_vogue/features/stylist/domain/repositories/taste_repository.dart';
 
 /// Saves the name, location, photos and picks kept on the phone on the
 /// account with the given id. Saves nothing when the phone's setup cannot
@@ -22,6 +23,7 @@ class SaveSetupToAccount implements UseCase<Unit, String> {
     required this._location,
     required this._photos,
     required this._picks,
+    required this._taste,
   });
 
   final AccountRepository _account;
@@ -29,6 +31,7 @@ class SaveSetupToAccount implements UseCase<Unit, String> {
   final LocationRepository _location;
   final PhotoRepository _photos;
   final PicksRepository _picks;
+  final TasteRepository _taste;
 
   @override
   Future<Either<Failure, Unit>> call(String accountId) async {
@@ -55,6 +58,8 @@ class SaveSetupToAccount implements UseCase<Unit, String> {
         syncedPicks: synced.getOrElse(() => const {}),
       ),
     );
+    // A signal that couldn't be saved before goes along now.
+    await _taste.save(accountId);
     if (saved case Right(value: final favourites)) {
       // Changes only what differs, so a pick changed meanwhile stays.
       final loved = favourites.difference(saving);

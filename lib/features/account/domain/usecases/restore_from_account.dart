@@ -6,6 +6,7 @@ import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.d
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
 import 'package:in_vogue/features/profile/domain/repositories/profile_repository.dart';
+import 'package:in_vogue/features/stylist/domain/repositories/taste_repository.dart';
 
 /// Brings back to the phone what the account with the given id keeps: the
 /// name and the face photo when the phone has none, and the favourites,
@@ -17,12 +18,14 @@ class RestoreFromAccount implements UseCase<Unit, String> {
     required this._profile,
     required this._photos,
     required this._picks,
+    required this._taste,
   });
 
   final AccountRepository _account;
   final ProfileRepository _profile;
   final PhotoRepository _photos;
   final PicksRepository _picks;
+  final TasteRepository _taste;
 
   @override
   Future<Either<Failure, Unit>> call(String accountId) async {
@@ -43,6 +46,8 @@ class RestoreFromAccount implements UseCase<Unit, String> {
         }
       }
     }
+    // What the taste model learnt on other phones.
+    await _taste.restore(accountId);
     if (account.favourites.isNotEmpty) {
       if (await _picks.addPicks(account.favourites) case Right()) {
         // They are on the account: unloving one here removes it there.

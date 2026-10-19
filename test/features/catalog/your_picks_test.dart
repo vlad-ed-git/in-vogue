@@ -12,10 +12,12 @@ import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/your_picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/screens/your_picks_screen.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/catalog_outfits.dart';
 import '../../helpers/pump_in_vogue.dart';
+import '../../helpers/taste.dart';
 
 final _dress = outfit('o1', name: 'Black satin slip dress');
 final _tee = outfit('o2', name: 'White organic tee, light jeans');
@@ -73,16 +75,21 @@ class _Picks implements PicksRepository {
 }
 
 void main() {
+  late MemoryTaste taste;
   late _Picks picks;
 
   YourPicksBloc buildBloc() => YourPicksBloc(
     getPicks: GetPicks(picks),
     getOutfits: GetOutfits(_Catalog()),
     setPick: SetPick(picks),
+    recordSignal: recordSignalInto(taste),
   );
 
   // A piece loved before picks became outfits is left out.
-  setUp(() => picks = _Picks(['o2', 'everlane:tee-white', 'o1']));
+  setUp(() {
+    picks = _Picks(['o2', 'everlane:tee-white', 'o1']);
+    taste = MemoryTaste();
+  });
 
   blocTest<YourPicksBloc, YourPicksState>(
     'shows only the loved outfits, the latest first',
@@ -105,7 +112,12 @@ void main() {
     expect: () => [
       YourPicksState(status: YourPicksStatus.ready, picks: [_tee]),
     ],
-    verify: (_) => expect(picks.loved, ['o2', 'everlane:tee-white']),
+    verify: (_) {
+      expect(picks.loved, ['o2', 'everlane:tee-white']);
+      // The removal teaches the taste model.
+      expect(taste.phone.single.kind, TasteSignalKind.unloved);
+      expect(taste.phone.single.outfitId, 'o1');
+    },
   );
 
   group('YourPicksScreen', () {

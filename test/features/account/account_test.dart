@@ -33,11 +33,13 @@ import 'package:in_vogue/features/profile/domain/repositories/profile_repository
 import 'package:in_vogue/features/profile/domain/usecases/get_profile_name.dart';
 import 'package:in_vogue/features/profile/domain/usecases/save_profile_name.dart';
 import 'package:in_vogue/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:path/path.dart' as p;
 
 import '../../helpers/memory_store.dart';
+import '../../helpers/taste.dart';
 import '../auth/sign_in_bloc_test.mocks.dart';
 import 'account_test.mocks.dart';
 
@@ -607,9 +609,11 @@ void main() {
     late MockLocationRepository location;
     late MockPhotoRepository photos;
     late MockPicksRepository picks;
+    late MemoryTaste taste;
     late SaveSetupToAccount save;
 
     setUp(() {
+      taste = MemoryTaste();
       account = MockAccountRepository();
       profile = MockProfileRepository();
       location = MockLocationRepository();
@@ -621,6 +625,7 @@ void main() {
         location: location,
         photos: photos,
         picks: picks,
+        taste: taste,
       );
       when(profile.name()).thenAnswer((_) async => const Right('Maya'));
       when(
@@ -712,6 +717,19 @@ void main() {
       expect(await save('uid-1'), const Left<Failure, Unit>(CacheFailure()));
       verifyNever(account.save(any, any));
     });
+    test('takes the phone’s taste signals along to the account', () async {
+      when(account.save(any, any)).thenAnswer((_) async => const Right({}));
+      await taste.keep(
+        TasteSignal(
+          id: 'picked-o1',
+          kind: TasteSignalKind.picked,
+          at: DateTime.utc(2026, 10, 19),
+          outfitId: 'o1',
+        ),
+      );
+      await save('uid-1');
+      expect(taste.accounts['uid-1']?.single.id, 'picked-o1');
+    });
   });
 
   group('RestoreFromAccount', () {
@@ -719,10 +737,12 @@ void main() {
     late MockProfileRepository profile;
     late MockPhotoRepository photos;
     late MockPicksRepository picks;
+    late MemoryTaste taste;
     late RestoreFromAccount restore;
     const favourites = {'everlane:c', 'everlane:d'};
 
     setUp(() {
+      taste = MemoryTaste();
       account = MockAccountRepository();
       profile = MockProfileRepository();
       photos = MockPhotoRepository();
@@ -732,6 +752,7 @@ void main() {
         profile: profile,
         photos: photos,
         picks: picks,
+        taste: taste,
       );
       when(account.saved('uid-1')).thenAnswer(
         (_) async => const Right(
@@ -829,6 +850,7 @@ void main() {
           profile: names,
           photos: photos,
           picks: picks,
+          taste: MemoryTaste(),
         )('uid-1');
         final aboutYou = ProfileBloc(
           getProfileName: GetProfileName(names),
@@ -857,6 +879,18 @@ void main() {
         verify(picks.addPicks(favourites)).called(1);
       },
     );
+    test('brings back the taste learnt on other phones', () async {
+      taste.accounts['uid-1'] = [
+        TasteSignal(
+          id: 'loved-o7',
+          kind: TasteSignalKind.loved,
+          at: DateTime.utc(2026, 10, 18),
+          outfitId: 'o7',
+        ),
+      ];
+      await restore('uid-1');
+      expect(taste.phone.single.id, 'loved-o7');
+    });
   });
 
   group('EnsureAccount', () {

@@ -144,7 +144,7 @@ class OutfitScorer {
     required Map<String, double> daysSince,
     required double taste,
   }) {
-    final weather = 0.6 * covered + 0.4 * placement;
+    final weather = 0.8 * covered + 0.2 * placement;
     final wet = day.rain || day.snow;
     final rain = switch (outfit.rain) {
       RainFit.good => 1.0,

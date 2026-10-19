@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,8 +69,12 @@ class ShopScreen extends StatelessWidget {
                       colour: Color(item.colourway.hex),
                       brand: state.brand,
                       material: item.colourway.material,
-                      onBuy: () =>
+                      onBuy: () {
+                        context.read<ShopBloc>().add(const ShopBought());
+                        unawaited(
                           openLink(Uri.parse(item.colourway.productUrl)),
+                        );
+                      },
                     ),
                   const SizedBox(height: InVogueSpace.s10),
                 ],

@@ -60,6 +60,8 @@ void init(GetIt locator) {
         catalog: locator(),
         recommend: locator(),
         colours: locator(),
+        taste: locator(),
+        recordSignal: locator(),
         days: locator(),
         tryOn: locator(),
         jobs: locator(),

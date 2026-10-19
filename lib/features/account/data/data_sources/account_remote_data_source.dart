@@ -168,6 +168,7 @@ class AccountRemoteDataSourceImpl implements AccountRemoteDataSource {
     'colorProfiles',
     'wardrobe',
     'tryOns',
+    'stylist',
   ];
 
   @override

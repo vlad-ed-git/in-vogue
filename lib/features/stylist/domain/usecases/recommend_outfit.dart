@@ -21,6 +21,7 @@ class RecommendParams extends Equatable {
     this.season,
     this.refused = const {},
     this.history = const OutfitHistory(),
+    this.taste,
   });
 
   final DayBands day;
@@ -36,6 +37,10 @@ class RecommendParams extends Equatable {
   final Set<String> refused;
   final OutfitHistory history;
 
+  /// How much the person's taste likes an outfit, 0 to 1; neutral when
+  /// null.
+  final double Function(CatalogOutfit outfit)? taste;
+
   RecommendParams withRefused(Set<String> refused) => RecommendParams(
     day: day,
     date: date,
@@ -43,19 +48,32 @@ class RecommendParams extends Equatable {
     season: season,
     refused: refused,
     history: history,
+    taste: taste,
   );
 
-  RecommendParams withHistory(OutfitHistory history) => RecommendParams(
+  RecommendParams withHistory(
+    OutfitHistory history, {
+    double Function(CatalogOutfit outfit)? taste,
+  }) => RecommendParams(
     day: day,
     date: date,
     occasion: occasion,
     season: season,
     refused: refused,
     history: history,
+    taste: taste ?? this.taste,
   );
 
   @override
-  List<Object?> get props => [day, date, occasion, season, refused, history];
+  List<Object?> get props => [
+    day,
+    date,
+    occasion,
+    season,
+    refused,
+    history,
+    taste,
+  ];
 }
 
 /// The catalog outfit for a day and an occasion (design §7): those that
@@ -102,6 +120,7 @@ class RecommendOutfit implements UseCase<Recommendation?, RecommendParams> {
       occasion: params.occasion,
       date: params.date,
       history: params.history,
+      taste: params.taste,
     );
     final chosen = OutfitChooser.choose(
       scores,

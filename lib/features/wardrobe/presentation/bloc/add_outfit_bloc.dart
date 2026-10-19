@@ -1,4 +1,6 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:clock/clock.dart';
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
@@ -9,6 +11,8 @@ import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart'
 import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/usecases/choose_photo.dart';
+import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
+import 'package:in_vogue/features/stylist/domain/usecases/record_signal.dart';
 import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart';
 import 'package:in_vogue/features/wardrobe/domain/usecases/wardrobe_usecases.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
@@ -156,6 +160,7 @@ class AddOutfitBloc extends Bloc<AddOutfitEvent, AddOutfitState> {
     required this._getCurrentAccount,
     required this._choosePhoto,
     required this._addToWardrobe,
+    required this._recordSignal,
   }) : super(const AddOutfitState()) {
     on<AddOutfitPhotoRequested>(_choose, transformer: droppable());
     on<AddOutfitNameChanged>(
@@ -183,6 +188,7 @@ class AddOutfitBloc extends Bloc<AddOutfitEvent, AddOutfitState> {
   final GetCurrentAccount _getCurrentAccount;
   final ChoosePhoto _choosePhoto;
   final AddToWardrobe _addToWardrobe;
+  final RecordSignal _recordSignal;
 
   static Set<T> _toggle<T>(Set<T> set, T value) =>
       set.contains(value) ? ({...set}..remove(value)) : {...set, value};
@@ -226,6 +232,19 @@ class AddOutfitBloc extends Bloc<AddOutfitEvent, AddOutfitState> {
       photo: photo,
       details: details,
     );
+    if (added case Right(value: final outfit)) {
+      await _recordSignal(
+        TasteSignal(
+          id: 'wardrobe-${outfit.id}',
+          kind: TasteSignalKind.wardrobe,
+          at: clock.now(),
+          families: {
+            for (final colour in details.colours)
+              if (colour != OutfitColour.mixed) colour.name,
+          },
+        ),
+      );
+    }
     emit(
       added.fold(
         (failure) => state.copyWith(saving: false, failure: () => failure),

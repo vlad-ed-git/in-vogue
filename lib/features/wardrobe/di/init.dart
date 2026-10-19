@@ -48,6 +48,7 @@ void init(GetIt locator) {
         getCurrentAccount: locator(),
         choosePhoto: locator(),
         addToWardrobe: locator(),
+        recordSignal: locator(),
       ),
     );
 }
