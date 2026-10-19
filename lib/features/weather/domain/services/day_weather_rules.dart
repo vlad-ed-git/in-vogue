@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:in_vogue/core/domain/entities/occasion.dart';
+import 'package:in_vogue/features/weather/domain/entities/day_bands.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/forecast.dart';
 import 'package:in_vogue/features/weather/domain/entities/hourly_weather.dart';
@@ -74,6 +75,82 @@ abstract final class DayWeatherRules {
       drizzle: precipitation == Precipitation.dry && hours.any(_isDamp),
       warmest: WarmthBand.forFeelsLike(feelsLike.reduce(math.max)),
     );
+  }
+
+  /// The bands a day at home is held between: homes are heated and cooled.
+  static const indoorsWarmest = WarmthBand.warm;
+  static const indoorsColdest = WarmthBand.cool;
+
+  /// Where the open bands are taken to end, °C, to place a day in them.
+  static const _hotTop = 34.0;
+  static const _freezingBottom = -12.0;
+
+  /// What [occasion]'s hours on [date] hold for choosing an outfit: the
+  /// bands of the coldest and warmest feels-like, and the first hour of
+  /// rain, snow (only when the hours feel colder than [snowBelow]; warmer,
+  /// it counts as rain) and gusts of [windyGusts] or more. A day at home
+  /// has one band, from the mean feels-like, held between [indoorsWarmest]
+  /// and [indoorsColdest]. Null when the forecast does not cover the hours.
+  static DayBands? bands(
+    Forecast forecast, {
+    required DateTime date,
+    required Occasion occasion,
+  }) {
+    final hours = _windowHours(forecast, date, occasion);
+    if (hours.isEmpty) return null;
+    final coldest = hours.reduce((a, b) => b.feelsLike < a.feelsLike ? b : a);
+    final warmest = hours.reduce((a, b) => b.feelsLike > a.feelsLike ? b : a);
+    if (occasion == Occasion.stayingIn) {
+      final mean =
+          hours.map((hour) => hour.feelsLike).reduce((a, b) => a + b) /
+          hours.length;
+      final band =
+          WarmthBand.values[WarmthBand.forFeelsLike(
+            mean,
+          ).index.clamp(indoorsWarmest.index, indoorsColdest.index)];
+      return DayBands(
+        start: hours.first.time,
+        cold: band,
+        warm: band,
+        coldest: coldest.feelsLike,
+        coldestAt: coldest.time,
+        warmest: warmest.feelsLike,
+        warmestAt: warmest.time,
+        position: _position(mean, band),
+        indoors: true,
+      );
+    }
+    final snowCanSettle = coldest.feelsLike < snowBelow;
+    // An hour's amounts and gusts fall in the hour before it.
+    DateTime? from(bool Function(HourlyWeather hour) falls) {
+      for (final hour in hours) {
+        if (falls(hour)) return hour.time.subtract(const Duration(hours: 1));
+      }
+      return null;
+    }
+
+    final cold = WarmthBand.forFeelsLike(coldest.feelsLike);
+    return DayBands(
+      start: hours.first.time,
+      cold: cold,
+      warm: WarmthBand.forFeelsLike(warmest.feelsLike),
+      coldest: coldest.feelsLike,
+      coldestAt: coldest.time,
+      warmest: warmest.feelsLike,
+      warmestAt: warmest.time,
+      position: _position(coldest.feelsLike, cold),
+      rainFrom: from(
+        (hour) => _isWet(hour) || (!snowCanSettle && _isSnow(hour)),
+      ),
+      snowFrom: snowCanSettle ? from(_isSnow) : null,
+      windFrom: from((hour) => hour.windGusts >= windyGusts),
+    );
+  }
+
+  static double _position(double celsius, WarmthBand band) {
+    final from = band.from ?? _freezingBottom;
+    final below = band.below ?? _hotTop;
+    return ((celsius - from) / (below - from)).clamp(0, 1).toDouble();
   }
 
   /// Null when the forecast does not cover the window.
