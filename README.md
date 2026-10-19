@@ -339,7 +339,9 @@ Projects: `in-vogue-dev` (development) and `in-vogue` (production).
 
 ### Offline: the catalog
 
-The catalog isn't fetched by the app. On the Mac, `../resources/` pulls Everlane's women's collection from Shopify's Global Catalog and builds the knowledge base (weather, occasions, styling and outfits) with Python. `scripts/export_*.py` copies what the app needs into `assets/`. The data stays bundled (owner decision), so a catalog change ships with an app release.
+Today's app reads a bundled catalog. On the Mac, `../resources/` pulls Everlane's women's collection from Shopify's Global Catalog and builds the knowledge base (weather, occasions, styling and outfits) with Python. `scripts/export_*.py` copies what the app needs into `assets/`, so a change ships with an app release.
+
+The next recommender reads a curated catalog from Firebase instead (owner, October 19). Claude labelled every piece and colour and put together 500 outfits in `../resources/catalog/curation/`; `../resources/tools/catalog/build_outfit_catalog.py` checks and builds them, and `upload_outfit_catalog.py` puts them on `in-vogue-dev` with the development admin key. It is live there; the app doesn't read it yet. The design is [docs/recommender-design.md](docs/recommender-design.md).
 
 ## Data
 
@@ -355,6 +357,8 @@ The catalog isn't fetched by the app. On the Mac, `../resources/` pulls Everlane
 | `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo: skin, brows, lips, hair, eyes, whether the photo was clear, and `analysedAt`. The one analysed last is the person's reading |
 | `users/{uid}/wardrobe/{id}` | An outfit the person owns: `name`, `colours` (one or more; an outfit saved before October 18's change holds one `colour`, still read), `bands` (feels-like bands), `rain`, `occasions`, `photo` (`path` in Storage, `url`) and `createdAt` |
 | `errors/{id}` | An error report: account, time, where, the error's kind and code, stack, flavor, platform, version, build and install id. The app may only add its own; nobody reads or changes one from the app |
+| `outfits/{id}` | A curated outfit (not read by the app yet): name, picture, pieces with links and try-on passes, weathers, colour seasons, occasions, `fits` (season × weather keys), taste and protection fields, `order` and `sample`. Anyone reads the 40 with `sample == true`; a signed-in person reads all; only the admin key writes |
+| `catalog/outfits` | The catalog's version, size and onboarding sample; anyone reads it |
 
 In the names above, `{photo}` is the first 16 characters of the photo's SHA-256.
 
@@ -365,6 +369,8 @@ In the names above, `{photo}` is the first 16 characters of the photo's SHA-256.
 | `users/{uid}/photos/<file>` | The body and face photos |
 | `users/{uid}/days/{date}_{occasion}.jpg` or `.png` | A finished outfit picture; later days with the same photo and outfit share it |
 | `users/{uid}/wardrobe/{id}.jpg` or `.png` | The photo of an outfit the person owns |
+| `catalog/v2/sample/{id}-{fingerprint}.jpg` | A sample outfit's picture; anyone reads it |
+| `catalog/v2/outfits/{id}-{fingerprint}.jpg` | Every other outfit's picture; a signed-in person reads it |
 
 ### On the phone
 
@@ -474,6 +480,9 @@ Run from `in-vogue/`; on the owner's Mac, wrap Flutter and Dart commands in `zsh
 | Native Firebase files | `scripts/configure_firebase.sh development` (or `production`) |
 | The development YouCam key | `python3 scripts/write_development_key.py` |
 | Check the Firestore rules on the emulator (Java 21) | `JAVA_HOME=<java 21> firebase emulators:exec --only firestore --project demo-in-vogue "python3 scripts/check_firestore_rules.py"` |
+| Check the Storage rules on the emulator (Java 21) | `JAVA_HOME=<java 21> firebase emulators:exec --only storage --project demo-in-vogue "python3 scripts/check_storage_rules.py"` |
+| Build the curated outfit catalog (from `../resources`) | `python3 tools/catalog/build_outfit_catalog.py` |
+| Upload it to development (from `../resources`; a dry run without `--apply`; needs `firebase-admin`) | `python3 tools/catalog/upload_outfit_catalog.py --key ../in-vogue/secrets/<service-account>.json --apply --prune` |
 | Deploy the rules to development | `GOOGLE_APPLICATION_CREDENTIALS=secrets/<service-account>.json firebase deploy --only firestore:rules,storage --project in-vogue-dev --non-interactive` |
 | Release builds: the iOS archive and APK into `release/`, then `build/` deleted | `scripts/build_release.sh [development\|production]` |
 | The device startup test (a simulator or phone) | `flutterN test integration_test/startup_test.dart --flavor development -d <device-id>` |
@@ -494,8 +503,9 @@ All checks run locally; the project has no CI by the owner's choice.
 ## Security and privacy
 
 - **Rules:** `firestore.rules` and `storage.rules` let each person reach only `users/{uid}/**`. Uploads must be images under 10 MB. Nobody can change their own plan.
-  - The one exception is `errors`: a signed-in person may add their own report, with fixed fields and sizes, and nothing more.
-  - `scripts/check_firestore_rules.py` keeps the rules in step with the app on the emulator.
+  - `errors`: a signed-in person may add their own report, with fixed fields and sizes, and nothing more.
+  - The outfit catalog: anyone may read the onboarding sample (`outfits` with `sample == true`, `catalog/outfits`, the `catalog/v2/sample/` pictures); a signed-in person reads every outfit and picture; only the admin key writes.
+  - `scripts/check_firestore_rules.py` and `scripts/check_storage_rules.py` keep the rules in step with the app on the emulators.
 - **Keys:** `secrets/` (the YouCam key and the development admin key), the bundled development key and the native Firebase files are git-ignored.
   - A key inside an app can be extracted, so production carries none yet.
   - A YouCam proxy function, holding the key on a server behind App Check, is to be reconsidered before release.
@@ -526,11 +536,12 @@ From the owner's device test, October 18, in this order:
      "results": null, "task_status": "error"}}
    ```
 4. **Replace Makeup with a colour palette and My Wardrobe.** Done October 18 as the Mirror tab (see [Reading colours](#reading-colours)); user testing is the owner's. Makeup is gone: its looks, recipes, steps and pictures. The face photo and the skin analysis stay. The owner's design: the season and why, then the palette in round swatches, then My Wardrobe; no face photo on the page, since it belongs in Settings; without one, Mirror asks for a selfie.
-5. **My Wardrobe.** Done October 18 on Mirror: adding an outfit the person owns (photo, name, colours, weather, occasions), the grid, the details and Remove. Home's recommendations from the wardrobe, one for today and one for tomorrow beside the catalog's, wait for the owner's design.
+5. **My Wardrobe.** Done October 18 on Mirror: adding an outfit the person owns (photo, name, colours, weather, occasions), the grid, the details and Remove. Home's recommendations from the wardrobe, one for today and one for tomorrow, go at the bottom of the Today and Tomorrow tabs (owner, October 19).
 6. **Mirror and Settings after the owner's check.** Done October 18: a palette colour opens its name and how to wear it, "See your full analysis" opens the whole skin analysis as a sheet, an outfit takes several colours, and Settings' profile square shows the face photo or the initial, never bare Rose. Error reports now carry YouCam's codes, and widget publishes run one at a time.
 
 ### Open work
 
+- **Recommender v2 (owner, October 19).** The curated catalog of 500 outfits is on `in-vogue-dev` with its pictures and rules. Next: the app reads it (onboarding sample, the catalog on Home with favourites), then the recommender, the learning and the wardrobe, as [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) plans.
 - **Check both widgets on phones (owner).**
   - Android: Large, Medium and Small; the switch at 06:00, 09:00 and midnight; a tap opening Home on that day; the waiting and stale states; the morning refresh (about 05:30, network on).
   - iPhone: the same, with Background App Refresh on, since iOS picks when the refresh runs.
@@ -597,3 +608,14 @@ Each line is an owner decision, kept so that old ideas stay dead.
   - Wardrobe uploads, dropped before, are planned, and the person's own outfits weigh more.
   - My Wardrobe: a person adds photos of outfits they own with a name, colours, weather and occasions; Mirror shows them in a grid with their details. Home recommending from them waits for the owner.
   - After the owner's check: a palette colour opens its name and how to wear it, the full skin analysis opens as a sheet, and an outfit takes one or more colours.
+- **October 19:** the recommender is rebuilt on a catalog Claude curates outside the app and stores in Firestore, reversing "the catalog stays bundled". The app only filters by colour season and weather and ranks; it never decides what suits a piece.
+  - A catalog item is an outfit of up to 4 shop pieces, each buyable and tried on piece by piece; about 500, with plain names; the picture is the main piece's model photo in Firebase Storage, and the other pieces copy what the model wears when the shop sells them.
+  - Skin colours are the 12 colour seasons. Garment categories stay hidden.
+  - Weathers: Hot ≥ 26 · Warm 20–26 · Mild 14–20 · Cool 8–14 · Cold 0–8 · Freezing < 0 °C feels-like; a piece lists every weather it can be worn in, layered if needed. Skirts, dresses and shorts are bare legs only.
+  - Occasions, ticked: Work, Casual, Going out, Event, Staying in, Active.
+  - Onboarding shows a fixed sample of 30–50 outfits readable without sign-in; picks are optional, go to the wishlist and weigh similar outfits without forcing them. After sign-in, Home shows the whole catalog, paged, with favourites, nothing weather-based.
+- **October 19, later:**
+  - Setup's picks step keeps the weather at the top; only the grid below changes, to the same 40 sample outfits for everyone, because picks record general taste. Home's Outfits tab keeps its weather chips as filters (Hot, Warm, Mild, Cool, Cold, Freezing, Rain) and opens on all outfits. Tapping an outfit opens the Shop screen. The person's own outfit for the day goes at the bottom of the Today and Tomorrow tabs.
+  - The app's occasions stay Work, Casual, Going out and Staying in; Event and Active stay in the catalog's data and aren't implemented. An unclear skin analysis is ignored, like a missing one.
+  - Nothing is migrated: the old system's records in `in-vogue-dev` are deleted (single-piece wishlist entries, days, suggestions, try-ons and their pictures). Log out clears only the phone's copy of the taste model; Delete account deletes it from the account.
+  - The 50 cold-day outfits with a coat added stay. An outfit's colour seasons come from its top or dress, and from its skirt or trousers when they aren't neutral; the coat doesn't count. The catalog stays at 500 outfits.

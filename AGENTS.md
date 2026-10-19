@@ -85,12 +85,12 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - Outfits come from the whole collection. Loved pieces add weight; never-suggested outfits come first, then the one suggested longest ago.
 - English unless the person picks another language; never follow the phone's.
 
-**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · loading the catalog from Firebase (it stays bundled) · enforcing App Check · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5).
+**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · enforcing App Check · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5). Loading the catalog from Firebase was on it until October 19: outfits now come from a curated catalog in Firestore (owner, October 19; [docs/recommender-design.md](docs/recommender-design.md)).
 
 ## Security
 
 - `secrets/` is git-ignored. It holds the YouCam key and secret and the development Firebase admin key. `assets/development/youcam_api_key.txt` is git-ignored too: development builds bundle it, production builds never do. The native Firebase files are git-ignored. Never print, log or commit any of them.
-- Firestore and Storage rules give each person only `users/{uid}/**`, and nobody can change their own `plan`. The one exception is `errors`, where a signed-in person may only add their own report. Check a rules change on the emulator before deploying it to development.
+- Firestore and Storage rules give each person only `users/{uid}/**`, and nobody can change their own `plan`. The exceptions: `errors`, where a signed-in person may only add their own report; and the outfit catalog (`outfits`, `catalog`, Storage `catalog/`), which anyone reads for the onboarding sample, a signed-in person reads whole, and only the admin key writes. Check a rules change on the emulator before deploying it to development (`scripts/check_firestore_rules.py`, `scripts/check_storage_rules.py`).
 
 ## Open work
 
@@ -113,7 +113,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 5. [x] **My Wardrobe.** Done October 18, below the season on Mirror (`lib/features/wardrobe`). Owner decisions, October 18:
    - A person adds a photo of an outfit they own, chosen from Photos or Gallery, with its name, its colours (one or more), the weather it suits (feels-like bands and rain) and its occasions.
    - Mirror shows their outfits in a grid; a tile opens the outfit's details, as the catalog's tiles do, with Remove, which asks first.
-   - Home will recommend from the wardrobe too, one for today and one for tomorrow beside the catalog's. Not built until the owner decides how: don't implement it.
+   - Home will recommend from the wardrobe too, one for today and one for tomorrow, at the bottom of the Today and Tomorrow tabs (owner, October 19). It's phase 7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan).
 6. [x] **Mirror and Settings after the owner's check.** Done October 18. Owner decisions, October 18:
    - Tapping a palette colour opens its name, the nearest of 78 clothing colours (`ColourNames`), and how to wear it.
    - "See your full analysis" opens the whole skin analysis as a sheet: the colours read from the photo, what the undertone, depth and contrast mean, and the season.
@@ -123,6 +123,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 **Also open:**
 
+- [ ] **Recommender v2** (owner, October 19). Claude curated a catalog of 500 outfits outside the app; it is in Firestore `outfits` on `in-vogue-dev` with its pictures in Storage, and the rules are deployed there (October 19). The app reads none of it yet: phases 3–7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan). *Pending.*
 - [ ] Build and check both home-screen widgets on phones. *Owner.*
 - [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*
 - [ ] Open a sample of Everlane product links. *Owner.*
