@@ -123,7 +123,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 **Also open:**
 
-- [ ] **Recommender v2** (owner, October 19). Claude curated a catalog of 500 outfits outside the app; it is in Firestore `outfits` on `in-vogue-dev` with its pictures in Storage, and the rules are deployed there (October 19). The app reads it for setup's sample, Home's Outfits tab, favourites and Shop (phase 3, October 19), the recommender is built and tested (phase 4), and Home's days come from it, with the old system and its records gone (phase 5, October 19); phases 6–7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) remain. *Pending.*
+- [ ] **Recommender v2** (owner, October 19). Claude curated a catalog of 500 outfits outside the app; it is in Firestore `outfits` on `in-vogue-dev` with its pictures in Storage, and the rules are deployed there (October 19). The app reads it for setup's sample, Home's Outfits tab, favourites and Shop (phase 3, October 19), the recommender is built and tested (phase 4), Home's days come from it, with the old system and its records gone (phase 5), and it learns what each person likes (phase 6, October 19); phase 7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) remain. *Pending.*
 - [ ] Build and check both home-screen widgets on phones. *Owner.*
 - [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*
 - [ ] Open a sample of Everlane product links. *Owner.*

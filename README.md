@@ -346,6 +346,8 @@ The outfits to pick from now come from a curated catalog in Firebase (owner, Oct
 
 The app keeps a copy of the catalog on the phone (`OutfitCatalogRepositoryImpl`). Once a run it reads `catalog/outfits.version` and fetches the outfits again only when it changed: the 40 sample outfits before sign-in (`where('sample', isEqualTo: true)`, as the rules require), every outfit after it. Offline, it uses the copy it has. Pages, the weather chips and Your picks all read that copy, so browsing costs no reads. Shop shows an outfit's pieces in the outfit's colours, with the bundled collection's flat-lay photo and material. Today's and tomorrow's outfits come from the recommender (`lib/features/stylist`, design §7): for an occasion's hours it takes the bands of the coldest and warmest feels-like and any rain, snow or strong wind (`DayWeatherRules.bands`), keeps the outfits that suit the person's colour season (from a clear reading only; otherwise the weather alone) in the coldest hours and the occasion, the warmest hours (as worn or with the layer off), rain and snow, scores them and chooses by the owner's rule: never suggested first among those within 15% of the day's best. Its one-line reason is worded in the person's language and unit. Its tests include a year of real weather in ten cities.
 
+The recommender learns what the person likes (design §8): a Bayesian linear model over 44 outfit features (colours, pattern, style, shape, fabric, dressiness and warmth, lounge) and a bias, learnt from signals: an outfit picked in setup, a heart on Home or its removal, a Buy tap, a day's outfit made, and a wardrobe outfit's colours. Each day draws its weights with the account, the date and the occasion as the seed, so every phone draws alike; liked looks score higher among the outfits that suit the day, without crowding out the rest. The signals are kept on the phone and on the account (`users/{uid}/stylist/state`); log out clears only the phone's copy, and Delete account deletes the account's.
+
 ## Data
 
 ### Firestore
@@ -358,6 +360,7 @@ The app keeps a copy of the catalog on the phone (`OutfitCatalogRepositoryImpl`)
 | `users/{uid}/suggestions/{outfitId}` | When each outfit was suggested, and any piece whose photo YouCam refused |
 | `users/{uid}/tryOns/{photo}-{outfitId}` | The picture made of an outfit on a photo: the photo's fingerprint, the outfit's id and the picture's path |
 | `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo: skin, brows, lips, hair, eyes, whether the photo was clear, and `analysedAt`. The one analysed last is the person's reading |
+| `users/{uid}/stylist/state` | What the taste model learns from: `signals` (each with an `id`, its `kind`, `at`, the `outfit` or a wardrobe outfit's colour `families`) and `version` |
 | `users/{uid}/wardrobe/{id}` | An outfit the person owns: `name`, `colours` (one or more; an outfit saved before October 18's change holds one `colour`, still read), `bands` (feels-like bands), `rain`, `occasions`, `photo` (`path` in Storage, `url`) and `createdAt` |
 | `errors/{id}` | An error report: account, time, where, the error's kind and code, stack, flavor, platform, version, build and install id. The app may only add its own; nobody reads or changes one from the app |
 | `outfits/{id}` | A curated outfit: name, picture (`image.url`, its download link), pieces with links and try-on passes, weathers, colour seasons, occasions, `fits` (season × weather keys), taste and protection fields, `order` and `sample`. Anyone reads the 40 with `sample == true`; a signed-in person reads all; only the admin key writes |
@@ -379,7 +382,7 @@ In the names above, `{photo}` is the first 16 characters of the photo's SHA-256.
 
 Everything sits in `<support>/in_vogue/<flavor>/`:
 
-- **Hive** (`preferences_<flavor>`): the language, default day, setup step, location, picks (outfit ids) and those last saved on the account, the name, the photo records, the install id, the unfinished try-on jobs and the colour readings under way.
+- **Hive** (`preferences_<flavor>`): the language, default day, setup step, location, picks (outfit ids) and those last saved on the account, the taste signals (`taste_signals`), the name, the photo records, the install id, the unfinished try-on jobs and the colour readings under way.
 - **SQLite** (`cache.sqlite`): forecasts, with expiry.
 - **The catalog** (`catalog/outfits.json`): the outfits' documents, their catalog version and whether the copy holds every outfit or only the sample.
 - **Files:** `photos/`, `outfits/{uid}/` (with `made/`), `wardrobe/{uid}/` and `downloads/`.

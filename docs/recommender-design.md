@@ -265,7 +265,7 @@ Changing the catalog: edit or add rows with the curation tools (they refuse anyt
 | `families`, `styles`, `kinds` | `["beige","brown"]`, `["classic","minimal",…]`, `["cardigan","trousers","coat"]` | Taste |
 | `dressy`, `warmth` | `3.0`, `10` | Occasion fit; warmth within a band |
 | `rain`, `wind`, `coat` | `"fine"`, `"fine"`, `true` | Protection |
-| `pieces` | `[{colourway, style, name, colour, hex, family, accent, pattern, neutral, role, kind, weathers, warmth, dressy, styles, rain, wind, url, photo}]` | Display, Buy, try-on, refused pieces |
+| `pieces` | `[{colourway, style, name, colour, hex, family, accent, pattern, neutral, role, kind, weathers, warmth, dressy, styles, fibre, shape, length, rain, wind, url, photo}]` | Display, Buy, try-on, refused pieces, taste |
 | `passes` | `[{category: "lower_body", piece, reference}, …]` | Try-on, as `Outfit.passes` today |
 | `retailer` | `"everlane"` | — |
 | `updatedAt` | server time | — |
@@ -339,7 +339,7 @@ Denver gets outfits like o0004 (black blazer, white shirt, light jeans): Cool wi
 
 ### 7.4 Scoring
 
-Each term is 0–1; `U = Σ wₖ·sₖ`. The weights live in `StylistWeights`. The weather term is 0.6 × the share of the day's bands covered plus 0.4 × the warmth placement; on a wet and windy day the protection term is the mean of its rain and wind parts.
+Each term is 0–1; `U = Σ wₖ·sₖ`. The weights live in `StylistWeights`. The weather term is 0.8 × the share of the day's bands covered plus 0.2 × the warmth placement (placement at 0.4 outweighed what the person likes); on a wet and windy day the protection term is the mean of its rain and wind parts.
 
 | Term | Weight | Reads |
 | --- | --- | --- |
@@ -404,7 +404,7 @@ Outfits **similar** to a liked one share its features, so they score higher too:
 
 ### 8.3 Where it lives
 
-`users/{uid}/stylist/state` (taste `Λ` and `b`, routine counts, version), kept on the phone with Hive and synced. The existing rules give each person only their own `users/{uid}/**`. Log out clears the local copy; Delete account deletes the document.
+`users/{uid}/stylist/state` holds the signals themselves (`{version, signals: [{id, kind, at, outfit, families}]}`), not `Λ` and `b`: the phone rebuilds the model from them against the catalog it has, in microseconds, so a catalog change re-reads every signal, and two phones merge by union (`arrayUnion`; each signal has an id). The phone keeps its copy in Hive (`taste_signals`); a signal goes to the account at once when someone is signed in, and every account save takes along any that didn't. Sign-in adds the account's signals to the phone's. The existing rules give each person only their own `users/{uid}/**`. Log out clears only the phone's copy, so it comes back at the next sign-in; Delete account deletes the document with the account. The draw uses a seed of the account, the date and the occasion (FNV-1a, the same on every phone).
 
 ---
 
@@ -497,7 +497,7 @@ Each phase gets its own branch with tests first, a clean analyze, the whole suit
 | 3. Catalog in the app | `feat/catalog_v2` | `OutfitCatalogRepository` with its phone copy, onboarding sample, Home browser, favourites as outfits, Shop for an outfit, six weather bands | **Done** October 19 (not merged) |
 | 4. Recommender | `feat/stylist_engine` | Day bands (six), candidates, scorer, chooser, reasons, simulation | **Done** October 19 (not merged) |
 | 5. On Home | `feat/stylist_on_home` | `MakeOutfit` integration, Day v2 fields, the widget; then remove the knowledge-base path | **Done** October 19 (not merged) |
-| 6. Learning | `feat/stylist_signals` | Taste model, signals, Buy logging | — |
+| 6. Learning | `feat/stylist_signals` | Taste model, signals, Buy logging | **Done** October 19 (not merged) |
 | 7. Wardrobe | `feat/wardrobe_on_home` | [§9](#9-onboarding-home-and-the-wardrobe): the person's own outfit at the bottom of the Today and Tomorrow tabs (owner) | — |
 
 ---
@@ -583,7 +583,7 @@ The owner's list of October 19, as stored in `styles.v2.tsv`:
 
 ## Appendix D. Taste features
 
-Outfit-level, standardised over the catalog:
+Outfit-level, standardised over the catalog, each group alike in weight (colours 1–15, pattern 16–20, style 21–29, shape 30–39, fabric 40–41, dressiness and warmth 42–43, lounge 44), the whole about unit length. Shape, length and fibre come from the pieces' `shape`, `length` and `fibre` (catalog version 3, October 19); 40 is silk, the fibre:
 
 1–15. Share of pieces in each colour family (black, white, cream, grey, beige, brown, navy, blue, green, olive, yellow, orange, red, pink, purple)
 16. Neutral only
