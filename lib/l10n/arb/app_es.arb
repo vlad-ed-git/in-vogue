@@ -144,6 +144,7 @@
   "weatherMild": "Templado",
   "weatherCool": "Fresco",
   "weatherCold": "Frío",
+  "weatherFreezing": "Bajo cero",
   "weatherRain": "Lluvia",
   "feelsLikeFrom": "Sensación de {low}° o más",
   "feelsLikeRange": "Sensación de {low} a {high}°",

@@ -969,6 +969,12 @@ abstract class AppLocalizations {
   /// **'Cold'**
   String get weatherCold;
 
+  /// Chip: outfits for freezing weather, below 0 °C feels-like.
+  ///
+  /// In en, this message translates to:
+  /// **'Freezing'**
+  String get weatherFreezing;
+
   /// Chip: pieces documented as water-resistant.
   ///
   /// In en, this message translates to:

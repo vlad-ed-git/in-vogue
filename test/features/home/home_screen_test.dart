@@ -352,6 +352,7 @@ void main() {
       'Mild',
       'Cool',
       'Cold',
+      'Freezing',
       'Rain',
     ]);
     await tester.tap(find.text('Warm'));

@@ -541,6 +541,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get weatherCold => '寒冷';
 
   @override
+  String get weatherFreezing => '严寒';
+
+  @override
   String get weatherRain => '雨天';
 
   @override

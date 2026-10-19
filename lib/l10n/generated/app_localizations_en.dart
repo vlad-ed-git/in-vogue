@@ -567,6 +567,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weatherCold => 'Cold';
 
   @override
+  String get weatherFreezing => 'Freezing';
+
+  @override
   String get weatherRain => 'Rain';
 
   @override

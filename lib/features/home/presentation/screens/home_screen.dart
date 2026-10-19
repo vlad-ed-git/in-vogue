@@ -431,6 +431,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     l10n.weatherMild,
                     l10n.weatherCool,
                     l10n.weatherCold,
+                    l10n.weatherFreezing,
                     l10n.weatherRain,
                   ],
                   selectedIndex: group,

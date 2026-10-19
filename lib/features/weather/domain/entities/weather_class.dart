@@ -29,9 +29,10 @@ class WeatherClass extends Equatable {
   final WarmthBand warmest;
 
   /// The knowledge base's cell for this class and [occasion], such as
-  /// "cool|wet|windy|work".
+  /// "cool|wet|windy|work". Its cold band also holds freezing days.
   String cell(Occasion occasion) =>
-      '${band.name}|${precipitation.name}|${windy ? 'windy' : 'calm'}|'
+      '${band == WarmthBand.freezing ? WarmthBand.cold.name : band.name}|'
+      '${precipitation.name}|${windy ? 'windy' : 'calm'}|'
       '${contexts[occasion]}';
 
   /// The class a [cell] names, without its drizzle or warmest band; null

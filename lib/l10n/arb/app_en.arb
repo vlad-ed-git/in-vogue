@@ -574,6 +574,10 @@
   "@weatherCold": {
     "description": "Chip: pieces for cold weather."
   },
+  "weatherFreezing": "Freezing",
+  "@weatherFreezing": {
+    "description": "Chip: outfits for freezing weather, below 0 °C feels-like."
+  },
   "weatherRain": "Rain",
   "@weatherRain": {
     "description": "Chip: pieces documented as water-resistant."

@@ -32,6 +32,7 @@ extension WarmthBandText on WarmthBand {
     WarmthBand.mild => l10n.weatherMild,
     WarmthBand.cool => l10n.weatherCool,
     WarmthBand.cold => l10n.weatherCold,
+    WarmthBand.freezing => l10n.weatherFreezing,
   };
 }
 

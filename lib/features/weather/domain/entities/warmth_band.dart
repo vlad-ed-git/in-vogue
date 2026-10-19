@@ -1,4 +1,4 @@
-/// The knowledge base's feels-like bands, warmest first.
+/// The feels-like bands, warmest first.
 enum WarmthBand {
   /// 26 °C and above.
   hot,
@@ -12,8 +12,11 @@ enum WarmthBand {
   /// 8 to 14 °C.
   cool,
 
-  /// Below 8 °C.
-  cold;
+  /// 0 to 8 °C.
+  cold,
+
+  /// Below 0 °C.
+  freezing;
 
   /// Lowest feels-like of the band, °C; null for the coldest.
   double? get from => switch (this) {
@@ -21,7 +24,8 @@ enum WarmthBand {
     warm => 20,
     mild => 14,
     cool => 8,
-    cold => null,
+    cold => 0,
+    freezing => null,
   };
 
   /// Feels-like the band ends below, °C; null for the warmest.
@@ -31,6 +35,7 @@ enum WarmthBand {
     mild => 20,
     cool => 14,
     cold => 8,
+    freezing => 0,
   };
 
   /// The band of a feels-like temperature in °C.
@@ -39,6 +44,7 @@ enum WarmthBand {
     >= 20 => warm,
     >= 14 => mild,
     >= 8 => cool,
-    _ => cold,
+    >= 0 => cold,
+    _ => freezing,
   };
 }

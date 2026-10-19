@@ -569,6 +569,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get weatherCold => 'Frío';
 
   @override
+  String get weatherFreezing => 'Bajo cero';
+
+  @override
   String get weatherRain => 'Lluvia';
 
   @override

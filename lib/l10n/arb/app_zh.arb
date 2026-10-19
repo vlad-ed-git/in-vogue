@@ -144,6 +144,7 @@
   "weatherMild": "温和",
   "weatherCool": "凉爽",
   "weatherCold": "寒冷",
+  "weatherFreezing": "严寒",
   "weatherRain": "雨天",
   "feelsLikeFrom": "体感 {low}° 及以上",
   "feelsLikeRange": "体感 {low}–{high}°",
