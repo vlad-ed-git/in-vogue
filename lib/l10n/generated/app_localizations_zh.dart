@@ -1039,4 +1039,69 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get analysisNote => 'YouCam 从你的照片读取这些颜色。季型是我们据此给出的建议。';
+
+  @override
+  String reasonLayerOff(
+    int coldest,
+    String coldTime,
+    int warmest,
+    String warmTime,
+  ) {
+    return '$coldTime体感$coldest°，$warmTime升到$warmest°：天热了就脱掉外层。';
+  }
+
+  @override
+  String reasonNoSpan(int coldest, int warmest) {
+    return '目录里没有能覆盖$coldest°到$warmest°的穿搭：按最冷的时段来穿。';
+  }
+
+  @override
+  String get reasonNoWeatherMatch => '今天没有能挡雨雪的穿搭：记得带伞。';
+
+  @override
+  String reasonRainFrom(String time) {
+    return '$time起有雨：这套不怕淋。';
+  }
+
+  @override
+  String get reasonRainAllDay => '今天有雨：这套不怕淋。';
+
+  @override
+  String reasonSnowFrom(String time) {
+    return '$time起下雪：遮住双腿，多穿保暖层。';
+  }
+
+  @override
+  String get reasonSnowAllDay => '今天下雪：遮住双腿，多穿保暖层。';
+
+  @override
+  String reasonFreezing(int coldest) {
+    return '零度以下，最冷体感$coldest°：外面一件保暖大衣。';
+  }
+
+  @override
+  String reasonWindFrom(String time) {
+    return '$time起有大风：没有会被风吹起的单品。';
+  }
+
+  @override
+  String get reasonWindAllDay => '今天有大风：没有会被风吹起的单品。';
+
+  @override
+  String get reasonHome => '在家的一天：穿得轻松舒服。';
+
+  @override
+  String reasonSteady(int coldest, int warmest) {
+    return '今天体感$coldest°到$warmest°：整天都合适。';
+  }
+
+  @override
+  String reasonSteadyOne(int coldest) {
+    return '今天体感$coldest°：整天都合适。';
+  }
+
+  @override
+  String reasonInSeason(String reason, String season) {
+    return '$reason适合你的$season色彩。';
+  }
 }

@@ -264,5 +264,19 @@
   "undertoneAbout": "{undertone, select, warm{Cálido: tu piel tira a dorado, así que los colores cálidos, tierra y dorados te iluminan.} cool{Frío: tu piel tira a rosado, así que te favorecen los colores fríos y nítidos.} other{Neutro: tu piel está entre dorado y rosado, así que puedes llevar ambos; tu pelo inclina la balanza.}}",
   "depthAbout": "{depth, select, light{Claro: tu piel y tu pelo son claros, así que los colores más claros y suaves te favorecen.} deep{Profundo: tu colorido es profundo, así que te favorecen los colores intensos y profundos.} other{Medio: tu colorido está en un punto medio, así que te favorecen los colores de profundidad media.}}",
   "contrastAbout": "{contrast, select, high{Alto: tu pelo destaca sobre tu piel, así que te favorecen las combinaciones atrevidas.} low{Bajo: tus rasgos se funden con suavidad, así que te favorecen los looks tono sobre tono.} other{Medio: tus rasgos contrastan con suavidad, así que el contraste medio funciona mejor.}}",
-  "analysisNote": "YouCam lee estos colores de tu foto. La estación es nuestra sugerencia a partir de ellos."
+  "analysisNote": "YouCam lee estos colores de tu foto. La estación es nuestra sugerencia a partir de ellos.",
+  "reasonLayerOff": "{coldest}° a las {coldTime}, {warmest}° a las {warmTime}: la capa de encima sobra cuando sube la temperatura.",
+  "reasonNoSpan": "Nada del catálogo cubre de {coldest}° a {warmest}°: pensado para las horas más frías.",
+  "reasonNoWeatherMatch": "Ningún conjunto de hoy aguanta la lluvia o la nieve: lleva paraguas.",
+  "reasonRainFrom": "Lluvia desde las {time}: un conjunto que aguanta el agua.",
+  "reasonRainAllDay": "Lluvia hoy: un conjunto que aguanta el agua.",
+  "reasonSnowFrom": "Nieve desde las {time}: piernas cubiertas y capas de abrigo.",
+  "reasonSnowAllDay": "Nieve hoy: piernas cubiertas y capas de abrigo.",
+  "reasonFreezing": "Bajo cero, {coldest}° en el momento más frío: un abrigo cálido encima.",
+  "reasonWindFrom": "Viento desde las {time}: nada que se lleve el viento.",
+  "reasonWindAllDay": "Viento hoy: nada que se lleve el viento.",
+  "reasonHome": "Un día en casa: algo cómodo de llevar.",
+  "reasonSteady": "Sensación de {coldest}° a {warmest}° hoy: pensado para todo el día.",
+  "reasonSteadyOne": "Sensación de {coldest}° hoy: pensado para todo el día.",
+  "reasonInSeason": "{reason} En tus colores de {season}."
 }

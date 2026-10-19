@@ -1103,4 +1103,71 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get analysisNote =>
       'YouCam lee estos colores de tu foto. La estación es nuestra sugerencia a partir de ellos.';
+
+  @override
+  String reasonLayerOff(
+    int coldest,
+    String coldTime,
+    int warmest,
+    String warmTime,
+  ) {
+    return '$coldest° a las $coldTime, $warmest° a las $warmTime: la capa de encima sobra cuando sube la temperatura.';
+  }
+
+  @override
+  String reasonNoSpan(int coldest, int warmest) {
+    return 'Nada del catálogo cubre de $coldest° a $warmest°: pensado para las horas más frías.';
+  }
+
+  @override
+  String get reasonNoWeatherMatch =>
+      'Ningún conjunto de hoy aguanta la lluvia o la nieve: lleva paraguas.';
+
+  @override
+  String reasonRainFrom(String time) {
+    return 'Lluvia desde las $time: un conjunto que aguanta el agua.';
+  }
+
+  @override
+  String get reasonRainAllDay => 'Lluvia hoy: un conjunto que aguanta el agua.';
+
+  @override
+  String reasonSnowFrom(String time) {
+    return 'Nieve desde las $time: piernas cubiertas y capas de abrigo.';
+  }
+
+  @override
+  String get reasonSnowAllDay =>
+      'Nieve hoy: piernas cubiertas y capas de abrigo.';
+
+  @override
+  String reasonFreezing(int coldest) {
+    return 'Bajo cero, $coldest° en el momento más frío: un abrigo cálido encima.';
+  }
+
+  @override
+  String reasonWindFrom(String time) {
+    return 'Viento desde las $time: nada que se lleve el viento.';
+  }
+
+  @override
+  String get reasonWindAllDay => 'Viento hoy: nada que se lleve el viento.';
+
+  @override
+  String get reasonHome => 'Un día en casa: algo cómodo de llevar.';
+
+  @override
+  String reasonSteady(int coldest, int warmest) {
+    return 'Sensación de $coldest° a $warmest° hoy: pensado para todo el día.';
+  }
+
+  @override
+  String reasonSteadyOne(int coldest) {
+    return 'Sensación de $coldest° hoy: pensado para todo el día.';
+  }
+
+  @override
+  String reasonInSeason(String reason, String season) {
+    return '$reason En tus colores de $season.';
+  }
 }

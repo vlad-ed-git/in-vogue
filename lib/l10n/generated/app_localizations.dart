@@ -1694,6 +1694,95 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'YouCam reads these colours from your photo. The season is our suggestion from them.'**
   String get analysisNote;
+
+  /// Why the outfit suits a day that starts cold and warms up: the coldest and warmest feels-like and when.
+  ///
+  /// In en, this message translates to:
+  /// **'{coldest}° at {coldTime}, {warmest}° by {warmTime}: the layer comes off as it warms up.'**
+  String reasonLayerOff(
+    int coldest,
+    String coldTime,
+    int warmest,
+    String warmTime,
+  );
+
+  /// Why: no outfit suits both the coldest and the warmest hours.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing in the catalog spans {coldest}° to {warmest}°: dressed for the coldest hours.'**
+  String reasonNoSpan(int coldest, int warmest);
+
+  /// Why: no outfit for the day is made for its rain or snow.
+  ///
+  /// In en, this message translates to:
+  /// **'No outfit for today keeps out the rain or snow: take an umbrella.'**
+  String get reasonNoWeatherMatch;
+
+  /// Why: rain comes later in the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Rain from {time}: an outfit that takes the wet.'**
+  String reasonRainFrom(String time);
+
+  /// Why: rain from the start of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Rain today: an outfit that takes the wet.'**
+  String get reasonRainAllDay;
+
+  /// Why: snow comes later in the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Snow from {time}: covered legs and warm layers.'**
+  String reasonSnowFrom(String time);
+
+  /// Why: snow from the start of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Snow today: covered legs and warm layers.'**
+  String get reasonSnowAllDay;
+
+  /// Why: a freezing day.
+  ///
+  /// In en, this message translates to:
+  /// **'Below freezing, {coldest}° at the coldest: a warm coat on top.'**
+  String reasonFreezing(int coldest);
+
+  /// Why: strong wind comes later in the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind from {time}: nothing the wind catches.'**
+  String reasonWindFrom(String time);
+
+  /// Why: strong wind from the start of the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Windy today: nothing the wind catches.'**
+  String get reasonWindAllDay;
+
+  /// Why: the occasion is staying in.
+  ///
+  /// In en, this message translates to:
+  /// **'A day at home: something easy to wear.'**
+  String get reasonHome;
+
+  /// Why: the outfit suits the whole day's range.
+  ///
+  /// In en, this message translates to:
+  /// **'Feels like {coldest}° to {warmest}° today: dressed for all of it.'**
+  String reasonSteady(int coldest, int warmest);
+
+  /// Why: the day feels the same throughout.
+  ///
+  /// In en, this message translates to:
+  /// **'Feels like {coldest}° today: dressed for it.'**
+  String reasonSteadyOne(int coldest);
+
+  /// The reason, then the person's colour season, which chose the outfit's colours.
+  ///
+  /// In en, this message translates to:
+  /// **'{reason} In your {season} colours.'**
+  String reasonInSeason(String reason, String season);
 }
 
 class _AppLocalizationsDelegate

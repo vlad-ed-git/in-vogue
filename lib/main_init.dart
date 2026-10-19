@@ -36,6 +36,7 @@ import 'package:in_vogue/features/settings/di/init.dart' as settings_di;
 import 'package:in_vogue/features/setup/di/init.dart' as setup_di;
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/domain/usecases/get_setup_step.dart';
+import 'package:in_vogue/features/stylist/di/init.dart' as stylist_di;
 import 'package:in_vogue/features/wardrobe/di/init.dart' as wardrobe_di;
 import 'package:in_vogue/features/weather/di/init.dart' as weather_di;
 import 'package:package_info_plus/package_info_plus.dart';
@@ -117,6 +118,7 @@ abstract final class MainInit {
       weather_di.init(locator);
       photos_di.init(locator);
       catalog_di.init(locator);
+      stylist_di.init(locator);
       auth_di.init(locator);
       profile_di.init(locator);
       locator.registerLazySingleton<WidgetRefreshScheduler>(

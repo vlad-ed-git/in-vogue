@@ -1098,4 +1098,70 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get analysisNote =>
       'YouCam reads these colours from your photo. The season is our suggestion from them.';
+
+  @override
+  String reasonLayerOff(
+    int coldest,
+    String coldTime,
+    int warmest,
+    String warmTime,
+  ) {
+    return '$coldest° at $coldTime, $warmest° by $warmTime: the layer comes off as it warms up.';
+  }
+
+  @override
+  String reasonNoSpan(int coldest, int warmest) {
+    return 'Nothing in the catalog spans $coldest° to $warmest°: dressed for the coldest hours.';
+  }
+
+  @override
+  String get reasonNoWeatherMatch =>
+      'No outfit for today keeps out the rain or snow: take an umbrella.';
+
+  @override
+  String reasonRainFrom(String time) {
+    return 'Rain from $time: an outfit that takes the wet.';
+  }
+
+  @override
+  String get reasonRainAllDay => 'Rain today: an outfit that takes the wet.';
+
+  @override
+  String reasonSnowFrom(String time) {
+    return 'Snow from $time: covered legs and warm layers.';
+  }
+
+  @override
+  String get reasonSnowAllDay => 'Snow today: covered legs and warm layers.';
+
+  @override
+  String reasonFreezing(int coldest) {
+    return 'Below freezing, $coldest° at the coldest: a warm coat on top.';
+  }
+
+  @override
+  String reasonWindFrom(String time) {
+    return 'Wind from $time: nothing the wind catches.';
+  }
+
+  @override
+  String get reasonWindAllDay => 'Windy today: nothing the wind catches.';
+
+  @override
+  String get reasonHome => 'A day at home: something easy to wear.';
+
+  @override
+  String reasonSteady(int coldest, int warmest) {
+    return 'Feels like $coldest° to $warmest° today: dressed for all of it.';
+  }
+
+  @override
+  String reasonSteadyOne(int coldest) {
+    return 'Feels like $coldest° today: dressed for it.';
+  }
+
+  @override
+  String reasonInSeason(String reason, String season) {
+    return '$reason In your $season colours.';
+  }
 }

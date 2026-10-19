@@ -264,5 +264,19 @@
   "undertoneAbout": "{undertone, select, warm{暖调：你的皮肤偏金黄，所以温暖的大地色和金色会让你更有光彩。} cool{冷调：你的皮肤偏粉，所以清爽的冷色最适合你。} other{中性：你的皮肤介于金黄与粉之间，两种都能穿；你的发色会决定偏向。}}",
   "depthAbout": "{depth, select, light{浅：你的皮肤和头发偏浅，所以更浅、更柔和的颜色让你更出众。} deep{深：你的整体色彩偏深，所以浓郁深沉的颜色最适合你。} other{中等：你的整体色彩居中，所以中等深浅的颜色最适合你。}}",
   "contrastAbout": "{contrast, select, high{高：你的发色与肤色对比鲜明，所以大胆的搭配最适合你。} low{低：你的五官色彩柔和融合，所以同色系搭配最适合你。} other{中等：你的五官对比柔和，所以中等对比效果最好。}}",
-  "analysisNote": "YouCam 从你的照片读取这些颜色。季型是我们据此给出的建议。"
+  "analysisNote": "YouCam 从你的照片读取这些颜色。季型是我们据此给出的建议。",
+  "reasonLayerOff": "{coldTime}体感{coldest}°，{warmTime}升到{warmest}°：天热了就脱掉外层。",
+  "reasonNoSpan": "目录里没有能覆盖{coldest}°到{warmest}°的穿搭：按最冷的时段来穿。",
+  "reasonNoWeatherMatch": "今天没有能挡雨雪的穿搭：记得带伞。",
+  "reasonRainFrom": "{time}起有雨：这套不怕淋。",
+  "reasonRainAllDay": "今天有雨：这套不怕淋。",
+  "reasonSnowFrom": "{time}起下雪：遮住双腿，多穿保暖层。",
+  "reasonSnowAllDay": "今天下雪：遮住双腿，多穿保暖层。",
+  "reasonFreezing": "零度以下，最冷体感{coldest}°：外面一件保暖大衣。",
+  "reasonWindFrom": "{time}起有大风：没有会被风吹起的单品。",
+  "reasonWindAllDay": "今天有大风：没有会被风吹起的单品。",
+  "reasonHome": "在家的一天：穿得轻松舒服。",
+  "reasonSteady": "今天体感{coldest}°到{warmest}°：整天都合适。",
+  "reasonSteadyOne": "今天体感{coldest}°：整天都合适。",
+  "reasonInSeason": "{reason}适合你的{season}色彩。"
 }

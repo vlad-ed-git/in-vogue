@@ -912,5 +912,124 @@
       }
     }
   },
-  "analysisNote": "YouCam reads these colours from your photo. The season is our suggestion from them."
+  "analysisNote": "YouCam reads these colours from your photo. The season is our suggestion from them.",
+  "reasonLayerOff": "{coldest}° at {coldTime}, {warmest}° by {warmTime}: the layer comes off as it warms up.",
+  "@reasonLayerOff": {
+    "description": "Why the outfit suits a day that starts cold and warms up: the coldest and warmest feels-like and when.",
+    "placeholders": {
+      "coldest": {
+        "type": "int"
+      },
+      "coldTime": {
+        "type": "String"
+      },
+      "warmest": {
+        "type": "int"
+      },
+      "warmTime": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonNoSpan": "Nothing in the catalog spans {coldest}° to {warmest}°: dressed for the coldest hours.",
+  "@reasonNoSpan": {
+    "description": "Why: no outfit suits both the coldest and the warmest hours.",
+    "placeholders": {
+      "coldest": {
+        "type": "int"
+      },
+      "warmest": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonNoWeatherMatch": "No outfit for today keeps out the rain or snow: take an umbrella.",
+  "@reasonNoWeatherMatch": {
+    "description": "Why: no outfit for the day is made for its rain or snow."
+  },
+  "reasonRainFrom": "Rain from {time}: an outfit that takes the wet.",
+  "@reasonRainFrom": {
+    "description": "Why: rain comes later in the day.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonRainAllDay": "Rain today: an outfit that takes the wet.",
+  "@reasonRainAllDay": {
+    "description": "Why: rain from the start of the day."
+  },
+  "reasonSnowFrom": "Snow from {time}: covered legs and warm layers.",
+  "@reasonSnowFrom": {
+    "description": "Why: snow comes later in the day.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonSnowAllDay": "Snow today: covered legs and warm layers.",
+  "@reasonSnowAllDay": {
+    "description": "Why: snow from the start of the day."
+  },
+  "reasonFreezing": "Below freezing, {coldest}° at the coldest: a warm coat on top.",
+  "@reasonFreezing": {
+    "description": "Why: a freezing day.",
+    "placeholders": {
+      "coldest": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonWindFrom": "Wind from {time}: nothing the wind catches.",
+  "@reasonWindFrom": {
+    "description": "Why: strong wind comes later in the day.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reasonWindAllDay": "Windy today: nothing the wind catches.",
+  "@reasonWindAllDay": {
+    "description": "Why: strong wind from the start of the day."
+  },
+  "reasonHome": "A day at home: something easy to wear.",
+  "@reasonHome": {
+    "description": "Why: the occasion is staying in."
+  },
+  "reasonSteady": "Feels like {coldest}° to {warmest}° today: dressed for all of it.",
+  "@reasonSteady": {
+    "description": "Why: the outfit suits the whole day's range.",
+    "placeholders": {
+      "coldest": {
+        "type": "int"
+      },
+      "warmest": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonSteadyOne": "Feels like {coldest}° today: dressed for it.",
+  "@reasonSteadyOne": {
+    "description": "Why: the day feels the same throughout.",
+    "placeholders": {
+      "coldest": {
+        "type": "int"
+      }
+    }
+  },
+  "reasonInSeason": "{reason} In your {season} colours.",
+  "@reasonInSeason": {
+    "description": "The reason, then the person's colour season, which chose the outfit's colours.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      },
+      "season": {
+        "type": "String"
+      }
+    }
+  }
 }
