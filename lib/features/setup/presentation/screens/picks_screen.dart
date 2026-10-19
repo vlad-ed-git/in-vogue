@@ -4,26 +4,31 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/core/utils/failure_message.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
-import 'package:in_vogue/features/catalog/presentation/widgets/piece_grid.dart';
+import 'package:in_vogue/features/catalog/presentation/widgets/outfit_grid.dart';
 import 'package:in_vogue/features/setup/domain/entities/setup_step.dart';
 import 'package:in_vogue/features/setup/presentation/setup_step_folio.dart';
-import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 import 'package:in_vogue/features/weather/presentation/widgets/day_weather_header.dart';
 
-/// Setup step 3: tomorrow's weather, then pieces that suit it to love, so
-/// outfits lean towards the person's taste. Zero picks is fine.
+/// Setup step 3: tomorrow's weather, then the catalog's sample outfits to
+/// love, the same for everyone, so outfits lean towards the person's taste.
+/// Zero picks is fine.
 class PicksScreen extends StatelessWidget {
   const PicksScreen({
     required this.onBack,
     required this.onProceed,
+    required this.onOpen,
     this.imageFor = networkImage,
     super.key,
   });
 
   final VoidCallback onBack;
   final VoidCallback onProceed;
+
+  /// Opens an outfit's pieces.
+  final ValueChanged<CatalogOutfit> onOpen;
 
   /// The image at a URL.
   final ImageProvider Function(String url) imageFor;
@@ -33,27 +38,13 @@ class PicksScreen extends StatelessWidget {
       CachedNetworkImageProvider(url);
 
   @override
-  Widget build(BuildContext context) => MultiBlocListener(
-    listeners: [
-      BlocListener<ForecastBloc, ForecastState>(
-        listenWhen: (previous, current) =>
-            current.status == ForecastStatus.ready &&
-            previous.report != current.report,
-        listener: (context, state) => context.read<PicksBloc>().add(
-          PicksRequested(
-            WarmthBand.forFeelsLike(state.report!.weather.feelsLike),
-          ),
-        ),
-      ),
-      BlocListener<PicksBloc, PicksState>(
-        listenWhen: (previous, current) =>
-            current.failure != null && previous.failure != current.failure,
-        listener: (context, state) => context.showSnack(
-          message: state.failure!.uiFriendlyMessage(context),
-          isError: true,
-        ),
-      ),
-    ],
+  Widget build(BuildContext context) => BlocListener<PicksBloc, PicksState>(
+    listenWhen: (previous, current) =>
+        current.failure != null && previous.failure != current.failure,
+    listener: (context, state) => context.showSnack(
+      message: state.failure!.uiFriendlyMessage(context),
+      isError: true,
+    ),
     child: Scaffold(
       body: SafeArea(
         bottom: false,
@@ -77,17 +68,10 @@ class PicksScreen extends StatelessWidget {
               ),
             ),
             BlocBuilder<PicksBloc, PicksState>(
-              builder: (context, state) => state.pieces.isNotEmpty
-                  ? _pieces(context, state)
+              builder: (context, state) => state.outfits.isNotEmpty
+                  ? _outfits(context, state)
                   : SliverToBoxAdapter(
-                      child:
-                          state.status == PicksStatus.loading &&
-                              context.select<ForecastBloc, bool>(
-                                (bloc) =>
-                                    bloc.state.status == ForecastStatus.ready,
-                              )
-                          ? const PageMargin(child: RunningRule.content())
-                          : const SizedBox.shrink(),
+                      child: PageMargin(child: _waiting(context, state)),
                     ),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: InVogueSpace.s6)),
@@ -130,19 +114,51 @@ class PicksScreen extends StatelessWidget {
         ForecastStatus.loading => const RunningRule.content(),
       };
 
-  Widget _pieces(BuildContext context, PicksState state) => SliverMainAxisGroup(
-    slivers: [
-      SliverPadding(
-        padding: EdgeInsets.symmetric(horizontal: context.pageMargin),
-        sliver: const SliverToBoxAdapter(child: _Prompt()),
+  /// The sample loading, below the weather once it shows, or why it
+  /// could not be read.
+  Widget _waiting(BuildContext context, PicksState state) {
+    final forecastShown = context.select<ForecastBloc, bool>(
+      (bloc) => bloc.state.status != ForecastStatus.loading,
+    );
+    return switch (state.status) {
+      PicksStatus.loading when forecastShown => const Padding(
+        padding: EdgeInsets.only(top: InVogueSpace.s4),
+        child: RunningRule.content(),
       ),
-      SliverPieceGrid(
-        pieces: state.pieces,
-        picks: state.picks,
-        imageFor: imageFor,
+      PicksStatus.failed => Padding(
+        padding: const EdgeInsets.only(top: InVogueSpace.s4),
+        child: Notice(
+          icon: InVogueIcons.warning,
+          alert: true,
+          message: state.loadFailure!.uiFriendlyMessage(context),
+          action: InVogueButton.secondary(
+            label: context.translated.retry,
+            icon: InVogueIcons.retry,
+            onRose: true,
+            onPressed: () =>
+                context.read<PicksBloc>().add(const PicksRequested.sample()),
+          ),
+        ),
       ),
-    ],
-  );
+      _ => const SizedBox.shrink(),
+    };
+  }
+
+  Widget _outfits(BuildContext context, PicksState state) =>
+      SliverMainAxisGroup(
+        slivers: [
+          SliverPadding(
+            padding: EdgeInsets.symmetric(horizontal: context.pageMargin),
+            sliver: const SliverToBoxAdapter(child: _Prompt()),
+          ),
+          SliverOutfitGrid(
+            outfits: state.outfits,
+            picks: state.picks,
+            imageFor: imageFor,
+            onOpen: onOpen,
+          ),
+        ],
+      );
 }
 
 /// The heading and the one-line instruction, with its heart.

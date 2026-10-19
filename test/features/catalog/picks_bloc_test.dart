@@ -1,165 +1,169 @@
-import 'dart:async';
-
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
-import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
-import 'package:in_vogue/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
-import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/catalog_outfits.dart';
 import 'picks_bloc_test.mocks.dart';
 
-const _coat = Piece(
-  id: 'coat',
-  name: 'The Wool Coat',
-  category: PieceCategory.outerwear,
-  bands: {WarmthBand.cool},
-  colourways: [
-    Colourway(
-      id: 'coat-camel',
-      name: 'Camel',
-      hex: 0xFFAB9073,
-      photoUrl: 'https://cdn.example/coat-camel.jpg',
-      productUrl: 'https://shop.example/coat-camel',
-    ),
-  ],
-);
-const _tee = Piece(
-  id: 'tee',
-  name: 'The Organic Tee',
-  category: PieceCategory.top,
-  bands: {WarmthBand.hot},
-  colourways: [
-    Colourway(
-      id: 'tee-white',
-      name: 'White',
-      hex: 0xFFFFFFFF,
-      photoUrl: 'https://cdn.example/tee-white.jpg',
-      productUrl: 'https://shop.example/tee-white',
-    ),
-  ],
-);
+final _sample = [outfit('o1', sample: true), outfit('o2', sample: true)];
+final _catalog = [
+  for (var i = 0; i < 25; i++)
+    outfit('c$i', order: i, weathers: i < 3 ? ['freezing'] : ['warm']),
+];
 
-@GenerateMocks([CatalogRepository, PicksRepository])
+@GenerateMocks([OutfitCatalogRepository, PicksRepository])
 void main() {
-  late MockCatalogRepository catalog;
+  late MockOutfitCatalogRepository catalog;
   late MockPicksRepository picks;
 
   PicksBloc buildBloc() => PicksBloc(
-    getPiecesForWeather: GetPiecesForWeather(catalog),
+    getSampleOutfits: GetSampleOutfits(catalog),
+    getCatalogPage: GetCatalogPage(catalog),
     getPicks: GetPicks(picks),
     setPick: SetPick(picks),
   );
 
   setUp(() {
-    catalog = MockCatalogRepository();
+    catalog = MockOutfitCatalogRepository();
     picks = MockPicksRepository();
-    when(catalog.pieces()).thenAnswer((_) async => const Right([_coat, _tee]));
-    when(picks.picks()).thenAnswer((_) async => const Right({'tee-white'}));
-    when(picks.setPick(any, loved: anyNamed('loved'))).thenAnswer(
-      (invocation) async => Right({
-        if (invocation.namedArguments[#loved] == true)
-          invocation.positionalArguments.first as String,
-      }),
-    );
+    when(catalog.sample()).thenAnswer((_) async => Right(_sample));
+    when(catalog.outfits()).thenAnswer((_) async => Right(_catalog));
+    when(picks.picks()).thenAnswer((_) async => const Right({'o2'}));
   });
 
-  test('starts loading with no picks', () {
-    expect(buildBloc().state, const PicksState());
-  });
+  List<String> ids(PicksState state) => [
+    for (final outfit in state.outfits) outfit.id,
+  ];
 
   blocTest<PicksBloc, PicksState>(
-    'shows the pieces for the weather and the saved picks',
+    'shows the sample with the saved picks',
     build: buildBloc,
-    act: (bloc) => bloc.add(const PicksRequested(WarmthBand.cool)),
+    act: (bloc) => bloc.add(const PicksRequested.sample()),
     expect: () => [
-      const PicksState(
+      const PicksState(),
+      PicksState(
         status: PicksStatus.ready,
-        pieces: [_coat],
-        picks: {'tee-white'},
+        outfits: _sample,
+        picks: const {'o2'},
       ),
     ],
   );
 
   blocTest<PicksBloc, PicksState>(
-    'says when the collection cannot be read',
-    build: () {
-      when(
-        catalog.pieces(),
-      ).thenAnswer((_) async => const Left(CacheFailure()));
-      return buildBloc();
-    },
-    act: (bloc) => bloc.add(const PicksRequested(WarmthBand.cool)),
-    expect: () => [const PicksState(status: PicksStatus.failed)],
-  );
-
-  blocTest<PicksBloc, PicksState>(
-    'loves a colourway at once and keeps what was saved',
+    'says why the sample could not be read',
     build: buildBloc,
-    seed: () => const PicksState(status: PicksStatus.ready, pieces: [_coat]),
-    act: (bloc) => bloc.add(const PickToggled('coat-camel', loved: true)),
+    setUp: () => when(
+      catalog.sample(),
+    ).thenAnswer((_) async => const Left(NetworkFailure())),
+    act: (bloc) => bloc.add(const PicksRequested.sample()),
+    skip: 1,
     expect: () => [
       const PicksState(
-        status: PicksStatus.ready,
-        pieces: [_coat],
-        picks: {'coat-camel'},
+        status: PicksStatus.failed,
+        picks: {'o2'},
+        loadFailure: NetworkFailure(),
       ),
     ],
-    verify: (_) => verify(picks.setPick('coat-camel', loved: true)).called(1),
   );
 
   blocTest<PicksBloc, PicksState>(
-    'takes a pick back when it cannot be saved',
-    build: () {
-      when(
-        picks.setPick(any, loved: anyNamed('loved')),
-      ).thenAnswer((_) async => const Left(CacheFailure()));
-      return buildBloc();
+    'shows the catalog a page at a time',
+    build: buildBloc,
+    act: (bloc) async {
+      bloc.add(const PicksRequested.catalog());
+      await Future<void>.delayed(Duration.zero);
+      bloc
+        ..add(const PicksMoreRequested())
+        ..add(const PicksMoreRequested());
     },
-    seed: () => const PicksState(status: PicksStatus.ready, pieces: [_coat]),
-    act: (bloc) => bloc.add(const PickToggled('coat-camel', loved: true)),
+    wait: const Duration(milliseconds: 10),
+    verify: (bloc) {
+      expect(ids(bloc.state), [for (var i = 0; i < 25; i++) 'c$i']);
+      expect(bloc.state.hasMore, isFalse);
+    },
+  );
+
+  blocTest<PicksBloc, PicksState>(
+    'a weather chip starts the list again with that weather’s outfits',
+    build: buildBloc,
+    act: (bloc) async {
+      bloc.add(const PicksRequested.catalog());
+      await Future<void>.delayed(Duration.zero);
+      bloc.add(
+        const PicksRequested.catalog(
+          CatalogFilter.weather(WarmthBand.freezing),
+        ),
+      );
+    },
+    wait: const Duration(milliseconds: 10),
+    verify: (bloc) {
+      expect(
+        bloc.state.filter,
+        const CatalogFilter.weather(WarmthBand.freezing),
+      );
+      expect(ids(bloc.state), ['c0', 'c1', 'c2']);
+      expect(bloc.state.hasMore, isFalse);
+    },
+  );
+
+  blocTest<PicksBloc, PicksState>(
+    'a heart shows at once and stays when saved',
+    build: buildBloc,
+    seed: () => PicksState(status: PicksStatus.ready, outfits: _sample),
+    setUp: () => when(
+      picks.setPick('o1', loved: true),
+    ).thenAnswer((_) async => const Right({'o1'})),
+    act: (bloc) => bloc.add(const PickToggled('o1', loved: true)),
     expect: () => [
-      const PicksState(
+      PicksState(
         status: PicksStatus.ready,
-        pieces: [_coat],
-        picks: {'coat-camel'},
-      ),
-      const PicksState(
-        status: PicksStatus.ready,
-        pieces: [_coat],
-        failure: CacheFailure(),
+        outfits: _sample,
+        picks: const {'o1'},
       ),
     ],
   );
 
-  test('saves quick taps in order', () async {
-    final first = Completer<Either<Failure, Set<String>>>();
-    when(
-      picks.setPick('coat-camel', loved: true),
-    ).thenAnswer((_) => first.future);
-    when(
-      picks.setPick('coat-camel', loved: false),
-    ).thenAnswer((_) async => const Right(<String>{}));
-    final bloc = buildBloc();
-    addTearDown(bloc.close);
-    bloc
-      ..add(const PickToggled('coat-camel', loved: true))
-      ..add(const PickToggled('coat-camel', loved: false));
+  blocTest<PicksBloc, PicksState>(
+    'a heart that can’t be saved is taken back, saying why',
+    build: buildBloc,
+    seed: () => PicksState(
+      status: PicksStatus.ready,
+      outfits: _sample,
+      picks: const {'o2'},
+    ),
+    setUp: () => when(
+      picks.setPick('o2', loved: false),
+    ).thenAnswer((_) async => const Left(CacheFailure())),
+    act: (bloc) => bloc.add(const PickToggled('o2', loved: false)),
+    expect: () => [
+      PicksState(status: PicksStatus.ready, outfits: _sample),
+      PicksState(
+        status: PicksStatus.ready,
+        outfits: _sample,
+        picks: const {'o2'},
+        failure: const CacheFailure(),
+      ),
+    ],
+  );
+
+  test('the sample never asks for more pages', () async {
+    final bloc = buildBloc()..add(const PicksRequested.sample());
     await Future<void>.delayed(Duration.zero);
-    verifyNever(picks.setPick('coat-camel', loved: false));
-    first.complete(const Right({'coat-camel'}));
-    await bloc.stream.firstWhere((state) => state.picks.isEmpty);
-    verifyInOrder([
-      picks.setPick('coat-camel', loved: true),
-      picks.setPick('coat-camel', loved: false),
-    ]);
+    bloc.add(const PicksMoreRequested());
+    await Future<void>.delayed(Duration.zero);
+    verifyNever(catalog.outfits());
+    expect(bloc.state.outfits, <CatalogOutfit>[..._sample]);
+    await bloc.close();
   });
 }

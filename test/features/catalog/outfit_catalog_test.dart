@@ -13,7 +13,10 @@ import 'package:in_vogue/features/catalog/data/data_sources/outfit_catalog_remot
 import 'package:in_vogue/features/catalog/data/models/catalog_outfit_model.dart';
 import 'package:in_vogue/features/catalog/data/repositories/outfit_catalog_repository_impl.dart';
 import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/catalog_repository.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
 import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
@@ -73,6 +76,30 @@ class _Log implements LogMessages {
     required Object error,
     StackTrace? stackTrace,
   }) => errors.add(error);
+}
+
+class _Bundled implements CatalogRepository {
+  @override
+  Future<Either<Failure, String>> brand() async => const Right('Everlane');
+
+  @override
+  Future<Either<Failure, List<Piece>>> pieces() async => const Right([
+    Piece(
+      id: 'skirt-style',
+      name: 'Seamed Midi Skirt',
+      colourways: [
+        Colourway(
+          id: 'everlane:o1-skirt',
+          name: 'Bone',
+          hex: 0xFF808080,
+          photoUrl: 'https://cdn.shopify.com/old.jpg',
+          productUrl: 'https://www.everlane.com/old',
+          flatUrl: 'https://cdn.shopify.com/o1-skirt-flat.jpg',
+          material: '100% cotton',
+        ),
+      ],
+    ),
+  ]);
 }
 
 void main() {
@@ -375,4 +402,29 @@ void main() {
       expect(sample.getOrElse(() => []).map((o) => o.id), ['o1']);
     });
   });
+
+  test(
+    'Shop lists an outfit outer layer first, in its colours, with the shop’s details',
+    () async {
+      final shop = (await GetOutfitShop(_Bundled())(
+        outfit('o1'),
+      )).getOrElse(() => throw StateError(''));
+      expect(shop.brand, 'Everlane');
+      final [top, skirt] = shop.pieces;
+      expect(top.piece.name, 'The Cropped Crew Top in Ultrafine Merino');
+      expect(top.colourway.flatUrl, isNull);
+      expect(skirt.colourway.name, 'Bone');
+      expect(skirt.colourway.hex, 0xFFDDD2CC);
+      expect(skirt.colourway.photoUrl, 'https://cdn.shopify.com/o1-skirt.jpg');
+      expect(
+        skirt.colourway.productUrl,
+        'https://www.everlane.com/products/o1-skirt',
+      );
+      expect(
+        skirt.colourway.flatUrl,
+        'https://cdn.shopify.com/o1-skirt-flat.jpg',
+      );
+      expect(skirt.colourway.material, '100% cotton');
+    },
+  );
 }

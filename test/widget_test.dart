@@ -1,7 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/app/in_vogue_app.dart';
@@ -16,12 +15,12 @@ import 'package:in_vogue/features/auth/domain/usecases/log_out.dart';
 import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
-import 'package:in_vogue/features/catalog/data/data_sources/catalog_asset_data_source.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/picks_local_data_source.dart';
-import 'package:in_vogue/features/catalog/data/repositories/catalog_repository_impl.dart';
 import 'package:in_vogue/features/catalog/data/repositories/picks_repository_impl.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
-import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/colours/presentation/bloc/skin_analysis_bloc.dart';
@@ -200,9 +199,8 @@ void main() {
           PicksLocalDataSourceImpl(MemoryStore()),
         );
         return PicksBloc(
-          getPiecesForWeather: GetPiecesForWeather(
-            CatalogRepositoryImpl(CatalogAssetDataSourceImpl(rootBundle)),
-          ),
+          getSampleOutfits: const GetSampleOutfits(_NoOutfits()),
+          getCatalogPage: const GetCatalogPage(_NoOutfits()),
           getPicks: GetPicks(picks),
           setPick: SetPick(picks),
         );
@@ -461,4 +459,17 @@ void main() {
       }
     }
   });
+}
+
+/// A catalog with no outfits yet.
+class _NoOutfits implements OutfitCatalogRepository {
+  const _NoOutfits();
+
+  @override
+  Future<Either<Failure, List<CatalogOutfit>>> sample() async =>
+      const Right([]);
+
+  @override
+  Future<Either<Failure, List<CatalogOutfit>>> outfits() async =>
+      const Right([]);
 }

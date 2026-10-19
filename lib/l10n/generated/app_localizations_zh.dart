@@ -153,7 +153,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String picksLine(String heart) {
-    return '为这种天气挑几件，点 $heart 收藏。我们会记住你的喜好。';
+    return '点 $heart 收藏几套你喜欢的穿搭。我们会记住你的喜好。';
   }
 
   @override
@@ -347,9 +347,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get loved => '已喜欢';
-
-  @override
-  String get loveThisColour => '喜欢这个颜色';
 
   @override
   String colourCount(int count) {
@@ -562,7 +559,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get waterResistantPieces => '防泼水单品';
+  String get rainOutfits => '适合雨天的穿搭';
 
   @override
   String get edit => '编辑';

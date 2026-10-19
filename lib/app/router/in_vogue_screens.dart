@@ -11,6 +11,7 @@ import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/your_picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/screens/your_picks_screen.dart';
@@ -85,12 +86,16 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
           create: (_) =>
               locator<ForecastBloc>()..add(const ForecastRequested()),
         ),
-        BlocProvider(create: (_) => locator<PicksBloc>()),
+        BlocProvider(
+          create: (_) =>
+              locator<PicksBloc>()..add(const PicksRequested.sample()),
+        ),
       ],
       child: Builder(
         builder: (context) => PicksScreen(
           onBack: () => context.pop(),
           onProceed: () => context.go(AppRoutes.forStep(SetupStep.signIn)),
+          onOpen: (outfit) => _shop(context, locator, outfit),
         ),
       ),
     ),
@@ -179,6 +184,7 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
                 child: ShopScreen(onBack: () => Navigator.of(context).pop()),
               ),
             ),
+            onOpenOutfit: (outfit) => _shop(context, locator, outfit),
           ),
         ),
       ),
@@ -260,6 +266,15 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
       ),
     ),
   },
+);
+
+/// Opens Shop for a catalog [outfit], over the tabs or setup.
+void _shop(BuildContext context, GetIt locator, CatalogOutfit outfit) => _push(
+  context,
+  (context) => BlocProvider(
+    create: (_) => locator<ShopBloc>()..add(ShopOutfitRequested(outfit)),
+    child: ShopScreen(onBack: () => Navigator.of(context).pop()),
+  ),
 );
 
 /// Opens a full screen over the tabs.

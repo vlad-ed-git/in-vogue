@@ -31,10 +31,10 @@ class PicksRepositoryImpl implements PicksRepository {
 
   @override
   Future<Either<Failure, Set<String>>> addPicks(
-    Set<String> colourwayIds,
+    Set<String> outfitIds,
   ) async {
     try {
-      final picks = {..._local.picks(), ...colourwayIds};
+      final picks = {..._local.picks(), ...outfitIds};
       await _local.save(picks);
       return Right(picks);
     } on CacheException {
@@ -44,10 +44,10 @@ class PicksRepositoryImpl implements PicksRepository {
 
   @override
   Future<Either<Failure, Set<String>>> removePicks(
-    Set<String> colourwayIds,
+    Set<String> outfitIds,
   ) async {
     try {
-      final picks = _local.picks().difference(colourwayIds);
+      final picks = _local.picks().difference(outfitIds);
       await _local.save(picks);
       return Right(picks);
     } on CacheException {
@@ -79,12 +79,12 @@ class PicksRepositoryImpl implements PicksRepository {
 
   @override
   Future<Either<Failure, Set<String>>> setPick(
-    String colourwayId, {
+    String outfitId, {
     required bool loved,
   }) async {
     try {
       final picks = {..._local.picks()};
-      loved ? picks.add(colourwayId) : picks.remove(colourwayId);
+      loved ? picks.add(outfitId) : picks.remove(outfitId);
       await _local.save(picks);
       return Right(picks);
     } on CacheException {

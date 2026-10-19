@@ -8,19 +8,15 @@ import 'package:in_vogue/features/catalog/data/models/piece_model.dart';
 import 'package:in_vogue/features/catalog/data/repositories/catalog_repository_impl.dart';
 import 'package:in_vogue/features/catalog/data/repositories/picks_repository_impl.dart';
 import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
-import 'package:in_vogue/features/catalog/domain/usecases/get_pieces_for_weather.dart';
-import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import '../../helpers/memory_store.dart';
 import 'catalog_test.mocks.dart';
 
-Piece _piece(String id, PieceCategory category, Set<WarmthBand> bands) => Piece(
+Piece _piece(String id) => Piece(
   id: id,
   name: id,
-  category: category,
-  bands: bands,
   colourways: [
     Colourway(
       id: '$id-1',
@@ -36,21 +32,8 @@ Piece _piece(String id, PieceCategory category, Set<WarmthBand> bands) => Piece(
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('WarmthBand', () {
-    test('follows the knowledge base’s feels-like bands', () {
-      expect(WarmthBand.forFeelsLike(26), WarmthBand.hot);
-      expect(WarmthBand.forFeelsLike(25.9), WarmthBand.warm);
-      expect(WarmthBand.forFeelsLike(20), WarmthBand.warm);
-      expect(WarmthBand.forFeelsLike(19.9), WarmthBand.mild);
-      expect(WarmthBand.forFeelsLike(14), WarmthBand.mild);
-      expect(WarmthBand.forFeelsLike(13.9), WarmthBand.cool);
-      expect(WarmthBand.forFeelsLike(8), WarmthBand.cool);
-      expect(WarmthBand.forFeelsLike(7.9), WarmthBand.cold);
-    });
-  });
-
   group('PieceModel', () {
-    test('reads a piece with its colourways and bands', () {
+    test('reads a piece with its colourways', () {
       final piece = PieceModel.fromJson({
         'id': 'trench',
         'name': 'The Trench',
@@ -67,28 +50,14 @@ void main() {
           },
         ],
       });
-      expect(piece.category, PieceCategory.outerwear);
-      expect(piece.bands, {WarmthBand.mild, WarmthBand.cool});
+      expect(piece.name, 'The Trench');
       expect(piece.colourways.single.hex, 0xFFC3B091);
       expect(piece.colourways.single.flatUrl, isNull);
-      expect(piece.waterResistant, isFalse);
-    });
-
-    test('knows a piece documented as water-resistant', () {
-      final piece = PieceModel.fromJson({
-        'id': 'mac',
-        'name': 'The Mac',
-        'category': 'outerwear',
-        'bands': ['cool'],
-        'rain': true,
-        'colourways': <Object?>[],
-      });
-      expect(piece.waterResistant, isTrue);
     });
 
     test('rejects an entry that is not a piece', () {
       expect(
-        () => PieceModel.fromJson({'id': 'x', 'category': 'hat'}),
+        () => PieceModel.fromJson({'id': 'x', 'name': 'Hat'}),
         throwsFormatException,
       );
     });
@@ -97,10 +66,8 @@ void main() {
   test('the bundled catalog has every piece with a photo', () async {
     final pieces = await CatalogAssetDataSourceImpl(rootBundle).pieces();
     expect(pieces, hasLength(623));
-    expect(pieces.where((piece) => piece.waterResistant), hasLength(12));
     for (final piece in pieces) {
       expect(piece.colourways, isNotEmpty);
-      expect(piece.bands, isNotEmpty);
       for (final colourway in piece.colourways) {
         expect(Uri.parse(colourway.photoUrl).host, 'cdn.shopify.com');
       }
@@ -110,9 +77,7 @@ void main() {
   group('CatalogRepositoryImpl', () {
     test('reads the catalog once and reports a broken one', () async {
       final asset = MockCatalogAssetDataSource();
-      final pieces = [
-        _piece('a', PieceCategory.top, {WarmthBand.mild}),
-      ];
+      final pieces = [_piece('a')];
       when(asset.pieces()).thenAnswer((_) async => pieces);
       final repository = CatalogRepositoryImpl(asset);
       expect(await repository.pieces(), Right<Failure, List<Piece>>(pieces));
@@ -124,29 +89,6 @@ void main() {
         const Left<Failure, List<Piece>>(CacheFailure()),
       );
     });
-  });
-
-  test('keeps the pieces for the band, mixing the categories', () async {
-    final asset = MockCatalogAssetDataSource();
-    when(asset.pieces()).thenAnswer(
-      (_) async => [
-        _piece('top1', PieceCategory.top, {WarmthBand.mild}),
-        _piece('top2', PieceCategory.top, {WarmthBand.mild, WarmthBand.cool}),
-        _piece('top3', PieceCategory.top, {WarmthBand.hot}),
-        _piece('coat', PieceCategory.outerwear, {WarmthBand.mild}),
-        _piece('jeans', PieceCategory.bottom, {WarmthBand.mild}),
-        _piece('dress', PieceCategory.dress, {WarmthBand.cool}),
-      ],
-    );
-    final pieces = await GetPiecesForWeather(CatalogRepositoryImpl(asset))(
-      WarmthBand.mild,
-    );
-    expect(pieces.getOrElse(() => []).map((piece) => piece.id), [
-      'coat',
-      'top1',
-      'jeans',
-      'top2',
-    ]);
   });
 
   group('PicksLocalDataSourceImpl', () {

@@ -4,8 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
+import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
-import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/setup/presentation/screens/picks_screen.dart';
@@ -16,6 +17,7 @@ import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/catalog_outfits.dart';
 import '../../helpers/pump_in_vogue.dart';
 
 class _MockForecastBloc extends MockBloc<ForecastEvent, ForecastState>
@@ -61,35 +63,20 @@ ForecastState _ready({UserLocation place = _newYork, bool isSaved = false}) =>
       report: _report(isSaved: isSaved),
     );
 
-Colourway _colourway(String id, String name, int hex) => Colourway(
-  id: id,
-  name: name,
-  hex: hex,
-  photoUrl: 'https://cdn.example/$id.jpg',
-  productUrl: 'https://shop.example/$id',
+final _coatLook = outfit(
+  'o1',
+  sample: true,
+  name: 'Camel wool coat, white tee, black jeans',
+);
+final _knitLook = outfit(
+  'o2',
+  sample: true,
+  name: 'Cream knit, indigo way-high jeans',
 );
 
-final _coat = Piece(
-  id: 'coat',
-  name: 'The Wool Coat',
-  category: PieceCategory.outerwear,
-  bands: const {WarmthBand.cool},
-  colourways: [
-    _colourway('coat-camel', 'Camel', 0xFFAB9073),
-    _colourway('coat-black', 'Black', 0xFF222122),
-  ],
-);
-final _jeans = Piece(
-  id: 'jeans',
-  name: 'The Way-High Jean',
-  category: PieceCategory.bottom,
-  bands: const {WarmthBand.cool},
-  colourways: [_colourway('jeans-indigo', 'Indigo', 0xFF29313F)],
-);
-
-PicksState _pieces({Set<String> picks = const {}}) => PicksState(
+PicksState _sample({Set<String> picks = const {}}) => PicksState(
   status: PicksStatus.ready,
-  pieces: [_coat, _jeans],
+  outfits: [_coatLook, _knitLook],
   picks: picks,
 );
 
@@ -111,24 +98,28 @@ void main() {
   late _MockPicksBloc picks;
   late int backs;
   late int proceeds;
+  late List<CatalogOutfit> opened;
+
+  setUpAll(() => registerFallbackValue(const PicksRequested.sample()));
 
   setUp(() {
     forecast = _MockForecastBloc();
     picks = _MockPicksBloc();
     backs = 0;
     proceeds = 0;
+    opened = [];
   });
 
   Future<void> pumpScreen(
     WidgetTester tester,
     ForecastState state, {
     Stream<ForecastState> states = const Stream.empty(),
-    PicksState pieces = const PicksState(),
+    PicksState outfits = const PicksState(),
     Size size = const Size(390, 844),
     double textScale = 1,
   }) async {
     whenListen(forecast, states, initialState: state);
-    whenListen(picks, const Stream<PicksState>.empty(), initialState: pieces);
+    whenListen(picks, const Stream<PicksState>.empty(), initialState: outfits);
     await pumpInVogue(
       tester,
       MultiBlocProvider(
@@ -139,6 +130,7 @@ void main() {
         child: PicksScreen(
           onBack: () => backs++,
           onProceed: () => proceeds++,
+          onOpen: opened.add,
           imageFor: (_) => testImage,
         ),
       ),
@@ -170,75 +162,62 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('shows pieces for the weather to pick from', (tester) async {
-    await pumpScreen(tester, _ready(), pieces: _pieces(picks: {'coat-black'}));
+  testWidgets('shows the sample outfits to pick from', (tester) async {
+    await pumpScreen(tester, _ready(), outfits: _sample(picks: {'o2'}));
     expect(find.text('Pick a few you like'), findsOneWidget);
+    expect(find.textContaining('on a few outfits you like'), findsOneWidget);
     expect(
-      find.textContaining('on a few pieces for this weather'),
+      find.text('Camel wool coat, white tee, black jeans'),
       findsOneWidget,
     );
-    expect(find.text('The Wool Coat'), findsOneWidget);
-    expect(find.text('The Way-High Jean'), findsOneWidget);
+    expect(find.text('Cream knit, indigo way-high jeans'), findsOneWidget);
     expect(find.text('Your picks · 1'), findsOneWidget);
     expect(find.byType(CategoryChips), findsNothing);
     expect(find.textContaining(r'$'), findsNothing);
   });
 
-  testWidgets('asks for the pieces of the day’s band once it has weather', (
-    tester,
-  ) async {
+  testWidgets('the weather never changes the outfits shown', (tester) async {
     await pumpScreen(
       tester,
       const ForecastState(),
       states: Stream.value(_ready()),
     );
-    verify(() => picks.add(const PicksRequested(WarmthBand.cool))).called(1);
+    verifyNever(() => picks.add(any()));
   });
 
-  testWidgets('loves the colour shown with the heart', (tester) async {
-    await pumpScreen(tester, _ready(), pieces: _pieces());
-    await _tapInView(
-      tester,
-      find.descendant(
-        of: _tileOf('The Wool Coat'),
-        matching: find.byType(LoveToggle),
-      ),
-    );
-    verify(
-      () => picks.add(const PickToggled('coat-camel', loved: true)),
-    ).called(1);
+  testWidgets('loves an outfit with its heart, and unloves it', (tester) async {
+    await pumpScreen(tester, _ready(), outfits: _sample(picks: {'o2'}));
+    Finder heart(String name) =>
+        find.descendant(of: _tileOf(name), matching: find.byType(LoveToggle));
+    await _tapInView(tester, heart('Camel wool coat, white tee, black jeans'));
+    verify(() => picks.add(const PickToggled('o1', loved: true))).called(1);
+    await _tapInView(tester, heart('Cream knit, indigo way-high jeans'));
+    verify(() => picks.add(const PickToggled('o2', loved: false))).called(1);
   });
 
-  testWidgets('unloves every loved colour of a piece', (tester) async {
+  testWidgets('opens an outfit’s pieces', (tester) async {
+    await pumpScreen(tester, _ready(), outfits: _sample());
+    await _tapInView(tester, find.text('Cream knit, indigo way-high jeans'));
+    expect(opened, [_knitLook]);
+  });
+
+  testWidgets('says when the outfits can’t be read, and tries again', (
+    tester,
+  ) async {
     await pumpScreen(
       tester,
       _ready(),
-      pieces: _pieces(picks: {'coat-camel', 'coat-black'}),
-    );
-    await _tapInView(
-      tester,
-      find.descendant(
-        of: _tileOf('The Wool Coat'),
-        matching: find.byType(LoveToggle),
+      outfits: const PicksState(
+        status: PicksStatus.failed,
+        loadFailure: NetworkFailure(),
       ),
     );
-    verify(
-      () => picks.add(const PickToggled('coat-camel', loved: false)),
-    ).called(1);
-    verify(
-      () => picks.add(const PickToggled('coat-black', loved: false)),
-    ).called(1);
-  });
-
-  testWidgets('opens a piece’s colours to love one', (tester) async {
-    await pumpScreen(tester, _ready(), pieces: _pieces());
-    await _tapInView(tester, find.text('The Way-High Jean'));
-    await pumpWhileLoading(tester);
-    expect(find.byType(ColourSheet), findsOneWidget);
-    await tester.tap(find.text('Love this colour'));
-    verify(
-      () => picks.add(const PickToggled('jeans-indigo', loved: true)),
-    ).called(1);
+    expect(
+      find.text('You’re offline. Please check your connection.'),
+      findsOneWidget,
+    );
+    await tester.tap(_button('Try again'));
+    verify(() => picks.add(const PicksRequested.sample())).called(1);
   });
 
   testWidgets('shows Celsius outside the Fahrenheit countries', (tester) async {
@@ -293,7 +272,7 @@ void main() {
     await pumpScreen(
       tester,
       _ready(),
-      pieces: _pieces(),
+      outfits: _sample(),
       size: const Size(320, 568),
       textScale: 2,
     );

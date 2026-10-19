@@ -154,7 +154,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String picksLine(String heart) {
-    return 'Tap $heart on a few pieces for this weather. We’ll learn your taste.';
+    return 'Tap $heart on a few outfits you like. We’ll learn your taste.';
   }
 
   @override
@@ -361,9 +361,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loved => 'Loved';
-
-  @override
-  String get loveThisColour => 'Love this colour';
 
   @override
   String colourCount(int count) {
@@ -588,7 +585,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get waterResistantPieces => 'Water-resistant pieces';
+  String get rainOutfits => 'Outfits for rainy days';
 
   @override
   String get edit => 'Edit';

@@ -1,5 +1,4 @@
 import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
-import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
 /// Reads a piece of the catalog asset.
 abstract final class PieceModel {
@@ -8,17 +7,12 @@ abstract final class PieceModel {
     {
       'id': final String id,
       'name': final String name,
-      'category': final String category,
-      'bands': final List<Object?> bands,
       'colourways': final List<Object?> colourways,
     } =>
       Piece(
         id: id,
         name: name,
-        category: _byName(PieceCategory.values, category),
-        bands: {for (final band in bands) _byName(WarmthBand.values, band)},
         colourways: [for (final colourway in colourways) _colourway(colourway)],
-        waterResistant: json['rain'] == true,
       ),
     _ => throw const FormatException('Not a piece'),
   };
@@ -46,7 +40,4 @@ abstract final class PieceModel {
       ),
     _ => throw const FormatException('Not a colourway'),
   };
-
-  static T _byName<T extends Enum>(List<T> values, Object? name) =>
-      values.asNameMap()[name] ?? (throw FormatException('Unknown name', name));
 }

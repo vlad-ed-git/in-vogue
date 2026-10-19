@@ -283,7 +283,7 @@ abstract class AppLocalizations {
   /// heart is replaced by a heart icon, or spoken as heartSpoken.
   ///
   /// In en, this message translates to:
-  /// **'Tap {heart} on a few pieces for this weather. We’ll learn your taste.'**
+  /// **'Tap {heart} on a few outfits you like. We’ll learn your taste.'**
   String picksLine(String heart);
 
   /// The heart icon, read aloud inside picksLine.
@@ -620,12 +620,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Loved'**
   String get loved;
-
-  /// No description provided for @loveThisColour.
-  ///
-  /// In en, this message translates to:
-  /// **'Love this colour'**
-  String get loveThisColour;
 
   /// No description provided for @colourCount.
   ///
@@ -1002,8 +996,8 @@ abstract class AppLocalizations {
   /// Line under the Rain chip; never call them waterproof.
   ///
   /// In en, this message translates to:
-  /// **'Water-resistant pieces'**
-  String get waterResistantPieces;
+  /// **'Outfits for rainy days'**
+  String get rainOutfits;
 
   /// Action that edits a setting.
   ///

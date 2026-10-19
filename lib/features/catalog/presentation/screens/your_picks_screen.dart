@@ -4,11 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 import 'package:in_vogue/core/utils/failure_message.dart';
-import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/your_picks_bloc.dart';
 
-/// The person's loved pieces, each in its loved colour. Unloving one asks
-/// first.
+/// The person's loved outfits. Unloving one asks first.
 class YourPicksScreen extends StatelessWidget {
   const YourPicksScreen({
     required this.onBack,
@@ -105,16 +104,16 @@ class YourPicksScreen extends StatelessWidget {
     );
   }
 
-  Widget _tile(BuildContext context, ShopPiece pick) => ProductTile(
-    photo: imageFor(pick.colourway.photoUrl),
-    name: pick.piece.name,
-    colours: [Color(pick.colourway.hex)],
+  Widget _tile(BuildContext context, CatalogOutfit pick) => ProductTile(
+    photo: imageFor(pick.imageUrl),
+    name: pick.name,
+    colours: [for (final piece in pick.pieces) Color(piece.hex)],
     loved: true,
     onLoveChanged: (loved) async {
       if (loved) return;
       final bloc = context.read<YourPicksBloc>();
-      if (await confirmRemovePick(context, pick.piece.name)) {
-        bloc.add(YourPickRemoved(pick.colourway.id));
+      if (await confirmRemovePick(context, pick.name)) {
+        bloc.add(YourPickRemoved(pick.id));
       }
     },
     onTap: null,

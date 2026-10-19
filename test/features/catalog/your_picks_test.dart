@@ -4,51 +4,30 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
-import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
-import 'package:in_vogue/features/catalog/domain/repositories/catalog_repository.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
-import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/your_picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/screens/your_picks_screen.dart';
-import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/catalog_outfits.dart';
 import '../../helpers/pump_in_vogue.dart';
 
-Colourway _colourway(String id, String name) => Colourway(
-  id: id,
-  name: name,
-  hex: 0xFF222222,
-  photoUrl: 'https://cdn.example/$id.jpg',
-  productUrl: 'https://www.everlane.com/products/$id',
-);
+final _dress = outfit('o1', name: 'Black satin slip dress');
+final _tee = outfit('o2', name: 'White organic tee, light jeans');
 
-final _dress = Piece(
-  id: 'dress',
-  name: 'The Satin Slip Dress',
-  category: PieceCategory.dress,
-  bands: const {WarmthBand.warm},
-  colourways: [_colourway('everlane:dress-black', 'Black')],
-);
-final _tee = Piece(
-  id: 'tee',
-  name: 'The Organic Cotton Tee',
-  category: PieceCategory.top,
-  bands: const {WarmthBand.mild},
-  colourways: [
-    _colourway('everlane:tee-white', 'White'),
-    _colourway('everlane:tee-navy', 'Navy'),
-  ],
-);
-
-class _Catalog implements CatalogRepository {
+class _Catalog implements OutfitCatalogRepository {
   @override
-  Future<Either<Failure, List<Piece>>> pieces() async => Right([_dress, _tee]);
+  Future<Either<Failure, List<CatalogOutfit>>> outfits() async =>
+      Right([_dress, _tee]);
 
   @override
-  Future<Either<Failure, String>> brand() async => const Right('Everlane');
+  Future<Either<Failure, List<CatalogOutfit>>> sample() async =>
+      const Right([]);
 }
 
 /// Picks in the order they were loved.
@@ -98,24 +77,19 @@ void main() {
 
   YourPicksBloc buildBloc() => YourPicksBloc(
     getPicks: GetPicks(picks),
-    getShopPieces: GetShopPieces(_Catalog()),
+    getOutfits: GetOutfits(_Catalog()),
     setPick: SetPick(picks),
   );
 
-  setUp(() => picks = _Picks(['everlane:tee-white', 'everlane:dress-black']));
+  // A piece loved before picks became outfits is left out.
+  setUp(() => picks = _Picks(['o2', 'everlane:tee-white', 'o1']));
 
   blocTest<YourPicksBloc, YourPicksState>(
-    'shows only the loved colourways, the latest first',
+    'shows only the loved outfits, the latest first',
     build: buildBloc,
     act: (bloc) => bloc.add(const YourPicksLoaded()),
     expect: () => [
-      YourPicksState(
-        status: YourPicksStatus.ready,
-        picks: [
-          ShopPiece(piece: _dress, colourway: _dress.colourways.first),
-          ShopPiece(piece: _tee, colourway: _tee.colourways.first),
-        ],
-      ),
+      YourPicksState(status: YourPicksStatus.ready, picks: [_dress, _tee]),
     ],
   );
 
@@ -125,16 +99,13 @@ void main() {
     act: (bloc) async {
       bloc.add(const YourPicksLoaded());
       await bloc.stream.first;
-      bloc.add(const YourPickRemoved('everlane:dress-black'));
+      bloc.add(const YourPickRemoved('o1'));
     },
     skip: 1,
     expect: () => [
-      YourPicksState(
-        status: YourPicksStatus.ready,
-        picks: [ShopPiece(piece: _tee, colourway: _tee.colourways.first)],
-      ),
+      YourPicksState(status: YourPicksStatus.ready, picks: [_tee]),
     ],
-    verify: (_) => expect(picks.loved, ['everlane:tee-white']),
+    verify: (_) => expect(picks.loved, ['o2', 'everlane:tee-white']),
   );
 
   group('YourPicksScreen', () {
@@ -144,7 +115,7 @@ void main() {
 
     Future<void> pumpScreen(
       WidgetTester tester, {
-      List<ShopPiece>? shown,
+      List<CatalogOutfit>? shown,
     }) async {
       bloc = _MockYourPicksBloc();
       whenListen(
@@ -152,12 +123,7 @@ void main() {
         const Stream<YourPicksState>.empty(),
         initialState: YourPicksState(
           status: YourPicksStatus.ready,
-          picks:
-              shown ??
-              [
-                ShopPiece(piece: _dress, colourway: _dress.colourways.first),
-                ShopPiece(piece: _tee, colourway: _tee.colourways.first),
-              ],
+          picks: shown ?? [_dress, _tee],
         ),
       );
       await pumpInVogue(
@@ -172,7 +138,7 @@ void main() {
     }
 
     Future<void> openRemoval(WidgetTester tester) async {
-      await tester.tap(find.bySemanticsLabel('Love The Satin Slip Dress'));
+      await tester.tap(find.bySemanticsLabel('Love Black satin slip dress'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
     }
@@ -181,8 +147,8 @@ void main() {
       await pumpScreen(tester);
       expect(find.text('Your picks'), findsOneWidget);
       expect(find.byType(ProductTile), findsNWidgets(2));
-      expect(find.text('The Satin Slip Dress'), findsOneWidget);
-      expect(find.text('The Organic Cotton Tee'), findsOneWidget);
+      expect(find.text('Black satin slip dress'), findsOneWidget);
+      expect(find.text('White organic tee, light jeans'), findsOneWidget);
       expect(find.byType(WeatherLine), findsNothing);
       expect(find.textContaining(r'$'), findsNothing);
     });
@@ -206,9 +172,7 @@ void main() {
       await tester.tap(find.text('Remove'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      verify(
-        () => bloc.add(const YourPickRemoved('everlane:dress-black')),
-      ).called(1);
+      verify(() => bloc.add(const YourPickRemoved('o1'))).called(1);
     });
 
     testWidgets('says when nothing is picked yet', (tester) async {

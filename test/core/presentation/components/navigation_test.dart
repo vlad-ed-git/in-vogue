@@ -369,15 +369,54 @@ void main() {
       'Dresses',
     ];
 
-    Widget chips(int selected, ValueChanged<int> onSelected) => Column(
+    Widget chips(
+      int? selected,
+      ValueChanged<int?> onSelected, {
+      bool deselectable = false,
+    }) => Column(
       children: [
         CategoryChips(
           labels: labels,
           selectedIndex: selected,
           onSelected: onSelected,
+          deselectable: deselectable,
         ),
       ],
     );
+
+    testWidgets('may start with none chosen, and a chosen one tapped again '
+        'chooses none', (tester) async {
+      int? selected;
+      await pumpInVogue(
+        tester,
+        StatefulBuilder(
+          builder: (context, setState) => chips(
+            selected,
+            (i) => setState(() => selected = i),
+            deselectable: true,
+          ),
+        ),
+        scroll: false,
+      );
+      bool toggled(String label) =>
+          tester
+              .widget<Pressable>(
+                find.ancestor(
+                  of: find.text(label),
+                  matching: find.byType(Pressable),
+                ),
+              )
+              .toggled ==
+          true;
+      expect(labels.where(toggled), isEmpty);
+      await tester.tap(find.text('Coats & jackets'));
+      await tester.pumpAndSettle();
+      expect((selected, toggled('Coats & jackets')), (1, true));
+      await tester.tap(find.text('Coats & jackets'));
+      await tester.pumpAndSettle();
+      expect(selected, isNull);
+      expect(labels.where(toggled), isEmpty);
+    });
 
     testWidgets('36-point square chips, 8 apart, inked edge or ink fill', (
       tester,
@@ -426,7 +465,7 @@ void main() {
     testWidgets('runs past the right edge and scrolls sideways', (
       tester,
     ) async {
-      var selected = 0;
+      int? selected = 0;
       await pumpInVogue(
         tester,
         StatefulBuilder(

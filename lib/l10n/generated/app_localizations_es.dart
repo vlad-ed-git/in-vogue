@@ -157,7 +157,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String picksLine(String heart) {
-    return 'Toca $heart en algunas prendas para este tiempo. Así aprendemos tu estilo.';
+    return 'Toca $heart en algunos conjuntos que te gusten. Así aprendemos tu estilo.';
   }
 
   @override
@@ -362,9 +362,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get loved => 'Te gusta';
-
-  @override
-  String get loveThisColour => 'Me gusta este color';
 
   @override
   String colourCount(int count) {
@@ -590,7 +587,7 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get waterResistantPieces => 'Prendas resistentes al agua';
+  String get rainOutfits => 'Conjuntos para días de lluvia';
 
   @override
   String get edit => 'Editar';

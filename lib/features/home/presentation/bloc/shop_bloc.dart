@@ -1,6 +1,9 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 
 sealed class ShopEvent extends Equatable {
@@ -17,6 +20,15 @@ final class ShopRequested extends ShopEvent {
 
   @override
   List<Object?> get props => [colourwayIds];
+}
+
+/// Shows the pieces of a catalog [outfit], outer layer first.
+final class ShopOutfitRequested extends ShopEvent {
+  const ShopOutfitRequested(this.outfit);
+  final CatalogOutfit outfit;
+
+  @override
+  List<Object?> get props => [outfit];
 }
 
 enum ShopStatus { loading, ready, failed }
@@ -40,23 +52,31 @@ class ShopState extends Equatable {
 
 /// The pieces of an outfit, to buy from the partner.
 class ShopBloc extends Bloc<ShopEvent, ShopState> {
-  ShopBloc({required this._getShopPieces}) : super(const ShopState()) {
-    on<ShopRequested>(_load, transformer: droppable());
+  ShopBloc({required this._getShopPieces, required this._getOutfitShop})
+    : super(const ShopState()) {
+    on<ShopRequested>(
+      (event, emit) async =>
+          _show(await _getShopPieces(event.colourwayIds), emit),
+      transformer: droppable(),
+    );
+    on<ShopOutfitRequested>(
+      (event, emit) async => _show(await _getOutfitShop(event.outfit), emit),
+      transformer: droppable(),
+    );
   }
 
   final GetShopPieces _getShopPieces;
+  final GetOutfitShop _getOutfitShop;
 
-  Future<void> _load(ShopRequested event, Emitter<ShopState> emit) async {
-    final found = await _getShopPieces(event.colourwayIds);
-    emit(
-      found.fold(
-        (_) => const ShopState(status: ShopStatus.failed),
-        (shop) => ShopState(
-          status: ShopStatus.ready,
-          brand: shop.brand,
-          pieces: shop.pieces,
+  void _show(Either<Failure, ShopPieces> found, Emitter<ShopState> emit) =>
+      emit(
+        found.fold(
+          (_) => const ShopState(status: ShopStatus.failed),
+          (shop) => ShopState(
+            status: ShopStatus.ready,
+            brand: shop.brand,
+            pieces: shop.pieces,
+          ),
         ),
-      ),
-    );
-  }
+      );
 }

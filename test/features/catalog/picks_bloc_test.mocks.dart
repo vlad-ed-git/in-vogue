@@ -8,8 +8,9 @@ import 'dart:async' as _i4;
 
 import 'package:dartz/dartz.dart' as _i2;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
-import 'package:in_vogue/features/catalog/domain/entities/piece.dart' as _i6;
-import 'package:in_vogue/features/catalog/domain/repositories/catalog_repository.dart'
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart'
+    as _i6;
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart'
     as _i3;
 import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart'
     as _i7;
@@ -35,40 +36,46 @@ class _FakeEither_0<L, R> extends _i1.SmartFake implements _i2.Either<L, R> {
     : super(parent, parentInvocation);
 }
 
-/// A class which mocks [CatalogRepository].
+/// A class which mocks [OutfitCatalogRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCatalogRepository extends _i1.Mock implements _i3.CatalogRepository {
-  MockCatalogRepository() {
+class MockOutfitCatalogRepository extends _i1.Mock
+    implements _i3.OutfitCatalogRepository {
+  MockOutfitCatalogRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, List<_i6.Piece>>> pieces() =>
+  _i4.Future<_i2.Either<_i5.Failure, List<_i6.CatalogOutfit>>> sample() =>
       (super.noSuchMethod(
-            Invocation.method(#pieces, []),
+            Invocation.method(#sample, []),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, List<_i6.Piece>>>.value(
-                  _FakeEither_0<_i5.Failure, List<_i6.Piece>>(
+                _i4.Future<
+                  _i2.Either<_i5.Failure, List<_i6.CatalogOutfit>>
+                >.value(
+                  _FakeEither_0<_i5.Failure, List<_i6.CatalogOutfit>>(
                     this,
-                    Invocation.method(#pieces, []),
+                    Invocation.method(#sample, []),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, List<_i6.Piece>>>);
+          as _i4.Future<_i2.Either<_i5.Failure, List<_i6.CatalogOutfit>>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, String>> brand() =>
+  _i4.Future<_i2.Either<_i5.Failure, List<_i6.CatalogOutfit>>> outfits() =>
       (super.noSuchMethod(
-            Invocation.method(#brand, []),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, String>>.value(
-              _FakeEither_0<_i5.Failure, String>(
-                this,
-                Invocation.method(#brand, []),
-              ),
-            ),
+            Invocation.method(#outfits, []),
+            returnValue:
+                _i4.Future<
+                  _i2.Either<_i5.Failure, List<_i6.CatalogOutfit>>
+                >.value(
+                  _FakeEither_0<_i5.Failure, List<_i6.CatalogOutfit>>(
+                    this,
+                    Invocation.method(#outfits, []),
+                  ),
+                ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, String>>);
+          as _i4.Future<_i2.Either<_i5.Failure, List<_i6.CatalogOutfit>>>);
 }
 
 /// A class which mocks [PicksRepository].

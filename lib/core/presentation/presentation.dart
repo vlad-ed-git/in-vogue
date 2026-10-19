@@ -22,7 +22,6 @@ export 'components/setup/in_vogue_text_field.dart';
 export 'components/setup/photo_picker.dart';
 export 'components/setup/sign_in_buttons.dart';
 export 'components/setup/widget_steps.dart';
-export 'components/shopping/colour_sheet.dart';
 export 'components/shopping/picks_bar.dart';
 export 'components/shopping/product_tile.dart';
 export 'components/shopping/shop_item.dart';

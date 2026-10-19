@@ -7,7 +7,8 @@ import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
-import 'package:in_vogue/features/catalog/domain/entities/piece.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home/presentation/screens/home_screen.dart';
@@ -20,6 +21,7 @@ import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/catalog_outfits.dart';
 import '../../helpers/pump_in_vogue.dart';
 
 class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
@@ -28,39 +30,17 @@ class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
 class _MockPicksBloc extends MockBloc<PicksEvent, PicksState>
     implements PicksBloc {}
 
-Piece _piece(
-  String id,
-  String name,
-  PieceCategory category,
-  Set<WarmthBand> bands, {
-  bool waterResistant = false,
-}) => Piece(
-  id: id,
-  name: name,
-  category: category,
-  bands: bands,
-  waterResistant: waterResistant,
-  colourways: [
-    Colourway(
-      id: 'everlane:$id',
-      name: 'Black',
-      hex: 0xFF111111,
-      photoUrl: 'https://cdn.example/$id.jpg',
-      productUrl: 'https://www.everlane.com/products/$id',
-    ),
-  ],
+final _macLook = outfit(
+  'o7',
+  name: 'Oversized mac, grey knit, jeans',
+  weathers: ['cool', 'cold'],
+  rain: 'good',
 );
-
-final _collection = [
-  _piece('mac', 'Oversized Mac Coat', PieceCategory.outerwear, {
-    WarmthBand.cool,
-    WarmthBand.cold,
-  }, waterResistant: true),
-  _piece('slip', 'The Satin Slip Dress', PieceCategory.dress, {
-    WarmthBand.warm,
-    WarmthBand.hot,
-  }),
-];
+final _slipLook = outfit(
+  'o8',
+  name: 'Black satin slip dress',
+  weathers: ['hot', 'warm'],
+);
 
 const _newYork = UserLocation(
   latitude: 40.71,
@@ -124,11 +104,12 @@ void main() {
   late _MockHomeBloc bloc;
   late _MockPicksBloc picksBloc;
   late List<DayOutfit> shopped;
+  late List<CatalogOutfit> opened;
   late int picks;
 
   setUpAll(() {
     registerFallbackValue(const HomeStarted());
-    registerFallbackValue(const PicksRequested(null));
+    registerFallbackValue(const PicksRequested.catalog());
   });
 
   setUp(() {
@@ -139,11 +120,14 @@ void main() {
       const Stream<PicksState>.empty(),
       initialState: PicksState(
         status: PicksStatus.ready,
-        pieces: _collection,
-        picks: const {'everlane:slip'},
+        filter: const CatalogFilter.all(),
+        outfits: [_macLook, _slipLook],
+        hasMore: true,
+        picks: const {'o8'},
       ),
     );
     shopped = [];
+    opened = [];
     picks = 0;
   });
 
@@ -165,6 +149,7 @@ void main() {
         child: HomeScreen(
           onYourPicks: () => picks++,
           onShop: shopped.add,
+          onOpenOutfit: opened.add,
           imageFor: (_) => testImage,
         ),
       ),
@@ -288,7 +273,7 @@ void main() {
     await tester.fling(find.byType(PhotoStage), const Offset(-400, 0), 1000);
     await tester.pump();
     expect(find.byType(CategoryChips), findsOneWidget);
-    verify(() => picksBloc.add(const PicksRequested(null))).called(1);
+    verify(() => picksBloc.add(const PicksRequested.catalog())).called(1);
   });
 
   testWidgets('moves the weather sideways towards the day chosen', (
@@ -318,7 +303,7 @@ void main() {
     );
   });
 
-  testWidgets("Outfits opens on the pieces for the day's weather", (
+  testWidgets('Outfits opens on every outfit, to love and to open', (
     tester,
   ) async {
     await pumpHome(tester, _state(OutfitShown(_outfit)));
@@ -326,21 +311,22 @@ void main() {
     await tester.pump();
     expect(find.byType(PhotoStage), findsNothing);
     expect(find.byType(WeatherLine), findsNothing);
-    // Tomorrow feels like 9.6 °C: cool, shown in °F in New York.
     expect(
       tester.widget<CategoryChips>(find.byType(CategoryChips)).selectedIndex,
-      3,
+      isNull,
     );
-    expect(find.text('Feels like 46–57°'), findsOneWidget);
-    expect(find.text('Oversized Mac Coat'), findsOneWidget);
-    expect(find.text('The Satin Slip Dress'), findsNothing);
-    await tester.tap(find.bySemanticsLabel('Love Oversized Mac Coat'));
-    verify(
-      () => picksBloc.add(const PickToggled('everlane:mac', loved: true)),
-    ).called(1);
+    expect(find.textContaining('Feels like'), findsNothing);
+    expect(find.text('Oversized mac, grey knit, jeans'), findsOneWidget);
+    expect(find.text('Black satin slip dress'), findsOneWidget);
+    await tester.tap(
+      find.bySemanticsLabel('Love Oversized mac, grey knit, jeans'),
+    );
+    verify(() => picksBloc.add(const PickToggled('o7', loved: true))).called(1);
+    await tester.tap(find.text('Black satin slip dress'));
+    expect(opened, [_slipLook]);
   });
 
-  testWidgets('Outfits groups pieces by weather, rain included', (
+  testWidgets('a weather chip narrows the outfits; tapped again, shows all', (
     tester,
   ) async {
     await pumpHome(tester, _state(OutfitShown(_outfit)));
@@ -357,16 +343,61 @@ void main() {
     ]);
     await tester.tap(find.text('Warm'));
     await tester.pump();
+    verify(
+      () => picksBloc.add(
+        const PicksRequested.catalog(CatalogFilter.weather(WarmthBand.warm)),
+      ),
+    ).called(1);
+    // Shown in °F in New York.
     expect(find.text('Feels like 68–79°'), findsOneWidget);
-    expect(find.text('The Satin Slip Dress'), findsOneWidget);
-    expect(find.text('Oversized Mac Coat'), findsNothing);
     await tester.ensureVisible(find.text('Rain'));
     await tester.pump();
     await tester.tap(find.text('Rain'));
     await tester.pump();
-    expect(find.text('Water-resistant pieces'), findsOneWidget);
-    expect(find.text('Oversized Mac Coat'), findsOneWidget);
-    expect(find.text('The Satin Slip Dress'), findsNothing);
+    verify(
+      () => picksBloc.add(const PicksRequested.catalog(CatalogFilter.rain())),
+    ).called(1);
+    expect(find.text('Outfits for rainy days'), findsOneWidget);
+    await tester.tap(find.text('Rain'));
+    await tester.pump();
+    verify(() => picksBloc.add(const PicksRequested.catalog())).called(2);
+    expect(find.text('Outfits for rainy days'), findsNothing);
+  });
+
+  testWidgets('asks for the next page near the end of the outfits', (
+    tester,
+  ) async {
+    await pumpHome(tester, _state(OutfitShown(_outfit)));
+    await tester.tap(find.text('Outfits'));
+    await tester.pump();
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -200));
+    await tester.pump();
+    verify(
+      () => picksBloc.add(const PicksMoreRequested()),
+    ).called(greaterThan(0));
+  });
+
+  testWidgets('says when the outfits can’t be read, and tries again', (
+    tester,
+  ) async {
+    whenListen(
+      picksBloc,
+      const Stream<PicksState>.empty(),
+      initialState: const PicksState(
+        status: PicksStatus.failed,
+        filter: CatalogFilter.all(),
+        loadFailure: NetworkFailure(),
+      ),
+    );
+    await pumpHome(tester, _state(OutfitShown(_outfit)));
+    await tester.tap(find.text('Outfits'));
+    await tester.pump();
+    expect(
+      find.text('You’re offline. Please check your connection.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Try again'));
+    verify(() => picksBloc.add(const PicksRequested.catalog())).called(2);
   });
 
   testWidgets('opens Your picks', (tester) async {

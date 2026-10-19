@@ -9,8 +9,8 @@ import 'package:in_vogue/features/catalog/domain/repositories/catalog_repository
 import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 import 'package:in_vogue/features/home/presentation/bloc/shop_bloc.dart';
 import 'package:in_vogue/features/home/presentation/screens/shop_screen.dart';
-import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
+import '../../helpers/catalog_outfits.dart';
 import '../../helpers/pump_in_vogue.dart';
 
 class _MockShopBloc extends MockBloc<ShopEvent, ShopState>
@@ -33,23 +33,12 @@ const _jeans = Colourway(
   productUrl: 'https://www.everlane.com/products/jeans',
 );
 
-Piece _piece(String name, PieceCategory category, Colourway colourway) => Piece(
-  id: colourway.id,
-  name: name,
-  category: category,
-  bands: const {WarmthBand.cool},
-  colourways: [colourway],
-);
+Piece _piece(String name, Colourway colourway) =>
+    Piece(id: colourway.id, name: name, colourways: [colourway]);
 
 final _pieces = [
-  ShopPiece(
-    piece: _piece('Oversized Mac Coat', PieceCategory.outerwear, _coat),
-    colourway: _coat,
-  ),
-  ShopPiece(
-    piece: _piece('The Way-High Jean', PieceCategory.bottom, _jeans),
-    colourway: _jeans,
-  ),
+  ShopPiece(piece: _piece('Oversized Mac Coat', _coat), colourway: _coat),
+  ShopPiece(piece: _piece('The Way-High Jean', _jeans), colourway: _jeans),
 ];
 
 class _Catalog implements CatalogRepository {
@@ -158,7 +147,10 @@ void main() {
   group('ShopBloc', () {
     blocTest<ShopBloc, ShopState>(
       'shows the pieces asked for',
-      build: () => ShopBloc(getShopPieces: GetShopPieces(_Catalog())),
+      build: () => ShopBloc(
+        getShopPieces: GetShopPieces(_Catalog()),
+        getOutfitShop: GetOutfitShop(_Catalog()),
+      ),
       act: (bloc) => bloc.add(const ShopRequested(['everlane:coat'])),
       expect: () => [
         ShopState(
@@ -167,6 +159,22 @@ void main() {
           pieces: [_pieces.first],
         ),
       ],
+    );
+
+    blocTest<ShopBloc, ShopState>(
+      'shows a catalog outfit’s pieces, outer layer first',
+      build: () => ShopBloc(
+        getShopPieces: GetShopPieces(_Catalog()),
+        getOutfitShop: GetOutfitShop(_Catalog()),
+      ),
+      act: (bloc) => bloc.add(ShopOutfitRequested(outfit('o1'))),
+      verify: (bloc) {
+        expect(bloc.state.status, ShopStatus.ready);
+        expect(
+          [for (final item in bloc.state.pieces) item.colourway.name],
+          ['Parchment', 'Bone'],
+        );
+      },
     );
   });
 }

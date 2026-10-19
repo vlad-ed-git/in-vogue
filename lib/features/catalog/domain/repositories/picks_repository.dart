@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 
 abstract interface class PicksRepository {
-  /// Ids of the loved colourways.
+  /// Ids of the loved outfits.
   Future<Either<Failure, Set<String>>> picks();
 
   /// Forgets every pick, and which ones an account holds.
@@ -14,15 +14,15 @@ abstract interface class PicksRepository {
   /// Records [picks] as saved on [accountId]'s account.
   Future<Either<Failure, Unit>> markSynced(String accountId, Set<String> picks);
 
-  /// Loves every one of [colourwayIds]; returns every pick after.
-  Future<Either<Failure, Set<String>>> addPicks(Set<String> colourwayIds);
+  /// Loves every one of [outfitIds]; returns every pick after.
+  Future<Either<Failure, Set<String>>> addPicks(Set<String> outfitIds);
 
-  /// Unloves every one of [colourwayIds]; returns every pick after.
-  Future<Either<Failure, Set<String>>> removePicks(Set<String> colourwayIds);
+  /// Unloves every one of [outfitIds]; returns every pick after.
+  Future<Either<Failure, Set<String>>> removePicks(Set<String> outfitIds);
 
-  /// Loves or unloves a colourway; returns every pick after the change.
+  /// Loves or unloves an outfit; returns every pick after the change.
   Future<Either<Failure, Set<String>>> setPick(
-    String colourwayId, {
+    String outfitId, {
     required bool loved,
   });
 }

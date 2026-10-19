@@ -153,7 +153,7 @@
   "@picksTitle": {
     "description": "Heading above the pieces for the day's weather."
   },
-  "picksLine": "Tap {heart} on a few pieces for this weather. We’ll learn your taste.",
+  "picksLine": "Tap {heart} on a few outfits you like. We’ll learn your taste.",
   "@picksLine": {
     "description": "heart is replaced by a heart icon, or spoken as heartSpoken.",
     "placeholders": {
@@ -371,7 +371,6 @@
     }
   },
   "loved": "Loved",
-  "loveThisColour": "Love this colour",
   "colourCount": "{count, plural, =1{1 colour} other{{count} colours}}",
   "@colourCount": {
     "placeholders": {
@@ -612,8 +611,8 @@
       }
     }
   },
-  "waterResistantPieces": "Water-resistant pieces",
-  "@waterResistantPieces": {
+  "rainOutfits": "Outfits for rainy days",
+  "@rainOutfits": {
     "description": "Line under the Rain chip; never call them waterproof."
   },
   "edit": "Edit",

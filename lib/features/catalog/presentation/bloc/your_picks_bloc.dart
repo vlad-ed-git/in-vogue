@@ -3,8 +3,9 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_picks.dart';
-import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/set_pick.dart';
 
 sealed class YourPicksEvent extends Equatable {
@@ -14,18 +15,18 @@ sealed class YourPicksEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Shows the loved colourways, the latest first.
+/// Shows the loved outfits, the latest first.
 final class YourPicksLoaded extends YourPicksEvent {
   const YourPicksLoaded();
 }
 
-/// The person confirmed removing a loved colourway.
+/// The person confirmed removing a loved outfit.
 final class YourPickRemoved extends YourPicksEvent {
-  const YourPickRemoved(this.colourwayId);
-  final String colourwayId;
+  const YourPickRemoved(this.outfitId);
+  final String outfitId;
 
   @override
-  List<Object?> get props => [colourwayId];
+  List<Object?> get props => [outfitId];
 }
 
 enum YourPicksStatus { loading, ready, failed }
@@ -39,8 +40,8 @@ class YourPicksState extends Equatable {
 
   final YourPicksStatus status;
 
-  /// The loved colourways, with their pieces.
-  final List<ShopPiece> picks;
+  /// The loved outfits.
+  final List<CatalogOutfit> picks;
 
   /// Why the last removal did not happen.
   final Failure? failure;
@@ -49,11 +50,11 @@ class YourPicksState extends Equatable {
   List<Object?> get props => [status, picks, failure];
 }
 
-/// The person's loved colourways, and nothing else.
+/// The person's loved outfits, and nothing else.
 class YourPicksBloc extends Bloc<YourPicksEvent, YourPicksState> {
   YourPicksBloc({
     required this._getPicks,
-    required this._getShopPieces,
+    required this._getOutfits,
     required this._setPick,
   }) : super(const YourPicksState()) {
     on<YourPicksLoaded>(_load, transformer: droppable());
@@ -61,7 +62,7 @@ class YourPicksBloc extends Bloc<YourPicksEvent, YourPicksState> {
   }
 
   final GetPicks _getPicks;
-  final GetShopPieces _getShopPieces;
+  final GetOutfits _getOutfits;
   final SetPick _setPick;
 
   Future<void> _load(
@@ -76,12 +77,12 @@ class YourPicksBloc extends Bloc<YourPicksEvent, YourPicksState> {
     if (ids == null) {
       return emit(const YourPicksState(status: YourPicksStatus.failed));
     }
-    final found = await _getShopPieces(ids);
+    final found = await _getOutfits(ids);
     emit(
       found.fold(
         (_) => const YourPicksState(status: YourPicksStatus.failed),
-        (shop) =>
-            YourPicksState(status: YourPicksStatus.ready, picks: shop.pieces),
+        (outfits) =>
+            YourPicksState(status: YourPicksStatus.ready, picks: outfits),
       ),
     );
   }
@@ -90,9 +91,7 @@ class YourPicksBloc extends Bloc<YourPicksEvent, YourPicksState> {
     YourPickRemoved event,
     Emitter<YourPicksState> emit,
   ) async {
-    final removed = await _setPick(
-      SetPickParams(event.colourwayId, loved: false),
-    );
+    final removed = await _setPick(SetPickParams(event.outfitId, loved: false));
     emit(
       removed.fold(
         (failure) => YourPicksState(
@@ -104,7 +103,7 @@ class YourPicksBloc extends Bloc<YourPicksEvent, YourPicksState> {
           status: state.status,
           picks: [
             for (final pick in state.picks)
-              if (pick.colourway.id != event.colourwayId) pick,
+              if (pick.id != event.outfitId) pick,
           ],
         ),
       ),
