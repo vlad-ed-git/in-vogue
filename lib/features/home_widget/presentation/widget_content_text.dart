@@ -6,6 +6,7 @@ import 'package:in_vogue/core/presentation/foundations/in_vogue_format.dart';
 import 'package:in_vogue/core/presentation/foundations/kicker.dart';
 import 'package:in_vogue/core/utils/occasion_l10n.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
+import 'package:in_vogue/features/stylist/presentation/reason_text.dart';
 import 'package:in_vogue/features/weather/domain/entities/temperature_unit.dart';
 import 'package:in_vogue/features/weather/presentation/weather_text.dart';
 import 'package:in_vogue/l10n/generated/app_localizations.dart';
@@ -66,7 +67,10 @@ abstract final class WidgetContentText {
         feelsLike,
       );
       if (outfit == null) return l10n.widgetPreviewSpoken(said);
-      return [said, ?outfit.reason?.of(language)].join(' ');
+      return [
+        said,
+        ?outfit.reason?.line(l10n, unit: unit, language: code),
+      ].join(' ');
     }
 
     return WidgetSnapshot(

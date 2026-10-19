@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 
 /// A try-on task as the try-on service reports it.
 sealed class TryOnTask extends Equatable {

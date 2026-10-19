@@ -10,6 +10,7 @@ import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
+import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
@@ -17,6 +18,8 @@ import 'package:in_vogue/features/outfits/data/models/day_model.dart';
 import 'package:in_vogue/features/outfits/data/repositories/day_repository_impl.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
+import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
 final _today = DateTime.utc(2026, 10, 17);
 final _tomorrow = DateTime.utc(2026, 10, 18);
@@ -25,9 +28,7 @@ const _png = [0x89, 0x50, 0x4E, 0x47, 1];
 Day _outfit(String id, {DateTime? date, String device = ''}) => Day(
   date: date ?? _tomorrow,
   occasion: Occasion.work,
-  cell: 'cool|wet|calm|work',
   outfitId: id,
-  signature: 'sig-$id',
   status: DayStatus.making,
   device: device,
 );
@@ -38,9 +39,7 @@ void main() {
     Day making(String device, {Duration ago = Duration.zero}) => Day(
       date: _tomorrow,
       occasion: Occasion.work,
-      cell: 'cool|wet|calm|work',
       outfitId: 'o1',
-      signature: 'sig-o1',
       status: DayStatus.making,
       device: device,
       piece: 2,
@@ -209,6 +208,40 @@ void main() {
     expect(DayModel.fromJson(const {'forDate': '2026-10-18'}), isNull);
   });
 
+  test('DayModel keeps why the outfit was chosen and the day it was for', () {
+    final reason = OutfitReason(
+      kind: ReasonKind.layerOff,
+      coldest: 13.1,
+      coldestAt: DateTime.utc(2026, 9, 3, 7),
+      warmest: 31.4,
+      warmestAt: DateTime.utc(2026, 9, 3, 14),
+      from: DateTime.utc(2026, 9, 3, 16),
+      season: ColourSeason.softAutumn,
+    );
+    final day = Day(
+      date: _tomorrow,
+      occasion: Occasion.work,
+      outfitId: 'o0004',
+      status: DayStatus.making,
+      device: 'phone-a',
+      reason: reason,
+      cold: WarmthBand.cool,
+      warm: WarmthBand.hot,
+      rain: true,
+      windy: true,
+    );
+    final json = DayModel.toJson(day);
+    expect(json['outfitId'], 'o0004');
+    expect((json['cold'], json['warm']), ('cool', 'hot'));
+    final read = DayModel.fromJson(json)!;
+    expect(read.reason, reason);
+    expect(
+      (read.cold, read.warm, read.rain, read.snow, read.windy),
+      (WarmthBand.cool, WarmthBand.hot, true, false, true),
+    );
+    expect(read, day);
+  });
+
   group('DayRepositoryImpl', () {
     late DateTime time;
     late FakeFirebaseFirestore firestore;
@@ -273,16 +306,13 @@ void main() {
       expect(day?['status'], 'making');
       expect(day?['device'], 'phone-a');
       expect(day?['updatedAt'], isA<Timestamp>());
-      final suggestion = await record('suggestions/sig-o1');
+      final suggestion = await record('suggestions/o1');
       expect(suggestion?['times'], 1);
       expect(suggestion?['lastForDate'], '2026-10-18');
       expect(suggestion?['firstAt'], isA<Timestamp>());
       expect(
-        (await days.suggested('uid-1', [
-          'sig-o1',
-          'sig-o2',
-        ])).getOrElse(() => const {}),
-        {'sig-o1': time},
+        (await days.suggested('uid-1', ['o1', 'o2'])).getOrElse(() => const {}),
+        {'o1': time},
       );
     });
 
@@ -300,7 +330,7 @@ void main() {
       expect((taken as DayClaimed).day.device, 'phone-b');
       expect(taken.day.outfitId, 'o1');
       expect((await record('days/2026-10-18_work'))?['device'], 'phone-b');
-      expect(await record('suggestions/sig-o2'), isNull);
+      expect(await record('suggestions/o2'), isNull);
     });
 
     test('tries a failed day again; keeps a made one', () async {
@@ -333,7 +363,7 @@ void main() {
     test('asks to choose again when the outfit was suggested meanwhile, '
         'and writes nothing', () async {
       final seen = (await days.suggested('uid-1', [
-        'sig-o1',
+        'o1',
       ])).getOrElse(() => const {});
       expect(seen, isEmpty);
       await claim(
@@ -349,7 +379,7 @@ void main() {
       expect(await record('days/2026-10-18_work'), isNull);
 
       final later = (await days.suggested('uid-1', [
-        'sig-o1',
+        'o1',
       ])).getOrElse(() => const {});
       time = time.add(const Duration(days: 1));
       await claim(
@@ -362,7 +392,7 @@ void main() {
         await claim('phone-a', proposal: _outfit('o1'), suggested: later),
         const DayConflict(),
       );
-      expect((await record('suggestions/sig-o1'))?['times'], 2);
+      expect((await record('suggestions/o1'))?['times'], 2);
     });
 
     test('replaces the outfit of its own making, recording the new one as '
@@ -373,34 +403,64 @@ void main() {
               as DayClaimed;
       expect(replaced.day.outfitId, 'o2');
       expect((await record('days/2026-10-18_work'))?['outfitId'], 'o2');
-      expect((await record('suggestions/sig-o1'))?['times'], 1);
-      expect((await record('suggestions/sig-o2'))?['times'], 1);
+      expect((await record('suggestions/o1'))?['times'], 1);
+      expect((await record('suggestions/o2'))?['times'], 1);
+    });
+
+    test('reads the days from a date on, every occasion', () async {
+      for (final (date, occasion) in [
+        (DateTime.utc(2026, 10, 3), Occasion.work),
+        (DateTime.utc(2026, 10, 10), Occasion.casual),
+        (DateTime.utc(2026, 10, 17), Occasion.work),
+      ]) {
+        await firestore
+            .doc('users/uid-1/days/${Day.keyFor(date, occasion)}')
+            .set(
+              DayModel.toJson(
+                Day(
+                  date: date,
+                  occasion: occasion,
+                  outfitId: 'o1',
+                  status: DayStatus.ready,
+                  device: 'phone-a',
+                ),
+              ),
+            );
+      }
+      final since = (await days.since(
+        'uid-1',
+        DateTime.utc(2026, 10, 4),
+      )).getOrElse(() => const []);
+      expect(
+        [for (final day in since) day.key],
+        ['2026-10-10_casual', '2026-10-17_work'],
+      );
     });
 
     test('finds suggestions thirty at a time', () async {
       for (var index = 0; index < 35; index++) {
-        await firestore.doc('users/uid-1/suggestions/sig-$index').set({
+        await firestore.doc('users/uid-1/suggestions/o$index').set({
           'lastAt': Timestamp.fromDate(time.add(Duration(minutes: index))),
         });
       }
       final found = (await days.suggested('uid-1', [
-        for (var index = 0; index < 40; index++) 'sig-$index',
+        for (var index = 0; index < 40; index++) 'o$index',
       ])).getOrElse(() => const {});
       expect(found, hasLength(35));
-      expect(found['sig-34'], time.add(const Duration(minutes: 34)));
-      expect(found.containsKey('sig-39'), isFalse);
+      expect(found['o34'], time.add(const Duration(minutes: 34)));
+      expect(found.containsKey('o39'), isFalse);
     });
 
     test("remembers a refused piece on its outfit's suggestion, and lists "
         "the account's refused pieces", () async {
       await claim('phone-a', proposal: _outfit('o1'));
-      await settled(days.refuse('uid-1', 'sig-o1', 'everlane:tee'));
-      final suggestion = await record('suggestions/sig-o1');
+      await settled(days.refuse('uid-1', 'o1', 'everlane:tee'));
+      final suggestion = await record('suggestions/o1');
       expect(suggestion?['refusedPiece'], 'everlane:tee');
       expect(suggestion?['times'], 1, reason: 'the rest stays');
-      await settled(days.refuse('uid-1', 'sig-o9', 'everlane:coat'));
-      await firestore.doc('users/uid-1/suggestions/sig-o2').set({'times': 1});
-      await firestore.doc('users/uid-2/suggestions/sig-o3').set({
+      await settled(days.refuse('uid-1', 'o9', 'everlane:coat'));
+      await firestore.doc('users/uid-1/suggestions/o2').set({'times': 1});
+      await firestore.doc('users/uid-2/suggestions/o3').set({
         'refusedPiece': 'everlane:dress',
       });
       expect((await days.refusedPieces('uid-1')).getOrElse(() => const {}), {
@@ -467,7 +527,7 @@ void main() {
       Future<String?> made(String photo) async => (await days.madePicture(
         'uid-1',
         photo: photo,
-        signature: 'sig-o1',
+        outfitId: 'o1',
       )).getOrElse(() => throw StateError('made'));
       expect(await made('/photos/body-1.jpg'), isNull);
 

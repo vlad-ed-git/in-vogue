@@ -36,6 +36,24 @@ class RecommendParams extends Equatable {
   final Set<String> refused;
   final OutfitHistory history;
 
+  RecommendParams withRefused(Set<String> refused) => RecommendParams(
+    day: day,
+    date: date,
+    occasion: occasion,
+    season: season,
+    refused: refused,
+    history: history,
+  );
+
+  RecommendParams withHistory(OutfitHistory history) => RecommendParams(
+    day: day,
+    date: date,
+    occasion: occasion,
+    season: season,
+    refused: refused,
+    history: history,
+  );
+
   @override
   List<Object?> get props => [day, date, occasion, season, refused, history];
 }
@@ -56,17 +74,28 @@ class RecommendOutfit implements UseCase<Recommendation?, RecommendParams> {
     return outfits.map((outfits) => choose(outfits, params));
   }
 
+  /// The outfits [params] chooses among, before the history counts.
+  List<CatalogOutfit> candidatesOf(
+    List<CatalogOutfit> outfits,
+    RecommendParams params,
+  ) => _candidates(outfits, params).outfits;
+
+  ({List<CatalogOutfit> outfits, Set<Relaxation> relaxed}) _candidates(
+    List<CatalogOutfit> outfits,
+    RecommendParams params,
+  ) => CandidateRules.of(
+    outfits.where(
+      (outfit) => CandidateRules.fits(outfit, params.day, params.season),
+    ),
+    day: params.day,
+    occasion: params.occasion,
+    refused: params.refused,
+  );
+
   /// The choice among [outfits], the catalog in order.
   Recommendation? choose(List<CatalogOutfit> outfits, RecommendParams params) {
     final day = params.day;
-    final (outfits: candidates, :relaxed) = CandidateRules.of(
-      outfits.where(
-        (outfit) => CandidateRules.fits(outfit, day, params.season),
-      ),
-      day: day,
-      occasion: params.occasion,
-      refused: params.refused,
-    );
+    final (outfits: candidates, :relaxed) = _candidates(outfits, params);
     final scores = scorer.score(
       candidates,
       day: day,

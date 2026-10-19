@@ -50,10 +50,10 @@ class DayRepositoryImpl implements DayRepository {
   static String picturePath(String accountId, String name) =>
       'users/$accountId/days/$name';
 
-  /// Where the picture of the outfit [signature] on the photo with the
+  /// Where the picture of the outfit [outfitId] on the photo with the
   /// fingerprint [photo] is listed.
-  static String madeKey(String photo, String signature) =>
-      '${photo.substring(0, 16)}-$signature';
+  static String madeKey(String photo, String outfitId) =>
+      '${photo.substring(0, 16)}-$outfitId';
 
   @override
   Stream<Either<Failure, Day?>> watch(
@@ -86,18 +86,22 @@ class DayRepositoryImpl implements DayRepository {
   }) => _guard('day', () => _remote.day(accountId, Day.keyFor(date, occasion)));
 
   @override
+  Future<Either<Failure, List<Day>>> since(String accountId, DateTime date) =>
+      _guard('since', () => _remote.since(accountId, date));
+
+  @override
   Future<Either<Failure, Map<String, DateTime?>>> suggested(
     String accountId,
-    List<String> signatures,
-  ) => _guard('suggested', () => _remote.suggested(accountId, signatures));
+    List<String> outfitIds,
+  ) => _guard('suggested', () => _remote.suggested(accountId, outfitIds));
 
   @override
   Future<Either<Failure, Unit>> refuse(
     String accountId,
-    String signature,
+    String outfitId,
     String piece,
   ) => _guard('refuse', () async {
-    await _remote.refuse(accountId, signature, piece);
+    await _remote.refuse(accountId, outfitId, piece);
     return unit;
   });
 
@@ -123,8 +127,8 @@ class DayRepositoryImpl implements DayRepository {
       seen: proposal == null
           ? (known: false, lastAt: null)
           : (
-              known: suggested.containsKey(proposal.signature),
-              lastAt: suggested[proposal.signature],
+              known: suggested.containsKey(proposal.outfitId),
+              lastAt: suggested[proposal.outfitId],
             ),
       device: device,
       now: clock.now(),
@@ -168,12 +172,12 @@ class DayRepositoryImpl implements DayRepository {
     );
     // Listed even when another phone took the day: the try-on is paid for.
     final fingerprint = await _fingerprints.of(photo);
-    final key = madeKey(fingerprint, day.signature);
+    final key = madeKey(fingerprint, day.outfitId);
     await _remote.keepMadePicture(
       accountId,
       key,
       photo: fingerprint,
-      signature: day.signature,
+      outfitId: day.outfitId,
       path: path,
     );
     await _phone.keepMadePicture(accountId, key, path);
@@ -206,9 +210,9 @@ class DayRepositoryImpl implements DayRepository {
   Future<Either<Failure, String?>> madePicture(
     String accountId, {
     required String photo,
-    required String signature,
+    required String outfitId,
   }) => _guard('madePicture', () async {
-    final key = madeKey(await _fingerprints.of(photo), signature);
+    final key = madeKey(await _fingerprints.of(photo), outfitId);
     final known = _phone.madePicture(accountId, key);
     if (known != null) return known;
     final path = await _remote.madePicture(accountId, key);

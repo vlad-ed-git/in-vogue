@@ -9,6 +9,10 @@ import 'dart:async' as _i4;
 import 'package:dartz/dartz.dart' as _i2;
 import 'package:in_vogue/core/domain/entities/occasion.dart' as _i9;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart'
+    as _i11;
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart'
+    as _i10;
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart'
     as _i13;
 import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart'
@@ -18,11 +22,8 @@ import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart'
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart'
     as _i12;
 import 'package:in_vogue/features/outfits/domain/entities/day.dart' as _i8;
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart' as _i11;
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart'
     as _i7;
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart'
-    as _i10;
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart'
     as _i6;
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart'
@@ -124,19 +125,36 @@ class MockDayRepository extends _i1.Mock implements _i7.DayRepository {
           as _i4.Future<_i2.Either<_i5.Failure, _i8.Day?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, Map<String, DateTime?>>> suggested(
+  _i4.Future<_i2.Either<_i5.Failure, List<_i8.Day>>> since(
     String? accountId,
-    List<String>? signatures,
+    DateTime? date,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#suggested, [accountId, signatures]),
+            Invocation.method(#since, [accountId, date]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, List<_i8.Day>>>.value(
+                  _FakeEither_0<_i5.Failure, List<_i8.Day>>(
+                    this,
+                    Invocation.method(#since, [accountId, date]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, List<_i8.Day>>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, Map<String, DateTime?>>> suggested(
+    String? accountId,
+    List<String>? outfitIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#suggested, [accountId, outfitIds]),
             returnValue:
                 _i4.Future<
                   _i2.Either<_i5.Failure, Map<String, DateTime?>>
                 >.value(
                   _FakeEither_0<_i5.Failure, Map<String, DateTime?>>(
                     this,
-                    Invocation.method(#suggested, [accountId, signatures]),
+                    Invocation.method(#suggested, [accountId, outfitIds]),
                   ),
                 ),
           )
@@ -145,15 +163,15 @@ class MockDayRepository extends _i1.Mock implements _i7.DayRepository {
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> refuse(
     String? accountId,
-    String? signature,
+    String? outfitId,
     String? piece,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#refuse, [accountId, signature, piece]),
+            Invocation.method(#refuse, [accountId, outfitId, piece]),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
               _FakeEither_0<_i5.Failure, _i2.Unit>(
                 this,
-                Invocation.method(#refuse, [accountId, signature, piece]),
+                Invocation.method(#refuse, [accountId, outfitId, piece]),
               ),
             ),
           )
@@ -276,13 +294,13 @@ class MockDayRepository extends _i1.Mock implements _i7.DayRepository {
   _i4.Future<_i2.Either<_i5.Failure, String?>> madePicture(
     String? accountId, {
     required String? photo,
-    required String? signature,
+    required String? outfitId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #madePicture,
               [accountId],
-              {#photo: photo, #signature: signature},
+              {#photo: photo, #outfitId: outfitId},
             ),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, String?>>.value(
               _FakeEither_0<_i5.Failure, String?>(
@@ -290,7 +308,7 @@ class MockDayRepository extends _i1.Mock implements _i7.DayRepository {
                 Invocation.method(
                   #madePicture,
                   [accountId],
-                  {#photo: photo, #signature: signature},
+                  {#photo: photo, #outfitId: outfitId},
                 ),
               ),
             ),
@@ -381,43 +399,46 @@ class MockDayRepository extends _i1.Mock implements _i7.DayRepository {
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 }
 
-/// A class which mocks [OutfitRepository].
+/// A class which mocks [OutfitCatalogRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockOutfitRepository extends _i1.Mock implements _i10.OutfitRepository {
-  MockOutfitRepository() {
+class MockOutfitCatalogRepository extends _i1.Mock
+    implements _i10.OutfitCatalogRepository {
+  MockOutfitCatalogRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, List<_i11.Outfit>>> outfitsFor(
-    String? cell,
-  ) =>
+  _i4.Future<_i2.Either<_i5.Failure, List<_i11.CatalogOutfit>>> sample() =>
       (super.noSuchMethod(
-            Invocation.method(#outfitsFor, [cell]),
+            Invocation.method(#sample, []),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, List<_i11.Outfit>>>.value(
-                  _FakeEither_0<_i5.Failure, List<_i11.Outfit>>(
+                _i4.Future<
+                  _i2.Either<_i5.Failure, List<_i11.CatalogOutfit>>
+                >.value(
+                  _FakeEither_0<_i5.Failure, List<_i11.CatalogOutfit>>(
                     this,
-                    Invocation.method(#outfitsFor, [cell]),
+                    Invocation.method(#sample, []),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, List<_i11.Outfit>>>);
+          as _i4.Future<_i2.Either<_i5.Failure, List<_i11.CatalogOutfit>>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i11.Outfit?>> outfit(String? id) =>
+  _i4.Future<_i2.Either<_i5.Failure, List<_i11.CatalogOutfit>>> outfits() =>
       (super.noSuchMethod(
-            Invocation.method(#outfit, [id]),
+            Invocation.method(#outfits, []),
             returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i11.Outfit?>>.value(
-                  _FakeEither_0<_i5.Failure, _i11.Outfit?>(
+                _i4.Future<
+                  _i2.Either<_i5.Failure, List<_i11.CatalogOutfit>>
+                >.value(
+                  _FakeEither_0<_i5.Failure, List<_i11.CatalogOutfit>>(
                     this,
-                    Invocation.method(#outfit, [id]),
+                    Invocation.method(#outfits, []),
                   ),
                 ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i11.Outfit?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, List<_i11.CatalogOutfit>>>);
 }
 
 /// A class which mocks [HomeWidgetRepository].

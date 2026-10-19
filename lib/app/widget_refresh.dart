@@ -6,22 +6,22 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/config/app_check.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
+import 'package:in_vogue/features/catalog/data/data_sources/outfit_catalog_local_data_source.dart';
+import 'package:in_vogue/features/catalog/data/data_sources/outfit_catalog_remote_data_source.dart';
+import 'package:in_vogue/features/catalog/data/repositories/outfit_catalog_repository_impl.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
 import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
 import 'package:in_vogue/features/home_widget/domain/services/refresh_widget.dart';
 import 'package:in_vogue/features/home_widget/presentation/widget_content_text.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
-import 'package:in_vogue/features/outfits/data/data_sources/outfit_asset_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/repositories/day_repository_impl.dart';
-import 'package:in_vogue/features/outfits/data/repositories/outfit_repository_impl.dart';
 import 'package:in_vogue/features/weather/data/data_sources/uncached_weather_local_data_source.dart';
 import 'package:in_vogue/features/weather/data/data_sources/weather_remote_data_source.dart';
 import 'package:in_vogue/features/weather/data/repositories/weather_repository_impl.dart';
@@ -114,8 +114,11 @@ Future<void> refreshWidgetInBackground(AppEnvironment environment) async {
     fingerprints: PhotoFingerprints(),
     logMessages: log,
   );
-  final outfits = OutfitRepositoryImpl(
-    assetDataSource: OutfitAssetDataSourceImpl(rootBundle),
+  final catalog = OutfitCatalogRepositoryImpl(
+    remote: OutfitCatalogRemoteDataSourceImpl(FirebaseFirestore.instance),
+    local: OutfitCatalogLocalDataSourceImpl(
+      path.join(folder, 'catalog', 'outfits.json'),
+    ),
     logMessages: log,
   );
   final context = saved.context;
@@ -123,7 +126,7 @@ Future<void> refreshWidgetInBackground(AppEnvironment environment) async {
   await RefreshWidget(
     getWeatherReport: GetWeatherReport(weather),
     days: days,
-    outfits: outfits,
+    catalog: catalog,
     widget: widget,
     accountId: user?.uid,
     describe: (widgetDays, context) => WidgetContentText.of(

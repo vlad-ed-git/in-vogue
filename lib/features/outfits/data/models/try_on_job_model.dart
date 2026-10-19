@@ -7,7 +7,6 @@ abstract final class TryOnJobModel {
     'accountId': job.accountId,
     'date': TryOnJob.dateKey(job.date),
     'occasion': job.occasion.name,
-    'cell': job.cell,
     'outfitId': job.outfitId,
     'photoRevision': job.photoRevision,
     'tasks': job.tasks,
@@ -20,7 +19,6 @@ abstract final class TryOnJobModel {
       'accountId': final String accountId,
       'date': final String date,
       'occasion': final String occasion,
-      'cell': final String cell,
       'outfitId': final String outfitId,
       'photoRevision': final int photoRevision,
       'tasks': final List<Object?> tasks,
@@ -32,7 +30,6 @@ abstract final class TryOnJobModel {
         occasion:
             Occasion.values.asNameMap()[occasion] ??
             (throw FormatException('Unknown occasion', occasion)),
-        cell: cell,
         outfitId: outfitId,
         photoRevision: photoRevision,
         tasks: tasks.cast<String>(),

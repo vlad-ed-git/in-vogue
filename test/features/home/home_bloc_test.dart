@@ -14,7 +14,6 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/location/domain/usecases/get_saved_location.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/services/follow_day.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
@@ -24,12 +23,12 @@ import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/day_bands.dart';
 import 'home_bloc_test.mocks.dart';
 
 /// Friday afternoon: tomorrow, Saturday, is shown by default.
@@ -42,11 +41,7 @@ const _paris = UserLocation(
   city: 'Paris',
   countryCode: 'FR',
 );
-const _mild = WeatherClass(
-  band: WarmthBand.mild,
-  precipitation: Precipitation.dry,
-  windy: false,
-);
+final _mild = bandsFor(WarmthBand.mild);
 
 WeatherReport _report(ForecastDay day, Occasion occasion) => WeatherReport(
   day: day,
@@ -57,7 +52,7 @@ WeatherReport _report(ForecastDay day, Occasion occasion) => WeatherReport(
     feelsLike: 16,
     sky: Sky.clear,
   ),
-  weatherClass: _mild,
+  bands: _mild,
   fetchedAt: DateTime.utc(2026, 10, 16, 14),
   isSaved: false,
 );
@@ -79,19 +74,13 @@ MakeOutfitParams _params(DateTime date, Occasion occasion) => MakeOutfitParams(
   accountId: 'uid-1',
   date: date,
   occasion: occasion,
-  weatherClass: _mild,
+  bands: _mild,
 );
 
 DayOutfit _outfit(DateTime date, Occasion occasion) => DayOutfit(
-  outfit: const Outfit(
-    id: 'o1',
-    signature: 'jeans+tee',
-    pieces: ['everlane:jeans', 'everlane:tee'],
-    passes: [],
-  ),
+  outfitId: 'o1',
   date: date,
   occasion: occasion,
-  cell: _mild.cell(occasion),
   picture: '/support/outfits/uid-1/${date.day}_${occasion.name}.jpg',
 );
 
@@ -236,9 +225,7 @@ void main() {
           Day(
             date: _today,
             occasion: Occasion.work,
-            cell: _mild.cell(Occasion.work),
             outfitId: 'o2',
-            signature: 'dress',
             status: DayStatus.making,
             device: 'phone-b',
             piece: 2,

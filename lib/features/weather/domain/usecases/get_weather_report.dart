@@ -56,19 +56,19 @@ class GetWeatherReport implements UseCase<WeatherReport, WeatherReportParams> {
         date: date,
         occasion: occasion,
       );
-      final weatherClass = DayWeatherRules.classify(
+      final bands = DayWeatherRules.bands(
         forecast,
         date: date,
         occasion: occasion,
       );
-      if (weather == null || weatherClass == null) {
+      if (weather == null || bands == null) {
         return const Left(ServerFailure());
       }
       return Right(
         WeatherReport(
           day: day,
           weather: weather,
-          weatherClass: weatherClass,
+          bands: bands,
           fetchedAt: forecast.fetchedAt,
           isSaved:
               now.toUtc().difference(forecast.fetchedAt) >=

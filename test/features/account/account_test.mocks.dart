@@ -530,14 +530,14 @@ class MockPicksRepository extends _i1.Mock implements _i18.PicksRepository {
 
   @override
   _i4.Future<_i2.Either<_i7.Failure, Set<String>>> addPicks(
-    Set<String>? colourwayIds,
+    Set<String>? outfitIds,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#addPicks, [colourwayIds]),
+            Invocation.method(#addPicks, [outfitIds]),
             returnValue: _i4.Future<_i2.Either<_i7.Failure, Set<String>>>.value(
               _FakeEither_0<_i7.Failure, Set<String>>(
                 this,
-                Invocation.method(#addPicks, [colourwayIds]),
+                Invocation.method(#addPicks, [outfitIds]),
               ),
             ),
           )
@@ -545,14 +545,14 @@ class MockPicksRepository extends _i1.Mock implements _i18.PicksRepository {
 
   @override
   _i4.Future<_i2.Either<_i7.Failure, Set<String>>> removePicks(
-    Set<String>? colourwayIds,
+    Set<String>? outfitIds,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#removePicks, [colourwayIds]),
+            Invocation.method(#removePicks, [outfitIds]),
             returnValue: _i4.Future<_i2.Either<_i7.Failure, Set<String>>>.value(
               _FakeEither_0<_i7.Failure, Set<String>>(
                 this,
-                Invocation.method(#removePicks, [colourwayIds]),
+                Invocation.method(#removePicks, [outfitIds]),
               ),
             ),
           )
@@ -560,15 +560,15 @@ class MockPicksRepository extends _i1.Mock implements _i18.PicksRepository {
 
   @override
   _i4.Future<_i2.Either<_i7.Failure, Set<String>>> setPick(
-    String? colourwayId, {
+    String? outfitId, {
     required bool? loved,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#setPick, [colourwayId], {#loved: loved}),
+            Invocation.method(#setPick, [outfitId], {#loved: loved}),
             returnValue: _i4.Future<_i2.Either<_i7.Failure, Set<String>>>.value(
               _FakeEither_0<_i7.Failure, Set<String>>(
                 this,
-                Invocation.method(#setPick, [colourwayId], {#loved: loved}),
+                Invocation.method(#setPick, [outfitId], {#loved: loved}),
               ),
             ),
           )

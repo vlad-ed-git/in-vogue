@@ -8,29 +8,33 @@ import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/utils/latest_updates.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
-import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
+import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
+import 'package:in_vogue/features/colours/domain/repositories/colour_profile_repository.dart';
+import 'package:in_vogue/features/colours/domain/services/season_rules.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
-import 'package:in_vogue/features/outfits/domain/services/choose_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
+import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/stylist/domain/services/outfit_scorer.dart';
+import 'package:in_vogue/features/stylist/domain/usecases/recommend_outfit.dart';
+import 'package:in_vogue/features/weather/domain/entities/day_bands.dart';
 
 class MakeOutfitParams extends Equatable {
   const MakeOutfitParams({
     required this.accountId,
     required this.date,
     required this.occasion,
-    required this.weatherClass,
+    required this.bands,
   });
 
   final String accountId;
@@ -40,14 +44,12 @@ class MakeOutfitParams extends Equatable {
   final Occasion occasion;
 
   /// The weather of [date] in [occasion]'s hours.
-  final WeatherClass weatherClass;
-
-  String get cell => weatherClass.cell(occasion);
+  final DayBands bands;
 
   String get key => TryOnJob.keyFor(accountId, date, occasion);
 
   @override
-  List<Object?> get props => [accountId, date, occasion, weatherClass];
+  List<Object?> get props => [accountId, date, occasion, bands];
 }
 
 /// Makes the outfit of a day and occasion, shared by every phone signed in
@@ -55,9 +57,10 @@ class MakeOutfitParams extends Equatable {
 ///
 /// Claims the day first: a day another phone made is shown, one it is
 /// making is left to it. A new day saves the setup on the account and
-/// takes the best outfit for its weather never suggested, lifted by the
-/// person's favourite pieces. The outfit is then tried on piece by piece,
-/// each piece reported on the day, and the picture kept with the day.
+/// takes the recommender's outfit from the catalog for its weather, the
+/// person's colours and what they were suggested and wore lately. The
+/// outfit is then tried on piece by piece, in its passes' order, each piece
+/// reported on the day, and the picture kept with the day.
 ///
 /// A photo and outfit already tried on are never tried on again: the day
 /// takes the picture made before. Progress is kept after each piece, so a
@@ -67,24 +70,26 @@ class MakeOutfitParams extends Equatable {
 /// follows it.
 class MakeOutfit {
   MakeOutfit({
-    required this._outfits,
+    required this._catalog,
+    required this._recommend,
+    required this._colours,
     required this._days,
     required this._tryOn,
     required this._jobs,
     required this._photos,
-    required this._picks,
     required this._saveSetupToAccount,
     required InstallId installId,
     this._checkEvery = const Duration(seconds: 5),
     this._passTimeLimit = const Duration(minutes: 4),
   }) : _device = installId.value;
 
-  final OutfitRepository _outfits;
+  final OutfitCatalogRepository _catalog;
+  final RecommendOutfit _recommend;
+  final ColourProfileRepository _colours;
   final DayRepository _days;
   final TryOnRepository _tryOn;
   final TryOnJobRepository _jobs;
   final PhotoRepository _photos;
-  final PicksRepository _picks;
   final SaveSetupToAccount _saveSetupToAccount;
   final String _device;
   final Duration _checkEvery;
@@ -192,15 +197,13 @@ class MakeOutfit {
     UserPhoto body,
     void Function(TryOnUpdate update) report,
   ) async {
-    final outfit = (await _outfits.outfit(
-      day.outfitId,
-    )).fold<Outfit?>((_) => null, (outfit) => outfit);
+    final outfit = await _outfit(day.outfitId);
     if (outfit == null) return const TryOnFailed(CacheFailure());
 
     final made = await _days.madePicture(
       params.accountId,
       photo: body.path,
-      signature: day.signature,
+      outfitId: day.outfitId,
     );
     if (made case Left(value: final failure)) return TryOnFailed(failure);
     if (made.getOrElse(() => null) case final String path) {
@@ -213,7 +216,6 @@ class MakeOutfit {
         accountId: params.accountId,
         date: params.date,
         occasion: params.occasion,
-        cell: day.cell,
         outfitId: day.outfitId,
         photoRevision: body.revision,
         updatedAt: clock.now(),
@@ -264,7 +266,7 @@ class MakeOutfit {
         if (failure case TryOnFailure(problem: TryOnProblem.reference)) {
           await _days.refuse(
             params.accountId,
-            day.signature,
+            day.outfitId,
             passes[index].piece,
           );
           await _drop(job);
@@ -292,22 +294,14 @@ class MakeOutfit {
     final file = kept.getOrElse(() => null);
     if (file == null) return TryOnElsewhere(day);
     await _drop(job!);
-    return TryOnDone(
-      DayOutfit(
-        outfit: outfit,
-        date: day.date,
-        occasion: day.occasion,
-        cell: day.cell,
-        picture: file,
-      ),
-    );
+    return TryOnDone(_dayOutfit(day, outfit, file));
   }
 
   /// Makes [day] with [outfit]'s picture made before at [path].
   Future<TryOnUpdate> _reused(
     MakeOutfitParams params,
     Day day,
-    Outfit outfit,
+    CatalogOutfit outfit,
     String path,
   ) async {
     final kept = await _days.reuse(
@@ -321,15 +315,27 @@ class MakeOutfit {
     if (file == null) return TryOnElsewhere(day);
     // A try-on kept from before isn't needed any more.
     await _jobs.clear(params.key);
-    return TryOnDone(
+    return TryOnDone(_dayOutfit(day, outfit, file));
+  }
+
+  static DayOutfit _dayOutfit(Day day, CatalogOutfit? outfit, String picture) =>
       DayOutfit(
+        outfitId: day.outfitId,
         outfit: outfit,
         date: day.date,
         occasion: day.occasion,
-        cell: day.cell,
-        picture: file,
-      ),
-    );
+        picture: picture,
+        reason: day.reason,
+      );
+
+  /// The catalog's outfit [id]; null when the catalog can't be read or
+  /// lacks it.
+  Future<CatalogOutfit?> _outfit(String id) async {
+    final outfits = (await _catalog.outfits()).getOrElse(() => const []);
+    for (final outfit in outfits) {
+      if (outfit.id == id) return outfit;
+    }
+    return null;
   }
 
   /// Runs [claim] once the claim before it is done.
@@ -360,42 +366,29 @@ class MakeOutfit {
           final saved = await _saveSetupToAccount(params.accountId);
           if (saved case Left(value: final failure)) return Left(failure);
         }
-        final ranked = await _outfits.outfitsFor(params.cell);
-        if (ranked case Left(value: final failure)) return Left(failure);
-        final outfits = ranked.getOrElse(() => const []);
-        final seen = await _days.suggested(params.accountId, [
-          for (final outfit in outfits) outfit.signature,
-        ]);
-        if (seen case Left(value: final failure)) return Left(failure);
-        suggested = seen.getOrElse(() => const {});
-        final refused = await _days.refusedPieces(params.accountId);
-        if (refused case Left(value: final failure)) return Left(failure);
-        final picks = (await _picks.picks()).getOrElse(() => const {});
-        final outfit = ChooseOutfit.from(
-          outfits,
-          suggested: suggested,
-          picks: picks,
-          refused: refused.getOrElse(() => const {}),
+        final chosen = await _choose(params);
+        if (chosen case Left(value: final failure)) return Left(failure);
+        final (:recommendation, suggested: seen) = chosen.getOrElse(
+          () => throw StateError('chosen'),
         );
-        if (outfit == null) {
-          // No outfit in this build suits the day's weather, or every one
-          // has a piece whose photo the try-on refused.
-          return Left(
-            TryOnFailure(
-              outfits.isEmpty
-                  ? TryOnProblem.unavailable
-                  : TryOnProblem.reference,
-            ),
-          );
+        suggested = seen;
+        if (recommendation == null) {
+          // Every outfit for the day has a piece the try-on refused.
+          return const Left(TryOnFailure(TryOnProblem.reference));
         }
+        final bands = params.bands;
         proposal = Day(
           date: params.date,
           occasion: params.occasion,
-          cell: params.cell,
-          outfitId: outfit.id,
-          signature: outfit.signature,
+          outfitId: recommendation.outfit.id,
           status: DayStatus.making,
           device: _device,
+          reason: recommendation.reason,
+          cold: bands.cold,
+          warm: bands.warm,
+          rain: bands.rain,
+          snow: bands.snow,
+          windy: bands.windy,
         );
       }
       final claim = await _days.claim(
@@ -414,27 +407,84 @@ class MakeOutfit {
     return const Left(ServerFailure());
   }
 
+  /// The recommender's outfit for [params]'s day, and when the day's
+  /// candidates were suggested, as the claim checks them.
+  Future<
+    Either<
+      Failure,
+      ({Recommendation? recommendation, Map<String, DateTime?> suggested})
+    >
+  >
+  _choose(MakeOutfitParams params) async {
+    final catalog = await _catalog.outfits();
+    if (catalog case Left(value: final failure)) return Left(failure);
+    final outfits = catalog.getOrElse(() => const []);
+    final refused = await _days.refusedPieces(params.accountId);
+    if (refused case Left(value: final failure)) return Left(failure);
+    final asked = RecommendParams(
+      day: params.bands,
+      date: params.date,
+      occasion: params.occasion,
+      season: await _season(params.accountId),
+      refused: refused.getOrElse(() => const {}),
+    );
+    if (_recommend.candidatesOf(outfits, asked.withRefused(const {})).isEmpty) {
+      // The catalog on the phone has no outfit for the day.
+      return const Left(TryOnFailure(TryOnProblem.unavailable));
+    }
+    final seen = await _days.suggested(params.accountId, [
+      for (final outfit in _recommend.candidatesOf(outfits, asked)) outfit.id,
+    ]);
+    if (seen case Left(value: final failure)) return Left(failure);
+    final suggested = seen.getOrElse(() => const {});
+    final recent = await _days.since(
+      params.accountId,
+      params.date.subtract(const Duration(days: OutfitScorer.restDays)),
+    );
+    final byId = {for (final outfit in outfits) outfit.id: outfit};
+    final now = clock.now();
+    final history = OutfitHistory(
+      // A time still being written counts as now.
+      suggestedAt: {
+        for (final MapEntry(:key, :value) in suggested.entries)
+          key: value ?? now,
+      },
+      worn: [
+        for (final day in recent.getOrElse(() => const []))
+          if (day.status != DayStatus.failed && byId[day.outfitId] != null)
+            WornDay(
+              date: day.date,
+              pieces: {
+                for (final piece in byId[day.outfitId]!.pieces) piece.colourway,
+              },
+            ),
+      ],
+    );
+    return Right((
+      recommendation: _recommend.choose(outfits, asked.withHistory(history)),
+      suggested: suggested,
+    ));
+  }
+
+  /// The person's colour season, from a clear reading only.
+  Future<ColourSeason?> _season(String accountId) async {
+    final colours = (await _colours.latest(
+      accountId,
+    )).fold((_) => null, (colours) => colours);
+    if (colours == null) return null;
+    final reading = SeasonRules.readingOf(colours);
+    return reading.clear ? reading.season : null;
+  }
+
   /// A day another phone made, with its picture on this phone.
   Future<TryOnUpdate> _shown(MakeOutfitParams params, Day day) async {
     final picture = await _days.picture(params.accountId, day);
     if (picture case Left(value: final failure)) return TryOnFailed(failure);
-    final outfit =
-        (await _outfits.outfit(
-          day.outfitId,
-        )).fold<Outfit?>((_) => null, (outfit) => outfit) ??
-        Outfit(
-          id: day.outfitId,
-          signature: day.signature,
-          pieces: const [],
-          passes: const [],
-        );
     return TryOnDone(
-      DayOutfit(
-        outfit: outfit,
-        date: day.date,
-        occasion: day.occasion,
-        cell: day.cell,
-        picture: picture.getOrElse(() => throw StateError('picture')),
+      _dayOutfit(
+        day,
+        await _outfit(day.outfitId),
+        picture.getOrElse(() => throw StateError('picture')),
       ),
     );
   }

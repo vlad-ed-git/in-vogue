@@ -1,24 +1,23 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
-import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 import 'package:in_vogue/core/utils/occasion_l10n.dart';
 import 'package:in_vogue/features/home_widget/presentation/widget_content_text.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/l10n/generated/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import '../../helpers/day_bands.dart';
+
 final _today = DateTime.utc(2026, 10, 18);
 final _tomorrow = DateTime.utc(2026, 10, 19);
-const _cell = 'cool|wet|calm|work';
 
 WeatherReport _report(DateTime date, ForecastDay day) => WeatherReport(
   day: day,
@@ -29,32 +28,24 @@ WeatherReport _report(DateTime date, ForecastDay day) => WeatherReport(
     feelsLike: 9.6,
     sky: Sky.rain,
   ),
-  weatherClass: const WeatherClass(
-    band: WarmthBand.cool,
-    precipitation: Precipitation.wet,
-    windy: false,
-  ),
+  bands: bandsFor(WarmthBand.cool, rain: true),
   fetchedAt: DateTime.utc(2026, 10, 18, 5),
   isSaved: false,
 );
 
 final _outfit = DayOutfit(
-  outfit: const Outfit(
-    id: 'o1',
-    signature: 'coat+tee',
-    pieces: [],
-    passes: [],
-    reasons: {
-      _cell: LocalizedText(
-        'A coat over a tee.',
-        translations: {'es': 'Un abrigo sobre una camiseta.'},
-      ),
-    },
-  ),
+  outfitId: 'o1',
   date: _today,
   occasion: Occasion.work,
-  cell: _cell,
   picture: '/support/outfits/uid-1/2026-10-18_work.jpg',
+  reason: OutfitReason(
+    kind: ReasonKind.rain,
+    coldest: 9,
+    coldestAt: DateTime.utc(2026, 10, 18, 7),
+    warmest: 12,
+    warmestAt: DateTime.utc(2026, 10, 18, 14),
+    from: DateTime.utc(2026, 10, 18, 15),
+  ),
 );
 
 void main() {
@@ -95,7 +86,10 @@ void main() {
     expect(made.picture, _outfit.picture);
     expect(made.waitingPhoto, isNull);
     expect(made.spokenToday, startsWith(l10n.today));
-    expect(made.spokenToday, endsWith('Un abrigo sobre una camiseta.'));
+    expect(
+      made.spokenToday,
+      endsWith('Lluvia desde las 15:00: un conjunto que aguanta el agua.'),
+    );
     expect(waiting.picture, isNull);
     expect(waiting.waitingPhoto, '/support/photos/body-1.jpg');
     expect(waiting.gettingReady, l10n.widgetGettingReady);

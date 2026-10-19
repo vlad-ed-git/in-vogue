@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
 
 /// Try-ons in a build without access to the try-on service: none can start.

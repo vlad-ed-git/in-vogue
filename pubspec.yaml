@@ -76,7 +76,6 @@ flutter:
     enable-swift-package-manager: false
   assets:
     - assets/catalog/
-    - assets/outfits/
     - assets/images/
     # Development builds only: the YouCam key (git-ignored).
     - path: assets/development/

@@ -175,16 +175,7 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
                 ),
               ),
             ),
-            onShop: (outfit) => _push(
-              context,
-              (context) => BlocProvider(
-                create: (_) =>
-                    locator<ShopBloc>()
-                      ..add(ShopRequested(outfit.outfit.outsideIn)),
-                child: ShopScreen(onBack: () => Navigator.of(context).pop()),
-              ),
-            ),
-            onOpenOutfit: (outfit) => _shop(context, locator, outfit),
+            onShop: (outfit) => _shop(context, locator, outfit),
           ),
         ),
       ),

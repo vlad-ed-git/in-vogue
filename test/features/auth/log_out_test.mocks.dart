@@ -230,19 +230,36 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
           as _i4.Future<_i2.Either<_i5.Failure, _i10.Day?>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, Map<String, DateTime?>>> suggested(
+  _i4.Future<_i2.Either<_i5.Failure, List<_i10.Day>>> since(
     String? accountId,
-    List<String>? signatures,
+    DateTime? date,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#suggested, [accountId, signatures]),
+            Invocation.method(#since, [accountId, date]),
+            returnValue:
+                _i4.Future<_i2.Either<_i5.Failure, List<_i10.Day>>>.value(
+                  _FakeEither_0<_i5.Failure, List<_i10.Day>>(
+                    this,
+                    Invocation.method(#since, [accountId, date]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, List<_i10.Day>>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, Map<String, DateTime?>>> suggested(
+    String? accountId,
+    List<String>? outfitIds,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#suggested, [accountId, outfitIds]),
             returnValue:
                 _i4.Future<
                   _i2.Either<_i5.Failure, Map<String, DateTime?>>
                 >.value(
                   _FakeEither_0<_i5.Failure, Map<String, DateTime?>>(
                     this,
-                    Invocation.method(#suggested, [accountId, signatures]),
+                    Invocation.method(#suggested, [accountId, outfitIds]),
                   ),
                 ),
           )
@@ -251,15 +268,15 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> refuse(
     String? accountId,
-    String? signature,
+    String? outfitId,
     String? piece,
   ) =>
       (super.noSuchMethod(
-            Invocation.method(#refuse, [accountId, signature, piece]),
+            Invocation.method(#refuse, [accountId, outfitId, piece]),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
               _FakeEither_0<_i5.Failure, _i2.Unit>(
                 this,
-                Invocation.method(#refuse, [accountId, signature, piece]),
+                Invocation.method(#refuse, [accountId, outfitId, piece]),
               ),
             ),
           )
@@ -382,13 +399,13 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
   _i4.Future<_i2.Either<_i5.Failure, String?>> madePicture(
     String? accountId, {
     required String? photo,
-    required String? signature,
+    required String? outfitId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #madePicture,
               [accountId],
-              {#photo: photo, #signature: signature},
+              {#photo: photo, #outfitId: outfitId},
             ),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, String?>>.value(
               _FakeEither_0<_i5.Failure, String?>(
@@ -396,7 +413,7 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
                 Invocation.method(
                   #madePicture,
                   [accountId],
-                  {#photo: photo, #signature: signature},
+                  {#photo: photo, #outfitId: outfitId},
                 ),
               ),
             ),

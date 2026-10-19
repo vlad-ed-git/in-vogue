@@ -4,12 +4,11 @@ import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/entities/install_id.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 
@@ -20,13 +19,13 @@ import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 class FollowDay {
   FollowDay({
     required this._days,
-    required this._outfits,
+    required this._catalog,
     required this._makeOutfit,
     required InstallId installId,
   }) : _device = installId.value;
 
   final DayRepository _days;
-  final OutfitRepository _outfits;
+  final OutfitCatalogRepository _catalog;
   final MakeOutfit _makeOutfit;
   final String _device;
 
@@ -120,23 +119,17 @@ class FollowDay {
   Future<TryOnUpdate> _done(MakeOutfitParams params, Day day) async {
     final picture = await _days.picture(params.accountId, day);
     if (picture case Left(value: final failure)) return TryOnFailed(failure);
-    final outfit =
-        (await _outfits.outfit(
-          day.outfitId,
-        )).fold<Outfit?>((_) => null, (outfit) => outfit) ??
-        Outfit(
-          id: day.outfitId,
-          signature: day.signature,
-          pieces: const [],
-          passes: const [],
-        );
+    final outfits = (await _catalog.outfits()).getOrElse(() => const []);
     return TryOnDone(
       DayOutfit(
-        outfit: outfit,
+        outfitId: day.outfitId,
+        outfit: outfits
+            .where((outfit) => outfit.id == day.outfitId)
+            .firstOrNull,
         date: day.date,
         occasion: day.occasion,
-        cell: day.cell,
         picture: picture.getOrElse(() => throw StateError('picture')),
+        reason: day.reason,
       ),
     );
   }

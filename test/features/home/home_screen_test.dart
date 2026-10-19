@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
-import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
@@ -14,14 +13,15 @@ import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/home/presentation/screens/home_screen.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
+import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/catalog_outfits.dart';
+import '../../helpers/day_bands.dart';
 import '../../helpers/pump_in_vogue.dart';
 
 class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
@@ -49,10 +49,8 @@ const _newYork = UserLocation(
   countryCode: 'US',
 );
 final _tomorrow = DateTime.utc(2026, 10, 17);
-const _cell = 'cool|wet|calm|casual';
-const _reason = 'A coat over a tee with jeans for a cool, wet day off.';
-const _razon =
-    'Un abrigo sobre una camiseta con jeans para un día libre fresco.';
+const _reason = 'Rain from 3 pm: an outfit that takes the wet.';
+const _razon = 'Lluvia desde las 15:00: un conjunto que aguanta el agua.';
 
 final _report = WeatherReport(
   day: ForecastDay.tomorrow,
@@ -68,29 +66,29 @@ final _report = WeatherReport(
       DateTime.utc(2026, 10, 17, 15),
     ),
   ),
-  weatherClass: const WeatherClass(
-    band: WarmthBand.cool,
-    precipitation: Precipitation.wet,
-    windy: false,
-  ),
+  bands: bandsFor(WarmthBand.cool, rain: true),
   fetchedAt: DateTime.utc(2026, 10, 16, 13),
   isSaved: false,
 );
 
 final _outfit = DayOutfit(
-  outfit: const Outfit(
-    id: 'o1',
-    signature: 'coat+jeans+tee',
-    pieces: ['everlane:jeans', 'everlane:tee', 'everlane:coat'],
-    passes: [],
-    reasons: {
-      _cell: LocalizedText(_reason, translations: {'es': _razon}),
-    },
-  ),
+  outfitId: 'o1',
+  outfit: outfitOf('o1', const [
+    ('everlane:jeans', GarmentCategory.lowerBody, 'jeans'),
+    ('everlane:tee', GarmentCategory.upperBody, 'tee'),
+    ('everlane:coat', GarmentCategory.outer, 'coat'),
+  ]),
   date: _tomorrow,
   occasion: Occasion.casual,
-  cell: _cell,
-  picture: '/support/outfits/uid-1/coat+jeans+tee.jpg',
+  picture: '/support/outfits/uid-1/o1.jpg',
+  reason: OutfitReason(
+    kind: ReasonKind.rain,
+    coldest: 9.6,
+    coldestAt: DateTime.utc(2026, 10, 17, 9),
+    warmest: 12,
+    warmestAt: DateTime.utc(2026, 10, 17, 14),
+    from: DateTime.utc(2026, 10, 17, 15),
+  ),
 );
 
 HomeState _state(OutfitView outfit) => HomeState(
@@ -103,8 +101,7 @@ HomeState _state(OutfitView outfit) => HomeState(
 void main() {
   late _MockHomeBloc bloc;
   late _MockPicksBloc picksBloc;
-  late List<DayOutfit> shopped;
-  late List<CatalogOutfit> opened;
+  late List<CatalogOutfit> shopped;
   late int picks;
 
   setUpAll(() {
@@ -127,7 +124,6 @@ void main() {
       ),
     );
     shopped = [];
-    opened = [];
     picks = 0;
   });
 
@@ -149,7 +145,6 @@ void main() {
         child: HomeScreen(
           onYourPicks: () => picks++,
           onShop: shopped.add,
-          onOpenOutfit: opened.add,
           imageFor: (_) => testImage,
         ),
       ),
@@ -180,7 +175,7 @@ void main() {
     expect(stage.outfitLabel, contains(_reason));
     await tester.ensureVisible(find.text('Shop'));
     await tester.tap(find.text('Shop'));
-    expect(shopped, [_outfit]);
+    expect(shopped, [_outfit.outfit]);
   });
 
   testWidgets("says why in the person's language", (tester) async {
@@ -323,7 +318,7 @@ void main() {
     );
     verify(() => picksBloc.add(const PickToggled('o7', loved: true))).called(1);
     await tester.tap(find.text('Black satin slip dress'));
-    expect(opened, [_slipLook]);
+    expect(shopped, [_slipLook]);
   });
 
   testWidgets('a weather chip narrows the outfits; tapped again, shows all', (
@@ -398,6 +393,27 @@ void main() {
     );
     await tester.tap(find.text('Try again'));
     verify(() => picksBloc.add(const PicksRequested.catalog())).called(2);
+  });
+
+  testWidgets('shows the picture without Shop when the catalog on the phone '
+      'lacks the outfit', (tester) async {
+    await pumpHome(
+      tester,
+      _state(
+        OutfitShown(
+          DayOutfit(
+            outfitId: 'o9',
+            date: _tomorrow,
+            occasion: Occasion.casual,
+            picture: _outfit.picture,
+            reason: _outfit.reason,
+          ),
+        ),
+      ),
+    );
+    expect(find.byType(PhotoStage), findsOneWidget);
+    expect(find.text(_reason), findsOneWidget);
+    expect(find.text('Shop'), findsNothing);
   });
 
   testWidgets('opens Your picks', (tester) async {

@@ -1,12 +1,11 @@
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
 
@@ -22,7 +21,7 @@ class RefreshWidget {
   RefreshWidget({
     required this._getWeatherReport,
     required this._days,
-    required this._outfits,
+    required this._catalog,
     required this._widget,
     required this._accountId,
     required this._describe,
@@ -30,7 +29,7 @@ class RefreshWidget {
 
   final GetWeatherReport _getWeatherReport;
   final DayRepository _days;
-  final OutfitRepository _outfits;
+  final OutfitCatalogRepository _catalog;
   final HomeWidgetRepository _widget;
   final String? _accountId;
   final DescribeWidget _describe;
@@ -68,22 +67,14 @@ class RefreshWidget {
       day,
     )).fold<String?>((_) => null, (picture) => picture);
     if (picture == null) return null;
-    final outfit =
-        (await _outfits.outfit(
-          day.outfitId,
-        )).fold<Outfit?>((_) => null, (outfit) => outfit) ??
-        Outfit(
-          id: day.outfitId,
-          signature: day.signature,
-          pieces: const [],
-          passes: const [],
-        );
+    final outfits = (await _catalog.outfits()).getOrElse(() => const []);
     return DayOutfit(
-      outfit: outfit,
+      outfitId: day.outfitId,
+      outfit: outfits.where((outfit) => outfit.id == day.outfitId).firstOrNull,
       date: day.date,
       occasion: day.occasion,
-      cell: day.cell,
       picture: picture,
+      reason: day.reason,
     );
   }
 }

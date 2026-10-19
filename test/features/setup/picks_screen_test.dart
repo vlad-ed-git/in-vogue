@@ -12,12 +12,12 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/setup/presentation/screens/picks_screen.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/presentation/bloc/forecast_bloc.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/catalog_outfits.dart';
+import '../../helpers/day_bands.dart';
 import '../../helpers/pump_in_vogue.dart';
 
 class _MockForecastBloc extends MockBloc<ForecastEvent, ForecastState>
@@ -47,11 +47,7 @@ WeatherReport _report({bool isSaved = false}) => WeatherReport(
       DateTime.utc(2026, 10, 16, 14),
     ),
   ),
-  weatherClass: const WeatherClass(
-    band: WarmthBand.cool,
-    precipitation: Precipitation.wet,
-    windy: false,
-  ),
+  bands: bandsFor(WarmthBand.cool, rain: true),
   fetchedAt: DateTime.utc(2026, 10, 15, 13),
   isSaved: isSaved,
 );

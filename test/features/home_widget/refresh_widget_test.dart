@@ -1,27 +1,28 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
-import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart';
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/home_widget/domain/services/refresh_widget.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
+import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/catalog_outfits.dart';
+import '../../helpers/day_bands.dart';
 import 'refresh_widget_test.mocks.dart';
 
 final _today = DateTime.utc(2026, 10, 18);
@@ -40,23 +41,26 @@ final _context = WidgetRefreshContext(
   occasions: {_tomorrow: Occasion.goingOut},
 );
 
-const _outfit = Outfit(
-  id: 'o1',
-  signature: 'tee',
-  pieces: [],
-  passes: [],
-  reasons: {'mild|dry|calm|casual': LocalizedText('A tee.')},
+final _outfit = outfitOf('o1', const [
+  ('everlane:tee', GarmentCategory.upperBody, 'tee'),
+]);
+
+final _reason = OutfitReason(
+  kind: ReasonKind.steady,
+  coldest: 15,
+  coldestAt: DateTime.utc(2026, 10, 18, 9),
+  warmest: 18,
+  warmestAt: DateTime.utc(2026, 10, 18, 14),
 );
 
 final _made = Day(
   date: _today,
   occasion: Occasion.casual,
-  cell: 'mild|dry|calm|casual',
   outfitId: 'o1',
-  signature: 'tee',
   status: DayStatus.ready,
   device: 'phone-b',
   picturePath: 'users/uid-1/days/2026-10-18_casual.jpg',
+  reason: _reason,
 );
 
 const _content = WidgetContent(
@@ -74,11 +78,7 @@ WeatherReport _report(ForecastDay day, Occasion occasion) => WeatherReport(
     feelsLike: 16,
     sky: Sky.clear,
   ),
-  weatherClass: const WeatherClass(
-    band: WarmthBand.mild,
-    precipitation: Precipitation.dry,
-    windy: false,
-  ),
+  bands: bandsFor(WarmthBand.mild),
   fetchedAt: DateTime.utc(2026, 10, 18, 4),
   isSaved: false,
 );
@@ -86,20 +86,20 @@ WeatherReport _report(ForecastDay day, Occasion occasion) => WeatherReport(
 @GenerateMocks([
   GetWeatherReport,
   DayRepository,
-  OutfitRepository,
+  OutfitCatalogRepository,
   HomeWidgetRepository,
 ])
 void main() {
   late MockGetWeatherReport weather;
   late MockDayRepository days;
-  late MockOutfitRepository outfits;
+  late MockOutfitCatalogRepository outfits;
   late MockHomeWidgetRepository widget;
   late List<WidgetDay> described;
 
   RefreshWidget refresh({String? accountId = 'uid-1'}) => RefreshWidget(
     getWeatherReport: weather,
     days: days,
-    outfits: outfits,
+    catalog: outfits,
     widget: widget,
     accountId: accountId,
     describe: (widgetDays, context) {
@@ -111,7 +111,7 @@ void main() {
   setUp(() {
     weather = MockGetWeatherReport();
     days = MockDayRepository();
-    outfits = MockOutfitRepository();
+    outfits = MockOutfitCatalogRepository();
     widget = MockHomeWidgetRepository();
     described = [];
     when(weather(any)).thenAnswer((invocation) async {
@@ -132,7 +132,7 @@ void main() {
     when(days.picture(any, any)).thenAnswer(
       (_) async => const Right('/phone/outfits/uid-1/2026-10-18_casual.jpg'),
     );
-    when(outfits.outfit(any)).thenAnswer((_) async => const Right(_outfit));
+    when(outfits.outfits()).thenAnswer((_) async => Right([_outfit]));
     when(widget.publish(any)).thenAnswer((_) async => const Right(unit));
   });
 
@@ -152,6 +152,7 @@ void main() {
     expect(today.report.weather.occasion, Occasion.casual);
     expect(today.outfit?.picture, '/phone/outfits/uid-1/2026-10-18_casual.jpg');
     expect(today.outfit?.outfit, _outfit);
+    expect(today.outfit?.reason, _reason);
     expect(tomorrow.report.weather.occasion, Occasion.goingOut);
     expect(tomorrow.outfit, isNull);
     verify(days.picture('uid-1', _made)).called(1);

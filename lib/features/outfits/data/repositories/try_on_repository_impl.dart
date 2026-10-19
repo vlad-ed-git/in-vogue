@@ -6,8 +6,7 @@ import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
-import 'package:in_vogue/features/outfits/data/models/outfits_model.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
 import 'package:in_vogue/features/photos/data/photo_content_type.dart';
 import 'package:path/path.dart' as p;
@@ -57,11 +56,19 @@ class TryOnRepositoryImpl implements TryOnRepository {
       'src_file_id': ?fileId,
       'src_file_url': ?pictureUrl,
       'ref_file_url': pass.reference,
-      'garment_category': OutfitsModel.categoryName(pass.category),
+      'garment_category': _garment(pass.category),
       'change_shoes': false,
       'filter_multi_person': 'normal',
     }),
   );
+
+  /// YouCam's name for what a pass dresses.
+  static String _garment(GarmentCategory category) => switch (category) {
+    GarmentCategory.lowerBody => 'lower_body',
+    GarmentCategory.upperBody => 'upper_body',
+    GarmentCategory.fullBody => 'full_body',
+    GarmentCategory.outer => 'outer',
+  };
 
   /// A success without a picture is a failure.
   @override

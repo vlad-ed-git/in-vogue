@@ -131,42 +131,10 @@ void main() {
     expect(find.byType(ShopItem), findsNothing);
   });
 
-  group('GetShopPieces', () {
-    test('finds the colourways in order, leaving out unknown ones', () async {
-      final found = await GetShopPieces(_Catalog())(const [
-        'everlane:jeans',
-        'everlane:gone',
-        'everlane:coat',
-      ]);
-      final shop = found.getOrElse(() => throw StateError('found'));
-      expect(shop.brand, 'Everlane');
-      expect([for (final item in shop.pieces) item.colourway], [_jeans, _coat]);
-    });
-  });
-
   group('ShopBloc', () {
     blocTest<ShopBloc, ShopState>(
-      'shows the pieces asked for',
-      build: () => ShopBloc(
-        getShopPieces: GetShopPieces(_Catalog()),
-        getOutfitShop: GetOutfitShop(_Catalog()),
-      ),
-      act: (bloc) => bloc.add(const ShopRequested(['everlane:coat'])),
-      expect: () => [
-        ShopState(
-          status: ShopStatus.ready,
-          brand: 'Everlane',
-          pieces: [_pieces.first],
-        ),
-      ],
-    );
-
-    blocTest<ShopBloc, ShopState>(
       'shows a catalog outfit’s pieces, outer layer first',
-      build: () => ShopBloc(
-        getShopPieces: GetShopPieces(_Catalog()),
-        getOutfitShop: GetOutfitShop(_Catalog()),
-      ),
+      build: () => ShopBloc(getOutfitShop: GetOutfitShop(_Catalog())),
       act: (bloc) => bloc.add(ShopOutfitRequested(outfit('o1'))),
       verify: (bloc) {
         expect(bloc.state.status, ShopStatus.ready);

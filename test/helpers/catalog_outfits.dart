@@ -1,5 +1,7 @@
 import 'package:in_vogue/features/catalog/data/models/catalog_outfit_model.dart';
 import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 
 /// An outfit document as the catalog stores it.
 Map<String, Object?> document(
@@ -109,3 +111,53 @@ CatalogOutfit outfit(
     name: name,
   ),
 );
+
+/// A catalog outfit of [pieces], each a colourway, what the try-on dresses
+/// with it and its kind, tried on in that order.
+CatalogOutfit outfitOf(
+  String id,
+  List<(String colourway, GarmentCategory category, String kind)> pieces, {
+  List<String> weathers = const ['cool'],
+  List<String> occasions = const ['work', 'casual'],
+  String rain = 'fine',
+  List<ColourSeason> seasons = ColourSeason.values,
+}) {
+  final base = document(id, weathers: weathers, rain: rain);
+  final template = (base['pieces']! as List<Object?>).first! as Map;
+  String photo(String colourway) =>
+      'https://cdn.example/${colourway.split(':').last}.jpg';
+  return CatalogOutfitModel.fromJson({
+    ...base,
+    'occasions': occasions,
+    'seasons': [for (final season in seasons) season.name],
+    'pieces': [
+      for (final (colourway, category, kind) in pieces)
+        {
+          ...template,
+          'colourway': colourway,
+          'kind': kind,
+          'role': switch (category) {
+            GarmentCategory.lowerBody => 'bottom',
+            GarmentCategory.upperBody => 'top',
+            GarmentCategory.fullBody => 'whole',
+            GarmentCategory.outer => 'over',
+          },
+          'weathers': weathers,
+          'photo': photo(colourway),
+        },
+    ],
+    'passes': [
+      for (final (colourway, category, _) in pieces)
+        {
+          'category': switch (category) {
+            GarmentCategory.lowerBody => 'lower_body',
+            GarmentCategory.upperBody => 'upper_body',
+            GarmentCategory.fullBody => 'full_body',
+            GarmentCategory.outer => 'outer',
+          },
+          'piece': colourway,
+          'reference': photo(colourway),
+        },
+    ],
+  });
+}

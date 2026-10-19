@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
 /// How a piece, or a whole outfit, does in rain.

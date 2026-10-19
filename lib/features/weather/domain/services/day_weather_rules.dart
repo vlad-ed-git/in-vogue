@@ -6,13 +6,13 @@ import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/forecast.dart';
 import 'package:in_vogue/features/weather/domain/entities/hourly_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 
-/// Turns a forecast into one day's weather line for an occasion, from the
-/// hours that occasion spends outdoors.
+/// Turns a forecast into one day's weather line, and the bands, rain, snow
+/// and wind outfits are chosen for, from the hours an occasion spends
+/// outdoors.
 ///
-/// Thresholds follow the knowledge base's weather classes (weather.v1.json):
-/// AMS rain rates, Beaufort wind and the app's feels-like bands.
+/// Thresholds: AMS rain rates, Beaufort wind and the app's feels-like
+/// bands.
 abstract final class DayWeatherRules {
   /// First and last hour, inclusive, that [occasion] spends outdoors.
   static (int, int) window(Occasion occasion) => switch (occasion) {
@@ -46,35 +46,6 @@ abstract final class DayWeatherRules {
             hour.time.hour <= last)
           hour,
     ];
-  }
-
-  /// The knowledge base's class of the window: the band of its coldest
-  /// feels-like; snow only when that band is cool or cold, rain otherwise;
-  /// drizzle counts as dry and gales as windy. Null when the forecast does
-  /// not cover the window.
-  static WeatherClass? classify(
-    Forecast forecast, {
-    required DateTime date,
-    required Occasion occasion,
-  }) {
-    final hours = _windowHours(forecast, date, occasion);
-    if (hours.isEmpty) return null;
-    final feelsLike = hours.map((hour) => hour.feelsLike);
-    final coldest = feelsLike.reduce(math.min);
-    final snowCanSettle = coldest < snowBelow;
-    final snow = hours.any(_isSnow);
-    final precipitation = snow && snowCanSettle
-        ? Precipitation.snow
-        : snow || hours.any(_isWet)
-        ? Precipitation.wet
-        : Precipitation.dry;
-    return WeatherClass(
-      band: WarmthBand.forFeelsLike(coldest),
-      precipitation: precipitation,
-      windy: hours.any((hour) => hour.windGusts >= windyGusts),
-      drizzle: precipitation == Precipitation.dry && hours.any(_isDamp),
-      warmest: WarmthBand.forFeelsLike(feelsLike.reduce(math.max)),
-    );
   }
 
   /// The bands a day at home is held between: homes are heated and cooled.

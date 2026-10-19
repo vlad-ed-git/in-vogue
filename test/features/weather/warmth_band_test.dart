@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 
 void main() {
   test('six feels-like bands, the coldest split at 0 °C', () {
@@ -23,14 +21,5 @@ void main() {
     expect((WarmthBand.cool.from, WarmthBand.cool.below), (8, 14));
     expect((WarmthBand.cold.from, WarmthBand.cold.below), (0, 8));
     expect((WarmthBand.freezing.from, WarmthBand.freezing.below), (null, 0));
-  });
-
-  test('a freezing day is the knowledge base’s cold cell', () {
-    const day = WeatherClass(
-      band: WarmthBand.freezing,
-      precipitation: Precipitation.snow,
-      windy: false,
-    );
-    expect(day.cell(Occasion.work), 'cold|snow|calm|work');
   });
 }

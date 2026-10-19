@@ -297,7 +297,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             accountId: accountId,
             date: report.weather.date,
             occasion: report.weather.occasion,
-            weatherClass: report.weatherClass,
+            bands: report.bands,
           ),
     };
   }

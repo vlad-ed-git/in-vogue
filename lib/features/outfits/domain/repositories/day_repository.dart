@@ -20,18 +20,21 @@ abstract interface class DayRepository {
     required Occasion occasion,
   });
 
-  /// When each of [signatures] was last suggested, null while that time is
-  /// being written; signatures never suggested are left out.
+  /// The days of [accountId] from [date] on, every occasion.
+  Future<Either<Failure, List<Day>>> since(String accountId, DateTime date);
+
+  /// When each of [outfitIds] was last suggested, null while that time is
+  /// being written; outfits never suggested are left out.
   Future<Either<Failure, Map<String, DateTime?>>> suggested(
     String accountId,
-    List<String> signatures,
+    List<String> outfitIds,
   );
 
   /// Records that the try-on refused the photo of [piece] in the outfit
-  /// [signature], so no outfit with it is chosen again.
+  /// [outfitId], so no outfit with it is chosen again.
   Future<Either<Failure, Unit>> refuse(
     String accountId,
-    String signature,
+    String outfitId,
     String piece,
   );
 
@@ -75,12 +78,12 @@ abstract interface class DayRepository {
   });
 
   /// Where on the account the picture already made of the outfit
-  /// [signature] on the photo at [photo] is, from this phone when it
-  /// knows; null when none was made.
+  /// [outfitId] on the photo at [photo] is, from this phone when it knows;
+  /// null when none was made.
   Future<Either<Failure, String?>> madePicture(
     String accountId, {
     required String photo,
-    required String signature,
+    required String outfitId,
   });
 
   /// Marks the day made with the picture already at [picturePath] on the

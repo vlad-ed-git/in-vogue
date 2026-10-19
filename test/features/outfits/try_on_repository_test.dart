@@ -8,7 +8,7 @@ import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/unavailable_try_on_repository.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';

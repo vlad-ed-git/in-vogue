@@ -28,32 +28,6 @@ class ShopPieces extends Equatable {
   List<Object?> get props => [brand, pieces];
 }
 
-/// The colourways with the given ids, in that order, with their pieces.
-/// Ids the collection no longer has are left out.
-class GetShopPieces implements UseCase<ShopPieces, List<String>> {
-  const GetShopPieces(this._repository);
-  final CatalogRepository _repository;
-
-  @override
-  Future<Either<Failure, ShopPieces>> call(List<String> colourwayIds) async {
-    final pieces = await _repository.pieces();
-    if (pieces case Left(value: final failure)) return Left(failure);
-    final brand = await _repository.brand();
-    if (brand case Left(value: final failure)) return Left(failure);
-    final byId = {
-      for (final piece in pieces.getOrElse(() => const []))
-        for (final colourway in piece.colourways)
-          colourway.id: ShopPiece(piece: piece, colourway: colourway),
-    };
-    return Right(
-      ShopPieces(
-        brand: brand.getOrElse(() => ''),
-        pieces: [for (final id in colourwayIds) ?byId[id]],
-      ),
-    );
-  }
-}
-
 /// The pieces of a catalog outfit to buy, outer layer first, each in the
 /// outfit's colour, with the shop's flat-lay photo and material where the
 /// bundled collection has them.

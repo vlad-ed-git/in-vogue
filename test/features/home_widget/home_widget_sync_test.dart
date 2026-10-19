@@ -13,13 +13,12 @@ import 'package:in_vogue/features/home_widget/presentation/bloc/home_widget_bloc
 import 'package:in_vogue/features/home_widget/presentation/widgets/home_widget_sync.dart';
 import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../../helpers/day_bands.dart';
 import '../../helpers/pump_in_vogue.dart';
 
 class _MockHomeBloc extends MockBloc<HomeEvent, HomeState>
@@ -47,20 +46,15 @@ WeatherReport _report(DateTime date, ForecastDay day, Occasion occasion) =>
         feelsLike: 16,
         sky: Sky.clear,
       ),
-      weatherClass: const WeatherClass(
-        band: WarmthBand.mild,
-        precipitation: Precipitation.dry,
-        windy: false,
-      ),
+      bands: bandsFor(WarmthBand.mild),
       fetchedAt: DateTime.utc(2026, 10, 18, 6),
       isSaved: false,
     );
 
 final _outfit = DayOutfit(
-  outfit: const Outfit(id: 'o1', signature: 'tee', pieces: [], passes: []),
+  outfitId: 'o1',
   date: _today,
   occasion: Occasion.casual,
-  cell: 'mild|dry|calm|casual',
   picture: '/support/outfits/uid-1/2026-10-18_casual.jpg',
 );
 

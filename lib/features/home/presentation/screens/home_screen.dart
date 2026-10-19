@@ -14,6 +14,8 @@ import 'package:in_vogue/features/catalog/presentation/bloc/picks_bloc.dart';
 import 'package:in_vogue/features/catalog/presentation/widgets/outfit_grid.dart';
 import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
+import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/stylist/presentation/reason_text.dart';
 import 'package:in_vogue/features/weather/domain/entities/temperature_unit.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
@@ -31,18 +33,14 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     required this.onYourPicks,
     required this.onShop,
-    required this.onOpenOutfit,
     this.imageFor = networkImage,
     super.key,
   });
 
   final VoidCallback onYourPicks;
 
-  /// Opens the pieces of the outfit on screen.
-  final ValueChanged<DayOutfit> onShop;
-
-  /// Opens the pieces of a catalog outfit.
-  final ValueChanged<CatalogOutfit> onOpenOutfit;
+  /// Opens the pieces of an outfit: the day's, or one of the catalog's.
+  final ValueChanged<CatalogOutfit> onShop;
 
   /// The image at a URL.
   final ImageProvider Function(String url) imageFor;
@@ -194,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             ..._stage(context, state, viewport),
-            ..._about(context, state.shown.outfit),
+            ..._about(context, state),
             const SizedBox(height: InVogueSpace.s10),
           ],
         ),
@@ -289,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
           outfit: FileImage(File(outfit.picture)),
           photo: photo,
           outfitLabel: l10n.outfitPhotoSpoken(
-            outfit.reason?.of(context.language) ?? '',
+            _reason(context, state, outfit.reason) ?? '',
           ),
         ),
         OutfitMaking(:final piece, :final pieces) => PhotoStage(
@@ -329,7 +327,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onTap: () => _changeOccasion(context, report),
                 ),
               ),
-            if (outfit case OutfitShown(:final outfit))
+            if (outfit case OutfitShown(outfit: DayOutfit(:final outfit?)))
               Padding(
                 padding: const EdgeInsets.only(top: InVogueSpace.s2),
                 child: InVogueButton.primary(
@@ -392,9 +390,20 @@ class _HomeScreenState extends State<HomeScreen> {
     };
   }
 
-  List<Widget> _about(BuildContext context, OutfitView outfit) {
-    final reason = switch (outfit) {
-      OutfitShown(:final outfit) => outfit.reason?.of(context.language),
+  /// Why the day's outfit was chosen, in the place's unit.
+  String? _reason(
+    BuildContext context,
+    HomeState state,
+    OutfitReason? reason,
+  ) => reason?.line(
+    context.translated,
+    unit: TemperatureUnit.forCountry(state.place?.countryCode),
+    language: Localizations.localeOf(context).languageCode,
+  );
+
+  List<Widget> _about(BuildContext context, HomeState state) {
+    final reason = switch (state.shown.outfit) {
+      OutfitShown(:final outfit) => _reason(context, state, outfit.reason),
       _ => null,
     };
     if (reason == null) return const [];
@@ -492,7 +501,7 @@ class _HomeScreenState extends State<HomeScreen> {
               outfits: picks.outfits,
               picks: picks.picks,
               imageFor: widget.imageFor,
-              onOpen: widget.onOpenOutfit,
+              onOpen: widget.onShop,
             ),
             const SliverToBoxAdapter(child: SizedBox(height: InVogueSpace.s10)),
           ],

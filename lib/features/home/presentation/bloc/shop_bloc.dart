@@ -13,15 +13,6 @@ sealed class ShopEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Shows the colourways [colourwayIds], in that order.
-final class ShopRequested extends ShopEvent {
-  const ShopRequested(this.colourwayIds);
-  final List<String> colourwayIds;
-
-  @override
-  List<Object?> get props => [colourwayIds];
-}
-
 /// Shows the pieces of a catalog [outfit], outer layer first.
 final class ShopOutfitRequested extends ShopEvent {
   const ShopOutfitRequested(this.outfit);
@@ -52,20 +43,13 @@ class ShopState extends Equatable {
 
 /// The pieces of an outfit, to buy from the partner.
 class ShopBloc extends Bloc<ShopEvent, ShopState> {
-  ShopBloc({required this._getShopPieces, required this._getOutfitShop})
-    : super(const ShopState()) {
-    on<ShopRequested>(
-      (event, emit) async =>
-          _show(await _getShopPieces(event.colourwayIds), emit),
-      transformer: droppable(),
-    );
+  ShopBloc({required this._getOutfitShop}) : super(const ShopState()) {
     on<ShopOutfitRequested>(
       (event, emit) async => _show(await _getOutfitShop(event.outfit), emit),
       transformer: droppable(),
     );
   }
 
-  final GetShopPieces _getShopPieces;
   final GetOutfitShop _getOutfitShop;
 
   void _show(Either<Failure, ShopPieces> found, Emitter<ShopState> emit) =>

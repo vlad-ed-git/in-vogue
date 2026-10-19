@@ -53,7 +53,6 @@ void init(GetIt locator) {
     ..registerLazySingleton<GetCatalogPage>(() => GetCatalogPage(locator()))
     ..registerLazySingleton<GetOutfits>(() => GetOutfits(locator()))
     ..registerLazySingleton<GetPicks>(() => GetPicks(locator()))
-    ..registerLazySingleton<GetShopPieces>(() => GetShopPieces(locator()))
     ..registerLazySingleton<GetOutfitShop>(() => GetOutfitShop(locator()))
     ..registerLazySingleton<SetPick>(() => SetPick(locator()))
     ..registerFactory<PicksBloc>(

@@ -12,7 +12,7 @@ import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
 typedef SuggestionSeen = ({bool known, DateTime? lastAt});
 
 /// Each account's days (`users/{uid}/days/{date}_{occasion}`) and the
-/// outfits suggested to it (`users/{uid}/suggestions/{signature}`), and
+/// outfits suggested to it (`users/{uid}/suggestions/{outfitId}`), and
 /// the pictures already made of an outfit on a photo
 /// (`users/{uid}/tryOns/{key}`).
 ///
@@ -24,16 +24,19 @@ abstract interface class DayRemoteDataSource {
 
   Future<Day?> day(String accountId, String key);
 
-  /// When each of [signatures] was last suggested, null while that time is
-  /// being written; signatures never suggested are left out.
+  /// The days from [date] on, every occasion.
+  Future<List<Day>> since(String accountId, DateTime date);
+
+  /// When each of [outfitIds] was last suggested, null while that time is
+  /// being written; outfits never suggested are left out.
   Future<Map<String, DateTime?>> suggested(
     String accountId,
-    List<String> signatures,
+    List<String> outfitIds,
   );
 
-  /// Records on the outfit [signature]'s suggestion that the try-on
-  /// refused the photo of [piece].
-  Future<void> refuse(String accountId, String signature, String piece);
+  /// Records on the outfit [outfitId]'s suggestion that the try-on refused
+  /// the photo of [piece].
+  Future<void> refuse(String accountId, String outfitId, String piece);
 
   /// The pieces whose photo the try-on refused for the account.
   Future<Set<String>> refusedPieces(String accountId);
@@ -65,13 +68,13 @@ abstract interface class DayRemoteDataSource {
   /// was.
   Future<String?> madePicture(String accountId, String key);
 
-  /// Records under [key] that the picture of the outfit [signature] on the
+  /// Records under [key] that the picture of the outfit [outfitId] on the
   /// photo with the fingerprint [photo] is at [path].
   Future<void> keepMadePicture(
     String accountId,
     String key, {
     required String photo,
-    required String signature,
+    required String outfitId,
     required String path,
   });
 }
@@ -128,13 +131,22 @@ class DayRemoteDataSourceImpl implements DayRemoteDataSource {
       _guard(() async => _read(await _day(accountId, key).get()));
 
   @override
+  Future<List<Day>> since(String accountId, DateTime date) => _guard(() async {
+    final records = await _account(accountId)
+        .collection('days')
+        .where('forDate', isGreaterThanOrEqualTo: TryOnJob.dateKey(date))
+        .get();
+    return [for (final record in records.docs) ?_read(record)];
+  });
+
+  @override
   Future<Map<String, DateTime?>> suggested(
     String accountId,
-    List<String> signatures,
+    List<String> outfitIds,
   ) => _guard(() async {
     final found = <String, DateTime?>{};
-    for (var start = 0; start < signatures.length; start += queryLimit) {
-      final chunk = signatures.skip(start).take(queryLimit).toList();
+    for (var start = 0; start < outfitIds.length; start += queryLimit) {
+      final chunk = outfitIds.skip(start).take(queryLimit).toList();
       final records = await _suggestions(
         accountId,
       ).where(FieldPath.documentId, whereIn: chunk).get();
@@ -146,11 +158,11 @@ class DayRemoteDataSourceImpl implements DayRemoteDataSource {
   });
 
   @override
-  Future<void> refuse(String accountId, String signature, String piece) =>
+  Future<void> refuse(String accountId, String outfitId, String piece) =>
       _guard(
         () => _suggestions(
           accountId,
-        ).doc(signature).set({'refusedPiece': piece}, SetOptions(merge: true)),
+        ).doc(outfitId).set({'refusedPiece': piece}, SetOptions(merge: true)),
       );
 
   @override
@@ -180,7 +192,7 @@ class DayRemoteDataSourceImpl implements DayRemoteDataSource {
       final suggestion = proposal == null
           ? null
           : await transaction.get(
-              _suggestions(accountId).doc(proposal.signature),
+              _suggestions(accountId).doc(proposal.outfitId),
             );
       final decided = DayRules.claim(
         current: current,
@@ -249,12 +261,12 @@ class DayRemoteDataSourceImpl implements DayRemoteDataSource {
     String accountId,
     String key, {
     required String photo,
-    required String signature,
+    required String outfitId,
     required String path,
   }) => _guard(
     () => _made(accountId, key).set({
       'photo': photo,
-      'signature': signature,
+      'outfitId': outfitId,
       'picturePath': path,
       'madeAt': FieldValue.serverTimestamp(),
     }),

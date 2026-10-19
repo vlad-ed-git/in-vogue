@@ -6,20 +6,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/install_id.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
 import 'package:in_vogue/features/outfits/domain/services/follow_day.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../../helpers/catalog_outfits.dart';
+import '../../helpers/day_bands.dart';
 import 'follow_day_test.mocks.dart';
 
 final _now = DateTime.utc(2026, 10, 17, 8);
@@ -27,26 +29,17 @@ final _params = MakeOutfitParams(
   accountId: 'uid-1',
   date: DateTime.utc(2026, 10, 18),
   occasion: Occasion.work,
-  weatherClass: const WeatherClass(
-    band: WarmthBand.cool,
-    precipitation: Precipitation.dry,
-    windy: false,
-  ),
+  bands: bandsFor(WarmthBand.cool),
 );
 
-const _dress = Outfit(
-  id: 'o2',
-  signature: 'dress',
-  pieces: ['everlane:dress'],
-  passes: [],
-);
+final _dress = outfitOf('o2', const [
+  ('everlane:dress', GarmentCategory.fullBody, 'dress'),
+]);
 
 Day _day(String device, {Duration ago = Duration.zero}) => Day(
   date: DateTime.utc(2026, 10, 18),
   occasion: Occasion.work,
-  cell: 'cool|dry|calm|work',
   outfitId: 'o2',
-  signature: 'dress',
   status: DayStatus.making,
   device: device,
   piece: 1,
@@ -55,10 +48,10 @@ Day _day(String device, {Duration ago = Duration.zero}) => Day(
 );
 
 final _made = DayOutfit(
+  outfitId: 'o2',
   outfit: _dress,
   date: DateTime.utc(2026, 10, 18),
   occasion: Occasion.work,
-  cell: 'cool|dry|calm|work',
   picture: '/phone/uid-1/2026-10-18_work.jpg',
 );
 
@@ -78,7 +71,7 @@ void main() {
     when(makeOutfit(any)).thenAnswer((_) => making.stream);
     follow = FollowDay(
       days: days,
-      outfits: _FakeOutfits(),
+      catalog: _FakeCatalog(),
       makeOutfit: makeOutfit,
       installId: const InstallId('phone-a'),
     );
@@ -206,10 +199,10 @@ class _FakeDays implements DayRepository {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
-class _FakeOutfits implements OutfitRepository {
+class _FakeCatalog implements OutfitCatalogRepository {
   @override
-  Future<Either<Failure, Outfit?>> outfit(String id) async =>
-      Right(id == _dress.id ? _dress : null);
+  Future<Either<Failure, List<CatalogOutfit>>> outfits() async =>
+      Right([_dress]);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();

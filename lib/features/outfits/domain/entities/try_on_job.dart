@@ -8,7 +8,6 @@ class TryOnJob extends Equatable {
     required this.accountId,
     required this.date,
     required this.occasion,
-    required this.cell,
     required this.outfitId,
     required this.photoRevision,
     required this.updatedAt,
@@ -21,8 +20,7 @@ class TryOnJob extends Equatable {
   final DateTime date;
   final Occasion occasion;
 
-  /// The knowledge-base cell the outfit was chosen for.
-  final String cell;
+  /// The catalog outfit being tried on.
   final String outfitId;
 
   /// Revision of the body photo being dressed.
@@ -57,7 +55,6 @@ class TryOnJob extends Equatable {
         accountId: accountId,
         date: date,
         occasion: occasion,
-        cell: cell,
         outfitId: outfitId,
         photoRevision: photoRevision,
         updatedAt: at,
@@ -69,7 +66,6 @@ class TryOnJob extends Equatable {
     accountId,
     date,
     occasion,
-    cell,
     outfitId,
     photoRevision,
     tasks,

@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
+import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
 /// How far a day's outfit is.
 enum DayStatus { making, ready, failed }
@@ -12,11 +14,15 @@ class Day extends Equatable {
   const Day({
     required this.date,
     required this.occasion,
-    required this.cell,
     required this.outfitId,
-    required this.signature,
     required this.status,
     required this.device,
+    this.reason,
+    this.cold,
+    this.warm,
+    this.rain = false,
+    this.snow = false,
+    this.windy = false,
     this.piece = 0,
     this.pieces = 0,
     this.picturePath,
@@ -28,11 +34,21 @@ class Day extends Equatable {
   final DateTime date;
   final Occasion occasion;
 
-  /// The knowledge-base cell the outfit was chosen for.
-  final String cell;
+  /// The catalog outfit chosen.
   final String outfitId;
-  final String signature;
   final DayStatus status;
+
+  /// Why it was chosen; null for a day kept without one.
+  final OutfitReason? reason;
+
+  /// The bands of the coldest and warmest hours it was chosen for.
+  final WarmthBand? cold;
+  final WarmthBand? warm;
+
+  /// Whether rain, snow or strong wind came in its hours.
+  final bool rain;
+  final bool snow;
+  final bool windy;
 
   /// The install making the outfit, or that made it.
   final String device;
@@ -82,11 +98,15 @@ class Day extends Equatable {
   }) => Day(
     date: date,
     occasion: occasion,
-    cell: cell,
     outfitId: outfitId,
-    signature: signature,
     status: status,
     device: device ?? this.device,
+    reason: reason,
+    cold: cold,
+    warm: warm,
+    rain: rain,
+    snow: snow,
+    windy: windy,
     piece: piece,
     pieces: pieces ?? this.pieces,
     picturePath: picturePath,
@@ -98,11 +118,15 @@ class Day extends Equatable {
   List<Object?> get props => [
     date,
     occasion,
-    cell,
     outfitId,
-    signature,
     status,
     device,
+    reason,
+    cold,
+    warm,
+    rain,
+    snow,
+    windy,
     piece,
     pieces,
     picturePath,

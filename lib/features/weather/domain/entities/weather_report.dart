@@ -1,14 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
+import 'package:in_vogue/features/weather/domain/entities/day_bands.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 
 /// The weather line for the day on screen.
 class WeatherReport extends Equatable {
   const WeatherReport({
     required this.day,
     required this.weather,
-    required this.weatherClass,
+    required this.bands,
     required this.fetchedAt,
     required this.isSaved,
   });
@@ -18,8 +18,8 @@ class WeatherReport extends Equatable {
   /// Holds the date and the occasion it was read for.
   final DayWeather weather;
 
-  /// The same hours' class in the knowledge base.
-  final WeatherClass weatherClass;
+  /// The same hours' bands, rain, snow and wind, for choosing an outfit.
+  final DayBands bands;
 
   /// When the forecast was fetched, in UTC.
   final DateTime fetchedAt;
@@ -28,5 +28,5 @@ class WeatherReport extends Equatable {
   final bool isSaved;
 
   @override
-  List<Object?> get props => [day, weather, weatherClass, fetchedAt, isSaved];
+  List<Object?> get props => [day, weather, bands, fetchedAt, isSaved];
 }

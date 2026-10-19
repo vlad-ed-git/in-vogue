@@ -10,11 +10,14 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/domain/entities/install_id.dart';
-import 'package:in_vogue/core/domain/entities/localized_text.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
-import 'package:in_vogue/features/catalog/domain/repositories/picks_repository.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
+import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
+import 'package:in_vogue/features/colours/domain/entities/face_colours.dart';
+import 'package:in_vogue/features/colours/domain/repositories/colour_profile_repository.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
@@ -23,10 +26,9 @@ import 'package:in_vogue/features/outfits/data/models/day_model.dart';
 import 'package:in_vogue/features/outfits/data/repositories/day_repository_impl.dart';
 import 'package:in_vogue/features/outfits/data/repositories/try_on_job_repository_impl.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
-import 'package:in_vogue/features/outfits/domain/repositories/outfit_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
 import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
 import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
@@ -34,20 +36,18 @@ import 'package:in_vogue/features/photos/domain/entities/chosen_photo.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
+import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/stylist/domain/usecases/recommend_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
-import 'package:in_vogue/features/weather/domain/entities/weather_class.dart';
 import 'package:mockito/mockito.dart';
 import 'package:path/path.dart' as p;
 
+import '../../helpers/catalog_outfits.dart';
+import '../../helpers/day_bands.dart';
 import '../../helpers/memory_store.dart';
 import '../auth/sign_in_bloc_test.mocks.dart';
 
-const _cool = WeatherClass(
-  band: WarmthBand.cool,
-  precipitation: Precipitation.wet,
-  windy: false,
-);
-const _cell = 'cool|wet|calm|work';
+final _cool = bandsFor(WarmthBand.cool, rain: true);
 final _today = DateTime.utc(2026, 10, 17);
 final _tomorrow = DateTime.utc(2026, 10, 18);
 
@@ -55,7 +55,7 @@ MakeOutfitParams _params([DateTime? date]) => MakeOutfitParams(
   accountId: 'uid-1',
   date: date ?? _today,
   occasion: Occasion.work,
-  weatherClass: _cool,
+  bands: _cool,
 );
 
 const _body = UserPhoto(
@@ -64,60 +64,19 @@ const _body = UserPhoto(
   revision: 1,
 );
 
-const _coat = Outfit(
-  id: 'o1',
-  signature: 'coat+jeans+tee',
-  pieces: ['everlane:jeans', 'everlane:tee', 'everlane:coat'],
-  passes: [
-    TryOnPass(
-      category: GarmentCategory.lowerBody,
-      piece: 'everlane:jeans',
-      reference: 'https://cdn.example/jeans.jpg',
-    ),
-    TryOnPass(
-      category: GarmentCategory.upperBody,
-      piece: 'everlane:tee',
-      reference: 'https://cdn.example/tee.jpg',
-    ),
-    TryOnPass(
-      category: GarmentCategory.outer,
-      piece: 'everlane:coat',
-      reference: 'https://cdn.example/coat.jpg',
-    ),
-  ],
-  reasons: {
-    _cell: LocalizedText(
-      'A coat over a tee with jeans for a cool, wet workday.',
-    ),
-  },
-);
+final _coat = outfitOf('o1', const [
+  ('everlane:jeans', GarmentCategory.lowerBody, 'jeans'),
+  ('everlane:tee', GarmentCategory.upperBody, 'tee'),
+  ('everlane:coat', GarmentCategory.outer, 'coat'),
+]);
 
-const _dress = Outfit(
-  id: 'o2',
-  signature: 'dress',
-  pieces: ['everlane:dress'],
-  passes: [
-    TryOnPass(
-      category: GarmentCategory.fullBody,
-      piece: 'everlane:dress',
-      reference: 'https://cdn.example/dress.jpg',
-    ),
-  ],
-);
+final _dress = outfitOf('o2', const [
+  ('everlane:dress', GarmentCategory.fullBody, 'dress'),
+]);
 
 /// A one-piece outfit.
-Outfit _top(String id) => Outfit(
-  id: id,
-  signature: 'top-$id',
-  pieces: ['everlane:$id'],
-  passes: [
-    TryOnPass(
-      category: GarmentCategory.upperBody,
-      piece: 'everlane:$id',
-      reference: 'https://cdn.example/$id.jpg',
-    ),
-  ],
-);
+CatalogOutfit _top(String id) =>
+    outfitOf(id, [('everlane:$id', GarmentCategory.upperBody, 'tee')]);
 
 void main() {
   late DateTime time;
@@ -125,23 +84,25 @@ void main() {
   late Directory phone;
   late _FakePictures pictures;
   late DayRepositoryImpl days;
-  late _FakeOutfits outfits;
+  late _FakeCatalog outfits;
   late _FakeTryOn tryOn;
   late MemoryStore store;
   late TryOnJobRepositoryImpl jobs;
   late _FakePhotos photos;
+  late _Colours colours;
   late MockSaveSetupToAccount saveSetup;
 
   MakeOutfit makeOutfit({
     String device = 'phone-a',
     Duration passTimeLimit = const Duration(minutes: 4),
   }) => MakeOutfit(
-    outfits: outfits,
+    catalog: outfits,
+    recommend: RecommendOutfit(outfits),
+    colours: colours,
     days: days,
     tryOn: tryOn,
     jobs: jobs,
     photos: photos,
-    picks: _FakePicks(),
     saveSetupToAccount: saveSetup,
     installId: InstallId(device),
     checkEvery: Duration.zero,
@@ -170,12 +131,10 @@ void main() {
       .doc('users/uid-1/days/${day.key}')
       .set({...DayModel.toJson(day), 'updatedAt': Timestamp.fromDate(time)});
 
-  Day dayOf(Outfit outfit, String device) => Day(
+  Day dayOf(CatalogOutfit outfit, String device) => Day(
     date: _today,
     occasion: Occasion.work,
-    cell: _cell,
     outfitId: outfit.id,
-    signature: outfit.signature,
     status: DayStatus.making,
     device: device,
   );
@@ -195,11 +154,12 @@ void main() {
       fingerprints: _fingerprints,
       logMessages: LogMessagesImpl(),
     );
-    outfits = _FakeOutfits([_coat, _dress]);
+    outfits = _FakeCatalog([_coat, _dress]);
     tryOn = _FakeTryOn();
     store = MemoryStore();
     jobs = TryOnJobRepositoryImpl(TryOnJobLocalDataSourceImpl(store));
     photos = _FakePhotos();
+    colours = _Colours();
     saveSetup = MockSaveSetupToAccount();
     when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
   });
@@ -215,7 +175,7 @@ void main() {
       final made = await firestore.collection('users/uid-1/tryOns').get();
       expect(made.docs.single.data(), {
         'photo': sha256.convert(utf8.encode(_body.path)).toString(),
-        'signature': _coat.signature,
+        'outfitId': 'o1',
         'picturePath': 'users/uid-1/days/2026-10-17_work.jpg',
         'madeAt': isA<Timestamp>(),
       });
@@ -223,7 +183,7 @@ void main() {
 
     test('a later day with the same outfit takes the picture made before, '
         'at once and with no try-on', () async {
-      outfits = _FakeOutfits([_coat]);
+      outfits = _FakeCatalog([_coat]);
       await make();
       final updates = await make(params: _params(later));
       expect(updates, [isA<TryOnDone>()]);
@@ -241,7 +201,7 @@ void main() {
 
     test('another phone, or this one after a reinstall, finds it on the '
         'account', () async {
-      outfits = _FakeOutfits([_coat]);
+      outfits = _FakeCatalog([_coat]);
       await make();
       final empty = await Directory.systemTemp.createTemp('outfits');
       addTearDown(() => empty.delete(recursive: true));
@@ -263,7 +223,7 @@ void main() {
     });
 
     test('a new photo is tried on anew', () async {
-      outfits = _FakeOutfits([_coat]);
+      outfits = _FakeCatalog([_coat]);
       await make();
       photos.body = const UserPhoto(
         role: PhotoRole.body,
@@ -308,14 +268,14 @@ void main() {
     expect(day?['picturePath'], 'users/uid-1/days/2026-10-17_work.jpg');
     expect(pictures.files.keys, ['users/uid-1/days/2026-10-17_work.jpg']);
     expect(done.outfit.outfit, _coat);
-    expect(done.outfit.reason, _coat.reasons[_cell]);
+    expect(done.outfit.reason?.kind, ReasonKind.steady);
+    expect((day?['reason'] as Map?)?['kind'], 'steady');
+    expect((day?['cold'], day?['warm'], day?['rain']), ('cool', 'cool', true));
     expect(File(done.outfit.picture).existsSync(), isTrue);
     expect(keptJob(), isNull);
     expect(tryOn.discarded, ['task-1', 'task-2', 'task-3']);
     final suggestion =
-        (await firestore
-                .doc('users/uid-1/suggestions/${_coat.signature}')
-                .get())
+        (await firestore.doc('users/uid-1/suggestions/${_coat.id}').get())
             .data();
     expect(suggestion?['times'], 1);
   });
@@ -323,13 +283,13 @@ void main() {
   test(
     'chooses an outfit never suggested; repeats only once all were',
     () async {
-      await firestore.doc('users/uid-1/suggestions/${_coat.signature}').set({
+      await firestore.doc('users/uid-1/suggestions/${_coat.id}').set({
         'lastAt': Timestamp.fromDate(time.subtract(const Duration(days: 3))),
       });
       await make();
       expect((await record())?['outfitId'], 'o2');
 
-      await firestore.doc('users/uid-1/suggestions/${_dress.signature}').set({
+      await firestore.doc('users/uid-1/suggestions/${_dress.id}').set({
         'lastAt': Timestamp.fromDate(time.subtract(const Duration(days: 1))),
       });
       await make(params: _params(_tomorrow));
@@ -359,6 +319,43 @@ void main() {
       );
     },
   );
+
+  test("a clear reading keeps the person's colours; an unclear one is "
+      'ignored, as is none', () async {
+    final winter = outfitOf(
+      'o1',
+      const [('everlane:navy', GarmentCategory.fullBody, 'jumpsuit')],
+      seasons: const [ColourSeason.trueWinter],
+    );
+    final spring = outfitOf(
+      'o2',
+      const [('everlane:peach', GarmentCategory.fullBody, 'jumpsuit')],
+      seasons: const [ColourSeason.lightSpring],
+    );
+    outfits = _FakeCatalog([winter, spring]);
+    // Golden blonde hair on peachy fair skin: Light Spring.
+    colours.read = const FaceColours(
+      skin: '#F3D3B5',
+      eyebrow: '#A07850',
+      lip: '#B5726E',
+      hair: '#C9A26B',
+      clear: true,
+    );
+    await make();
+    expect((await record())?['outfitId'], 'o2');
+    expect(((await record())?['reason'] as Map?)?['season'], 'lightSpring');
+    colours.read = const FaceColours(
+      skin: '#F3D3B5',
+      eyebrow: '#A07850',
+      lip: '#B5726E',
+      hair: '#C9A26B',
+      clear: false,
+    );
+    await make(params: _params(_tomorrow));
+    // The weather alone: both suit it, and o1 was never suggested.
+    expect((await record(_tomorrow))?['outfitId'], 'o1');
+    expect(((await record(_tomorrow))?['reason'] as Map?)?['season'], isNull);
+  });
 
   test('never chooses an outfit with a piece whose photo was refused; says so '
       'when every outfit has one', () async {
@@ -442,10 +439,8 @@ void main() {
     final day = await record();
     expect(day?['status'], 'ready');
     expect(day?['outfitId'], 'o2');
-    Future<Map<String, Object?>?> suggestion(Outfit outfit) async =>
-        (await firestore
-                .doc('users/uid-1/suggestions/${outfit.signature}')
-                .get())
+    Future<Map<String, Object?>?> suggestion(CatalogOutfit outfit) async =>
+        (await firestore.doc('users/uid-1/suggestions/${outfit.id}').get())
             .data();
     expect((await suggestion(_coat))?['refusedPiece'], 'everlane:tee');
     expect((await suggestion(_dress))?['times'], 1);
@@ -455,7 +450,7 @@ void main() {
 
   test('gives up after three outfits refused in a row, keeping the refusal '
       'on the day for every phone', () async {
-    outfits = _FakeOutfits([_coat, _dress, _top('o3'), _top('o4')]);
+    outfits = _FakeCatalog([_coat, _dress, _top('o3'), _top('o4')]);
     tryOn.referenceTasks = {'task-1', 'task-2', 'task-3', 'task-4'};
     final updates = await make();
     expect(
@@ -485,7 +480,7 @@ void main() {
     "makes a day that failed on a piece's photo with another outfit",
     () async {
       await setDay(dayOf(_coat, 'phone-b').failedWith(TryOnProblem.reference));
-      await firestore.doc('users/uid-1/suggestions/${_coat.signature}').set({
+      await firestore.doc('users/uid-1/suggestions/${_coat.id}').set({
         'lastAt': Timestamp.fromDate(time),
         'refusedPiece': 'everlane:tee',
       });
@@ -551,7 +546,6 @@ void main() {
         accountId: 'uid-1',
         date: _today,
         occasion: Occasion.work,
-        cell: _cell,
         outfitId: 'o1',
         photoRevision: 1,
         updatedAt: time,
@@ -573,7 +567,6 @@ void main() {
           accountId: 'uid-1',
           date: _today,
           occasion: Occasion.work,
-          cell: _cell,
           outfitId: 'o1',
           photoRevision: 1,
           updatedAt: time.subtract(const Duration(hours: 3)),
@@ -602,7 +595,7 @@ void main() {
   });
 
   test('tries nothing on when no outfit suits the weather', () async {
-    outfits = _FakeOutfits(const []);
+    outfits = _FakeCatalog(const []);
     expect(await make(), [
       const TryOnFailed(TryOnFailure(TryOnProblem.unavailable)),
     ]);
@@ -652,17 +645,39 @@ final _fingerprints = PhotoFingerprints(
   read: (path) async => utf8.encode(path),
 );
 
-class _FakeOutfits implements OutfitRepository {
-  _FakeOutfits(this.ranked);
-  final List<Outfit> ranked;
+class _FakeCatalog implements OutfitCatalogRepository {
+  _FakeCatalog(this.catalog);
+  final List<CatalogOutfit> catalog;
 
   @override
-  Future<Either<Failure, List<Outfit>>> outfitsFor(String cell) async =>
-      Right(cell == _cell ? ranked : const []);
+  Future<Either<Failure, List<CatalogOutfit>>> outfits() async =>
+      Right(catalog);
 
   @override
-  Future<Either<Failure, Outfit?>> outfit(String id) async =>
-      Right(ranked.where((outfit) => outfit.id == id).firstOrNull);
+  Future<Either<Failure, List<CatalogOutfit>>> sample() =>
+      throw UnimplementedError();
+}
+
+/// The person's colours, never read unless given.
+class _Colours implements ColourProfileRepository {
+  FaceColours? read;
+
+  @override
+  Future<Either<Failure, FaceColours?>> latest(String accountId) async =>
+      Right(read);
+
+  @override
+  Future<Either<Failure, FaceColours?>> colours(
+    String accountId,
+    String facePhoto,
+  ) => throw UnimplementedError();
+
+  @override
+  Future<Either<Failure, Unit>> save(
+    String accountId,
+    String facePhoto,
+    FaceColours colours,
+  ) => throw UnimplementedError();
 }
 
 class _FakePictures implements OutfitPictureRemoteDataSource {
@@ -769,36 +784,4 @@ class _FakePhotos implements PhotoRepository {
   @override
   Future<Either<Failure, Unit>> forget(PhotoRole role) =>
       throw UnimplementedError();
-}
-
-class _FakePicks implements PicksRepository {
-  @override
-  Future<Either<Failure, Set<String>>> picks() async => const Right({});
-
-  @override
-  Future<Either<Failure, Unit>> clear() => throw UnimplementedError();
-
-  @override
-  Future<Either<Failure, Set<String>>> setPick(
-    String colourwayId, {
-    required bool loved,
-  }) => throw UnimplementedError();
-
-  @override
-  Future<Either<Failure, Set<String>>> addPicks(Set<String> colourwayIds) =>
-      throw UnimplementedError();
-
-  @override
-  Future<Either<Failure, Set<String>>> removePicks(Set<String> colourwayIds) =>
-      throw UnimplementedError();
-
-  @override
-  Future<Either<Failure, Set<String>>> synced(String accountId) =>
-      throw UnimplementedError();
-
-  @override
-  Future<Either<Failure, Unit>> markSynced(
-    String accountId,
-    Set<String> picks,
-  ) => throw UnimplementedError();
 }

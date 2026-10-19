@@ -18,7 +18,7 @@ import 'package:in_vogue/features/catalog/domain/repositories/catalog_repository
 import 'package:in_vogue/features/catalog/domain/usecases/catalog_usecases.dart';
 import 'package:in_vogue/features/catalog/domain/usecases/get_shop_pieces.dart';
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
-import 'package:in_vogue/features/outfits/domain/entities/outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
 import '../../helpers/catalog_outfits.dart';
