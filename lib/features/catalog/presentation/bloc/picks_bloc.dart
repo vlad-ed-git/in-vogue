@@ -80,14 +80,13 @@ class PicksState extends Equatable {
   final Failure? failure;
 
   PicksState copyWith({
-    PicksStatus? status,
     List<CatalogOutfit>? outfits,
     bool? hasMore,
     Set<String>? picks,
     Failure? loadFailure,
     Failure? failure,
   }) => PicksState(
-    status: status ?? this.status,
+    status: status,
     filter: filter,
     outfits: outfits ?? this.outfits,
     hasMore: hasMore ?? this.hasMore,

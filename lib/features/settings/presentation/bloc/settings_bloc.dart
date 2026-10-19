@@ -59,13 +59,12 @@ class SettingsState extends Equatable {
   final Failure? failure;
 
   SettingsState _with({
-    Account? account,
     AccountPlan? plan,
     UserLocation? place,
     ForecastDay? defaultDay,
     Failure? failure,
   }) => SettingsState(
-    account: account ?? this.account,
+    account: account,
     plan: plan ?? this.plan,
     place: place ?? this.place,
     defaultDay: defaultDay ?? this.defaultDay,

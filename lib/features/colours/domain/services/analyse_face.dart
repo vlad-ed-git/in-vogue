@@ -26,7 +26,6 @@ class AnalyseFace {
     required this._photos,
     required this._saveSetupToAccount,
     this._checkEvery = const Duration(seconds: 3),
-    this._taskTimeLimit = const Duration(minutes: 2),
   });
 
   final SkinAnalysisRepository _service;
@@ -35,7 +34,9 @@ class AnalyseFace {
   final PhotoRepository _photos;
   final SaveSetupToAccount _saveSetupToAccount;
   final Duration _checkEvery;
-  final Duration _taskTimeLimit;
+
+  /// How long a reading may run before it counts as failed.
+  static const _taskTimeLimit = Duration(minutes: 2);
 
   /// [accountId]'s colours: the reading kept on the account, or, when
   /// there is none or the person asks to [redo] it, the kept face photo's.

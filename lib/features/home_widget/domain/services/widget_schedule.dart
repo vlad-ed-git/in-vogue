@@ -1,14 +1,5 @@
-import 'package:in_vogue/core/domain/entities/forecast_day.dart';
-
-/// When the widget's day changes. The native widget mirrors [dayAt].
+/// When the widget's day changes.
 abstract final class WidgetSchedule {
-  /// The day shown at local [time]: always today when [preferred] is today,
-  /// else Home's morning rule.
-  static ForecastDay dayAt(ForecastDay preferred, DateTime time) =>
-      preferred == ForecastDay.today
-      ? ForecastDay.today
-      : ForecastDay.shownAt(time);
-
   /// How long from [time] until the next background refresh, at 05:30, so
   /// the 06:00 change shows fresh weather.
   static Duration untilRefresh(DateTime time) {

@@ -6,28 +6,6 @@ import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_bands.dart';
 
-/// How much each term of an outfit's score counts (design §7.4).
-class StylistWeights extends Equatable {
-  const StylistWeights({
-    this.weather = 3,
-    this.protection = 1.5,
-    this.dressiness = 1,
-    this.taste = 2,
-    this.rest = 1,
-  });
-
-  final double weather;
-  final double protection;
-  final double dressiness;
-  final double taste;
-  final double rest;
-
-  double get total => weather + protection + dressiness + taste + rest;
-
-  @override
-  List<Object?> get props => [weather, protection, dressiness, taste, rest];
-}
-
 /// An outfit's score for a day: each term 0 to 1, and their weighted sum.
 class OutfitScore extends Equatable {
   const OutfitScore({
@@ -64,9 +42,14 @@ class OutfitScore extends Equatable {
 /// keeps out its rain and wind, matches the occasion's dressiness and the
 /// person's taste, and rests the pieces worn lately.
 class OutfitScorer {
-  const OutfitScorer([this.weights = const StylistWeights()]);
+  const OutfitScorer();
 
-  final StylistWeights weights;
+  /// How much each term of an outfit's score counts (design §7.4).
+  static const weatherWeight = 3.0;
+  static const protectionWeight = 1.5;
+  static const dressinessWeight = 1.0;
+  static const tasteWeight = 2.0;
+  static const restWeight = 1.0;
 
   /// The dressiness each occasion aims at, 1 to 5.
   static const dressyTargets = {
@@ -178,11 +161,11 @@ class OutfitScorer {
     return OutfitScore(
       outfit: outfit,
       total:
-          weights.weather * weather +
-          weights.protection * protection +
-          weights.dressiness * dressiness +
-          weights.taste * taste +
-          weights.rest * rest,
+          weatherWeight * weather +
+          protectionWeight * protection +
+          dressinessWeight * dressiness +
+          tasteWeight * taste +
+          restWeight * rest,
       weather: weather,
       protection: protection,
       dressiness: dressiness,

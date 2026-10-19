@@ -1,21 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.dart';
 
 void main() {
-  test("shows Home's day: today from 06:00 to 08:59, tomorrow otherwise, "
-      'or always today', () {
-    DateTime at(int hour, [int minute = 0]) =>
-        DateTime(2026, 10, 18, hour, minute);
-    const morning = ForecastDay.tomorrow;
-    expect(WidgetSchedule.dayAt(morning, at(5, 59)), ForecastDay.tomorrow);
-    expect(WidgetSchedule.dayAt(morning, at(6)), ForecastDay.today);
-    expect(WidgetSchedule.dayAt(morning, at(8, 59)), ForecastDay.today);
-    expect(WidgetSchedule.dayAt(morning, at(9)), ForecastDay.tomorrow);
-    expect(WidgetSchedule.dayAt(morning, at(23)), ForecastDay.tomorrow);
-    expect(WidgetSchedule.dayAt(ForecastDay.today, at(23)), ForecastDay.today);
-  });
-
   test('refreshes in the background at 05:30, before the morning change', () {
     expect(
       WidgetSchedule.untilRefresh(DateTime(2026, 10, 18, 5)),

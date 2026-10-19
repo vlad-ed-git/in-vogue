@@ -27,9 +27,9 @@ struct WidgetContent: Decodable {
   }
 
   /// The day to show at `now`: always today when the person chose it, else
-  /// today from 06:00 to 08:59 and tomorrow otherwise, as WidgetSchedule.dayAt
-  /// in the app. Without that day, the newest one, with the time it was saved
-  /// instead of its date.
+  /// today from 06:00 to 08:59 and tomorrow otherwise, as Home's
+  /// ForecastDay.shownAt in the app. Without that day, the newest one, with
+  /// the time it was saved instead of its date.
   func shown(at now: Date, calendar: Calendar = .widget) -> ShownDay? {
     let today = calendar.key(of: now)
     let tomorrow = calendar.key(of: calendar.date(byAdding: .day, value: 1, to: now) ?? now)

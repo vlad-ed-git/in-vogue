@@ -23,17 +23,10 @@ import 'package:in_vogue/features/wardrobe/presentation/widgets/wardrobe_section
 /// Its [PhotoBloc] is the face photo's; a face photo newly kept, here or
 /// in Settings, is read.
 class MirrorScreen extends StatelessWidget {
-  const MirrorScreen({
-    required this.onAddOutfit,
-    this.imageFor = WardrobeSection.networkImage,
-    super.key,
-  });
+  const MirrorScreen({required this.onAddOutfit, super.key});
 
   /// Opens the screen that adds an outfit to the wardrobe.
   final VoidCallback onAddOutfit;
-
-  /// The image at a URL.
-  final ImageProvider Function(String url) imageFor;
 
   /// A catalogue close-up that shows what a good selfie looks like.
   static const example = AssetImage('assets/images/example_face.jpg');
@@ -74,7 +67,7 @@ class MirrorScreen extends StatelessWidget {
                     child: ScreenTitle(context.translated.tabMirror),
                   ),
                   ..._colours(context, state, photo),
-                  WardrobeSection(onAddOutfit: onAddOutfit, imageFor: imageFor),
+                  WardrobeSection(onAddOutfit: onAddOutfit),
                   const SizedBox(height: InVogueSpace.s10),
                 ],
               ),

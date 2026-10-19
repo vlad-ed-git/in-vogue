@@ -81,10 +81,11 @@ class RecommendParams extends Equatable {
 /// occasion, the warmest hours, rain and snow, scored, and chosen by the
 /// owner's rule. Null when the catalog has none for the day.
 class RecommendOutfit implements UseCase<Recommendation?, RecommendParams> {
-  const RecommendOutfit(this._catalog, {this.scorer = const OutfitScorer()});
+  const RecommendOutfit(this._catalog);
 
   final OutfitCatalogRepository _catalog;
-  final OutfitScorer scorer;
+
+  static const _scorer = OutfitScorer();
 
   @override
   Future<Either<Failure, Recommendation?>> call(RecommendParams params) async {
@@ -114,7 +115,7 @@ class RecommendOutfit implements UseCase<Recommendation?, RecommendParams> {
   Recommendation? choose(List<CatalogOutfit> outfits, RecommendParams params) {
     final day = params.day;
     final (outfits: candidates, :relaxed) = _candidates(outfits, params);
-    final scores = scorer.score(
+    final scores = _scorer.score(
       candidates,
       day: day,
       occasion: params.occasion,
