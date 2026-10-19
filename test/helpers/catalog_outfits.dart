@@ -1,0 +1,111 @@
+import 'package:in_vogue/features/catalog/data/models/catalog_outfit_model.dart';
+import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
+
+/// An outfit document as the catalog stores it.
+Map<String, Object?> document(
+  String id, {
+  int order = 0,
+  bool sample = false,
+  List<String> weathers = const ['mild'],
+  String rain = 'fine',
+  String name = 'Parchment merino crop top, cream seamed midi skirt',
+}) => {
+  'id': id,
+  'version': 2,
+  'order': order,
+  'name': name,
+  'sample': sample,
+  'image': {
+    'path': 'catalog/v2/outfits/$id-77dd9ef4.jpg',
+    'source': 'https://cdn.shopify.com/$id.jpg',
+    'url': 'https://firebasestorage.googleapis.com/$id.jpg',
+  },
+  'weathers': weathers,
+  'baseWeathers': weathers,
+  'seasons': ['lightSpring', 'softAutumn'],
+  'occasions': ['work', 'casual', 'event', 'in'],
+  'fits': ['lightSpring|mild', 'softAutumn|mild'],
+  'families': ['cream'],
+  'styles': ['minimal'],
+  'kinds': ['sweater', 'skirt'],
+  'dressy': 2.5,
+  'warmth': 3,
+  'rain': rain,
+  'wind': 'fine',
+  'coat': false,
+  'pieces': [
+    {
+      'colourway': 'everlane:$id-top',
+      'style': 'top-style',
+      'name': 'The Cropped Crew Top in Ultrafine Merino',
+      'colour': 'Parchment',
+      'hex': '#d6cdc2',
+      'family': 'cream',
+      'accent': null,
+      'pattern': 'plain',
+      'neutral': true,
+      'role': 'top',
+      'kind': 'sweater',
+      'weathers': ['mild', 'cool', 'cold', 'freezing'],
+      'warmth': 'medium',
+      'dressy': 3,
+      'styles': ['minimal'],
+      'rain': 'fine',
+      'wind': 'fine',
+      'url': 'https://www.everlane.com/products/$id-top',
+      'photo': 'https://cdn.shopify.com/$id-top.jpg',
+    },
+    {
+      'colourway': 'everlane:$id-skirt',
+      'style': 'skirt-style',
+      'name': 'Seamed Midi Skirt',
+      'colour': 'Bone',
+      'hex': '#ddd2cc',
+      'family': 'cream',
+      'accent': 'navy',
+      'pattern': 'striped',
+      'neutral': true,
+      'role': 'bottom',
+      'kind': 'skirt',
+      'weathers': ['hot', 'warm', 'mild'],
+      'warmth': 'verywarm',
+      'dressy': 2,
+      'styles': ['minimal', 'classic'],
+      'rain': 'avoid',
+      'wind': 'avoid',
+      'url': 'https://www.everlane.com/products/$id-skirt',
+      'photo': 'https://cdn.shopify.com/$id-skirt.jpg',
+    },
+  ],
+  'passes': [
+    {
+      'category': 'lower_body',
+      'piece': 'everlane:$id-skirt',
+      'reference': 'https://cdn.shopify.com/$id-skirt.jpg',
+    },
+    {
+      'category': 'upper_body',
+      'piece': 'everlane:$id-top',
+      'reference': 'https://cdn.shopify.com/$id-top.jpg',
+    },
+  ],
+  'retailer': 'everlane',
+};
+
+CatalogOutfit outfit(
+  String id, {
+  int order = 0,
+  bool sample = false,
+  List<String> weathers = const ['mild'],
+  String rain = 'fine',
+  String name = 'Parchment merino crop top, cream seamed midi skirt',
+}) => CatalogOutfitModel.fromJson(
+  document(
+    id,
+    order: order,
+    sample: sample,
+    weathers: weathers,
+    rain: rain,
+    name: name,
+  ),
+);
