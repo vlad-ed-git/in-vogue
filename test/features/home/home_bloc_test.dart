@@ -21,6 +21,8 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart';
+import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart';
+import 'package:in_vogue/features/wardrobe/domain/usecases/wardrobe_usecases.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
@@ -91,6 +93,7 @@ DayOutfit _outfit(DateTime date, Occasion occasion) => DayOutfit(
   GetWeatherReport,
   FollowDay,
   GetDefaultDay,
+  WatchWardrobe,
 ])
 void main() {
   late MockGetCurrentAccount account;
@@ -99,6 +102,8 @@ void main() {
   late MockGetWeatherReport weather;
   late MockFollowDay followDay;
   late MockGetDefaultDay defaultDay;
+  late MockWatchWardrobe wardrobe;
+  late StreamController<Either<Failure, List<WardrobeOutfit>>> owned;
 
   /// The updates of each day followed, by date and occasion; the latest
   /// following of each.
@@ -111,6 +116,7 @@ void main() {
     getWeatherReport: weather,
     followDay: followDay,
     getDefaultDay: defaultDay,
+    watchWardrobe: wardrobe,
   );
 
   setUp(() {
@@ -120,6 +126,9 @@ void main() {
     weather = MockGetWeatherReport();
     followDay = MockFollowDay();
     defaultDay = MockGetDefaultDay();
+    wardrobe = MockWatchWardrobe();
+    owned = StreamController.broadcast();
+    when(wardrobe(any)).thenAnswer((_) => owned.stream);
     following = {};
     when(
       defaultDay(any),
@@ -168,6 +177,43 @@ void main() {
 
   List<MakeOutfitParams> followed() =>
       verify(followDay(captureAny)).captured.cast<MakeOutfitParams>();
+
+  test("picks the person's own outfit for each day, tomorrow's other than "
+      "today's", () async {
+    WardrobeOutfit own(String id, Set<Occasion> occasions) => WardrobeOutfit(
+      id: id,
+      details: OutfitDetails(
+        name: 'Outfit $id',
+        colours: const {OutfitColour.navy},
+        bands: const {WarmthBand.mild},
+        rain: false,
+        occasions: occasions,
+      ),
+      photoUrl: 'https://example.invalid/$id.jpg',
+      createdAt: _today,
+    );
+    final bloc = await started();
+    verify(wardrobe('uid-1')).called(1);
+    expect(bloc.state.wardrobeFor(ForecastDay.today), isNull);
+    owned.add(
+      Right([
+        own('w1', {Occasion.work}),
+        own('w2', {Occasion.casual, Occasion.work}),
+        own('w3', {Occasion.goingOut}),
+      ]),
+    );
+    await pumpEventQueue();
+    final today = bloc.state.wardrobeFor(ForecastDay.today)!;
+    final tomorrow = bloc.state.wardrobeFor(ForecastDay.tomorrow)!;
+    // Friday is a workday, Saturday casual.
+    expect(today.details.occasions, contains(Occasion.work));
+    expect(tomorrow.id, 'w2');
+    expect(today.id, isNot(tomorrow.id));
+    // Home opening again keeps following the same wardrobe.
+    bloc.add(const HomeStarted());
+    await pumpEventQueue();
+    verifyNever(wardrobe(any));
+  });
 
   test('shows both days, tomorrow first, each for its occasion', () async {
     final bloc = await started();

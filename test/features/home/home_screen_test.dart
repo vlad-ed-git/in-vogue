@@ -15,6 +15,7 @@ import 'package:in_vogue/features/location/domain/entities/user_location.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_pass.dart';
 import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
+import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
@@ -414,6 +415,38 @@ void main() {
     expect(find.byType(PhotoStage), findsOneWidget);
     expect(find.text(_reason), findsOneWidget);
     expect(find.text('Shop'), findsNothing);
+  });
+
+  testWidgets("shows the person's own outfit for the day at the bottom", (
+    tester,
+  ) async {
+    final mine = WardrobeOutfit(
+      id: 'w1',
+      details: const OutfitDetails(
+        name: 'Navy wool suit',
+        colours: {OutfitColour.navy},
+        bands: {WarmthBand.cool},
+        rain: true,
+        occasions: {Occasion.casual},
+      ),
+      photoUrl: 'https://example.invalid/w1.jpg',
+      createdAt: _tomorrow,
+    );
+    await pumpHome(
+      tester,
+      _state(OutfitShown(_outfit)).withWardrobe([mine]),
+      size: const Size(390, 1600),
+    );
+    expect(find.text('My wardrobe'), findsOneWidget);
+    expect(find.text('Navy wool suit'), findsOneWidget);
+    final heading = tester.getRect(find.text('My wardrobe'));
+    final about = tester.getRect(find.text('About this outfit'));
+    expect(heading.top, greaterThan(about.bottom));
+  });
+
+  testWidgets('shows no own outfit when none suits the day', (tester) async {
+    await pumpHome(tester, _state(OutfitShown(_outfit)));
+    expect(find.text('My wardrobe'), findsNothing);
   });
 
   testWidgets('opens Your picks', (tester) async {

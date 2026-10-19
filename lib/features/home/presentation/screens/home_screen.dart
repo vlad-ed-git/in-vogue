@@ -16,6 +16,7 @@ import 'package:in_vogue/features/home/presentation/bloc/home_bloc.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
 import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
 import 'package:in_vogue/features/stylist/presentation/reason_text.dart';
+import 'package:in_vogue/features/wardrobe/presentation/widgets/wardrobe_outfit_tile.dart';
 import 'package:in_vogue/features/weather/domain/entities/temperature_unit.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
@@ -193,6 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ..._stage(context, state, viewport),
             ..._about(context, state),
+            ..._wardrobe(context, state),
             const SizedBox(height: InVogueSpace.s10),
           ],
         ),
@@ -410,6 +412,28 @@ class _HomeScreenState extends State<HomeScreen> {
     return [
       SectionHeading(context.translated.aboutThisOutfit),
       Text(reason, style: InVogueType.body),
+    ];
+  }
+
+  /// The person's own outfit for the day, when one suits it.
+  List<Widget> _wardrobe(BuildContext context, HomeState state) {
+    final outfit = state.wardrobeFor(state.selected);
+    if (outfit == null) return const [];
+    return [
+      SectionHeading(context.translated.wardrobeTitle),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: WardrobeOutfitTile(
+              outfit: outfit,
+              imageFor: widget.imageFor,
+            ),
+          ),
+          const SizedBox(width: InVogueLayout.gutter),
+          const Expanded(child: SizedBox.shrink()),
+        ],
+      ),
     ];
   }
 

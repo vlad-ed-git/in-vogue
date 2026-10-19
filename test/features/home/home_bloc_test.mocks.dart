@@ -31,6 +31,10 @@ import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart'
     as _i10;
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart'
     as _i18;
+import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart'
+    as _i21;
+import 'package:in_vogue/features/wardrobe/domain/usecases/wardrobe_usecases.dart'
+    as _i20;
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart'
     as _i14;
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart'
@@ -203,4 +207,26 @@ class MockGetDefaultDay extends _i1.Mock implements _i18.GetDefaultDay {
                 ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, _i19.ForecastDay>>);
+}
+
+/// A class which mocks [WatchWardrobe].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockWatchWardrobe extends _i1.Mock implements _i20.WatchWardrobe {
+  MockWatchWardrobe() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Stream<_i2.Either<_i5.Failure, List<_i21.WardrobeOutfit>>> call(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [accountId]),
+            returnValue:
+                _i4.Stream<
+                  _i2.Either<_i5.Failure, List<_i21.WardrobeOutfit>>
+                >.empty(),
+          )
+          as _i4.Stream<_i2.Either<_i5.Failure, List<_i21.WardrobeOutfit>>>);
 }

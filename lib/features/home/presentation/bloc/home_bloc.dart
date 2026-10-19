@@ -21,6 +21,9 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart';
+import 'package:in_vogue/features/stylist/domain/services/wardrobe_chooser.dart';
+import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart';
+import 'package:in_vogue/features/wardrobe/domain/usecases/wardrobe_usecases.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
 
@@ -60,6 +63,15 @@ final class HomeRetried extends HomeEvent {
 }
 
 /// Follows the outfits of [days].
+/// Follows the person's own outfits, for each day's pick.
+final class _WardrobeFollowed extends HomeEvent {
+  const _WardrobeFollowed(this.accountId);
+  final String accountId;
+
+  @override
+  List<Object?> get props => [accountId];
+}
+
 final class _DaysFollowed extends HomeEvent {
   const _DaysFollowed(this.days);
   final Map<ForecastDay, MakeOutfitParams> days;
@@ -138,6 +150,7 @@ class HomeState extends Equatable {
     this.selected = ForecastDay.tomorrow,
     this.preferred = ForecastDay.tomorrow,
     this.days = const {},
+    this.wardrobe = const [],
   });
 
   final HomeStatus status;
@@ -153,9 +166,32 @@ class HomeState extends Equatable {
   final ForecastDay preferred;
   final Map<ForecastDay, HomeDay> days;
 
+  /// The outfits the person owns.
+  final List<WardrobeOutfit> wardrobe;
+
   HomeDay day(ForecastDay day) => days[day] ?? const HomeDay();
 
   HomeDay get shown => day(selected);
+
+  /// The person's own outfit for [day], once its weather is known;
+  /// tomorrow's differs from today's when another suits.
+  WardrobeOutfit? wardrobeFor(ForecastDay day) {
+    WardrobeOutfit? pick(ForecastDay day, {String? avoid}) {
+      final report = days[day]?.report;
+      if (report == null) return null;
+      return WardrobeChooser.choose(
+        wardrobe,
+        day: report.bands,
+        occasion: report.weather.occasion,
+        date: report.weather.date,
+        avoid: avoid,
+      );
+    }
+
+    return day == ForecastDay.today
+        ? pick(day)
+        : pick(day, avoid: pick(ForecastDay.today)?.id);
+  }
 
   HomeState withDay(ForecastDay day, HomeDay value) => HomeState(
     status: status,
@@ -164,6 +200,7 @@ class HomeState extends Equatable {
     selected: selected,
     preferred: preferred,
     days: {...days, day: value},
+    wardrobe: wardrobe,
   );
 
   HomeState withSelected(ForecastDay day) => HomeState(
@@ -173,13 +210,33 @@ class HomeState extends Equatable {
     selected: day,
     preferred: preferred,
     days: days,
+    wardrobe: wardrobe,
+  );
+
+  HomeState withWardrobe(List<WardrobeOutfit> outfits) => HomeState(
+    status: status,
+    place: place,
+    photo: photo,
+    selected: selected,
+    preferred: preferred,
+    days: days,
+    wardrobe: outfits,
   );
 
   @override
-  List<Object?> get props => [status, place, photo, selected, preferred, days];
+  List<Object?> get props => [
+    status,
+    place,
+    photo,
+    selected,
+    preferred,
+    days,
+    wardrobe,
+  ];
 }
 
-/// Home's two days, today and tomorrow, each with its weather and outfit.
+/// Home's two days, today and tomorrow, each with its weather and outfit,
+/// and the person's own outfits, for each day's pick from them.
 ///
 /// Opens on today from 06:00 to 08:59 and tomorrow otherwise, or always
 /// today when the person chose it. Both days' outfits are followed as every
@@ -192,12 +249,23 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required this._getWeatherReport,
     required this._followDay,
     required this._getDefaultDay,
+    required this._watchWardrobe,
   }) : super(const HomeState()) {
     on<HomeStarted>(_start, transformer: restartable());
     on<HomeDaySelected>(_select);
     on<HomeOccasionChanged>(_changeOccasion, transformer: sequential());
     on<HomeRetried>(_retry, transformer: droppable());
     on<_DaysFollowed>(_follow, transformer: restartable());
+    on<_WardrobeFollowed>(
+      (event, emit) => emit.forEach(
+        _watchWardrobe(event.accountId),
+        onData: (outfits) => outfits.fold(
+          (_) => state,
+          (outfits) => state.withWardrobe(outfits),
+        ),
+      ),
+      transformer: restartable(),
+    );
   }
 
   final GetCurrentAccount _getCurrentAccount;
@@ -206,6 +274,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetWeatherReport _getWeatherReport;
   final FollowDay _followDay;
   final GetDefaultDay _getDefaultDay;
+  final WatchWardrobe _watchWardrobe;
 
   String? _accountId;
 
@@ -219,6 +288,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (account == null || place == null) {
       return emit(const HomeState(status: HomeStatus.failed));
     }
+    if (_accountId != account.id) add(_WardrobeFollowed(account.id));
     _accountId = account.id;
     final photo = (await _getKeptPhoto(
       PhotoRole.body,
@@ -257,6 +327,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       selected: firstLoad ? shownDay : state.selected,
       preferred: preferred,
       days: state.days,
+      wardrobe: state.wardrobe,
     );
     for (final (day, report) in [(shownDay, first), (otherDay, other)]) {
       next = next.withDay(day, _loaded(day, report));

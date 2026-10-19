@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,6 +7,7 @@ import 'package:in_vogue/core/utils/failure_message.dart';
 import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart';
 import 'package:in_vogue/features/wardrobe/presentation/bloc/wardrobe_bloc.dart';
 import 'package:in_vogue/features/wardrobe/presentation/wardrobe_text.dart';
+import 'package:in_vogue/features/wardrobe/presentation/widgets/wardrobe_outfit_tile.dart';
 
 /// My Wardrobe: the outfits the person owns in a grid, two a row, newest
 /// first; a tile opens the outfit's details. Add an outfit opens
@@ -64,12 +63,6 @@ class WardrobeSection extends StatelessWidget {
     );
   }
 
-  /// An outfit's photo: the phone's copy, else the account's.
-  ImageProvider _photo(WardrobeOutfit outfit) => switch (outfit.photoPath) {
-    final path? => FileImage(File(path)),
-    null => imageFor(outfit.photoUrl),
-  };
-
   Widget _grid(BuildContext context, List<WardrobeOutfit> outfits) => Column(
     children: [
       for (var row = 0; row < outfits.length; row += 2)
@@ -91,24 +84,16 @@ class WardrobeSection extends StatelessWidget {
     ],
   );
 
-  Widget _tile(BuildContext context, WardrobeOutfit outfit) => Pressable(
-    onTap: () => showWardrobeOutfitSheet(
-      context: context,
-      outfit: outfit,
-      photo: _photo(outfit),
-    ),
-    semanticLabel: outfit.details.name,
-    excludeSemantics: true,
-    expandTapTarget: false,
-    builder: (context, state) => Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        PhotoSlot(image: _photo(outfit), showLoading: outfit.photoPath == null),
-        const SizedBox(height: InVogueSpace.s2),
-        Text(outfit.details.name, style: InVogueType.item),
-      ],
-    ),
-  );
+  Widget _tile(BuildContext context, WardrobeOutfit outfit) =>
+      WardrobeOutfitTile(
+        outfit: outfit,
+        imageFor: imageFor,
+        onTap: () => showWardrobeOutfitSheet(
+          context: context,
+          outfit: outfit,
+          photo: WardrobeOutfitTile.photoOf(outfit, imageFor: imageFor),
+        ),
+      );
 }
 
 /// An outfit's details over the tabs: its photo, colours, weather and
