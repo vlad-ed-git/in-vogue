@@ -11,14 +11,6 @@ abstract final class InVogueFormat {
         _ => DateFormat('EEE d MMM', 'en').format(date),
       };
 
-  /// "Thursday 16 October".
-  static String longDate(DateTime date, String languageCode) =>
-      switch (languageCode) {
-        'zh' => DateFormat('M月d日EEEE', 'zh').format(date),
-        'es' => DateFormat("EEEE d 'de' MMMM", 'es').format(date),
-        _ => DateFormat('EEEE d MMMM', 'en').format(date),
-      };
-
   /// "3 pm", "9:12 pm" in English; 24-hour elsewhere.
   static String time(DateTime date, String languageCode) {
     if (languageCode != 'en') {

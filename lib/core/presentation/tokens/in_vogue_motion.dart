@@ -17,20 +17,11 @@ abstract final class InVogueMotion {
   /// Sheet exit.
   static const sheetOut = Duration(milliseconds: 200);
 
-  /// Drawn strokes.
-  static const draw = Duration(milliseconds: 600);
-
   /// Curtain reveal.
   static const reveal = Duration(milliseconds: 720);
 
   /// One pass of the loading rule, and one fade with reduced motion.
   static const run = Duration(milliseconds: 1200);
-
-  /// Delay before a rolling numeral enters.
-  static const rollDelay = Duration(milliseconds: 40);
-
-  /// Travel of a rolling numeral, in points.
-  static const double rollDistance = 14;
 
   /// Upward settle of a crossfading photo, in points.
   static const double settleDistance = 4;

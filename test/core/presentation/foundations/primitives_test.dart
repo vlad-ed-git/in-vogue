@@ -184,7 +184,6 @@ void main() {
 
     test('writes English dates and times as the voice guide does', () {
       expect(InVogueFormat.shortDate(evening, 'en'), 'Thu 16 Oct');
-      expect(InVogueFormat.longDate(evening, 'en'), 'Thursday 16 October');
       expect(InVogueFormat.time(three, 'en'), '3 pm');
       expect(InVogueFormat.time(evening, 'en'), '9:12 pm');
       expect(InVogueFormat.time(DateTime(2025, 10, 16), 'en'), '12 am');
@@ -195,10 +194,8 @@ void main() {
     });
 
     test('follows Spanish and Chinese conventions', () {
-      expect(InVogueFormat.longDate(evening, 'es'), 'jueves 16 de octubre');
       expect(InVogueFormat.time(three, 'es'), '15:00');
       expect(InVogueFormat.shortDate(evening, 'zh'), '10月16日 周四');
-      expect(InVogueFormat.longDate(evening, 'zh'), '10月16日星期四');
       expect(InVogueFormat.time(evening, 'zh'), '21:12');
     });
   });

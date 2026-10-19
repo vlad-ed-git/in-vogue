@@ -8,6 +8,4 @@ abstract final class InVogueSpace {
   static const double s6 = 24;
   static const double s8 = 32;
   static const double s10 = 40;
-  static const double s12 = 48;
-  static const double s16 = 64;
 }

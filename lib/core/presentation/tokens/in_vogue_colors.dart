@@ -44,9 +44,6 @@ abstract final class InVogueColors {
   /// Scrim behind sheets: ink at 40%.
   static const veil = Color(0x66141414);
 
-  /// Stand-in for a phone wallpaper.
-  static const wallpaper = Color(0xFF3D3D3B);
-
   /// Brand Rouge.
   static const rouge = Color(0xFF8C0F1F);
 

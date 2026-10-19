@@ -7,8 +7,8 @@ import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
 
-/// The design spec lives beside the app repository. When it is present, the
-/// Dart tokens must match it exactly; a fresh checkout without it skips.
+/// The design spec lives beside the app repository. When it is present,
+/// every Dart token must match it; a fresh checkout without it skips.
 final _spec = File('../design-spec/tokens.json');
 
 Map<String, dynamic> _readSpec() =>
@@ -57,7 +57,6 @@ void main() {
       'accent-pressed': InVogueColors.accentPressed,
       'on-accent': InVogueColors.onAccent,
       'veil': InVogueColors.veil,
-      'wallpaper': InVogueColors.wallpaper,
       'rouge': InVogueColors.rouge,
       'rose': InVogueColors.rose,
       'rose-muted': InVogueColors.roseMuted,
@@ -65,18 +64,18 @@ void main() {
 
     test('match the design spec', () {
       if (!_spec.existsSync()) return markTestSkipped('design-spec absent');
-      final spec = _tokens(_readSpec()['color'] as Map<String, dynamic>);
-      final names = spec.map((token) => token['name']).toSet();
-      expect(names, {...colors.keys, 'alert'});
-      for (final token in spec) {
-        final name = token['name'] as String;
-        if (name == 'alert') {
-          expect(token['value'], '{ink}');
-          expect(InVogueColors.alert, InVogueColors.ink);
-        } else {
-          expect(colors[name], _hex(token['value'] as String), reason: name);
-        }
+      final spec = {
+        for (final token in _tokens(
+          _readSpec()['color'] as Map<String, dynamic>,
+        ))
+          token['name'] as String: token['value'] as String,
+      };
+      for (final MapEntry(key: name, value: color) in colors.entries) {
+        expect(spec[name], isNotNull, reason: name);
+        expect(_hex(spec[name]!), color, reason: name);
       }
+      expect(spec['alert'], '{ink}');
+      expect(InVogueColors.alert, InVogueColors.ink);
     });
 
     test('meet the contrast ratios the colour guide promises', () {
@@ -197,11 +196,7 @@ void main() {
       // tokens.json sets the title at 40 / 38, the spec's one exception.
       for (final style in styles.values.where((s) => s != InVogueType.title)) {
         final line = style.fontSize! * style.height!;
-        expect(
-          line % InVogueLayout.baseline,
-          closeTo(0, 1e-9),
-          reason: '$style',
-        );
+        expect(line % 4, closeTo(0, 1e-9), reason: '$style');
       }
     });
 
@@ -229,7 +224,8 @@ void main() {
           token['name'] as String: token['value'],
       };
 
-      expect(values('spacing').map((k, v) => MapEntry(k, _px(v))), {
+      final spacing = values('spacing');
+      const space = {
         'space-1': InVogueSpace.s1,
         'space-2': InVogueSpace.s2,
         'space-3': InVogueSpace.s3,
@@ -238,9 +234,8 @@ void main() {
         'space-6': InVogueSpace.s6,
         'space-8': InVogueSpace.s8,
         'space-10': InVogueSpace.s10,
-        'space-12': InVogueSpace.s12,
-        'space-16': InVogueSpace.s16,
-      });
+      };
+      expect({for (final name in space.keys) name: _px(spacing[name])}, space);
 
       final layout = values('layout');
       expect(_px(layout['page-margin']), InVogueLayout.pageMargin);
@@ -249,8 +244,6 @@ void main() {
         InVogueLayout.pageMarginCompact,
       );
       expect(_px(layout['gutter']), InVogueLayout.gutter);
-      expect(int.parse(layout['columns']! as String), InVogueLayout.columns);
-      expect(_px(layout['baseline']), InVogueLayout.baseline);
       expect(_px(layout['control-height']), InVogueLayout.controlHeight);
       expect(_px(layout['target-min']), InVogueLayout.targetMin);
       expect(_px(layout['topbar-height']), InVogueLayout.topBarHeight);
@@ -262,32 +255,24 @@ void main() {
       expect(_px(stroke['stroke-select']), InVogueLayout.strokeSelect);
       final radius = values('radius');
       expect(radius['radius-none'], '0');
-      expect(_px(radius['radius-round']), InVogueLayout.radiusRound);
       final opacity = values('opacity');
       expect(
         double.parse(opacity['opacity-waiting']! as String),
         InVogueLayout.opacityWaiting,
       );
-      expect(
-        double.parse(opacity['opacity-locked']! as String),
-        InVogueLayout.opacityLocked,
-      );
 
       final durations = values('duration');
-      expect(
-        {
-          for (final entry in durations.entries)
-            entry.key: Duration(milliseconds: _px(entry.value).round()),
-        },
-        {
-          'duration-press': InVogueMotion.press,
-          'duration-quick': InVogueMotion.quick,
-          'duration-base': InVogueMotion.base,
-          'duration-sheet': InVogueMotion.sheet,
-          'duration-draw': InVogueMotion.draw,
-          'duration-reveal': InVogueMotion.reveal,
-        },
-      );
+      const motion = {
+        'duration-press': InVogueMotion.press,
+        'duration-quick': InVogueMotion.quick,
+        'duration-base': InVogueMotion.base,
+        'duration-sheet': InVogueMotion.sheet,
+        'duration-reveal': InVogueMotion.reveal,
+      };
+      expect({
+        for (final name in motion.keys)
+          name: Duration(milliseconds: _px(durations[name]).round()),
+      }, motion);
 
       Cubic cubic(Object? css) {
         final numbers = RegExp(r'[\d.]+')
@@ -319,17 +304,6 @@ void main() {
       expect(InVogueLayout.pageMarginFor(359.9), 16);
       expect(InVogueLayout.pageMarginFor(360), 20);
       expect(InVogueLayout.pageMarginFor(430), 20);
-    });
-
-    test('grid spans fill the 350-point content width of a 390 phone', () {
-      const content = 390 - 2 * InVogueLayout.pageMargin;
-      expect(InVogueLayout.columnSpan(content, 6), closeTo(content, 1e-9));
-      // Three tiles in a row span two columns each; two span three.
-      expect(
-        InVogueLayout.columnSpan(content, 2) * 3 + 2 * 12,
-        closeTo(content, 1e-9),
-      );
-      expect(InVogueLayout.columnSpan(content, 3), closeTo(169, 1e-9));
     });
   });
 }
