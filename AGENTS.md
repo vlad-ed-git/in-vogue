@@ -113,7 +113,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 5. [x] **My Wardrobe.** Done October 18, below the season on Mirror (`lib/features/wardrobe`). Owner decisions, October 18:
    - A person adds a photo of an outfit they own, chosen from Photos or Gallery, with its name, its colours (one or more), the weather it suits (feels-like bands and rain) and its occasions.
    - Mirror shows their outfits in a grid; a tile opens the outfit's details, as the catalog's tiles do, with Remove, which asks first.
-   - Home will recommend from the wardrobe too, one for today and one for tomorrow, at the bottom of the Today and Tomorrow tabs (owner, October 19). It's phase 7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan).
+   - Home recommends from the wardrobe too: one for today and one for tomorrow, at the bottom of the Today and Tomorrow tabs (owner, October 19; built October 19).
 6. [x] **Mirror and Settings after the owner's check.** Done October 18. Owner decisions, October 18:
    - Tapping a palette colour opens its name, the nearest of 78 clothing colours (`ColourNames`), and how to wear it.
    - "See your full analysis" opens the whole skin analysis as a sheet: the colours read from the photo, what the undertone, depth and contrast mean, and the season.
@@ -123,7 +123,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 **Also open:**
 
-- [ ] **Recommender v2** (owner, October 19). Claude curated a catalog of 500 outfits outside the app; it is in Firestore `outfits` on `in-vogue-dev` with its pictures in Storage, and the rules are deployed there (October 19). The app reads it for setup's sample, Home's Outfits tab, favourites and Shop (phase 3, October 19), the recommender is built and tested (phase 4), Home's days come from it, with the old system and its records gone (phase 5), and it learns what each person likes (phase 6, October 19); phase 7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) remain. *Pending.*
+- [ ] **Recommender v2** (owner, October 19). Built October 19 on stacked branches, not merged: the catalog in the app (`feat/catalog_v2`), the recommender (`feat/stylist_engine`), Home's days on it with the old system and its `in-vogue-dev` records gone (`feat/stylist_on_home`), the taste model (`feat/stylist_signals`) and the wardrobe on Home (`feat/wardrobe_on_home`), as [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) plans. *Blocked on the owner's device run and merge go-ahead.*
 - [ ] Build and check both home-screen widgets on phones. *Owner.*
 - [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*
 - [ ] Open a sample of Everlane product links. *Owner.*

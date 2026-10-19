@@ -498,7 +498,7 @@ Each phase gets its own branch with tests first, a clean analyze, the whole suit
 | 4. Recommender | `feat/stylist_engine` | Day bands (six), candidates, scorer, chooser, reasons, simulation | **Done** October 19 (not merged) |
 | 5. On Home | `feat/stylist_on_home` | `MakeOutfit` integration, Day v2 fields, the widget; then remove the knowledge-base path | **Done** October 19 (not merged) |
 | 6. Learning | `feat/stylist_signals` | Taste model, signals, Buy logging | **Done** October 19 (not merged) |
-| 7. Wardrobe | `feat/wardrobe_on_home` | [§9](#9-onboarding-home-and-the-wardrobe): the person's own outfit at the bottom of the Today and Tomorrow tabs (owner) | — |
+| 7. Wardrobe | `feat/wardrobe_on_home` | [§9](#9-onboarding-home-and-the-wardrobe): the person's own outfit at the bottom of the Today and Tomorrow tabs (owner) | **Done** October 19 (not merged) |
 
 ---
 
