@@ -123,7 +123,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 **Also open:**
 
-- [ ] **Recommender v2** (owner, October 19). Claude curated a catalog of 500 outfits outside the app; it is in Firestore `outfits` on `in-vogue-dev` with its pictures in Storage, and the rules are deployed there (October 19). The app reads it for setup's sample, Home's Outfits tab, favourites and Shop (phase 3, October 19), and the recommender is built and tested (phase 4, October 19); phases 5–7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) remain. *Pending.*
+- [ ] **Recommender v2** (owner, October 19). Claude curated a catalog of 500 outfits outside the app; it is in Firestore `outfits` on `in-vogue-dev` with its pictures in Storage, and the rules are deployed there (October 19). The app reads it for setup's sample, Home's Outfits tab, favourites and Shop (phase 3, October 19), the recommender is built and tested (phase 4), and Home's days come from it, with the old system and its records gone (phase 5, October 19); phases 6–7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) remain. *Pending.*
 - [ ] Build and check both home-screen widgets on phones. *Owner.*
 - [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*
 - [ ] Open a sample of Everlane product links. *Owner.*
@@ -151,7 +151,7 @@ Each lives in `../.claude/skills/<name>/`: a `SKILL.md`, optional `references/` 
 | `building-ui` | the design system, the spec and the owner's overrides, copy, motion, accessibility | not run |
 | `calling-youcam` | try-on, the skin-tone analysis, photo errors, costs, keys and the owner's YouCam rules | not run |
 | `managing-firebase` | the data model, rules, sync, account save, restore and delete | not run |
-| `updating-bundled-data` | the catalog and knowledge-base pipeline and the asset exports | not run |
+| `updating-bundled-data` | the shop's catalog pull, its export for Shop, and the curated outfit catalog's build and upload | not run |
 | `building-home-widgets` | both home-screen widgets: content, day rule, taps, native code, the morning refresh | not run |
 
 New skills follow Anthropic's method: write three eval prompts first, then the smallest `SKILL.md` that passes them, validate it with `quick_validate.py` from the skill-creator skill, and test it with and without the skill.

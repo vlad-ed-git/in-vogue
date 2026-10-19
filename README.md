@@ -50,7 +50,7 @@ Nothing leaves the phone before sign-in, and YouCam is called only after it.
 
 **The home-screen widget** puts the day's weather on a Rouge slab beside the person in the day's outfit, in Small (weather only), Medium and Large. It picks the day as Home does and switches at 06:00, 09:00 and midnight. Until the outfit is made it shows the person's photo faded under "Getting ready", and when it has nothing newer it shows the time it was saved. A tap opens Home on that day and occasion. A background job refreshes it each morning, and Log out and Delete account clear it. On iPhone it is set up for the development flavor only, until production has its own App Group.
 
-**Languages:** English (the default, whatever the phone's language), Spanish and Simplified Chinese, including the knowledge base's outfit reasons.
+**Languages:** English (the default, whatever the phone's language), Spanish and Simplified Chinese, including each outfit's reason.
 
 ## System design
 
@@ -62,12 +62,12 @@ Open-Meteo ◄────┤ weather: 3-day hourly forecast (dio), cached 2 day
 YouCam     ◄────┤ try-on · skin-tone analysis (after sign-in; key in dev builds)           │
 Firebase   ◄────┤ Auth: Apple, Google · Firestore users/{uid}, errors · Storage, App Check │
 Everlane   ◄────┤ "Buy at Everlane" opens the exact item (url_launcher)                    │
-                │ bundled: catalog · 1,749 outfits                                         │
+                │ catalog: 500 outfits from Firestore, a copy on the phone · bundled shop  │
                 │ home-screen widget: Kotlin (Android) · SwiftUI (iPhone, App Group)       │
                 │ morning refresh: WorkManager (Android) · background app refresh (iPhone) │
                 └──────────────────────────────────────────────────────────────────────────┘
-On the Mac, offline: Shopify Global Catalog ─► resources/ (Python: catalog + knowledge base)
-                     ─► in-vogue/scripts/export_*.py ─► in-vogue/assets/
+On the Mac, offline: Shopify Global Catalog ─► resources/ (Python: the shop's catalog, curation)
+                     ─► export_catalog.py ─► assets/ · upload_outfit_catalog.py ─► in-vogue-dev
 ```
 
 Everything runs in the app; there are no servers or Cloud Functions. Each person's data lives under `users/{uid}` in Firestore and Storage, and the security rules let only that person reach it.
@@ -106,23 +106,24 @@ At sign-in the app first restores what the account has (the name, the face photo
 ```
 HomeBloc ─► FollowDay(day on screen), then FollowDay(other day)   (one claim at a time per phone)
 FollowDay watches users/{uid}/days/{date}_{occasion} (phone's copy first):
-  no record ─► ChooseOutfit (no refused pieces) ─► transaction: day = making(this phone) + suggestion recorded
+  no record ─► RecommendOutfit (the catalog's copy, the person's colours, refused pieces, history)
+            ─► transaction: day = making(this phone) + its reason and bands + suggestion recorded
   making, this phone, stopped ─► resume (Hive job, same photo, < 2 h)
   making, other phone ─► show its progress; unchanged 10 min ─► take over, same outfit
   ready ─► show the picture (phone copy, else Storage)      failed ─► reason + Try again
 MakeOutfit, once the day is claimed:
   this photo + outfit tried on before? (tryOns: phone, then Firestore) ─► the day takes that picture at once
-  else per piece (bottom ─► top ─► outer | dress ─► outer):
+  else per piece, in the outfit's passes (whole or bottom ─► top ─► outer):
     write progress (stop if another phone took the day) ─► cloth-v4 (poll 5 s, ≤ 4 min)
   last piece ─► download ─► phone + Storage + tryOns ─► ready
   YouCam refused ─► failed for every phone      network or server error ─► stays making, resumes later
   a piece's photo refused ─► suggestion.refusedPiece ─► another outfit (≤ 3 per making), else failed
 ```
 
-- **Choosing:** 1,749 outfits are bundled, sorted into 96 cells (a weather class combined with an occasion). Outfits never suggested come first, scored 80% on the knowledge base's rank and 20% on how many of their pieces the person loved; after that, the one suggested longest ago. Today and tomorrow never share an outfit, and a day keeps its outfit even if the forecast later moves it to another cell.
+- **Choosing:** the recommender (`RecommendOutfit`, design §7) takes the catalog's outfits that suit the person's colour season (from a clear reading; otherwise the weather alone) in the day's coldest hours, then the occasion, the warmest hours, rain and snow, without a piece whose photo YouCam refused. Among those scoring within 15% of the day's best, the one never suggested comes first; after that, the one suggested longest ago. Pieces worn in the last 14 days rest, so tomorrow avoids today's pieces. Today and tomorrow never share an outfit, and a day keeps its outfit when the forecast changes. The day keeps the outfit's id, the reason's facts (worded on screen in the person's language and unit) and the bands it was chosen for.
 - **Claiming:** the day is claimed in one Firestore transaction, so two phones, or today and tomorrow, never clash. Another phone takes over a making that hasn't changed for 10 minutes.
 - **Trying on:** YouCam dresses the person piece by piece, each pass on the last pass's picture, and progress is saved after each piece. An interrupted making resumes within 2 hours, while YouCam still holds the pictures.
-- **Tried on once:** each finished picture is listed under the body photo's fingerprint and the outfit's signature, so a later day with the same photo and outfit takes the picture at once, with no YouCam call and no second upload. The fingerprint is the SHA-256 of the photo's bytes, which is the same on every phone; the photo's file name and URL aren't, because they come from a counter kept on each phone.
+- **Tried on once:** each finished picture is listed under the body photo's fingerprint and the catalog outfit's id, so a later day with the same photo and outfit takes the picture at once, with no YouCam call and no second upload. The fingerprint is the SHA-256 of the photo's bytes, which is the same on every phone; the photo's file name and URL aren't, because they come from a counter kept on each phone.
 
 ### Reading colours
 
@@ -339,11 +340,11 @@ Projects: `in-vogue-dev` (development) and `in-vogue` (production).
 
 ### Offline: the catalog
 
-Today's app reads a bundled catalog. On the Mac, `../resources/` pulls Everlane's women's collection from Shopify's Global Catalog and builds the knowledge base (weather, occasions, styling and outfits) with Python. `scripts/export_*.py` copies what the app needs into `assets/`, so a change ships with an app release.
+On the Mac, `../resources/` pulls Everlane's women's collection from Shopify's Global Catalog with Python, and `scripts/export_catalog.py` copies what Shop needs into `assets/` (names, colourways, flat-lay photos, material, brand), so a change ships with an app release.
 
 The outfits to pick from now come from a curated catalog in Firebase (owner, October 19). Claude labelled every piece and colour and put together 500 outfits in `../resources/catalog/curation/`; `../resources/tools/catalog/build_outfit_catalog.py` checks and builds them, and `upload_outfit_catalog.py` puts them on `in-vogue-dev` with the development admin key, giving each picture a download link (`image.url`). The design is [docs/recommender-design.md](docs/recommender-design.md).
 
-The app keeps a copy of the catalog on the phone (`OutfitCatalogRepositoryImpl`). Once a run it reads `catalog/outfits.version` and fetches the outfits again only when it changed: the 40 sample outfits before sign-in (`where('sample', isEqualTo: true)`, as the rules require), every outfit after it. Offline, it uses the copy it has. Pages, the weather chips and Your picks all read that copy, so browsing costs no reads. Shop shows an outfit's pieces in the outfit's colours, with the bundled collection's flat-lay photo and material. Today's and tomorrow's outfits still come from the bundled knowledge base until the recommender replaces it. The recommender (`lib/features/stylist`, design §7) is built: for an occasion's hours it takes the bands of the coldest and warmest feels-like and any rain, snow or strong wind (`DayWeatherRules.bands`), keeps the outfits that suit the person's colour season (from a clear reading only; otherwise the weather alone) in the coldest hours and the occasion, the warmest hours (as worn or with the layer off), rain and snow, scores them and chooses by the owner's rule: never suggested first among those within 15% of the day's best. Its one-line reason is worded in the person's language and unit. Its tests include a year of real weather in ten cities.
+The app keeps a copy of the catalog on the phone (`OutfitCatalogRepositoryImpl`). Once a run it reads `catalog/outfits.version` and fetches the outfits again only when it changed: the 40 sample outfits before sign-in (`where('sample', isEqualTo: true)`, as the rules require), every outfit after it. Offline, it uses the copy it has. Pages, the weather chips and Your picks all read that copy, so browsing costs no reads. Shop shows an outfit's pieces in the outfit's colours, with the bundled collection's flat-lay photo and material. Today's and tomorrow's outfits come from the recommender (`lib/features/stylist`, design §7): for an occasion's hours it takes the bands of the coldest and warmest feels-like and any rain, snow or strong wind (`DayWeatherRules.bands`), keeps the outfits that suit the person's colour season (from a clear reading only; otherwise the weather alone) in the coldest hours and the occasion, the warmest hours (as worn or with the layer off), rain and snow, scores them and chooses by the owner's rule: never suggested first among those within 15% of the day's best. Its one-line reason is worded in the person's language and unit. Its tests include a year of real weather in ten cities.
 
 ## Data
 
@@ -353,9 +354,9 @@ The app keeps a copy of the catalog on the phone (`OutfitCatalogRepositoryImpl`)
 | --- | --- |
 | `users/{uid}` | The profile: name, location, photos (body, face), plan, `createdAt`, `updatedAt` |
 | `users/{uid}/wishlist/{outfitId}` | The person's picks: catalog outfits, such as `o0181` |
-| `users/{uid}/days/{yyyy-mm-dd}_{occasion}` | Each day's outfit: cell, outfit, `status`, the phone making it, progress, `picturePath`, `problem` |
-| `users/{uid}/suggestions/{signature}` | When each outfit was suggested, and any piece whose photo YouCam refused |
-| `users/{uid}/tryOns/{photo}-{signature}` | The picture made of an outfit on a photo: the photo's fingerprint, the signature and the picture's path |
+| `users/{uid}/days/{yyyy-mm-dd}_{occasion}` | Each day's outfit: `outfitId` (the catalog's), `reason` (its facts: kind, coldest and warmest feels-like and when, when rain, snow or wind starts, the colour season), the bands `cold` and `warm`, `rain`, `snow`, `windy`, `status`, the phone making it, progress, `picturePath`, `problem` |
+| `users/{uid}/suggestions/{outfitId}` | When each outfit was suggested, and any piece whose photo YouCam refused |
+| `users/{uid}/tryOns/{photo}-{outfitId}` | The picture made of an outfit on a photo: the photo's fingerprint, the outfit's id and the picture's path |
 | `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo: skin, brows, lips, hair, eyes, whether the photo was clear, and `analysedAt`. The one analysed last is the person's reading |
 | `users/{uid}/wardrobe/{id}` | An outfit the person owns: `name`, `colours` (one or more; an outfit saved before October 18's change holds one `colour`, still read), `bands` (feels-like bands), `rain`, `occasions`, `photo` (`path` in Storage, `url`) and `createdAt` |
 | `errors/{id}` | An error report: account, time, where, the error's kind and code, stack, flavor, platform, version, build and install id. The app may only add its own; nobody reads or changes one from the app |
@@ -386,7 +387,7 @@ Everything sits in `<support>/in_vogue/<flavor>/`:
 
 ### Bundled assets
 
-`assets/catalog/everlane_women.json` (the collection), `assets/outfits/outfits.json` (1,749 outfits in 96 cells), the fonts and images.
+`assets/catalog/everlane_women.json` (the collection, for Shop's flat-lay photos, materials and brand), the fonts and images. The outfits come from Firestore.
 
 ## Getting started
 
@@ -477,7 +478,8 @@ Run from `in-vogue/`; on the owner's Mac, wrap Flutter and Dart commands in `zsh
 | Analyze | `flutterN analyze` |
 | Test | `flutterN test` |
 | Type-check the iPhone widget (no build) | `xcrun swiftc -typecheck -parse-as-library -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target arm64-apple-ios17.0 "ios/In Vogue Widget/"*.swift` |
-| Export the bundled data, in this order | `python3 scripts/export_catalog.py`, then `python3 scripts/export_outfits.py` (it stops if `../resources/kb/translations.v1.json` lacks a text) |
+| Export the bundled collection | `python3 scripts/export_catalog.py` |
+| The recommender's test fixtures | `python3 scripts/export_catalog_fixture.py` after a catalog rebuild; `python3 scripts/fetch_weather_year.py` for the year of weather |
 | Widget glyphs for both platforms | `python3 scripts/generate_widget_glyphs.py` |
 | Launcher icons | `scripts/generate_app_icons.sh` |
 | Native Firebase files | `scripts/configure_firebase.sh development` (or `production`) |
@@ -544,7 +546,7 @@ From the owner's device test, October 18, in this order:
 
 ### Open work
 
-- **Recommender v2 (owner, October 19).** The curated catalog of 500 outfits is on `in-vogue-dev` with its pictures and rules, and the app reads it: setup's sample, Home's Outfits tab, favourites and Shop (October 19). Next: the recommender, the switch of Home's days to it, the learning and the wardrobe, as [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) plans.
+- **Recommender v2 (owner, October 19).** The curated catalog of 500 outfits is on `in-vogue-dev` with its pictures and rules, and the app reads it: setup's sample, Home's Outfits tab, favourites, Shop, and today's and tomorrow's outfits through the recommender (October 19). Next: the learning and the wardrobe on Home, as [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) plans.
 - **Check both widgets on phones (owner).**
   - Android: Large, Medium and Small; the switch at 06:00, 09:00 and midnight; a tap opening Home on that day; the waiting and stale states; the morning refresh (about 05:30, network on).
   - iPhone: the same, with Background App Refresh on, since iOS picks when the refresh runs.
@@ -622,3 +624,4 @@ Each line is an owner decision, kept so that old ideas stay dead.
   - The app's occasions stay Work, Casual, Going out and Staying in; Event and Active stay in the catalog's data and aren't implemented. An unclear skin analysis is ignored, like a missing one.
   - Nothing is migrated: the old system's records in `in-vogue-dev` are deleted (single-piece wishlist entries, days, suggestions, try-ons and their pictures). Log out clears only the phone's copy of the taste model; Delete account deletes it from the account.
   - The 50 cold-day outfits with a coat added stay. An outfit's colour seasons come from its top or dress, and from its skirt or trousers when they aren't neutral; the coat doesn't count. The catalog stays at 500 outfits.
+  - Home's days switched to the recommender (October 19). The old system is gone: the 1,749-outfit table, its build and export scripts and its reasons. Its records in `in-vogue-dev` were deleted with the admin key: 6 single-piece wishlist entries, 4 days, 4 suggestions, 2 try-on records and 4 day pictures, across 2 accounts; accounts, photos, colour analyses and wardrobe outfits stayed.

@@ -496,7 +496,7 @@ Each phase gets its own branch with tests first, a clean analyze, the whole suit
 | 2. Firebase | `feat/outfit_catalog` | Rules, emulator checks, upload to `in-vogue-dev` | **Done** October 19 (not committed) |
 | 3. Catalog in the app | `feat/catalog_v2` | `OutfitCatalogRepository` with its phone copy, onboarding sample, Home browser, favourites as outfits, Shop for an outfit, six weather bands | **Done** October 19 (not merged) |
 | 4. Recommender | `feat/stylist_engine` | Day bands (six), candidates, scorer, chooser, reasons, simulation | **Done** October 19 (not merged) |
-| 5. On Home | `feat/stylist_on_home` | `MakeOutfit` integration, Day v2 fields, the widget; then remove the knowledge-base path | — |
+| 5. On Home | `feat/stylist_on_home` | `MakeOutfit` integration, Day v2 fields, the widget; then remove the knowledge-base path | **Done** October 19 (not merged) |
 | 6. Learning | `feat/stylist_signals` | Taste model, signals, Buy logging | — |
 | 7. Wardrobe | `feat/wardrobe_on_home` | [§9](#9-onboarding-home-and-the-wardrobe): the person's own outfit at the bottom of the Today and Tomorrow tabs (owner) | — |
 
