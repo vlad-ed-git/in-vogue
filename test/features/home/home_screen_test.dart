@@ -293,10 +293,6 @@ void main() {
     final change = tester.getRect(findLink('Change'));
     expect(change.top, greaterThanOrEqualTo(photo.bottom));
     expect(change.right, closeTo(photo.right, 1));
-    expect(
-      tester.widget<OccasionLine>(find.byType(OccasionLine)).onChange,
-      isNull,
-    );
   });
 
   testWidgets('Outfits opens on every outfit, to love and to open', (

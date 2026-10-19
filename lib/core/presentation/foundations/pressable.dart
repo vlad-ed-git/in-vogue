@@ -14,34 +14,23 @@ enum InVogueHaptic {
   selection,
 
   /// A light impact.
-  light,
-
-  /// A medium impact.
-  medium;
+  light;
 
   /// Plays this haptic.
   Future<void> play() => switch (this) {
     InVogueHaptic.none => Future.value(),
     InVogueHaptic.selection => HapticFeedback.selectionClick(),
     InVogueHaptic.light => HapticFeedback.lightImpact(),
-    InVogueHaptic.medium => HapticFeedback.mediumImpact(),
   };
 }
 
 /// The interaction state passed to a [Pressable] builder.
 @immutable
 class PressableState {
-  const PressableState({
-    required this.pressed,
-    required this.focused,
-    required this.enabled,
-  });
+  const PressableState({required this.pressed, required this.enabled});
 
   /// A pointer is down on the control.
   final bool pressed;
-
-  /// Focus is highlighted on the control.
-  final bool focused;
 
   /// [Pressable.onTap] is set.
   final bool enabled;
@@ -65,8 +54,6 @@ class Pressable extends StatefulWidget {
     this.role,
     this.haptic = InVogueHaptic.none,
     this.expandTapTarget = true,
-    this.focusNode,
-    this.autofocus = false,
     super.key,
   });
 
@@ -101,9 +88,6 @@ class Pressable extends StatefulWidget {
   /// Wraps the control in a [TapTarget].
   final bool expandTapTarget;
 
-  final FocusNode? focusNode;
-  final bool autofocus;
-
   @override
   State<Pressable> createState() => _PressableState();
 }
@@ -112,16 +96,13 @@ class _PressableState extends State<Pressable> {
   bool _pressed = false;
   bool _focused = false;
   bool _hasFocus = false;
-  FocusNode? _ownNode;
+  final _node = FocusNode(debugLabel: 'Pressable');
 
   bool get _enabled => widget.onTap != null;
 
-  FocusNode get _node =>
-      widget.focusNode ?? (_ownNode ??= FocusNode(debugLabel: 'Pressable'));
-
   @override
   void dispose() {
-    _ownNode?.dispose();
+    _node.dispose();
     super.dispose();
   }
 
@@ -143,11 +124,7 @@ class _PressableState extends State<Pressable> {
 
   @override
   Widget build(BuildContext context) {
-    final state = PressableState(
-      pressed: _pressed,
-      focused: _focused,
-      enabled: _enabled,
-    );
+    final state = PressableState(pressed: _pressed, enabled: _enabled);
     Widget child = GestureDetector(
       behavior: HitTestBehavior.opaque,
       excludeFromSemantics: true,
@@ -182,7 +159,6 @@ class _PressableState extends State<Pressable> {
         enabled: _enabled,
         focusNode: _node,
         includeFocusSemantics: false,
-        autofocus: widget.autofocus,
         mouseCursor: _enabled
             ? SystemMouseCursors.click
             : SystemMouseCursors.basic,

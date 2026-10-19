@@ -4,21 +4,19 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
 
-/// Extends [child]'s tap area to at least [minSize] without changing its
-/// layout size. Taps outside the parent's bounds are still not received.
+/// Extends [child]'s tap area to at least the platform minimum without
+/// changing its layout size. Taps outside the parent's bounds are still not
+/// received.
 class TapTarget extends SingleChildRenderObjectWidget {
-  const TapTarget({super.key, this.minSize, super.child});
-
-  /// Defaults to the platform minimum.
-  final double? minSize;
+  const TapTarget({super.key, super.child});
 
   @override
   RenderTapTarget createRenderObject(BuildContext context) =>
-      RenderTapTarget(minSize ?? context.minTapTarget);
+      RenderTapTarget(context.minTapTarget);
 
   @override
   void updateRenderObject(BuildContext context, RenderTapTarget renderObject) {
-    renderObject.minSize = minSize ?? context.minTapTarget;
+    renderObject.minSize = context.minTapTarget;
   }
 }
 
@@ -27,7 +25,6 @@ class RenderTapTarget extends RenderProxyBox {
   RenderTapTarget(this._minSize);
 
   double _minSize;
-  double get minSize => _minSize;
   set minSize(double value) {
     if (value == _minSize) return;
     _minSize = value;

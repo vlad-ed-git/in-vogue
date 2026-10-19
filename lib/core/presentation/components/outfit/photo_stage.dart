@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
-import 'package:in_vogue/core/presentation/components/feedback/notice.dart';
 import 'package:in_vogue/core/presentation/foundations/in_vogue_context.dart';
 import 'package:in_vogue/core/presentation/foundations/running_rule.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
@@ -23,9 +22,6 @@ enum PhotoStageState {
   /// [RunningRule] runs along the bottom, with no words.
   looking,
 
-  /// The person's own photo, faded, with a retry notice below.
-  failed,
-
   /// The person's own photo, faded, with nothing over it.
   idle,
 }
@@ -43,7 +39,6 @@ class PhotoStage extends StatefulWidget {
     this.photo,
     this.outfitLabel,
     this.progress,
-    this.onRetry,
     super.key,
   }) : assert(
          state != PhotoStageState.ready || outfit != null,
@@ -58,7 +53,7 @@ class PhotoStage extends StatefulWidget {
   /// The outfit photo.
   final ImageProvider? outfit;
 
-  /// The person's own photo, shown faded while waiting or after a failure.
+  /// The person's own photo, shown faded until the outfit is ready.
   final ImageProvider? photo;
 
   /// Describes [outfit] for screen readers.
@@ -66,9 +61,6 @@ class PhotoStage extends StatefulWidget {
 
   /// A line under the waiting message, such as how far the try-on is.
   final String? progress;
-
-  /// Retry action for [PhotoStageState.failed].
-  final VoidCallback? onRetry;
 
   /// [available] height clamped between `stageMin` and [width] × 5 / 4.
   static double heightFor({required double available, required double width}) {
@@ -195,44 +187,30 @@ class _PhotoStageState extends State<PhotoStage> with TickerProviderStateMixin {
     final ready = widget.state == PhotoStageState.ready;
     final waiting = widget.state == PhotoStageState.waiting;
     final looking = widget.state == PhotoStageState.looking;
-    final failed = widget.state == PhotoStageState.failed;
     final revealing = ready && !_reveal.isCompleted;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: widget.height,
-          child: ClipRect(
-            child: ColoredBox(
-              color: InVogueColors.paper,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (!ready || revealing) _faded(),
-                  if (ready) _outfit(),
-                  if (waiting) _WaitingMessage(progress: widget.progress),
-                  if (looking)
-                    const Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: RunningRule(),
-                    ),
-                ],
-              ),
-            ),
+    return SizedBox(
+      height: widget.height,
+      width: double.infinity,
+      child: ClipRect(
+        child: ColoredBox(
+          color: InVogueColors.paper,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (!ready || revealing) _faded(),
+              if (ready) _outfit(),
+              if (waiting) _WaitingMessage(progress: widget.progress),
+              if (looking)
+                const Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: RunningRule(),
+                ),
+            ],
           ),
         ),
-        if (failed)
-          Padding(
-            padding: const EdgeInsets.only(top: InVogueSpace.s3),
-            child: Notice.tryOnFailed(
-              context: context,
-              onRetry: widget.onRetry ?? () {},
-            ),
-          ),
-      ],
+      ),
     );
   }
 }

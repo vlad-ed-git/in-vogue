@@ -10,7 +10,6 @@ abstract final class InVogueIcons {
   static const IconData caretLeft = PhosphorIconsRegular.caretLeft;
   static const IconData check = PhosphorIconsRegular.check;
   static const IconData image = PhosphorIconsRegular.image;
-  static const IconData lock = PhosphorIconsRegular.lockSimple;
   static const IconData mapPin = PhosphorIconsRegular.mapPin;
   static const IconData retry = PhosphorIconsRegular.arrowsClockwise;
   static const IconData offline = PhosphorIconsRegular.wifiSlash;

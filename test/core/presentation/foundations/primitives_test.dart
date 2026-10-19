@@ -119,24 +119,6 @@ void main() {
       );
     });
 
-    testWidgets('fades a locked photo and lays its overlay on top', (
-      tester,
-    ) async {
-      await pumpInVogue(
-        tester,
-        SizedBox(
-          width: 108,
-          child: PhotoSlot(
-            image: testImage,
-            opacity: InVogueLayout.opacityLocked,
-            overlay: const LockOverlay(),
-          ),
-        ),
-      );
-      expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.45);
-      expect(findIcon(InVogueIcons.lock), findsOneWidget);
-    });
-
     testWidgets('the check badge is a 22-point ink square, 6 in', (
       tester,
     ) async {

@@ -81,11 +81,8 @@ class PicksScreen extends StatelessWidget {
       bottomNavigationBar: BlocBuilder<PicksBloc, PicksState>(
         buildWhen: (previous, current) =>
             previous.picks.length != current.picks.length,
-        builder: (context, state) => PicksBar(
-          count: state.picks.length,
-          action: PicksBarAction.proceed,
-          onPressed: onProceed,
-        ),
+        builder: (context, state) =>
+            PicksBar(count: state.picks.length, onPressed: onProceed),
       ),
     ),
   );

@@ -30,7 +30,6 @@ class InVogueSheetRoute<T> extends PopupRoute<T> {
     required this.builder,
     required this.reduceMotion,
     this.barrierLabel,
-    super.settings,
   });
 
   final WidgetBuilder builder;

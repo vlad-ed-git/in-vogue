@@ -313,8 +313,6 @@
   "bodyPhotoPrivacy": "Your photo is only used to dress you in outfits. You can replace it any time.",
   "exampleBodySpoken": "Example: a woman photographed head to toe, facing forward, in even light",
   "exampleFaceSpoken": "Example: a face photographed close up, facing forward, in daylight",
-  "goPro": "Go Pro",
-  "lockedSpoken": "Part of Pro",
   "loveSpoken": "Love {name}",
   "@loveSpoken": {
     "placeholders": {

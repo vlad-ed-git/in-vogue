@@ -471,7 +471,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     l10n.weatherRain,
                   ],
                   selectedIndex: group,
-                  deselectable: true,
                   onSelected: (index) {
                     setState(() => _group = index);
                     context.read<PicksBloc>().add(

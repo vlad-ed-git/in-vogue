@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/components/actions/love_toggle.dart';
-import 'package:in_vogue/core/presentation/components/actions/text_link.dart';
 import 'package:in_vogue/core/presentation/foundations/overflow_hit_stack.dart';
 import 'package:in_vogue/core/presentation/foundations/photo_slot.dart';
 import 'package:in_vogue/core/presentation/foundations/pressable.dart';
@@ -12,9 +11,6 @@ import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
 /// A product: 4:5 photo, name with a love toggle, and colour dots.
-///
-/// A locked tile fades its photo, shows a lock and a Go Pro link instead of
-/// the heart, and sends taps to [onGoPro].
 class ProductTile extends StatelessWidget {
   const ProductTile({
     required this.photo,
@@ -23,8 +19,6 @@ class ProductTile extends StatelessWidget {
     required this.loved,
     required this.onLoveChanged,
     required this.onTap,
-    this.locked = false,
-    this.onGoPro,
     super.key,
   });
 
@@ -36,8 +30,6 @@ class ProductTile extends StatelessWidget {
   final bool loved;
   final ValueChanged<bool>? onLoveChanged;
   final VoidCallback? onTap;
-  final bool locked;
-  final VoidCallback? onGoPro;
 
   /// Colour dots shown before "+N".
   static const int maxDots = 4;
@@ -50,14 +42,7 @@ class ProductTile extends StatelessWidget {
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        PhotoSlot(
-          image: photo,
-          showLoading: true,
-          opacity: locked ? InVogueLayout.opacityLocked : 1,
-          overlay: locked
-              ? LockOverlay(semanticLabel: l10n.lockedSpoken)
-              : null,
-        ),
+        PhotoSlot(image: photo, showLoading: true),
         Padding(
           padding: const EdgeInsets.only(top: InVogueSpace.s2),
           child: Row(
@@ -65,10 +50,7 @@ class ProductTile extends StatelessWidget {
             children: [
               Expanded(child: Text(name, style: InVogueType.item)),
               const SizedBox(width: InVogueSpace.s1),
-              if (locked)
-                TextLink(label: l10n.goPro, onTap: onGoPro)
-              else
-                const SizedBox(width: _heartFootprint, height: 20),
+              const SizedBox(width: _heartFootprint, height: 20),
             ],
           ),
         ),
@@ -103,23 +85,22 @@ class ProductTile extends StatelessWidget {
         return OverflowHitStack(
           children: [
             Pressable(
-              onTap: locked ? onGoPro : onTap,
+              onTap: onTap,
               semanticLabel: name,
               expandTapTarget: false,
               builder: (context, state) => content,
             ),
-            if (!locked)
-              // The heart's 44-point box starts at the footprint's left edge
-              // and overhangs the row by 12 above, below and to the right.
-              Positioned(
-                left: constraints.maxWidth - _heartFootprint,
-                top: photoHeight + InVogueSpace.s2 - _heartOverhang,
-                child: LoveToggle(
-                  loved: loved,
-                  onChanged: onLoveChanged,
-                  pieceLabel: name,
-                ),
+            // The heart's 44-point box starts at the footprint's left edge
+            // and overhangs the row by 12 above, below and to the right.
+            Positioned(
+              left: constraints.maxWidth - _heartFootprint,
+              top: photoHeight + InVogueSpace.s2 - _heartOverhang,
+              child: LoveToggle(
+                loved: loved,
+                onChanged: onLoveChanged,
+                pieceLabel: name,
               ),
+            ),
           ],
         );
       },

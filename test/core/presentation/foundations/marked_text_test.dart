@@ -76,21 +76,11 @@ void main() {
     expect(text.underlineRects, [Rect.fromLTWH(0, baseline + 3, 6 * 15, 1)]);
   });
 
-  testWidgets('reads its words, or the label it is given', (tester) async {
+  testWidgets('reads its words', (tester) async {
     await pumpInVogue(
       tester,
-      const Column(
-        children: [
-          MarkedText('Go Pro', style: InVogueType.caption, underline: true),
-          MarkedText(
-            '3 pm',
-            style: InVogueType.caption,
-            semanticsLabel: '3 PM',
-          ),
-        ],
-      ),
+      const MarkedText('Go Pro', style: InVogueType.caption, underline: true),
     );
     expect(find.bySemanticsLabel('Go Pro'), findsOneWidget);
-    expect(find.bySemanticsLabel('3 PM'), findsOneWidget);
   });
 }

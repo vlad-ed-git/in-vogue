@@ -33,24 +33,6 @@ class Notice extends StatelessWidget {
     ),
   );
 
-  /// A failed try-on; offers Try again.
-  factory Notice.tryOnFailed({
-    required BuildContext context,
-    required VoidCallback onRetry,
-    Key? key,
-  }) => Notice(
-    key: key,
-    icon: InVogueIcons.warning,
-    alert: true,
-    message: context.translated.tryOnFailed,
-    action: InVogueButton.secondary(
-      label: context.translated.retry,
-      icon: InVogueIcons.retry,
-      onRose: true,
-      onPressed: onRetry,
-    ),
-  );
-
   final IconData icon;
 
   final String message;

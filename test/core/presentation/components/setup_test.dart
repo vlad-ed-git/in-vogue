@@ -240,24 +240,6 @@ void main() {
       expect(edge(tester), Border.all(color: InVogueColors.ink, width: 2));
     });
 
-    testWidgets('an error sits below with a warning icon, in ink', (
-      tester,
-    ) async {
-      await pumpInVogue(
-        tester,
-        InVogueTextField(
-          label: 'Your name',
-          controller: controller,
-          error: 'Add the name you’d like us to use.',
-        ),
-      );
-      final error = tester.widget<Text>(
-        find.text('Add the name you’d like us to use.'),
-      );
-      expect(error.style!.color, InVogueColors.ink);
-      expect(tester.widget<Icon>(findIcon(InVogueIcons.warning)).size, 20);
-    });
-
     testWidgets('the label names the field for screen readers', (tester) async {
       final handle = tester.ensureSemantics();
       await pumpInVogue(

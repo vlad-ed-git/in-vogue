@@ -186,17 +186,19 @@ void main() {
 
     testWidgets('Enter activates a focused button', (tester) async {
       var taps = 0;
-      final focus = FocusNode();
-      addTearDown(focus.dispose);
       await pumpInVogue(
         tester,
-        InVogueButton.primary(
-          label: 'Next',
-          focusNode: focus,
-          onPressed: () => taps++,
-        ),
+        InVogueButton.primary(label: 'Next', onPressed: () => taps++),
       );
-      focus.requestFocus();
+      tester
+          .widget<FocusableActionDetector>(
+            find.descendant(
+              of: find.byType(InVogueButton),
+              matching: find.byType(FocusableActionDetector),
+            ),
+          )
+          .focusNode!
+          .requestFocus();
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       expect(taps, 1);
@@ -259,24 +261,6 @@ void main() {
       await tester.tapAt(link.topCenter - const Offset(0, 13));
       await tester.tapAt(link.bottomCenter + const Offset(0, 13));
       expect(taps, 2);
-    });
-
-    testWidgets('Go Pro in the plan line is caption size on the highlighter', (
-      tester,
-    ) async {
-      await pumpInVogue(
-        tester,
-        TextLink(
-          label: 'Go Pro',
-          style: InVogueType.caption,
-          highlight: true,
-          onTap: () {},
-        ),
-      );
-      final text = tester.widget<MarkedText>(find.byType(MarkedText));
-      expect(text.highlight, isTrue);
-      expect(text.highlightColor, InVogueColors.accent);
-      expect(text.style.fontSize, 12);
     });
   });
 

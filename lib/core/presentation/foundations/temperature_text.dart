@@ -10,7 +10,6 @@ class TemperatureText extends StatelessWidget {
     this.degrees, {
     this.style = InVogueType.numeral,
     this.relativeLineHeight = false,
-    this.color,
     this.textScaler,
     super.key,
   });
@@ -21,7 +20,6 @@ class TemperatureText extends StatelessWidget {
 
   /// Scales the degree sign's line height with its own size.
   final bool relativeLineHeight;
-  final Color? color;
 
   /// Defaults to the display text scaler.
   final TextScaler? textScaler;
@@ -32,11 +30,10 @@ class TemperatureText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final figureStyle = color == null ? style : style.copyWith(color: color);
     return Text.rich(
       TextSpan(
         text: figures(degrees),
-        style: figureStyle,
+        style: style,
         children: [
           TextSpan(
             text: '°',

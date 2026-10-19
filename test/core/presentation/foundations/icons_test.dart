@@ -13,7 +13,6 @@ void main() {
     InVogueIcons.caretLeft,
     InVogueIcons.check,
     InVogueIcons.image,
-    InVogueIcons.lock,
     InVogueIcons.mapPin,
     InVogueIcons.retry,
     InVogueIcons.offline,

@@ -10,10 +10,8 @@ void main() {
   group('ProductTile', () {
     Widget tile({
       bool loved = false,
-      bool locked = false,
       ValueChanged<bool>? onLove,
       VoidCallback? onTap,
-      VoidCallback? onGoPro,
       int colours = 3,
     }) => Align(
       alignment: Alignment.topLeft,
@@ -26,8 +24,6 @@ void main() {
           loved: loved,
           onLoveChanged: onLove ?? (_) {},
           onTap: onTap ?? () {},
-          locked: locked,
-          onGoPro: onGoPro,
         ),
       ),
     );
@@ -78,19 +74,6 @@ void main() {
       expect(loved, isTrue);
     });
 
-    testWidgets('locked: faded photo, lock, Go Pro instead of the heart', (
-      tester,
-    ) async {
-      var goPro = 0;
-      await pumpInVogue(tester, tile(locked: true, onGoPro: () => goPro++));
-      expect(find.byType(LoveToggle), findsNothing);
-      expect(tester.widget<PhotoSlot>(find.byType(PhotoSlot)).opacity, 0.45);
-      expect(findIcon(InVogueIcons.lock), findsOneWidget);
-      await tester.tap(findLink('Go Pro'));
-      await tester.tap(find.byType(PhotoSlot));
-      expect(goPro, 2);
-    });
-
     testWidgets('long names wrap without clipping at 200% text', (
       tester,
     ) async {
@@ -107,11 +90,7 @@ void main() {
         tester,
         Scaffold(
           body: const SizedBox.expand(),
-          bottomNavigationBar: PicksBar(
-            count: 2,
-            action: PicksBarAction.proceed,
-            onPressed: () {},
-          ),
+          bottomNavigationBar: PicksBar(count: 2, onPressed: () {}),
         ),
         scroll: false,
       );
@@ -144,11 +123,7 @@ void main() {
             ).copyWith(viewPadding: const EdgeInsets.only(bottom: 34)),
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: PicksBar(
-                count: 3,
-                action: PicksBarAction.proceed,
-                onPressed: () => pressed++,
-              ),
+              child: PicksBar(count: 3, onPressed: () => pressed++),
             ),
           ),
         ),
@@ -175,17 +150,12 @@ void main() {
       expect(pressed, 1);
     });
 
-    testWidgets('zero picks is fine: an ink heart and Done', (tester) async {
-      await pumpInVogue(
-        tester,
-        PicksBar(count: 0, action: PicksBarAction.done, onPressed: () {}),
-      );
+    testWidgets('zero picks is fine: an ink heart', (tester) async {
+      await pumpInVogue(tester, PicksBar(count: 0, onPressed: () {}));
       expect(find.text('Your picks · 0'), findsOneWidget);
       final heart = tester.widget<Icon>(find.byType(Icon).first);
       expect(heart.icon, InVogueIcons.heart);
       expect(heart.color, InVogueColors.ink);
-      expect(find.text('Done'), findsOneWidget);
-      expect(findIcon(InVogueIcons.check), findsOneWidget);
     });
   });
 

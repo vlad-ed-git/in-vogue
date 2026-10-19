@@ -4,76 +4,45 @@ import 'package:flutter/widgets.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_colors.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_layout.dart';
 
-/// Text with an optional highlight behind it and an optional underline, both
-/// placed as CSS places them.
+/// Text with an optional Rose highlight behind it and an optional underline,
+/// both placed as CSS places them.
 ///
-/// The highlight covers each line's glyph box (ascent to descent) plus
-/// [highlightOutset]; the underline sits [underlineOffset] below each
-/// baseline. Flutter's own span background and decoration follow different
-/// metrics.
+/// The highlight covers each line's glyph box (ascent to descent) plus 4
+/// points either side; the underline sits 3 points below each baseline.
+/// Flutter's own span background and decoration follow different metrics.
 class MarkedText extends StatelessWidget {
   const MarkedText(
     this.text, {
     required this.style,
     this.highlight = false,
-    this.highlightColor = InVogueColors.accent,
-    this.highlightOutset = const EdgeInsets.symmetric(horizontal: 4),
     this.underline = false,
-    this.underlineColor,
-    this.underlineThickness = InVogueLayout.strokeHairline,
-    this.underlineOffset = 3,
-    this.textScaler,
-    this.maxLines,
-    this.semanticsLabel,
     super.key,
   });
 
   final String text;
   final TextStyle style;
 
-  /// Paints [highlightColor] behind the text.
+  /// Paints the Rose highlight behind the text.
   final bool highlight;
-  final Color highlightColor;
 
-  /// How far the highlight extends beyond each line's glyph box.
-  final EdgeInsets highlightOutset;
-
-  /// Underlines every line.
+  /// Underlines every line in the text colour.
   final bool underline;
-
-  /// Defaults to the text colour.
-  final Color? underlineColor;
-  final double underlineThickness;
-
-  /// Distance from the baseline to the underline's top.
-  final double underlineOffset;
-
-  /// Defaults to the ambient text scaler.
-  final TextScaler? textScaler;
-  final int? maxLines;
-
-  /// Read by screen readers instead of [text].
-  final String? semanticsLabel;
 
   @override
   Widget build(BuildContext context) {
     final effective = DefaultTextStyle.of(context).style.merge(style);
     return Semantics(
-      label: semanticsLabel ?? text,
+      label: text,
       excludeSemantics: true,
       child: _MarkedTextLeaf(
         text: TextSpan(text: text, style: effective),
         textDirection: Directionality.of(context),
-        textScaler: textScaler ?? MediaQuery.textScalerOf(context),
+        textScaler: MediaQuery.textScalerOf(context),
         locale: Localizations.maybeLocaleOf(context),
-        maxLines: maxLines,
-        highlightColor: highlight ? highlightColor : null,
-        highlightOutset: highlightOutset,
+        highlightColor: highlight ? InVogueColors.accent : null,
         underlineColor: underline
-            ? (underlineColor ?? effective.color ?? InVogueColors.ink)
+            ? (effective.color ?? InVogueColors.ink)
             : null,
-        underlineThickness: underlineThickness,
-        underlineOffset: underlineOffset,
       ),
     );
   }
@@ -85,24 +54,16 @@ class _MarkedTextLeaf extends LeafRenderObjectWidget {
     required this.textDirection,
     required this.textScaler,
     required this.locale,
-    required this.maxLines,
     required this.highlightColor,
-    required this.highlightOutset,
     required this.underlineColor,
-    required this.underlineThickness,
-    required this.underlineOffset,
   });
 
   final TextSpan text;
   final TextDirection textDirection;
   final TextScaler textScaler;
   final Locale? locale;
-  final int? maxLines;
   final Color? highlightColor;
-  final EdgeInsets highlightOutset;
   final Color? underlineColor;
-  final double underlineThickness;
-  final double underlineOffset;
 
   @override
   RenderMarkedText createRenderObject(BuildContext context) => RenderMarkedText(
@@ -110,12 +71,8 @@ class _MarkedTextLeaf extends LeafRenderObjectWidget {
     textDirection: textDirection,
     textScaler: textScaler,
     locale: locale,
-    maxLines: maxLines,
     highlightColor: highlightColor,
-    highlightOutset: highlightOutset,
     underlineColor: underlineColor,
-    underlineThickness: underlineThickness,
-    underlineOffset: underlineOffset,
   );
 
   @override
@@ -125,12 +82,8 @@ class _MarkedTextLeaf extends LeafRenderObjectWidget {
       ..textDirection = textDirection
       ..textScaler = textScaler
       ..locale = locale
-      ..maxLines = maxLines
       ..highlightColor = highlightColor
-      ..highlightOutset = highlightOutset
-      ..underlineColor = underlineColor
-      ..underlineThickness = underlineThickness
-      ..underlineOffset = underlineOffset;
+      ..underlineColor = underlineColor;
   }
 }
 
@@ -141,19 +94,20 @@ class RenderMarkedText extends RenderBox {
     required TextDirection textDirection,
     required TextScaler textScaler,
     required Locale? locale,
-    required int? maxLines,
     required this._highlightColor,
-    required this._highlightOutset,
     required this._underlineColor,
-    required this._underlineThickness,
-    required this._underlineOffset,
   }) : _painter = TextPainter(
          text: text,
          textDirection: textDirection,
          textScaler: textScaler,
          locale: locale,
-         maxLines: maxLines,
        );
+
+  /// How far the highlight extends beyond each line's glyph box.
+  static const _highlightOutset = EdgeInsets.symmetric(horizontal: 4);
+
+  /// Distance from the baseline to the underline's top.
+  static const _underlineOffset = 3.0;
 
   final TextPainter _painter;
 
@@ -186,12 +140,6 @@ class RenderMarkedText extends RenderBox {
     markNeedsLayout();
   }
 
-  set maxLines(int? value) {
-    if (_painter.maxLines == value) return;
-    _painter.maxLines = value;
-    markNeedsLayout();
-  }
-
   Color? _highlightColor;
   set highlightColor(Color? value) {
     if (_highlightColor == value) return;
@@ -199,31 +147,10 @@ class RenderMarkedText extends RenderBox {
     markNeedsPaint();
   }
 
-  EdgeInsets _highlightOutset;
-  set highlightOutset(EdgeInsets value) {
-    if (_highlightOutset == value) return;
-    _highlightOutset = value;
-    markNeedsPaint();
-  }
-
   Color? _underlineColor;
   set underlineColor(Color? value) {
     if (_underlineColor == value) return;
     _underlineColor = value;
-    markNeedsPaint();
-  }
-
-  double _underlineThickness;
-  set underlineThickness(double value) {
-    if (_underlineThickness == value) return;
-    _underlineThickness = value;
-    markNeedsPaint();
-  }
-
-  double _underlineOffset;
-  set underlineOffset(double value) {
-    if (_underlineOffset == value) return;
-    _underlineOffset = value;
     markNeedsPaint();
   }
 
@@ -255,7 +182,7 @@ class RenderMarkedText extends RenderBox {
             line.left,
             line.baseline + _underlineOffset,
             line.width,
-            _underlineThickness,
+            InVogueLayout.strokeHairline,
           ),
     ];
   }

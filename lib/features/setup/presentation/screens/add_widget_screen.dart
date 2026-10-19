@@ -119,7 +119,6 @@ class _AddWidgetScreenState extends State<AddWidgetScreen> {
         final condition = weather.condition(l10n, language);
         return BlocBuilder<PhotoBloc, PhotoState>(
           builder: (context, photo) => HomeWidgetPreview(
-            size: HomeWidgetSize.large,
             width: width,
             kicker: day,
             dateLine:

@@ -43,30 +43,21 @@ void main() {
       expect(opened, 1);
     });
 
-    testWidgets('a failed try-on is an alert with a paper Try again', (
+    testWidgets('an alert has a 2-point ink rule and is announced', (
       tester,
     ) async {
-      final handle = tester.ensureSemantics();
-      var retried = 0;
       await pumpInVogue(
         tester,
-        Builder(
-          builder: (context) =>
-              Notice.tryOnFailed(context: context, onRetry: () => retried++),
+        const Notice(
+          icon: InVogueIcons.warning,
+          message: 'We couldn’t dress you this time. Your photo is fine.',
+          alert: true,
         ),
       );
       final border = band(tester).border! as Border;
       expect(border.top, const BorderSide(color: InVogueColors.ink, width: 2));
       final warning = tester.widget<Icon>(findIcon(InVogueIcons.warning));
       expect(warning.color, InVogueColors.ink, reason: 'no error red');
-      final button = tester.widget<InVogueButton>(find.byType(InVogueButton));
-      expect(button.kind, InVogueButtonKind.secondary);
-      expect(button.onRose, isTrue);
-      expect(button.icon, InVogueIcons.retry);
-      expect(
-        find.text('We couldn’t dress you this time. Your photo is fine.'),
-        findsOneWidget,
-      );
       final semantics = tester.widget<Semantics>(
         find
             .descendant(
@@ -76,9 +67,6 @@ void main() {
             .first,
       );
       expect(semantics.properties.liveRegion, isTrue);
-      await tester.tap(find.text('Try again'));
-      expect(retried, 1);
-      handle.dispose();
     });
 
     testWidgets('lays out icon, 12 gap, text, 12 gap, action in 16 padding', (
@@ -113,14 +101,14 @@ void main() {
         tester,
         Builder(
           builder: (context) =>
-              Notice.tryOnFailed(context: context, onRetry: () {}),
+              Notice.locationOff(context: context, onOpenSettings: () {}),
         ),
         size: const Size(320, 568),
         textScale: 2,
         locale: const Locale('es'),
       );
       expect(tester.takeException(), isNull);
-      expect(find.text('Reintentar'), findsOneWidget);
+      expect(find.text('Abrir ajustes'), findsOneWidget);
     });
   });
 

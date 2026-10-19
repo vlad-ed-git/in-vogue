@@ -51,13 +51,10 @@ enum WeatherGlyphType {
 /// Plays on first build and whenever [type] or [playKey] changes. Stays still
 /// under reduced motion, in a muted [TickerMode] and in the background.
 class WeatherGlyph extends StatefulWidget {
-  const WeatherGlyph(
-    this.type, {
-    this.size = 28,
-    this.color = InVogueColors.ink,
-    this.playKey,
-    super.key,
-  }) : still = false;
+  const WeatherGlyph(this.type, {this.playKey, super.key})
+    : size = 28,
+      color = InVogueColors.ink,
+      still = false;
 
   /// The static Phosphor glyph; never moves.
   const WeatherGlyph.still(

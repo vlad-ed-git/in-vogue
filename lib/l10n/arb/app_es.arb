@@ -73,8 +73,6 @@
   "bodyPhotoPrivacy": "Tu foto solo se usa para vestirte con los conjuntos. Puedes cambiarla cuando quieras.",
   "exampleBodySpoken": "Ejemplo: una mujer fotografiada de pies a cabeza, de frente, con luz uniforme",
   "exampleFaceSpoken": "Ejemplo: un rostro fotografiado de cerca, de frente, con luz natural",
-  "goPro": "Hazte Pro",
-  "lockedSpoken": "Incluido en Pro",
   "loveSpoken": "Me gusta {name}",
   "loved": "Te gusta",
   "colourCount": "{count, plural, =1{1 color} other{{count} colores}}",

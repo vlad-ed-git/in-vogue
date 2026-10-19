@@ -106,7 +106,7 @@ class _DaySwitchState extends State<DaySwitch>
               ),
               children: [
                 for (var i = 0; i < widget.labels.length; i++)
-                  LayoutId(id: i, child: _tab(context, i)),
+                  LayoutId(id: i, child: _tab(i)),
                 if (showDate)
                   LayoutId(
                     id: _DaySwitchLayout.dateId,
@@ -185,7 +185,7 @@ class _DaySwitchState extends State<DaySwitch>
     return width.ceilToDouble();
   }
 
-  Widget _tab(BuildContext context, int index) {
+  Widget _tab(int index) {
     final selected = index == widget.selectedIndex;
     return Pressable(
       onTap: selected ? () {} : () => widget.onSelected(index),

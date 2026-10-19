@@ -300,12 +300,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get exampleFaceSpoken => '示例：一张在自然光下拍摄的正面脸部近照';
 
   @override
-  String get goPro => '升级 Pro';
-
-  @override
-  String get lockedSpoken => 'Pro 专享';
-
-  @override
   String loveSpoken(String name) {
     return '喜欢 $name';
   }

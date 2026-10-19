@@ -11,25 +11,19 @@ final _other = MemoryImage(Uint8List.fromList(testImage.bytes));
 
 void main() {
   group('OccasionLine', () {
-    testWidgets('shows the kicker and Change only when it can change', (
-      tester,
-    ) async {
-      var changes = 0;
+    testWidgets('shows the occasion as a 32-point kicker line', (tester) async {
       await pumpInVogue(
         tester,
-        Column(
+        const Column(
           children: [
-            OccasionLine(occasion: Occasion.work, onChange: () => changes++),
-            const OccasionLine(occasion: Occasion.goingOut),
+            OccasionLine(occasion: Occasion.work),
+            OccasionLine(occasion: Occasion.goingOut),
           ],
         ),
       );
       expect(find.text('WORKDAY'), findsOneWidget);
       expect(find.text('GOING OUT'), findsOneWidget);
-      expect(findLink('Change'), findsOneWidget);
       expect(tester.getSize(find.byType(OccasionLine).first).height, 32);
-      await tester.tap(findLink('Change'));
-      expect(changes, 1);
     });
 
     testWidgets('the sheet lists every occasion and returns the choice', (
@@ -86,7 +80,6 @@ void main() {
       outfit: outfit ?? testImage,
       photo: testImage,
       outfitLabel: 'You in a mac coat.',
-      onRetry: () {},
     );
 
     Widget switchable(PhotoStageState Function() state, VoidCallback onTap) =>
@@ -169,15 +162,6 @@ void main() {
       expect(find.text('Getting your outfit ready…'), findsNothing);
       expect(find.byType(Notice), findsNothing);
       expect(tester.getSize(find.byType(PhotoStage)), const Size(350, 380));
-    });
-
-    testWidgets('failed: the faded photo and a retry notice 12 below', (
-      tester,
-    ) async {
-      await pumpInVogue(tester, stage(PhotoStageState.failed));
-      expect(opacities(tester), [0.28]);
-      final stageTop = tester.getTopLeft(find.byType(PhotoStage)).dy;
-      expect(tester.getTopLeft(find.byType(Notice)).dy - stageTop, 380 + 12);
     });
 
     testWidgets('a finished outfit is revealed top to bottom in 720 ms', (

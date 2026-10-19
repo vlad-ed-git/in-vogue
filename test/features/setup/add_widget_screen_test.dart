@@ -133,13 +133,11 @@ void main() {
     final preview = tester.widget<HomeWidgetPreview>(
       find.byType(HomeWidgetPreview),
     );
-    expect(preview.size, HomeWidgetSize.large);
     expect(preview.temperature, 54);
     expect(preview.feelsLike, 49);
     expect(preview.condition, 'Showers after 2 pm');
     expect(preview.dateLine, 'Fri 16 Oct · Workday');
     expect(preview.waitingPhoto, isNotNull);
-    expect(preview.portrait, isNull);
     expect(tester.getSize(find.byType(HomeWidgetPreview)).width, 390);
     expect(
       preview.semanticLabel,

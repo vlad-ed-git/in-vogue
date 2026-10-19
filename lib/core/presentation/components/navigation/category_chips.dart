@@ -9,16 +9,13 @@ import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
 /// A horizontally scrolling row of single-choice chips.
 ///
 /// Adds the page margin itself, so it can scroll to the screen edges; its
-/// 6-point vertical padding gives each chip a 48-point tap area. When
-/// [deselectable], none need be chosen, and tapping the chosen chip again
-/// chooses none.
+/// 6-point vertical padding gives each chip a 48-point tap area. None need
+/// be chosen, and tapping the chosen chip again chooses none.
 class CategoryChips extends StatelessWidget {
   const CategoryChips({
     required this.labels,
     required this.selectedIndex,
     required this.onSelected,
-    this.deselectable = false,
-    this.semanticLabel,
     super.key,
   });
 
@@ -27,12 +24,8 @@ class CategoryChips extends StatelessWidget {
   /// Null when none is chosen.
   final int? selectedIndex;
 
-  /// Gets null when the chosen chip is chosen again, if [deselectable].
+  /// Gets null when the chosen chip is chosen again.
   final ValueChanged<int?> onSelected;
-  final bool deselectable;
-
-  /// Screen-reader name of the group.
-  final String? semanticLabel;
 
   static const double chipHeight = 36;
 
@@ -40,7 +33,6 @@ class CategoryChips extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(
     container: true,
     explicitChildNodes: true,
-    label: semanticLabel,
     // Takes the row's own height under any constraints.
     child: Align(
       alignment: AlignmentDirectional.topStart,
@@ -58,9 +50,7 @@ class CategoryChips extends StatelessWidget {
               _Chip(
                 label: labels[i],
                 selected: i == selectedIndex,
-                deselectable: deselectable,
-                onTap: () =>
-                    onSelected(deselectable && i == selectedIndex ? null : i),
+                onTap: () => onSelected(i == selectedIndex ? null : i),
               ),
             ],
           ],
@@ -117,15 +107,11 @@ class _Chip extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.reveal = true,
-    this.deselectable = false,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
-
-  /// Tapping it when chosen chooses none.
-  final bool deselectable;
 
   /// Scrolls the chip into view when tapped, for a row that scrolls.
   final bool reveal;
@@ -145,9 +131,7 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) => Pressable(
     onTap: () => _select(context),
     toggled: selected,
-    haptic: selected && reveal && !deselectable
-        ? InVogueHaptic.none
-        : InVogueHaptic.selection,
+    haptic: InVogueHaptic.selection,
     semanticLabel: label,
     excludeSemantics: true,
     builder: (context, state) => DecoratedBox(

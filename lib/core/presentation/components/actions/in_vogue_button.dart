@@ -27,13 +27,9 @@ class InVogueButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon = InVogueIcons.arrowRight,
-    this.semanticLabel,
-    this.focusNode,
-    this.autofocus = false,
     this.busy = false,
     super.key,
   }) : kind = InVogueButtonKind.primary,
-       iconColor = null,
        compact = false,
        onRose = false;
 
@@ -42,12 +38,8 @@ class InVogueButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.icon,
-    this.iconColor,
     this.compact = false,
     this.onRose = false,
-    this.semanticLabel,
-    this.focusNode,
-    this.autofocus = false,
     this.busy = false,
     super.key,
   }) : kind = InVogueButtonKind.secondary;
@@ -60,17 +52,11 @@ class InVogueButton extends StatelessWidget {
 
   final IconData? icon;
 
-  /// Icon colour when it differs from the label.
-  final Color? iconColor;
-
   /// 44 points tall instead of 52.
   final bool compact;
 
   /// Paper fill instead of Rose, for Rose backgrounds.
   final bool onRose;
-  final String? semanticLabel;
-  final FocusNode? focusNode;
-  final bool autofocus;
 
   /// Working: taps do nothing and screen readers hear it loading.
   final bool busy;
@@ -105,10 +91,7 @@ class InVogueButton extends StatelessWidget {
         : const EdgeInsetsDirectional.fromSTEB(18, 2, InVogueSpace.s4, 2);
     return Pressable(
       onTap: busy ? null : onPressed,
-      semanticLabel: semanticLabel,
       semanticValue: busy ? context.translated.loading : null,
-      focusNode: focusNode,
-      autofocus: autofocus,
       expandTapTarget: false,
       builder: (context, state) {
         final enabled = busy || state.enabled;
@@ -137,11 +120,7 @@ class InVogueButton extends StatelessWidget {
               ),
               if (icon != null) ...[
                 const SizedBox(width: InVogueSpace.s3),
-                Icon(
-                  icon!,
-                  size: compact ? 18 : 22,
-                  color: enabled ? (iconColor ?? foreground) : foreground,
-                ),
+                Icon(icon!, size: compact ? 18 : 22, color: foreground),
               ],
             ],
           ),

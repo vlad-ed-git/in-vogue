@@ -356,17 +356,12 @@ void main() {
       'Dresses',
     ];
 
-    Widget chips(
-      int? selected,
-      ValueChanged<int?> onSelected, {
-      bool deselectable = false,
-    }) => Column(
+    Widget chips(int? selected, ValueChanged<int?> onSelected) => Column(
       children: [
         CategoryChips(
           labels: labels,
           selectedIndex: selected,
           onSelected: onSelected,
-          deselectable: deselectable,
         ),
       ],
     );
@@ -377,11 +372,8 @@ void main() {
       await pumpInVogue(
         tester,
         StatefulBuilder(
-          builder: (context, setState) => chips(
-            selected,
-            (i) => setState(() => selected = i),
-            deselectable: true,
-          ),
+          builder: (context, setState) =>
+              chips(selected, (i) => setState(() => selected = i)),
         ),
         scroll: false,
       );

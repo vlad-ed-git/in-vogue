@@ -307,12 +307,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Example: a face photographed close up, facing forward, in daylight';
 
   @override
-  String get goPro => 'Go Pro';
-
-  @override
-  String get lockedSpoken => 'Part of Pro';
-
-  @override
   String loveSpoken(String name) {
     return 'Love $name';
   }

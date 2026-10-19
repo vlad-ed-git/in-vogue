@@ -11,8 +11,6 @@ class PhotoSlot extends StatelessWidget {
     this.image,
     this.aspectRatio = InVogueLayout.portraitAspectRatio,
     this.fit = BoxFit.cover,
-    this.alignment = Alignment.center,
-    this.opacity = 1,
     this.background = InVogueColors.accent,
     this.semanticLabel,
     this.overlay,
@@ -26,9 +24,6 @@ class PhotoSlot extends StatelessWidget {
   /// Width over height.
   final double aspectRatio;
   final BoxFit fit;
-  final Alignment alignment;
-
-  final double opacity;
 
   /// Fill shown while there is no photo.
   final Color background;
@@ -54,7 +49,6 @@ class PhotoSlot extends StatelessWidget {
       photo = Image(
         image: image!,
         fit: fit,
-        alignment: alignment,
         gaplessPlayback: true,
         semanticLabel: semanticLabel,
         excludeFromSemantics: semanticLabel == null,
@@ -62,7 +56,6 @@ class PhotoSlot extends StatelessWidget {
         errorBuilder: (context, error, stack) =>
             fallback ?? const SizedBox.expand(),
       );
-      if (opacity < 1) photo = Opacity(opacity: opacity, child: photo);
     }
     return AspectRatio(
       aspectRatio: aspectRatio,
@@ -127,23 +120,6 @@ class CheckBadgeOverlay extends StatelessWidget {
     child: Padding(
       padding: const EdgeInsets.all(6),
       child: CheckBadge(semanticLabel: semanticLabel),
-    ),
-  );
-}
-
-/// A centred lock icon.
-class LockOverlay extends StatelessWidget {
-  const LockOverlay({this.semanticLabel, super.key});
-
-  final String? semanticLabel;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Icon(
-      InVogueIcons.lock,
-      size: 24,
-      color: InVogueColors.ink,
-      semanticLabel: semanticLabel,
     ),
   );
 }

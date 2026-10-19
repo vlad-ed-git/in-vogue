@@ -309,12 +309,6 @@ class AppLocalizationsEs extends AppLocalizations {
       'Ejemplo: un rostro fotografiado de cerca, de frente, con luz natural';
 
   @override
-  String get goPro => 'Hazte Pro';
-
-  @override
-  String get lockedSpoken => 'Incluido en Pro';
-
-  @override
   String loveSpoken(String name) {
     return 'Me gusta $name';
   }

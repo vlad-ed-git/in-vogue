@@ -543,18 +543,6 @@ abstract class AppLocalizations {
   /// **'Example: a face photographed close up, facing forward, in daylight'**
   String get exampleFaceSpoken;
 
-  /// No description provided for @goPro.
-  ///
-  /// In en, this message translates to:
-  /// **'Go Pro'**
-  String get goPro;
-
-  /// No description provided for @lockedSpoken.
-  ///
-  /// In en, this message translates to:
-  /// **'Part of Pro'**
-  String get lockedSpoken;
-
   /// No description provided for @loveSpoken.
   ///
   /// In en, this message translates to:

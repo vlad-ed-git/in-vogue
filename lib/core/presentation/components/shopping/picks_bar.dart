@@ -8,21 +8,12 @@ import 'package:in_vogue/core/presentation/tokens/in_vogue_space.dart';
 import 'package:in_vogue/core/presentation/tokens/in_vogue_type.dart';
 import 'package:in_vogue/core/utils/context_ext.dart';
 
-/// The primary action of a [PicksBar].
-enum PicksBarAction { proceed, done }
-
-/// A bottom bar with the number of loved pieces and a primary button.
+/// A bottom bar with the number of loved pieces and a Proceed button.
 /// Includes the bottom safe area.
 class PicksBar extends StatelessWidget {
-  const PicksBar({
-    required this.count,
-    required this.action,
-    required this.onPressed,
-    super.key,
-  });
+  const PicksBar({required this.count, required this.onPressed, super.key});
 
   final int count;
-  final PicksBarAction action;
   final VoidCallback onPressed;
 
   /// The button's share of the bar's width.
@@ -72,17 +63,10 @@ class PicksBar extends StatelessWidget {
               const SizedBox(width: InVogueSpace.s4),
               SizedBox(
                 width: constraints.maxWidth * buttonWidthFactor,
-                child: switch (action) {
-                  PicksBarAction.proceed => InVogueButton.primary(
-                    label: l10n.proceed,
-                    onPressed: onPressed,
-                  ),
-                  PicksBarAction.done => InVogueButton.primary(
-                    label: l10n.done,
-                    icon: InVogueIcons.check,
-                    onPressed: onPressed,
-                  ),
-                },
+                child: InVogueButton.primary(
+                  label: l10n.proceed,
+                  onPressed: onPressed,
+                ),
               ),
             ],
           ),
