@@ -41,6 +41,9 @@ class OutfitPiece extends Equatable {
     required this.productUrl,
     required this.photoUrl,
     this.accent,
+    this.fibre,
+    this.shape,
+    this.length,
   });
 
   /// The colourway's id, such as "everlane:womens-cotton-crew-black".
@@ -75,6 +78,12 @@ class OutfitPiece extends Equatable {
   /// 1 (lounging) to 5 (an event).
   final double dressy;
   final Set<String> styles;
+
+  /// Its main fibre, such as "linen"; its shape, such as "wide"; and its
+  /// length, such as "cropped" or "mini". Null when unknown or plain.
+  final String? fibre;
+  final String? shape;
+  final String? length;
   final RainFit rain;
   final WindFit wind;
 
@@ -101,6 +110,9 @@ class OutfitPiece extends Equatable {
     warmth,
     dressy,
     styles,
+    fibre,
+    shape,
+    length,
     rain,
     wind,
     productUrl,

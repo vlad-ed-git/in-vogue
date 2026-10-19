@@ -118,6 +118,9 @@ abstract final class CatalogOutfitModel {
         warmth: _warmth[warmth] ?? (throw FormatException('Warmth', warmth)),
         dressy: dressy.toDouble(),
         styles: _strings(styles),
+        fibre: _known(json['fibre']),
+        shape: _known(json['shape']),
+        length: _known(json['length']),
         rain: _name(RainFit.values, rain),
         wind: _name(WindFit.values, wind),
         productUrl: url,
@@ -146,6 +149,12 @@ abstract final class CatalogOutfitModel {
 
   static Set<T> _named<T extends Enum>(List<T> values, List<Object?> names) => {
     for (final name in names) _name(values, name),
+  };
+
+  /// A field's value, unless it is missing or says it is unknown.
+  static String? _known(Object? value) => switch (value) {
+    final String value when value.isNotEmpty && value != 'unknown' => value,
+    _ => null,
   };
 
   static Set<String> _strings(List<Object?> values) =>
