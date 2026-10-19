@@ -82,7 +82,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - No partner credits such as "Outfits by {Brand}"; "Buy at {Brand}" is fine. No design decision rests on a partner. Rights to the catalog and brand content are in place, so don't raise licensing.
 - One white theme: never dark mode or an appearance setting.
 - Clothes only: no shoes, bags or accessories, and people keep their own shoes. Never hair changes.
-- Outfits come from the whole collection. Loved pieces add weight; never-suggested outfits come first, then the one suggested longest ago.
+- Outfits come from the whole collection. Loved outfits add weight; never-suggested outfits come first, then the one suggested longest ago.
 - English unless the person picks another language; never follow the phone's.
 
 **Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · enforcing App Check · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5). Loading the catalog from Firebase was on it until October 19: outfits now come from a curated catalog in Firestore (owner, October 19; [docs/recommender-design.md](docs/recommender-design.md)).
@@ -123,7 +123,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 **Also open:**
 
-- [ ] **Recommender v2** (owner, October 19). Claude curated a catalog of 500 outfits outside the app; it is in Firestore `outfits` on `in-vogue-dev` with its pictures in Storage, and the rules are deployed there (October 19). The app reads none of it yet: phases 3–7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan). *Pending.*
+- [ ] **Recommender v2** (owner, October 19). Claude curated a catalog of 500 outfits outside the app; it is in Firestore `outfits` on `in-vogue-dev` with its pictures in Storage, and the rules are deployed there (October 19). The app reads it for setup's sample, Home's Outfits tab, favourites and Shop (phase 3, October 19); phases 4–7 of [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) remain. *Pending.*
 - [ ] Build and check both home-screen widgets on phones. *Owner.*
 - [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*
 - [ ] Open a sample of Everlane product links. *Owner.*

@@ -23,21 +23,21 @@ In Vogue is a weather app for Android and iPhone. Each day it shows the person, 
 
 1. **Welcome:** the logo, "Use my location" (approximate location only) and a language choice.
 2. **Your photo:** a full-body photo from Photos or Gallery. There is no camera.
-3. **Tomorrow's weather**, with a few pieces to heart.
+3. **Tomorrow's weather**, with the catalog's 40 sample outfits below it to heart: the same for everyone, whatever the weather, because they record the person's taste. Tapping one opens Shop.
 4. **Sign in** with Apple (iPhone only) or Google.
 5. **About you:** the person's name (filled in when Apple, Google or an old account knows it) and an optional face photo.
 6. **Add the widget:** on Android the launcher's own "Add to home screen?" dialog places it, or the step says how where the launcher can't; iPhone shows the three steps.
 
 Nothing leaves the phone before sign-in, and YouCam is called only after it.
 
-**Home** shows the city and *Your picks* at the top, then a Today / Tomorrow / Outfits switch (tap or swipe). Below it come the weather that matters (temperature, feels-like, when rain starts, strong wind) and the occasion (Work, Casual, Going out, Staying in) with Change. Then the person wearing the day's outfit, revealed with a curtain, or "Getting your outfit ready… Piece n of N", or why it failed with Try again. Under the outfit are Shop and "About this outfit". The Outfits view lists the whole collection by weather, with hearts.
+**Home** shows the city and *Your picks* at the top, then a Today / Tomorrow / Outfits switch (tap or swipe). Below it come the weather that matters (temperature, feels-like, when rain starts, strong wind) and the occasion (Work, Casual, Going out, Staying in) with Change. Then the person wearing the day's outfit, revealed with a curtain, or "Getting your outfit ready… Piece n of N", or why it failed with Try again. Under the outfit are Shop and "About this outfit". The Outfits view shows the whole catalog of outfits a page at a time, with hearts. It opens on every outfit; the weather chips (Hot, Warm, Mild, Cool, Cold, Freezing, Rain) narrow it to one weather, and the chosen chip tapped again shows every outfit. Tapping an outfit opens Shop.
 
 - **The day rule:** Home opens on tomorrow, except from 06:00 to 08:59, when it opens on today. A setting can make it always today.
 - **Occasions:** Work from Monday to Friday and Casual at the weekend, by default. A changed occasion stays with its own date.
 
-**Shop** lists every piece of the outfit with its photo, colour, name and material, and "Buy at Everlane", which opens that exact item. There are no prices. **Your picks** shows only the pieces the person loved; removing one asks first.
+**Shop** lists every piece of the outfit with its photo, colour, name and material, and "Buy at Everlane", which opens that exact item. There are no prices. **Your picks** shows only the outfits the person loved; removing one asks first.
 
-**Mirror** shows the person's colour season, why (undertone, depth and contrast) and its palette in round swatches: colours that suit them, their neutrals, and colours to go easy on. Tapping a swatch opens its name (the nearest of 78 clothing colours, `ColourNames`) and how to wear it. "See your full analysis" opens a sheet with the colours read from the photo (skin, hair, brows, eyes, lips), what the undertone, depth and contrast mean for the person, and the season. YouCam reads the colours from the face photo once per person: a new face photo keeps them, unless the person redoes the skin analysis from Settings. The season is In Vogue's own suggestion. Without a face photo, Mirror asks for a selfie for the skin tone and colour analysis, kept as soon as it is chosen; the face photo itself is shown only in Settings. My wardrobe sits below: the outfits the person owns in a grid, each opening its details (colours, weather, occasions) with Remove, and Add an outfit, which takes a photo from Photos or Gallery, a name, one or more colours, the weather it suits and its occasions. Home doesn't recommend from the wardrobe yet (owner to decide how).
+**Mirror** shows the person's colour season, why (undertone, depth and contrast) and its palette in round swatches: colours that suit them, their neutrals, and colours to go easy on. Tapping a swatch opens its name (the nearest of 78 clothing colours, `ColourNames`) and how to wear it. "See your full analysis" opens a sheet with the colours read from the photo (skin, hair, brows, eyes, lips), what the undertone, depth and contrast mean for the person, and the season. YouCam reads the colours from the face photo once per person: a new face photo keeps them, unless the person redoes the skin analysis from Settings. The season is In Vogue's own suggestion. Without a face photo, Mirror asks for a selfie for the skin tone and colour analysis, kept as soon as it is chosen; the face photo itself is shown only in Settings. My wardrobe sits below: the outfits the person owns in a grid, each opening its details (colours, weather, occasions) with Remove, and Add an outfit, which takes a photo from Photos or Gallery, a name, one or more colours, the weather it suits and its occasions. Home doesn't recommend from the wardrobe yet; it will, at the bottom of the Today and Tomorrow tabs (owner, October 19).
 
 **Settings** holds:
 - the profile: face photo, name, how the person signed in, and Edit. Without a face photo, or when the photo can't be drawn, it shows the name's first letter on Rouge. Settings reloads its photos and profile whenever its tab is shown.
@@ -280,7 +280,7 @@ English is the default whatever the phone's language. The person's choice is res
 | --- | --- |
 | Buttons and sign-in buttons (`busy`) | Along the bottom, in the label's colour. The button keeps its fill and ignores taps. Sign-in turns the other provider off and keeps running through the account's restore and save. |
 | Text links and Settings rows (`busy`) | In place of the underline. For Log out and Delete account, a Rouge rule under the title. |
-| Content still loading (`RunningRule.content`) | Over a hairline where the content will appear: Picks' weather and pieces, the Outfits tab, Shop, Your picks, and Mirror while it reads the colours. |
+| Content still loading (`RunningRule.content`) | Over a hairline where the content will appear: Picks' weather and outfits, the Outfits tab, Shop, Your picks, and Mirror while it reads the colours. |
 | The outfit | `PhotoStage.looking`: along the bottom of the faded photo while the outfit is looked up. While it's being made, inside "Getting your outfit ready…". |
 | Catalogue photos (`PhotoSlot.showLoading`) | Along the bottom of the Rose slot until the photo's first frame. |
 
@@ -341,7 +341,9 @@ Projects: `in-vogue-dev` (development) and `in-vogue` (production).
 
 Today's app reads a bundled catalog. On the Mac, `../resources/` pulls Everlane's women's collection from Shopify's Global Catalog and builds the knowledge base (weather, occasions, styling and outfits) with Python. `scripts/export_*.py` copies what the app needs into `assets/`, so a change ships with an app release.
 
-The next recommender reads a curated catalog from Firebase instead (owner, October 19). Claude labelled every piece and colour and put together 500 outfits in `../resources/catalog/curation/`; `../resources/tools/catalog/build_outfit_catalog.py` checks and builds them, and `upload_outfit_catalog.py` puts them on `in-vogue-dev` with the development admin key. It is live there; the app doesn't read it yet. The design is [docs/recommender-design.md](docs/recommender-design.md).
+The outfits to pick from now come from a curated catalog in Firebase (owner, October 19). Claude labelled every piece and colour and put together 500 outfits in `../resources/catalog/curation/`; `../resources/tools/catalog/build_outfit_catalog.py` checks and builds them, and `upload_outfit_catalog.py` puts them on `in-vogue-dev` with the development admin key, giving each picture a download link (`image.url`). The design is [docs/recommender-design.md](docs/recommender-design.md).
+
+The app keeps a copy of the catalog on the phone (`OutfitCatalogRepositoryImpl`). Once a run it reads `catalog/outfits.version` and fetches the outfits again only when it changed: the 40 sample outfits before sign-in (`where('sample', isEqualTo: true)`, as the rules require), every outfit after it. Offline, it uses the copy it has. Pages, the weather chips and Your picks all read that copy, so browsing costs no reads. Shop shows an outfit's pieces in the outfit's colours, with the bundled collection's flat-lay photo and material. Today's and tomorrow's outfits still come from the bundled knowledge base until the recommender replaces it.
 
 ## Data
 
@@ -350,14 +352,14 @@ The next recommender reads a curated catalog from Firebase instead (owner, Octob
 | Path | Holds |
 | --- | --- |
 | `users/{uid}` | The profile: name, location, photos (body, face), plan, `createdAt`, `updatedAt` |
-| `users/{uid}/wishlist/{colourwayId}` | The person's picks |
+| `users/{uid}/wishlist/{outfitId}` | The person's picks: catalog outfits, such as `o0181` |
 | `users/{uid}/days/{yyyy-mm-dd}_{occasion}` | Each day's outfit: cell, outfit, `status`, the phone making it, progress, `picturePath`, `problem` |
 | `users/{uid}/suggestions/{signature}` | When each outfit was suggested, and any piece whose photo YouCam refused |
 | `users/{uid}/tryOns/{photo}-{signature}` | The picture made of an outfit on a photo: the photo's fingerprint, the signature and the picture's path |
 | `users/{uid}/colorProfiles/{sha256}` | The colours analysed from a face photo: skin, brows, lips, hair, eyes, whether the photo was clear, and `analysedAt`. The one analysed last is the person's reading |
 | `users/{uid}/wardrobe/{id}` | An outfit the person owns: `name`, `colours` (one or more; an outfit saved before October 18's change holds one `colour`, still read), `bands` (feels-like bands), `rain`, `occasions`, `photo` (`path` in Storage, `url`) and `createdAt` |
 | `errors/{id}` | An error report: account, time, where, the error's kind and code, stack, flavor, platform, version, build and install id. The app may only add its own; nobody reads or changes one from the app |
-| `outfits/{id}` | A curated outfit (not read by the app yet): name, picture, pieces with links and try-on passes, weathers, colour seasons, occasions, `fits` (season × weather keys), taste and protection fields, `order` and `sample`. Anyone reads the 40 with `sample == true`; a signed-in person reads all; only the admin key writes |
+| `outfits/{id}` | A curated outfit: name, picture (`image.url`, its download link), pieces with links and try-on passes, weathers, colour seasons, occasions, `fits` (season × weather keys), taste and protection fields, `order` and `sample`. Anyone reads the 40 with `sample == true`; a signed-in person reads all; only the admin key writes |
 | `catalog/outfits` | The catalog's version, size and onboarding sample; anyone reads it |
 
 In the names above, `{photo}` is the first 16 characters of the photo's SHA-256.
@@ -376,8 +378,9 @@ In the names above, `{photo}` is the first 16 characters of the photo's SHA-256.
 
 Everything sits in `<support>/in_vogue/<flavor>/`:
 
-- **Hive** (`preferences_<flavor>`): the language, default day, setup step, location, picks and those last saved on the account, the name, the photo records, the install id, the unfinished try-on jobs and the colour readings under way.
+- **Hive** (`preferences_<flavor>`): the language, default day, setup step, location, picks (outfit ids) and those last saved on the account, the name, the photo records, the install id, the unfinished try-on jobs and the colour readings under way.
 - **SQLite** (`cache.sqlite`): forecasts, with expiry.
+- **The catalog** (`catalog/outfits.json`): the outfits' documents, their catalog version and whether the copy holds every outfit or only the sample.
 - **Files:** `photos/`, `outfits/{uid}/` (with `made/`), `wardrobe/{uid}/` and `downloads/`.
 - **The widgets:** Android stores their content in home_widget's preferences. iPhone stores it in the App Group: its `UserDefaults` and a `widget/` folder of pictures.
 
@@ -541,7 +544,7 @@ From the owner's device test, October 18, in this order:
 
 ### Open work
 
-- **Recommender v2 (owner, October 19).** The curated catalog of 500 outfits is on `in-vogue-dev` with its pictures and rules. Next: the app reads it (onboarding sample, the catalog on Home with favourites), then the recommender, the learning and the wardrobe, as [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) plans.
+- **Recommender v2 (owner, October 19).** The curated catalog of 500 outfits is on `in-vogue-dev` with its pictures and rules, and the app reads it: setup's sample, Home's Outfits tab, favourites and Shop (October 19). Next: the recommender, the switch of Home's days to it, the learning and the wardrobe, as [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) plans.
 - **Check both widgets on phones (owner).**
   - Android: Large, Medium and Small; the switch at 06:00, 09:00 and midnight; a tap opening Home on that day; the waiting and stale states; the morning refresh (about 05:30, network on).
   - iPhone: the same, with Background App Refresh on, since iOS picks when the refresh runs.

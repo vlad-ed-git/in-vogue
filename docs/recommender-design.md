@@ -256,7 +256,7 @@ Changing the catalog: edit or add rows with the curation tools (they refuse anyt
 | `order` | `389` | Home's paging: a stable mixed order, 0 to 499 |
 | `name` | `"Herringbone wool coat, mocha alpaca cardigan, brown corduroy trousers"` | Display |
 | `sample` | `false` | Onboarding; rules |
-| `image` | `{path: "catalog/v2/outfits/o0181-1f0c9d2e.jpg", source: <shop photo>}` | Display |
+| `image` | `{path: "catalog/v2/outfits/o0181-1f0c9d2e.jpg", source: <shop photo>, url: <download link>}` | Display: the app loads `url`, a Storage download link the upload script makes |
 | `weathers` | `["cool","cold","freezing"]` | Filter |
 | `baseWeathers` | `["mild","cool","cold","freezing"]` | The outfit with its layers off, for swing days |
 | `seasons` | `["softSummer","softAutumn"]` | Filter |
@@ -286,17 +286,17 @@ No prices anywhere (product rule). `catalog/outfits` holds `{version, count, sam
 
 Firestore lets a signed-out query list outfits only when it asks for `sample == true`. Checked on the emulators (`scripts/check_firestore_rules.py`, 49 cases; `scripts/check_storage_rules.py`, 17 cases), deployed to `in-vogue-dev` on October 19, and checked again on the live project signed out: the sample outfits and pictures load, everything else is refused.
 
-### 6.4 The app's queries
+### 6.4 The app's reads
 
-| Where | Query | Reads |
+The app keeps a copy of the catalog on the phone (`catalog/outfits.json`) and reads Firestore only to refresh it:
+
+| When | Read | Reads |
 | --- | --- | --- |
-| Onboarding | `outfits.where('sample', isEqualTo: true).orderBy('order')` | 40, once |
-| Home | `outfits.orderBy('order').startAt([offset]).limit(20)`: offset paging, as the owner asked; because `order` is dense, `where('order', isGreaterThanOrEqualTo: offset)` is the same page without reading skipped documents | 20 per page |
-| Home, a weather chip | `outfits.where('weathers', arrayContains: chip).orderBy('order')`, paged the same way; the Rain chip uses `where('rain', isEqualTo: 'good')` | 20 per page |
-| Today and tomorrow | `outfits.where('fits', arrayContains: '$season\|$coldBand')` | 15–245, cached per catalog version and cell |
-| No colour reading yet, or an unclear one | `outfits.where('weathers', arrayContains: coldBand)` | more; until a clear reading exists |
+| Once a run of the app | `catalog/outfits`, for its `version` | 1 |
+| Before sign-in, when the copy is older or missing | `outfits.where('sample', isEqualTo: true)` (the rules allow a signed-out list only so) | 40 |
+| After sign-in, when the copy is older or holds only the sample | `outfits` | 500 |
 
-`orderBy('order')` with a filter on another field needs a composite index: one for `sample`, one for `weathers` and one for `rain`, each with `order`. The other queries use single-field indexes. Each phone caches documents by `catalog/outfits.version`, so a day costs no reads once a cell is cached.
+Everything else reads the copy: setup's 40 sample outfits in `order`; Home's catalog, 20 a page by `order`; the weather chips (`weathers` contains the chip; Rain: `rain == 'good'`); Your picks; and the recommender's candidates, which are the copy's outfits whose `fits` hold `season|coldBand` (or whose `weathers` hold `coldBand`, with no clear colour reading). So a day costs no reads, no composite index is needed, and offline the copy still answers. Pictures load from `image.url` and are cached on the phone.
 
 ---
 
@@ -434,21 +434,20 @@ Log out clears only the phone's copy of the taste state, so it comes back at the
 
 ## 11. Code layout and integration points
 
-A new feature, `lib/features/stylist`, in the house style:
+The catalog lives in the existing `lib/features/catalog` (built October 19): `CatalogOutfit`, `OutfitCatalogRepository` with its phone copy, `GetSampleOutfits`, `GetCatalogPage`, `GetOutfits`, `GetOutfitShop`, and the picks. The recommender is a new feature, `lib/features/stylist`, in the house style:
 
 ```
 lib/features/stylist/
   domain/
-    entities/   catalog_outfit.dart, day_bands.dart, taste_state.dart, pick.dart
+    entities/   day_bands.dart, taste_state.dart
     services/   day_band_rules.dart, candidate_rules.dart, outfit_scorer.dart, outfit_chooser.dart,
                 reason_rules.dart, taste_model.dart
-    repositories/ catalog_repository.dart, taste_repository.dart
-    usecases/   get_sample.dart, get_catalog_page.dart, recommend_outfit.dart, record_signal.dart
+    repositories/ taste_repository.dart
+    usecases/   recommend_outfit.dart, record_signal.dart
   data/
-    data_sources/ catalog_remote_data_source.dart (Firestore + Storage URLs),
-                  catalog_cache_data_source.dart (Hive, by catalog version), taste_*_data_source.dart
-    models/       catalog_outfit_model.dart, taste_state_model.dart
-    repositories/ catalog_repository_impl.dart, taste_repository_impl.dart
+    data_sources/ taste_*_data_source.dart
+    models/       taste_state_model.dart
+    repositories/ taste_repository_impl.dart
   di/init.dart
 ```
 
@@ -485,7 +484,7 @@ Each phase gets its own branch with tests first, a clean analyze, the whole suit
 | --- | --- | --- | --- |
 | 1. Catalog | `resources/` (no repo) | Labels, colours, 500 outfits, sample, build | **Done** October 19 |
 | 2. Firebase | `feat/outfit_catalog` | Rules, emulator checks, upload to `in-vogue-dev` | **Done** October 19 (not committed) |
-| 3. Catalog in the app | `feat/catalog_v2` | `CatalogRepository`, onboarding sample, Home browser, favourites as outfits, Hive cache | — |
+| 3. Catalog in the app | `feat/catalog_v2` | `OutfitCatalogRepository` with its phone copy, onboarding sample, Home browser, favourites as outfits, Shop for an outfit, six weather bands | **Done** October 19 (not merged) |
 | 4. Recommender | `feat/stylist_engine` | Day bands (six), candidates, scorer, chooser, reasons, shadow panel, simulation | — |
 | 5. On Home | `feat/stylist_on_home` | `MakeOutfit` integration, Day v2 fields, the widget; then remove the knowledge-base path | — |
 | 6. Learning | `feat/stylist_signals` | Taste model, signals, Buy logging | — |
