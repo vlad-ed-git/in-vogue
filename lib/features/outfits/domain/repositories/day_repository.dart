@@ -30,17 +30,6 @@ abstract interface class DayRepository {
     List<String> outfitIds,
   );
 
-  /// Records that the try-on refused the photo of [piece] in the outfit
-  /// [outfitId], so no outfit with it is chosen again.
-  Future<Either<Failure, Unit>> refuse(
-    String accountId,
-    String outfitId,
-    String piece,
-  );
-
-  /// The pieces whose photo the try-on refused for [accountId].
-  Future<Either<Failure, Set<String>>> refusedPieces(String accountId);
-
   /// Claims the day of [date] and [occasion] for [device]: [proposal] gives
   /// a day that needs one its outfit, recorded as suggested unless
   /// [suggested] (what the chooser saw) is out of date. With [replacing],
@@ -93,15 +82,6 @@ abstract interface class DayRepository {
     String accountId,
     Day day,
     String picturePath, {
-    required String device,
-  });
-
-  /// Marks the day failed for [problem]; false when [device] no longer
-  /// makes it.
-  Future<Either<Failure, bool>> fail(
-    String accountId,
-    Day day,
-    TryOnProblem problem, {
     required String device,
   });
 

@@ -47,10 +47,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   FirebaseAuth get _auth => FirebaseAuth.instance;
 
-  /// Google Sign-In is initialized once, before its first use.
-  late final Future<void> _googleReady = GoogleSignIn.instance.initialize(
-    clientId: _googleClientId,
-  );
+  /// Google Sign-In is initialized once, before its first use; a failed
+  /// start is tried again at the next use.
+  Future<void>? _googleStarted;
+
+  Future<void> get _googleReady => _googleStarted ??= GoogleSignIn.instance
+      .initialize(clientId: _googleClientId)
+      .catchError((Object error, StackTrace stack) {
+        _googleStarted = null;
+        Error.throwWithStackTrace(error, stack);
+      });
 
   @override
   Future<Account> signIn(SignInMethod method) => _translate(() async {

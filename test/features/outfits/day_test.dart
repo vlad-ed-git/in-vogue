@@ -104,18 +104,7 @@ void main() {
       expect(stale.claim, isA<DayClaimed>());
     });
 
-    test('tries a failed day again with its outfit; keeps a made one', () {
-      final failed = making('phone-b').failedWith(TryOnProblem.photo);
-      final again = DayRules.claim(
-        current: failed,
-        proposal: _outfit('o2'),
-        device: 'phone-a',
-        now: now,
-      );
-      expect(again.write?.status, DayStatus.making);
-      expect(again.write?.problem, isNull);
-      expect(again.write?.outfitId, 'o1');
-
+    test('keeps a made day', () {
       final made = making('phone-b').readyAt('users/uid/days/x.jpg');
       final kept = DayRules.claim(
         current: made,
@@ -125,29 +114,6 @@ void main() {
       );
       expect(kept.write, isNull);
       expect(kept.claim, DayKept(made));
-    });
-
-    test("gives a day that failed on a piece's photo the proposed outfit", () {
-      final refused = making('phone-b').failedWith(TryOnProblem.reference);
-      final claim = DayRules.claim(
-        current: refused,
-        proposal: _outfit('o2'),
-        device: 'phone-a',
-        now: now,
-      );
-      expect(claim.write?.outfitId, 'o2');
-      expect(claim.write?.device, 'phone-a');
-      expect(claim.write?.status, DayStatus.making);
-      expect(claim.claim, DayClaimed(claim.write!));
-      expect(
-        DayRules.claim(
-          current: refused,
-          proposal: null,
-          device: 'phone-a',
-          now: now,
-        ).claim,
-        const DayConflict(),
-      );
     });
 
     test('replaces the outfit of its own making when asked, and only that '
@@ -194,10 +160,7 @@ void main() {
   });
 
   test('DayModel keeps a day as its record, and reads it back', () {
-    final day = _outfit(
-      'o1',
-      device: 'phone-a',
-    ).progressing(2, 3).failedWith(TryOnProblem.photo);
+    final day = _outfit('o1', device: 'phone-a').progressing(2, 3);
     final read = DayModel.fromJson(
       DayModel.toJson(day),
       updatedAt: DateTime.utc(2026, 10, 17, 8),
@@ -206,6 +169,16 @@ void main() {
     expect(DayModel.toJson(read!), DayModel.toJson(day));
     expect(read.updatedAt, DateTime.utc(2026, 10, 17, 8));
     expect(DayModel.fromJson(const {'forDate': '2026-10-18'}), isNull);
+    expect(DayModel.toJson(day).containsKey('problem'), isFalse);
+  });
+
+  test('DayModel reads a day saved as failed before as no outfit yet', () {
+    final failed = {
+      ...DayModel.toJson(_outfit('o1', device: 'phone-a')),
+      'status': 'failed',
+      'problem': 'noCredit',
+    };
+    expect(DayModel.fromJson(failed), isNull);
   });
 
   test('DayModel keeps why the outfit was chosen and the day it was for', () {
@@ -333,32 +306,37 @@ void main() {
       expect(await record('suggestions/o2'), isNull);
     });
 
-    test('tries a failed day again; keeps a made one', () async {
-      final claimed =
-          await claim('phone-a', proposal: _outfit('o1')) as DayClaimed;
-      await settled(
-        days.fail('uid-1', claimed.day, TryOnProblem.photo, device: 'phone-a'),
-      );
-      expect((await record('days/2026-10-18_work'))?['problem'], 'photo');
+    test(
+      'makes a day saved as failed before again; keeps a made one',
+      () async {
+        await firestore.doc('users/uid-1/days/2026-10-18_work').set({
+          ...DayModel.toJson(_outfit('o1', device: 'phone-a')),
+          'status': 'failed',
+          'problem': 'noCredit',
+        });
+        final again =
+            await claim('phone-b', proposal: _outfit('o2')) as DayClaimed;
+        expect(again.day.status, DayStatus.making);
+        expect(again.day.outfitId, 'o2');
+        expect(
+          (await record('days/2026-10-18_work'))?.containsKey('problem'),
+          isFalse,
+        );
 
-      final again = await claim('phone-b') as DayClaimed;
-      expect(again.day.status, DayStatus.making);
-      expect(again.day.problem, isNull);
-      expect(again.day.outfitId, 'o1');
-
-      await settled(
-        days.finish(
-          'uid-1',
-          again.day,
-          _png,
-          photo: '/photos/body-1.jpg',
-          device: 'phone-b',
-        ),
-      );
-      final kept = await claim('phone-a', proposal: _outfit('o2'));
-      expect(kept, isA<DayKept>());
-      expect((kept as DayKept).day.status, DayStatus.ready);
-    });
+        await settled(
+          days.finish(
+            'uid-1',
+            again.day,
+            _png,
+            photo: '/photos/body-1.jpg',
+            device: 'phone-b',
+          ),
+        );
+        final kept = await claim('phone-a', proposal: _outfit('o3'));
+        expect(kept, isA<DayKept>());
+        expect((kept as DayKept).day.status, DayStatus.ready);
+      },
+    );
 
     test('asks to choose again when the outfit was suggested meanwhile, '
         'and writes nothing', () async {
@@ -451,24 +429,6 @@ void main() {
       expect(found.containsKey('o39'), isFalse);
     });
 
-    test("remembers a refused piece on its outfit's suggestion, and lists "
-        "the account's refused pieces", () async {
-      await claim('phone-a', proposal: _outfit('o1'));
-      await settled(days.refuse('uid-1', 'o1', 'everlane:tee'));
-      final suggestion = await record('suggestions/o1');
-      expect(suggestion?['refusedPiece'], 'everlane:tee');
-      expect(suggestion?['times'], 1, reason: 'the rest stays');
-      await settled(days.refuse('uid-1', 'o9', 'everlane:coat'));
-      await firestore.doc('users/uid-1/suggestions/o2').set({'times': 1});
-      await firestore.doc('users/uid-2/suggestions/o3').set({
-        'refusedPiece': 'everlane:dress',
-      });
-      expect((await days.refusedPieces('uid-1')).getOrElse(() => const {}), {
-        'everlane:tee',
-        'everlane:coat',
-      });
-    });
-
     test('lets only the phone making a day change it', () async {
       final claimed =
           await claim('phone-a', proposal: _outfit('o1')) as DayClaimed;
@@ -494,15 +454,6 @@ void main() {
       );
       final day = await record('days/2026-10-18_work');
       expect((day?['piece'], day?['pieces']), (2, 3));
-      expect(
-        await days.fail(
-          'uid-1',
-          claimed.day,
-          TryOnProblem.failed,
-          device: 'phone-b',
-        ),
-        const Right<Failure, bool>(false),
-      );
     });
 
     test('keeps a made picture on the phone and the account', () async {

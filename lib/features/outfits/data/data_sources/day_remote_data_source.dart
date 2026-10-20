@@ -34,13 +34,6 @@ abstract interface class DayRemoteDataSource {
     List<String> outfitIds,
   );
 
-  /// Records on the outfit [outfitId]'s suggestion that the try-on refused
-  /// the photo of [piece].
-  Future<void> refuse(String accountId, String outfitId, String piece);
-
-  /// The pieces whose photo the try-on refused for the account.
-  Future<Set<String>> refusedPieces(String accountId);
-
   /// Claims the day [key] for [device] at [now] in one transaction, as
   /// [DayRules.claim] says. A [proposal] the day takes records its outfit
   /// as suggested too, unless the outfit was suggested since the chooser
@@ -155,25 +148,6 @@ class DayRemoteDataSourceImpl implements DayRemoteDataSource {
       }
     }
     return found;
-  });
-
-  @override
-  Future<void> refuse(String accountId, String outfitId, String piece) =>
-      _guard(
-        () => _suggestions(
-          accountId,
-        ).doc(outfitId).set({'refusedPiece': piece}, SetOptions(merge: true)),
-      );
-
-  @override
-  Future<Set<String>> refusedPieces(String accountId) => _guard(() async {
-    final records = await _suggestions(
-      accountId,
-    ).where('refusedPiece', isNull: false).get();
-    return {
-      for (final record in records.docs)
-        if (record.data()['refusedPiece'] case final String piece) piece,
-    };
   });
 
   @override

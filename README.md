@@ -110,17 +110,17 @@ FollowDay watches users/{uid}/days/{date}_{occasion} (phone's copy first):
             ─► transaction: day = making(this phone) + its reason and bands + suggestion recorded
   making, this phone, stopped ─► resume (Hive job, same photo, < 2 h)
   making, other phone ─► show its progress; unchanged 10 min ─► take over, same outfit
-  ready ─► show the picture (phone copy, else Storage)      failed ─► reason + Try again
+  ready ─► show the picture (phone copy, else Storage)
 MakeOutfit, once the day is claimed:
   this photo + outfit tried on before? (tryOns: phone, then Firestore) ─► the day takes that picture at once
   else per piece, in the outfit's passes (whole or bottom ─► top ─► outer):
     write progress (stop if another phone took the day) ─► cloth-v4 (poll 5 s, ≤ 4 min)
   last piece ─► download ─► phone + Storage + tryOns ─► ready
-  YouCam refused ─► failed for every phone      network or server error ─► stays making, resumes later
-  a piece's photo refused ─► suggestion.refusedPiece ─► another outfit (≤ 3 per making), else failed
+  any failure ─► shown on this phone only; nothing about it is saved; the day stays making ─► made again next time
+  a piece's photo refused ─► another outfit (≤ 3 per making, remembered only during that making)
 ```
 
-- **Choosing:** the recommender (`RecommendOutfit`, design §7) takes the catalog's outfits that suit the person's colour season (from a clear reading; otherwise the weather alone) in the day's coldest hours, then the occasion, the warmest hours, rain and snow, without a piece whose photo YouCam refused. Among those scoring within 15% of the day's best, the one never suggested comes first; after that, the one suggested longest ago. Pieces worn in the last 14 days rest, so tomorrow avoids today's pieces. Today and tomorrow never share an outfit, and a day keeps its outfit when the forecast changes. The day keeps the outfit's id, the reason's facts (worded on screen in the person's language and unit) and the bands it was chosen for.
+- **Choosing:** the recommender (`RecommendOutfit`, design §7) takes the catalog's outfits that suit the person's colour season (from a clear reading; otherwise the weather alone) in the day's coldest hours, then the occasion, the warmest hours, rain and snow, without a piece whose photo YouCam refused during the same making. Among those scoring within 15% of the day's best, the one never suggested comes first; after that, the one suggested longest ago. Pieces worn in the last 14 days rest, so tomorrow avoids today's pieces. Today and tomorrow never share an outfit, and a day keeps its outfit when the forecast changes. The day keeps the outfit's id, the reason's facts (worded on screen in the person's language and unit) and the bands it was chosen for.
 - **Claiming:** the day is claimed in one Firestore transaction, so two phones, or today and tomorrow, never clash. Another phone takes over a making that hasn't changed for 10 minutes.
 - **Trying on:** YouCam dresses the person piece by piece, each pass on the last pass's picture, and progress is saved after each piece. An interrupted making resumes within 2 hours, while YouCam still holds the pictures.
 - **Tried on once:** each finished picture is listed under the body photo's fingerprint and the catalog outfit's id, so a later day with the same photo and outfit takes the picture at once, with no YouCam call and no second upload. The fingerprint is the SHA-256 of the photo's bytes, which is the same on every phone; the photo's file name and URL aren't, because they come from a counter kept on each phone.

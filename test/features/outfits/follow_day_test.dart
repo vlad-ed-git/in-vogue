@@ -154,15 +154,21 @@ void main() {
     verify(makeOutfit(_params)).called(1);
   });
 
-  test('shows a failed day, and makes it again when asked', () async {
-    await start();
-    await watched(_day('phone-b').failedWith(TryOnProblem.photo));
-    expect(updates, [const TryOnFailed(TryOnFailure(TryOnProblem.photo))]);
-    verifyNever(makeOutfit(any));
-    follow.retry(_params);
-    await pumpEventQueue();
-    verify(makeOutfit(_params)).called(1);
-  });
+  test(
+    'keeps nothing of a failure: the next follow makes the day again',
+    () async {
+      await start();
+      await watched(null);
+      making.add(const TryOnFailed(TryOnFailure(TryOnProblem.noCredit)));
+      await pumpEventQueue();
+      expect(updates, [const TryOnFailed(TryOnFailure(TryOnProblem.noCredit))]);
+      await subscription.cancel();
+      // The day is still this phone's making, with nothing about the failure.
+      await start();
+      await watched(_day('phone-a'));
+      verify(makeOutfit(_params)).called(2);
+    },
+  );
 
   test('stays done once done', () async {
     await start();
@@ -182,7 +188,7 @@ void main() {
 }
 
 class _FakeDays implements DayRepository {
-  final days = StreamController<Either<Failure, Day?>>();
+  final days = StreamController<Either<Failure, Day?>>.broadcast();
 
   @override
   Stream<Either<Failure, Day?>> watch(

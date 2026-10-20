@@ -554,10 +554,9 @@ void main() {
 
     test("reads the account's favourites", () async {
       when(remote.wishlist(any)).thenAnswer((_) async => {'everlane:c'});
-      expect(
-        (await repository.favourites('uid-1')).getOrElse(() => const {}),
-        {'everlane:c'},
-      );
+      expect((await repository.favourites('uid-1')).getOrElse(() => const {}), {
+        'everlane:c',
+      });
     });
 
     test('downloads an account photo onto the phone', () async {

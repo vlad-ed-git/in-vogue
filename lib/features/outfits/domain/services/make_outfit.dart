@@ -21,7 +21,6 @@ import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
-import 'package:in_vogue/features/outfits/domain/services/day_rules.dart';
 import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
@@ -111,8 +110,7 @@ class MakeOutfit {
   /// Times choosing starts again when the outfit chosen was taken meanwhile.
   static const claimAttempts = 3;
 
-  /// Outfits one making tries before the refusal of a piece's photo stays
-  /// on the day.
+  /// Outfits one making tries when the try-on refuses a piece's photo.
   static const outfitAttempts = 3;
 
   final _making = <String, LatestUpdates<TryOnUpdate>>{};
@@ -157,20 +155,17 @@ class MakeOutfit {
       return const TryOnFailed(TryOnFailure(TryOnProblem.photo));
     }
     Day? refused;
+    // Pieces whose photo the try-on refused in this making; never kept.
+    final refusedPieces = <String>{};
     for (var tried = 1; ; tried++) {
       final claimed = await _oneAtATime(
-        () => _claim(params, replacing: refused?.outfitId),
+        () => _claim(
+          params,
+          replacing: refused?.outfitId,
+          refused: refusedPieces,
+        ),
       );
       if (claimed case Left(value: final failure)) {
-        // With no outfit to go on with, the refusal stays on the day.
-        if (refused != null) {
-          await _days.fail(
-            params.accountId,
-            refused,
-            TryOnProblem.reference,
-            device: _device,
-          );
-        }
         return TryOnFailed(failure);
       }
       final Day day;
@@ -184,28 +179,26 @@ class MakeOutfit {
         case DayConflict():
           return const TryOnFailed(ServerFailure());
       }
-      final made = await _makeDay(params, day, body, report);
+      final made = await _makeDay(params, day, body, report, refusedPieces);
       if (made case TryOnFailed(
-        failure: final TryOnFailure failure,
-      ) when failure.problem == TryOnProblem.reference) {
-        if (tried < outfitAttempts) {
-          refused = day;
-          continue;
-        }
-        return _failed(params, day, failure);
+        failure: TryOnFailure(problem: TryOnProblem.reference),
+      ) when tried < outfitAttempts) {
+        refused = day;
+        continue;
       }
       return made;
     }
   }
 
-  /// Tries [day]'s outfit on [body], piece by piece. A piece's photo the
-  /// try-on refuses is remembered, and the making ends without marking the
-  /// day, so another outfit can take its place.
+  /// Tries [day]'s outfit on [body], piece by piece. A piece whose photo
+  /// the try-on refuses goes into [refusedPieces], so another outfit can
+  /// take its place. A failure leaves the day as it is, to be made again.
   Future<TryOnUpdate> _makeDay(
     MakeOutfitParams params,
     Day day,
     UserPhoto body,
     void Function(TryOnUpdate update) report,
+    Set<String> refusedPieces,
   ) async {
     final outfit = await _outfit(day.outfitId);
     if (outfit == null) return const TryOnFailed(CacheFailure());
@@ -255,7 +248,7 @@ class MakeOutfit {
         if (pictureUrl == null) {
           final uploaded = await _tryOn.upload(body.path);
           if (uploaded case Left(value: final failure)) {
-            return _failed(params, day, failure);
+            return TryOnFailed(failure);
           }
           fileId = uploaded.getOrElse(() => throw StateError('uploaded'));
         }
@@ -265,7 +258,7 @@ class MakeOutfit {
           pictureUrl: pictureUrl,
         );
         if (started case Left(value: final failure)) {
-          return _failed(params, day, failure);
+          return TryOnFailed(failure);
         }
         task = started.getOrElse(() => throw StateError('started'));
         job = job.started(task, clock.now());
@@ -274,11 +267,7 @@ class MakeOutfit {
       final finished = await _finish(task);
       if (finished case Left(value: final failure)) {
         if (failure case TryOnFailure(problem: TryOnProblem.reference)) {
-          await _days.refuse(
-            params.accountId,
-            day.outfitId,
-            passes[index].piece,
-          );
+          refusedPieces.add(passes[index].piece);
           await _drop(job);
           return TryOnFailed(failure);
         }
@@ -286,7 +275,7 @@ class MakeOutfit {
         if (failure is TryOnFailure) {
           await _jobs.save(job.keeping(index, clock.now()));
         }
-        return _failed(params, day, failure);
+        return TryOnFailed(failure);
       }
       pictureUrl = finished.getOrElse(() => throw StateError('finished'));
     }
@@ -357,10 +346,12 @@ class MakeOutfit {
     return claimed;
   }
 
-  /// Claims [params]'s day: with a new outfit chosen when it needs one, or
-  /// in place of the outfit this phone is [replacing].
+  /// Claims [params]'s day: with a new outfit chosen when it needs one,
+  /// without the [refused] pieces, or in place of the outfit this phone is
+  /// [replacing].
   Future<Either<Failure, DayClaim>> _claim(
     MakeOutfitParams params, {
+    required Set<String> refused,
     String? replacing,
   }) async {
     for (var attempt = 0; attempt < claimAttempts; attempt++) {
@@ -373,12 +364,12 @@ class MakeOutfit {
       final known = current.getOrElse(() => null);
       Day? proposal;
       var suggested = const <String, DateTime?>{};
-      if (known == null || replacing != null || DayRules.replaceable(known)) {
+      if (known == null || replacing != null) {
         if (known == null) {
           final saved = await _saveSetupToAccount(params.accountId);
           if (saved case Left(value: final failure)) return Left(failure);
         }
-        final chosen = await _choose(params);
+        final chosen = await _choose(params, refused);
         if (chosen case Left(value: final failure)) return Left(failure);
         final (:recommendation, suggested: seen) = chosen.getOrElse(
           () => throw StateError('chosen'),
@@ -419,26 +410,25 @@ class MakeOutfit {
     return const Left(ServerFailure());
   }
 
-  /// The recommender's outfit for [params]'s day, and when the day's
-  /// candidates were suggested, as the claim checks them.
+  /// The recommender's outfit for [params]'s day without the [refused]
+  /// pieces, and when the day's candidates were suggested, as the claim
+  /// checks them.
   Future<
     Either<
       Failure,
       ({Recommendation? recommendation, Map<String, DateTime?> suggested})
     >
   >
-  _choose(MakeOutfitParams params) async {
+  _choose(MakeOutfitParams params, Set<String> refused) async {
     final catalog = await _catalog.outfits();
     if (catalog case Left(value: final failure)) return Left(failure);
     final outfits = catalog.getOrElse(() => const []);
-    final refused = await _days.refusedPieces(params.accountId);
-    if (refused case Left(value: final failure)) return Left(failure);
     final asked = RecommendParams(
       day: params.bands,
       date: params.date,
       occasion: params.occasion,
       season: await _season(params.accountId),
-      refused: refused.getOrElse(() => const {}),
+      refused: refused,
     );
     if (_recommend.candidatesOf(outfits, asked.withRefused(const {})).isEmpty) {
       // The catalog on the phone has no outfit for the day.
@@ -463,7 +453,7 @@ class MakeOutfit {
       },
       worn: [
         for (final day in recent.getOrElse(() => const []))
-          if (day.status != DayStatus.failed && byId[day.outfitId] != null)
+          if (byId[day.outfitId] != null)
             WornDay(
               date: day.date,
               pieces: {
@@ -522,20 +512,6 @@ class MakeOutfit {
         picture.getOrElse(() => throw StateError('picture')),
       ),
     );
-  }
-
-  /// Ends the making with [failure]. The try-on service's refusals are
-  /// kept on the day for every phone to see; others stay with this phone,
-  /// which goes on with the day next time.
-  Future<TryOnUpdate> _failed(
-    MakeOutfitParams params,
-    Day day,
-    Failure failure,
-  ) async {
-    if (failure case TryOnFailure(:final problem)) {
-      await _days.fail(params.accountId, day, problem, device: _device);
-    }
-    return TryOnFailed(failure);
   }
 
   /// Forgets [job] and lets the service delete its tasks.

@@ -1,4 +1,3 @@
-import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 
 /// Who makes a day's outfit when several phones share an account.
@@ -10,9 +9,8 @@ abstract final class DayRules {
   /// Claiming [current] for [device] at [now], with [proposal] when the day
   /// needs a new outfit: what to write, if anything, and the outcome.
   ///
-  /// A new day takes the proposal. A made day stays. A failed day is tried
-  /// again with its outfit, unless it is [replaceable]: then it takes the
-  /// proposal. A making stays with its install until it is [stale], then
+  /// A new day takes the proposal. A made day stays. A making stays with its
+  /// install until it is [stale], then
   /// [device] takes it over; its own install gives it the proposal when
   /// [replacing] its outfit.
   static ({Day? write, DayClaim claim}) claim({
@@ -26,11 +24,6 @@ abstract final class DayRules {
     switch (current.status) {
       case DayStatus.ready:
         return (write: null, claim: DayKept(current));
-      case DayStatus.failed when replaceable(current):
-        return _propose(proposal, device);
-      case DayStatus.failed:
-        final again = current.makingBy(device);
-        return (write: again, claim: DayClaimed(again));
       case DayStatus.making:
         if (current.device == device) {
           if (replacing != null && current.outfitId == replacing) {
@@ -45,10 +38,6 @@ abstract final class DayRules {
         return (write: null, claim: DayKept(current));
     }
   }
-
-  /// Whether [day] failed on a piece's photo, so it takes a new outfit.
-  static bool replaceable(Day day) =>
-      day.status == DayStatus.failed && day.problem == TryOnProblem.reference;
 
   /// [proposal], made by [device]; a conflict when there is none.
   static ({Day? write, DayClaim claim}) _propose(Day? proposal, String device) {

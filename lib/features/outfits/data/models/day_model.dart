@@ -1,5 +1,4 @@
 import 'package:in_vogue/core/domain/entities/occasion.dart';
-import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
@@ -28,10 +27,10 @@ abstract final class DayModel {
     'piece': day.piece,
     'pieces': day.pieces,
     'picturePath': day.picturePath,
-    'problem': day.problem?.name,
   };
 
-  /// Null when [json] is not a readable day.
+  /// Null when [json] is not a readable day, as a day once saved as failed
+  /// is: it has no outfit yet.
   static Day? fromJson(Map<String, Object?> json, {DateTime? updatedAt}) {
     if (json case {
       'forDate': final String forDate,
@@ -64,7 +63,6 @@ abstract final class DayModel {
           final String path => path,
           _ => null,
         },
-        problem: TryOnProblem.values.asNameMap()[json['problem']],
         updatedAt: updatedAt,
       );
     }

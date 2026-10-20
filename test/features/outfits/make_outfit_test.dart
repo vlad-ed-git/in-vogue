@@ -384,23 +384,6 @@ void main() {
     expect(((await record(_tomorrow))?['reason'] as Map?)?['season'], isNull);
   });
 
-  test('never chooses an outfit with a piece whose photo was refused; says so '
-      'when every outfit has one', () async {
-    await firestore.doc('users/uid-1/suggestions/other').set({
-      'refusedPiece': 'everlane:tee',
-    });
-    await make();
-    expect((await record())?['outfitId'], 'o2');
-
-    await firestore.doc('users/uid-1/suggestions/another').set({
-      'refusedPiece': 'everlane:dress',
-    });
-    expect(await make(params: _params(_tomorrow)), [
-      const TryOnFailed(TryOnFailure(TryOnProblem.reference)),
-    ]);
-    expect(await record(_tomorrow), isNull);
-  });
-
   test('shows a day another phone made, without trying anything on', () async {
     await setDay(
       dayOf(_dress, 'phone-b').readyAt('users/uid-1/days/2026-10-17_work.jpg'),
@@ -431,11 +414,22 @@ void main() {
     expect((await record())?['device'], 'phone-a');
   });
 
-  test('tries a failed day again with its outfit', () async {
-    await setDay(dayOf(_dress, 'phone-b').failedWith(TryOnProblem.failed));
+  test('makes a day saved as failed before as a new day, keeping nothing of '
+      'the failure', () async {
+    await setDay(dayOf(_coat, 'phone-b'));
+    await firestore.doc('users/uid-1/days/2026-10-17_work').update({
+      'status': 'failed',
+      'problem': 'reference',
+    });
+    await firestore.doc('users/uid-1/suggestions/${_coat.id}').set({
+      'lastAt': Timestamp.fromDate(time),
+      'refusedPiece': 'everlane:tee',
+    });
     expect((await make()).last, isA<TryOnDone>());
-    expect((await record())?['status'], 'ready');
-    expect((await record())?['outfitId'], 'o2');
+    final day = await record();
+    expect(day?['status'], 'ready');
+    expect(day?['outfitId'], 'o2');
+    expect(day?.containsKey('problem'), isFalse);
   });
 
   test('stops when another phone takes the day over midway', () async {
@@ -452,8 +446,8 @@ void main() {
     expect((await record())?['status'], 'making');
   });
 
-  test("when YouCam refuses a piece's photo, remembers the piece and goes on "
-      'with another outfit', () async {
+  test("when YouCam refuses a piece's photo, goes on with another outfit, "
+      'keeping nothing of the refusal', () async {
     tryOn.referenceTasks = {'task-2'};
     final updates = await make();
     expect(updates, [
@@ -469,14 +463,14 @@ void main() {
     Future<Map<String, Object?>?> suggestion(CatalogOutfit outfit) async =>
         (await firestore.doc('users/uid-1/suggestions/${outfit.id}').get())
             .data();
-    expect((await suggestion(_coat))?['refusedPiece'], 'everlane:tee');
+    expect((await suggestion(_coat))?.containsKey('refusedPiece'), isFalse);
     expect((await suggestion(_dress))?['times'], 1);
     expect(tryOn.discarded, unorderedEquals(['task-1', 'task-2', 'task-3']));
     expect(keptJob(), isNull);
   });
 
-  test('gives up after three outfits refused in a row, keeping the refusal '
-      'on the day for every phone', () async {
+  test('gives up after three outfits refused in a row, keeping nothing on '
+      'the day', () async {
     outfits = _FakeCatalog([_coat, _dress, _top('o3'), _top('o4')]);
     tryOn.referenceTasks = {'task-1', 'task-2', 'task-3', 'task-4'};
     final updates = await make();
@@ -486,48 +480,38 @@ void main() {
     );
     expect(tryOn.starts, hasLength(3));
     final day = await record();
-    expect(day?['status'], 'failed');
-    expect(day?['problem'], 'reference');
-    expect(day?['outfitId'], 'o3');
-  });
-
-  test('keeps the refusal on the day when no outfit is left to try', () async {
-    tryOn.referenceTasks = {'task-1', 'task-2'};
-    final updates = await make();
-    expect(
-      updates.last,
-      const TryOnFailed(TryOnFailure(TryOnProblem.reference)),
-    );
-    final day = await record();
-    expect(day?['status'], 'failed');
-    expect(day?['problem'], 'reference');
+    expect(day?['status'], 'making');
+    expect(day?.containsKey('problem'), isFalse);
   });
 
   test(
-    "makes a day that failed on a piece's photo with another outfit",
+    'says when no outfit is left to try, keeping nothing on the day',
     () async {
-      await setDay(dayOf(_coat, 'phone-b').failedWith(TryOnProblem.reference));
-      await firestore.doc('users/uid-1/suggestions/${_coat.id}').set({
-        'lastAt': Timestamp.fromDate(time),
-        'refusedPiece': 'everlane:tee',
-      });
-      expect((await make()).last, isA<TryOnDone>());
+      tryOn.referenceTasks = {'task-1', 'task-2'};
+      final updates = await make();
+      expect(
+        updates.last,
+        const TryOnFailed(TryOnFailure(TryOnProblem.reference)),
+      );
       final day = await record();
-      expect(day?['status'], 'ready');
-      expect(day?['outfitId'], 'o2');
-      verifyNever(saveSetup(any));
+      expect(day?['status'], 'making');
+      expect(day?.containsKey('problem'), isFalse);
     },
   );
 
-  test("keeps YouCam's refusal on the day for every phone", () async {
-    tryOn.refuseStart = 2;
-    final updates = await make();
-    expect(updates.last, const TryOnFailed(TryOnFailure(TryOnProblem.failed)));
-    final day = await record();
-    expect(day?['status'], 'failed');
-    expect(day?['problem'], 'failed');
-    expect(keptJob()!.tasks, ['task-1']);
-  });
+  test(
+    "keeps nothing of YouCam's refusal, and makes the day next time",
+    () async {
+      tryOn.refuseStart = 2;
+      final first = await make();
+      expect(first.last, const TryOnFailed(TryOnFailure(TryOnProblem.failed)));
+      final day = await record();
+      expect(day?['status'], 'making');
+      expect(day?.containsKey('problem'), isFalse);
+      expect(keptJob()!.tasks, ['task-1']);
+      expect((await make()).last, isA<TryOnDone>());
+    },
+  );
 
   test(
     'tries a failed pass again next time, keeping the passes before it',

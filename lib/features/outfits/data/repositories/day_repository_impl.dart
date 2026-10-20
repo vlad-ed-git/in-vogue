@@ -96,20 +96,6 @@ class DayRepositoryImpl implements DayRepository {
   ) => _guard('suggested', () => _remote.suggested(accountId, outfitIds));
 
   @override
-  Future<Either<Failure, Unit>> refuse(
-    String accountId,
-    String outfitId,
-    String piece,
-  ) => _guard('refuse', () async {
-    await _remote.refuse(accountId, outfitId, piece);
-    return unit;
-  });
-
-  @override
-  Future<Either<Failure, Set<String>>> refusedPieces(String accountId) =>
-      _guard('refusedPieces', () => _remote.refusedPieces(accountId));
-
-  @override
   Future<Either<Failure, DayClaim>> claim(
     String accountId, {
     required DateTime date,
@@ -189,22 +175,6 @@ class DayRepositoryImpl implements DayRepository {
     );
     return made ? file : null;
   });
-
-  @override
-  Future<Either<Failure, bool>> fail(
-    String accountId,
-    Day day,
-    TryOnProblem problem, {
-    required String device,
-  }) => _guard(
-    'fail',
-    () => _remote.change(
-      accountId,
-      day.key,
-      device: device,
-      change: (current) => current.failedWith(problem),
-    ),
-  );
 
   @override
   Future<Either<Failure, String?>> madePicture(

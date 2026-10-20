@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/entities/install_id.dart';
-import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
@@ -15,7 +14,8 @@ import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 /// Follows a day's outfit as every phone signed in to the account sees it,
 /// and makes it on this phone when it needs making: when the day has none,
 /// when this phone's making stopped, or when another phone's making went
-/// stale. A failure is made again only on [retry].
+/// stale. Nothing about a failure is kept: it is made again on [retry],
+/// or the next time the day is followed.
 class FollowDay {
   FollowDay({
     required this._days,
@@ -65,8 +65,6 @@ class FollowDay {
       switch (day.status) {
         case DayStatus.ready:
           emit(await _done(params, day));
-        case DayStatus.failed:
-          emit(TryOnFailed(TryOnFailure(day.problem ?? TryOnProblem.failed)));
         case DayStatus.making when day.device == _device:
           // Its updates come from the making here, started anew when the
           // making on this phone stopped.

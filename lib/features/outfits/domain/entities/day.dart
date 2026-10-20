@@ -1,12 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
-import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
 import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
 import 'package:in_vogue/features/weather/domain/entities/warmth_band.dart';
 
 /// How far a day's outfit is.
-enum DayStatus { making, ready, failed }
+enum DayStatus { making, ready }
 
 /// A day's outfit as the account keeps it, shared by every phone signed in
 /// to the account.
@@ -26,7 +25,6 @@ class Day extends Equatable {
     this.piece = 0,
     this.pieces = 0,
     this.picturePath,
-    this.problem,
     this.updatedAt,
   });
 
@@ -61,9 +59,6 @@ class Day extends Equatable {
   /// Where the picture is kept on the account, once ready.
   final String? picturePath;
 
-  /// Why the making failed.
-  final TryOnProblem? problem;
-
   /// When the day last changed, by the server's clock; null until the
   /// server has the change.
   final DateTime? updatedAt;
@@ -85,16 +80,12 @@ class Day extends Equatable {
   Day readyAt(String path) =>
       _copy(status: DayStatus.ready, piece: pieces, picturePath: path);
 
-  Day failedWith(TryOnProblem why) =>
-      _copy(status: DayStatus.failed, problem: why);
-
   Day _copy({
     required DayStatus status,
     String? device,
     int piece = 0,
     int? pieces,
     String? picturePath,
-    TryOnProblem? problem,
   }) => Day(
     date: date,
     occasion: occasion,
@@ -110,7 +101,6 @@ class Day extends Equatable {
     piece: piece,
     pieces: pieces ?? this.pieces,
     picturePath: picturePath,
-    problem: problem,
     updatedAt: updatedAt,
   );
 
@@ -130,7 +120,6 @@ class Day extends Equatable {
     piece,
     pieces,
     picturePath,
-    problem,
     updatedAt,
   ];
 }
