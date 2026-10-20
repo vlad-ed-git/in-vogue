@@ -322,7 +322,7 @@ void main() {
       expect(find.text('Not added yet'), findsOneWidget);
       expect(find.text('Pro'), findsOneWidget);
       expect(find.text('Paris, while using the app'), findsOneWidget);
-      expect(find.text('Tomorrow, today from 6 to 9 am'), findsOneWidget);
+      expect(find.text('Tomorrow'), findsOneWidget);
       expect(find.textContaining('Theme'), findsNothing);
     });
 
@@ -537,7 +537,7 @@ void main() {
 
     testWidgets('Default day opens a choice of the two days', (tester) async {
       await pumpSettings(tester);
-      await tester.ensureVisible(find.text('Tomorrow, today from 6 to 9 am'));
+      await tester.ensureVisible(find.text('Tomorrow'));
       await tester.tap(findLink('Change').at(1));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));

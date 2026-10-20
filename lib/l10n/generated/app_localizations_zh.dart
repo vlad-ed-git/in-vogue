@@ -559,7 +559,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeScreenWidget => '主屏幕小组件';
 
   @override
-  String get defaultDayTomorrow => '明天；早上 6 点到 9 点显示今天';
+  String get defaultDayTomorrow => '明天';
 
   @override
   String get defaultDayTitle => '首页打开时显示';

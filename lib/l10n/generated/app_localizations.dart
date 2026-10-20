@@ -993,10 +993,10 @@ abstract class AppLocalizations {
   /// **'Home-screen widget'**
   String get homeScreenWidget;
 
-  /// Home opens on tomorrow, except early in the morning.
+  /// Home opens on tomorrow.
   ///
   /// In en, this message translates to:
-  /// **'Tomorrow, today from 6 to 9 am'**
+  /// **'Tomorrow'**
   String get defaultDayTomorrow;
 
   /// Title of the default day sheet.
