@@ -84,6 +84,8 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - Clothes only: no shoes, bags or accessories, and people keep their own shoes. Never hair changes.
 - Outfits come from the whole collection. Loved outfits add weight; never-suggested outfits come first, then the one suggested longest ago.
 - English unless the person picks another language; never follow the phone's.
+- Never save or cache an error or failure, anywhere: not in Firestore, on the phone or in memory. Caches keep results only; a failure is shown and the next try asks again (owner, October 20).
+- A day whose outfit the catalog no longer has gets another one from the recommender (owner, October 20).
 
 **Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · enforcing App Check · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5). Loading the catalog from Firebase was on it until October 19: outfits now come from a curated catalog in Firestore (owner, October 19; [docs/recommender-design.md](docs/recommender-design.md)).
 

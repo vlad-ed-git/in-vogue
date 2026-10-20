@@ -36,6 +36,9 @@ class _Service implements SkinAnalysisRepository {
 
   final List<AnalysisTask> answers;
   bool reachable = true;
+
+  /// What every check answers instead, while set.
+  Failure? checkFailure;
   final uploads = <String>[];
   final starts = <String>[];
   final checks = <String>[];
@@ -59,6 +62,7 @@ class _Service implements SkinAnalysisRepository {
   @override
   Future<Either<Failure, AnalysisTask>> check(String taskId) async {
     checks.add(taskId);
+    if (checkFailure case final failure?) return Left(failure);
     return Right(answers.removeAt(0));
   }
 
@@ -230,6 +234,35 @@ void main() {
     await analyse(service)('uid-1');
     expect(service.uploads, isEmpty);
     expect(service.checks, ['task-7']);
+  });
+
+  test('forgets a reading YouCam will not report on, so the next one starts '
+      'anew', () async {
+    jobs.tasks['uid-1/2'] = 'task-7';
+    final service = _Service([const AnalysisDone(_colours)])
+      ..checkFailure = const AnalysisFailure(AnalysisProblem.failed);
+    expect(
+      await analyse(service)('uid-1'),
+      const Left<Failure, FaceColours>(AnalysisFailure(AnalysisProblem.failed)),
+    );
+    expect(jobs.tasks, isEmpty);
+    service.checkFailure = null;
+    expect(
+      await analyse(service)('uid-1'),
+      const Right<Failure, FaceColours>(_colours),
+    );
+    expect(service.uploads, hasLength(1));
+    expect(service.checks, ['task-7', 'task-1']);
+  });
+
+  test('keeps a reading under way when the network fails', () async {
+    jobs.tasks['uid-1/2'] = 'task-7';
+    final service = _Service([])..checkFailure = const NetworkFailure();
+    expect(
+      await analyse(service)('uid-1'),
+      const Left<Failure, FaceColours>(NetworkFailure()),
+    );
+    expect(jobs.tasks, {'uid-1/2': 'task-7'});
   });
 
   test('says what to change when the photo is refused, and starts again '

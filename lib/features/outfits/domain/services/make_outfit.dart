@@ -154,14 +154,16 @@ class MakeOutfit {
     if (body == null) {
       return const TryOnFailed(TryOnFailure(TryOnProblem.photo));
     }
-    Day? refused;
+    // The day whose outfit is replaced: the catalog no longer has it, or
+    // the try-on refused a piece's photo.
+    Day? replaced;
     // Pieces whose photo the try-on refused in this making; never kept.
     final refusedPieces = <String>{};
     for (var tried = 1; ; tried++) {
       final claimed = await _oneAtATime(
         () => _claim(
           params,
-          replacing: refused?.outfitId,
+          replacing: replaced?.outfitId,
           refused: refusedPieces,
         ),
       );
@@ -179,30 +181,46 @@ class MakeOutfit {
         case DayConflict():
           return const TryOnFailed(ServerFailure());
       }
-      final made = await _makeDay(params, day, body, report, refusedPieces);
+      final catalog = await _catalog.outfits();
+      if (catalog case Left(value: final failure)) return TryOnFailed(failure);
+      final outfit = _find(catalog.getOrElse(() => const []), day.outfitId);
+      if (outfit == null) {
+        // The recommender chooses another for a day whose outfit is gone.
+        if (tried < outfitAttempts) {
+          replaced = day;
+          continue;
+        }
+        return const TryOnFailed(TryOnFailure(TryOnProblem.failed));
+      }
+      final made = await _makeDay(
+        params,
+        day,
+        outfit,
+        body,
+        report,
+        refusedPieces,
+      );
       if (made case TryOnFailed(
         failure: TryOnFailure(problem: TryOnProblem.reference),
       ) when tried < outfitAttempts) {
-        refused = day;
+        replaced = day;
         continue;
       }
       return made;
     }
   }
 
-  /// Tries [day]'s outfit on [body], piece by piece. A piece whose photo
+  /// Tries [day]'s [outfit] on [body], piece by piece. A piece whose photo
   /// the try-on refuses goes into [refusedPieces], so another outfit can
   /// take its place. A failure leaves the day as it is, to be made again.
   Future<TryOnUpdate> _makeDay(
     MakeOutfitParams params,
     Day day,
+    CatalogOutfit outfit,
     UserPhoto body,
     void Function(TryOnUpdate update) report,
     Set<String> refusedPieces,
   ) async {
-    final outfit = await _outfit(day.outfitId);
-    if (outfit == null) return const TryOnFailed(CacheFailure());
-
     final made = await _days.madePicture(
       params.accountId,
       photo: body.path,
@@ -331,8 +349,11 @@ class MakeOutfit {
 
   /// The catalog's outfit [id]; null when the catalog can't be read or
   /// lacks it.
-  Future<CatalogOutfit?> _outfit(String id) async {
-    final outfits = (await _catalog.outfits()).getOrElse(() => const []);
+  Future<CatalogOutfit?> _outfit(String id) async =>
+      _find((await _catalog.outfits()).getOrElse(() => const []), id);
+
+  /// The outfit [id] among [outfits]; null when it isn't there.
+  static CatalogOutfit? _find(List<CatalogOutfit> outfits, String id) {
     for (final outfit in outfits) {
       if (outfit.id == id) return outfit;
     }

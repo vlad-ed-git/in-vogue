@@ -118,6 +118,7 @@ MakeOutfit, once the day is claimed:
   last piece ─► download ─► phone + Storage + tryOns ─► ready
   any failure ─► shown on this phone only; nothing about it is saved; the day stays making ─► made again next time
   a piece's photo refused ─► another outfit (≤ 3 per making, remembered only during that making)
+  the day's outfit no longer in the catalog ─► the recommender chooses another
 ```
 
 - **Choosing:** the recommender (`RecommendOutfit`, design §7) takes the catalog's outfits that suit the person's colour season (from a clear reading; otherwise the weather alone) in the day's coldest hours, then the occasion, the warmest hours, rain and snow, without a piece whose photo YouCam refused during the same making. Among those scoring within 15% of the day's best, the one never suggested comes first; after that, the one suggested longest ago. Pieces worn in the last 14 days rest, so tomorrow avoids today's pieces. Today and tomorrow never share an outfit, and a day keeps its outfit when the forecast changes. The day keeps the outfit's id, the reason's facts (worded on screen in the person's language and unit) and the bands it was chosen for.

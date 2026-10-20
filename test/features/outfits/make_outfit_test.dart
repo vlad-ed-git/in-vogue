@@ -432,6 +432,29 @@ void main() {
     expect(day?.containsKey('problem'), isFalse);
   });
 
+  test(
+    "chooses another outfit when the catalog no longer has the day's",
+    () async {
+      await setDay(dayOf(_top('gone'), 'phone-a'));
+      final updates = await make();
+      expect(updates.last, isA<TryOnDone>());
+      final day = await record();
+      expect(day?['status'], 'ready');
+      expect(['o1', 'o2'], contains(day?['outfitId']));
+    },
+  );
+
+  test('takes over a stopped making of an outfit the catalog no longer has, '
+      'with another outfit', () async {
+    await setDay(dayOf(_top('gone'), 'phone-b'));
+    time = time.add(DayRules.lease);
+    final updates = await make();
+    expect(updates.last, isA<TryOnDone>());
+    final day = await record();
+    expect(day?['device'], 'phone-a');
+    expect(['o1', 'o2'], contains(day?['outfitId']));
+  });
+
   test('stops when another phone takes the day over midway', () async {
     tryOn.onStart = (made) async {
       if (made == 2) {

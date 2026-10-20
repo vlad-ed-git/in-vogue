@@ -85,7 +85,11 @@ class AnalyseFace {
     final deadline = clock.now().add(_taskTimeLimit);
     while (true) {
       final checked = await _service.check(task);
-      if (checked case Left(value: final failure)) return Left(failure);
+      if (checked case Left(value: final failure)) {
+        // A task YouCam won't report on is dead: the next reading starts anew.
+        if (failure is AnalysisFailure) await _jobs.clear(key);
+        return Left(failure);
+      }
       switch (checked.getOrElse(() => const AnalysisRunning())) {
         case AnalysisDone(:final colours):
           final saved = await _profiles.save(accountId, face.path, colours);
