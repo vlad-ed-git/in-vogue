@@ -21,6 +21,8 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart';
+import 'package:in_vogue/features/preferences/domain/usecases/get_occasions.dart';
+import 'package:in_vogue/features/preferences/domain/usecases/set_occasion.dart';
 import 'package:in_vogue/features/stylist/domain/services/wardrobe_chooser.dart';
 import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart';
 import 'package:in_vogue/features/wardrobe/domain/usecases/wardrobe_usecases.dart';
@@ -239,7 +241,8 @@ class HomeState extends Equatable {
 /// and the person's own outfits, for each day's pick from them.
 ///
 /// Opens on today from 06:00 to 08:59 and tomorrow otherwise, or always
-/// today when the person chose it. Both days' outfits are followed as every
+/// today when the person chose it. Each date opens on the occasion chosen
+/// for it, kept on the phone. Both days' outfits are followed as every
 /// phone signed in sees them, and made when they need making.
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({
@@ -250,6 +253,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required this._followDay,
     required this._getDefaultDay,
     required this._watchWardrobe,
+    required this._getOccasions,
+    required this._setOccasion,
   }) : super(const HomeState()) {
     on<HomeStarted>(_start, transformer: restartable());
     on<HomeDaySelected>(_select);
@@ -274,6 +279,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetWeatherReport _getWeatherReport;
   final FollowDay _followDay;
   final GetDefaultDay _getDefaultDay;
+  final GetOccasions _getOccasions;
+  final SetOccasion _setOccasion;
   final WatchWardrobe _watchWardrobe;
 
   String? _accountId;
@@ -296,9 +303,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     final preferred = (await _getDefaultDay(
       const NoParams(),
     )).getOrElse(() => ForecastDay.tomorrow);
-    // Each date keeps the occasion it has on screen; which day comes first
-    // is only known once the forecast says what time it is there.
+    // Each date keeps the occasion chosen for it, or the one on screen;
+    // which day comes first is only known once the forecast says what time
+    // it is there.
     final chosen = {
+      ...(await _getOccasions(const NoParams())).getOrElse(() => const {}),
       for (final day in state.days.values)
         if (day.report?.weather case final weather?)
           weather.date: weather.occasion,
@@ -439,6 +448,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (place == null ||
         state.shown.report?.weather.occasion == event.occasion) {
       return;
+    }
+    if (state.shown.report?.weather.date case final date?) {
+      await _setOccasion(
+        SetOccasionParams(date: date, occasion: event.occasion),
+      );
     }
     final report = await _getWeatherReport(
       WeatherReportParams(location: place, day: day, occasion: event.occasion),

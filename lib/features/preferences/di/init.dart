@@ -5,8 +5,10 @@ import 'package:in_vogue/features/preferences/data/repositories/preferences_repo
 import 'package:in_vogue/features/preferences/domain/repositories/preferences_repository.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/get_language.dart';
+import 'package:in_vogue/features/preferences/domain/usecases/get_occasions.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/set_default_day.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/set_language.dart';
+import 'package:in_vogue/features/preferences/domain/usecases/set_occasion.dart';
 import 'package:in_vogue/features/preferences/presentation/bloc/preferences_bloc.dart';
 
 void init(GetIt locator) {
@@ -24,6 +26,8 @@ void init(GetIt locator) {
     ..registerLazySingleton<GetDefaultDay>(() => GetDefaultDay(locator()))
     ..registerLazySingleton<SetDefaultDay>(() => SetDefaultDay(locator()))
     ..registerLazySingleton<SetLanguage>(() => SetLanguage(locator()))
+    ..registerLazySingleton<GetOccasions>(() => GetOccasions(locator()))
+    ..registerLazySingleton<SetOccasion>(() => SetOccasion(locator()))
     ..registerFactoryParam<PreferencesBloc, SupportedLanguages, void>(
       (language, _) =>
           PreferencesBloc(setLanguage: locator(), initialLanguage: language),

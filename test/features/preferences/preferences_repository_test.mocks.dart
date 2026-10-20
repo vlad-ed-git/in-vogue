@@ -8,10 +8,11 @@ import 'dart:async' as _i5;
 
 import 'package:dartz/dartz.dart' as _i2;
 import 'package:in_vogue/core/domain/entities/forecast_day.dart' as _i6;
+import 'package:in_vogue/core/domain/entities/occasion.dart' as _i9;
 import 'package:in_vogue/core/domain/entities/supported_languages.dart' as _i4;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i8;
-import 'package:in_vogue/core/domain/errors/log_messages.dart' as _i10;
-import 'package:in_vogue/core/persistence/key_value_store.dart' as _i9;
+import 'package:in_vogue/core/domain/errors/log_messages.dart' as _i11;
+import 'package:in_vogue/core/persistence/key_value_store.dart' as _i10;
 import 'package:in_vogue/features/preferences/data/data_sources/preferences_local_data_source.dart'
     as _i3;
 import 'package:in_vogue/features/preferences/domain/repositories/preferences_repository.dart'
@@ -76,6 +77,23 @@ class MockPreferencesLocalDataSource extends _i1.Mock
   _i5.Future<void> setDefaultDay(_i6.ForecastDay? day) =>
       (super.noSuchMethod(
             Invocation.method(#setDefaultDay, [day]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  Map<String, String> getOccasions() =>
+      (super.noSuchMethod(
+            Invocation.method(#getOccasions, []),
+            returnValue: <String, String>{},
+          )
+          as Map<String, String>);
+
+  @override
+  _i5.Future<void> setOccasions(Map<String, String>? occasions) =>
+      (super.noSuchMethod(
+            Invocation.method(#setOccasions, [occasions]),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
@@ -154,12 +172,45 @@ class MockPreferencesRepository extends _i1.Mock
                 ),
           )
           as _i5.Future<_i2.Either<_i8.Failure, _i6.ForecastDay>>);
+
+  @override
+  _i5.Future<_i2.Either<_i8.Failure, Map<DateTime, _i9.Occasion>>>
+  occasions() =>
+      (super.noSuchMethod(
+            Invocation.method(#occasions, []),
+            returnValue:
+                _i5.Future<
+                  _i2.Either<_i8.Failure, Map<DateTime, _i9.Occasion>>
+                >.value(
+                  _FakeEither_0<_i8.Failure, Map<DateTime, _i9.Occasion>>(
+                    this,
+                    Invocation.method(#occasions, []),
+                  ),
+                ),
+          )
+          as _i5.Future<_i2.Either<_i8.Failure, Map<DateTime, _i9.Occasion>>>);
+
+  @override
+  _i5.Future<_i2.Either<_i8.Failure, _i2.Unit>> setOccasion(
+    DateTime? date,
+    _i9.Occasion? occasion,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#setOccasion, [date, occasion]),
+            returnValue: _i5.Future<_i2.Either<_i8.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i8.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#setOccasion, [date, occasion]),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.Either<_i8.Failure, _i2.Unit>>);
 }
 
 /// A class which mocks [KeyValueStore].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockKeyValueStore extends _i1.Mock implements _i9.KeyValueStore {
+class MockKeyValueStore extends _i1.Mock implements _i10.KeyValueStore {
   MockKeyValueStore() {
     _i1.throwOnMissingStub(this);
   }
@@ -199,7 +250,7 @@ class MockKeyValueStore extends _i1.Mock implements _i9.KeyValueStore {
 /// A class which mocks [LogMessages].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockLogMessages extends _i1.Mock implements _i10.LogMessages {
+class MockLogMessages extends _i1.Mock implements _i11.LogMessages {
   MockLogMessages() {
     _i1.throwOnMissingStub(this);
   }

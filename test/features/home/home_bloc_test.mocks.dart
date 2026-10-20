@@ -8,6 +8,7 @@ import 'dart:async' as _i4;
 
 import 'package:dartz/dartz.dart' as _i2;
 import 'package:in_vogue/core/domain/entities/forecast_day.dart' as _i19;
+import 'package:in_vogue/core/domain/entities/occasion.dart' as _i23;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
 import 'package:in_vogue/core/domain/usecases/use_case.dart' as _i7;
 import 'package:in_vogue/features/auth/domain/entities/account.dart' as _i6;
@@ -31,6 +32,10 @@ import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart'
     as _i10;
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart'
     as _i18;
+import 'package:in_vogue/features/preferences/domain/usecases/get_occasions.dart'
+    as _i22;
+import 'package:in_vogue/features/preferences/domain/usecases/set_occasion.dart'
+    as _i24;
 import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart'
     as _i21;
 import 'package:in_vogue/features/wardrobe/domain/usecases/wardrobe_usecases.dart'
@@ -229,4 +234,55 @@ class MockWatchWardrobe extends _i1.Mock implements _i20.WatchWardrobe {
                 >.empty(),
           )
           as _i4.Stream<_i2.Either<_i5.Failure, List<_i21.WardrobeOutfit>>>);
+}
+
+/// A class which mocks [GetOccasions].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockGetOccasions extends _i1.Mock implements _i22.GetOccasions {
+  MockGetOccasions() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, Map<DateTime, _i23.Occasion>>> call(
+    _i7.NoParams? params,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [params]),
+            returnValue:
+                _i4.Future<
+                  _i2.Either<_i5.Failure, Map<DateTime, _i23.Occasion>>
+                >.value(
+                  _FakeEither_0<_i5.Failure, Map<DateTime, _i23.Occasion>>(
+                    this,
+                    Invocation.method(#call, [params]),
+                  ),
+                ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, Map<DateTime, _i23.Occasion>>>);
+}
+
+/// A class which mocks [SetOccasion].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSetOccasion extends _i1.Mock implements _i24.SetOccasion {
+  MockSetOccasion() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> call(
+    _i24.SetOccasionParams? params,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#call, [params]),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#call, [params]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 }

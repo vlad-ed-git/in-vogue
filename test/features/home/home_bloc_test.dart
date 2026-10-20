@@ -21,6 +21,8 @@ import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
 import 'package:in_vogue/features/photos/domain/usecases/get_kept_photo.dart';
 import 'package:in_vogue/features/preferences/domain/usecases/get_default_day.dart';
+import 'package:in_vogue/features/preferences/domain/usecases/get_occasions.dart';
+import 'package:in_vogue/features/preferences/domain/usecases/set_occasion.dart';
 import 'package:in_vogue/features/wardrobe/domain/entities/wardrobe_outfit.dart';
 import 'package:in_vogue/features/wardrobe/domain/usecases/wardrobe_usecases.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_weather.dart';
@@ -94,8 +96,12 @@ DayOutfit _outfit(DateTime date, Occasion occasion) => DayOutfit(
   FollowDay,
   GetDefaultDay,
   WatchWardrobe,
+  GetOccasions,
+  SetOccasion,
 ])
 void main() {
+  late MockGetOccasions occasions;
+  late MockSetOccasion setOccasion;
   late MockGetCurrentAccount account;
   late MockGetSavedLocation location;
   late MockGetKeptPhoto photo;
@@ -117,6 +123,8 @@ void main() {
     followDay: followDay,
     getDefaultDay: defaultDay,
     watchWardrobe: wardrobe,
+    getOccasions: occasions,
+    setOccasion: setOccasion,
   );
 
   setUp(() {
@@ -127,6 +135,10 @@ void main() {
     followDay = MockFollowDay();
     defaultDay = MockGetDefaultDay();
     wardrobe = MockWatchWardrobe();
+    occasions = MockGetOccasions();
+    setOccasion = MockSetOccasion();
+    when(occasions(any)).thenAnswer((_) async => const Right({}));
+    when(setOccasion(any)).thenAnswer((_) async => const Right(unit));
     owned = StreamController.broadcast();
     when(wardrobe(any)).thenAnswer((_) => owned.stream);
     following = {};
@@ -357,6 +369,29 @@ void main() {
     await bloc.stream.firstWhere((s) => s.selected == ForecastDay.today);
     await pumpEventQueue();
     verify(followDay(any)).called(2);
+  });
+
+  test('opens a date on the occasion chosen for it before', () async {
+    when(
+      occasions(any),
+    ).thenAnswer((_) async => Right({_tomorrow: Occasion.goingOut}));
+    final bloc = await started();
+    expect(
+      bloc.state.day(ForecastDay.tomorrow).report?.weather.occasion,
+      Occasion.goingOut,
+    );
+    expect(following.keys, contains((_tomorrow, Occasion.goingOut)));
+  });
+
+  test('keeps the occasion chosen, for the next time the app opens', () async {
+    final bloc = await started();
+    bloc.add(const HomeOccasionChanged(Occasion.goingOut));
+    await pumpEventQueue();
+    verify(
+      setOccasion(
+        SetOccasionParams(date: _tomorrow, occasion: Occasion.goingOut),
+      ),
+    ).called(1);
   });
 
   test('follows the chosen occasion, and leaves the old one', () async {

@@ -1,8 +1,10 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/entities/forecast_day.dart';
+import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
@@ -126,6 +128,42 @@ void main() {
       await repository.defaultDay(),
       const Right<Failure, ForecastDay>(ForecastDay.today),
     );
+  });
+
+  group('occasions', () {
+    late PreferencesRepositoryImpl kept;
+
+    setUp(() {
+      kept = PreferencesRepositoryImpl(
+        localDataSource: PreferencesLocalDataSourceImpl(MemoryStore()),
+        logMessages: logger,
+      );
+    });
+
+    test('keeps the occasion chosen for each date', () async {
+      await withClock(Clock.fixed(DateTime(2026, 10, 20, 15)), () async {
+        await kept.setOccasion(DateTime.utc(2026, 10, 21), Occasion.casual);
+        await kept.setOccasion(DateTime.utc(2026, 10, 20), Occasion.goingOut);
+        await kept.setOccasion(DateTime.utc(2026, 10, 21), Occasion.stayingIn);
+        expect((await kept.occasions()).getOrElse(() => const {}), {
+          DateTime.utc(2026, 10, 20): Occasion.goingOut,
+          DateTime.utc(2026, 10, 21): Occasion.stayingIn,
+        });
+      });
+    });
+
+    test('forgets the occasions of days gone by', () async {
+      await withClock(Clock.fixed(DateTime(2026, 10, 20, 15)), () async {
+        await kept.setOccasion(DateTime.utc(2026, 10, 21), Occasion.casual);
+      });
+      await withClock(Clock.fixed(DateTime(2026, 10, 22, 9)), () async {
+        expect((await kept.occasions()).getOrElse(() => const {}), isEmpty);
+        await kept.setOccasion(DateTime.utc(2026, 10, 23), Occasion.work);
+        expect((await kept.occasions()).getOrElse(() => const {}), {
+          DateTime.utc(2026, 10, 23): Occasion.work,
+        });
+      });
+    });
   });
 }
 

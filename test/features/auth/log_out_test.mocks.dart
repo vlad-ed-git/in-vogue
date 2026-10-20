@@ -266,38 +266,6 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
           as _i4.Future<_i2.Either<_i5.Failure, Map<String, DateTime?>>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> refuse(
-    String? accountId,
-    String? outfitId,
-    String? piece,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#refuse, [accountId, outfitId, piece]),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
-              _FakeEither_0<_i5.Failure, _i2.Unit>(
-                this,
-                Invocation.method(#refuse, [accountId, outfitId, piece]),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, Set<String>>> refusedPieces(
-    String? accountId,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#refusedPieces, [accountId]),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, Set<String>>>.value(
-              _FakeEither_0<_i5.Failure, Set<String>>(
-                this,
-                Invocation.method(#refusedPieces, [accountId]),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, Set<String>>>);
-
-  @override
   _i4.Future<_i2.Either<_i5.Failure, _i10.DayClaim>> claim(
     String? accountId, {
     required DateTime? date,
@@ -445,32 +413,6 @@ class MockDayRepository extends _i1.Mock implements _i9.DayRepository {
             ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, String?>>);
-
-  @override
-  _i4.Future<_i2.Either<_i5.Failure, bool>> fail(
-    String? accountId,
-    _i10.Day? day,
-    _i5.TryOnProblem? problem, {
-    required String? device,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #fail,
-              [accountId, day, problem],
-              {#device: device},
-            ),
-            returnValue: _i4.Future<_i2.Either<_i5.Failure, bool>>.value(
-              _FakeEither_0<_i5.Failure, bool>(
-                this,
-                Invocation.method(
-                  #fail,
-                  [accountId, day, problem],
-                  {#device: device},
-                ),
-              ),
-            ),
-          )
-          as _i4.Future<_i2.Either<_i5.Failure, bool>>);
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, String>> picture(

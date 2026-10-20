@@ -13,6 +13,8 @@ void init(GetIt locator) {
         followDay: locator(),
         getDefaultDay: locator(),
         watchWardrobe: locator(),
+        getOccasions: locator(),
+        setOccasion: locator(),
       ),
     )
     ..registerFactory<ShopBloc>(
