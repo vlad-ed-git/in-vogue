@@ -42,6 +42,7 @@
   "occasionGoingOutKicker": "Salir",
   "occasionStayingInKicker": "En casa",
   "change": "Cambiar",
+  "changeOccasion": "Cambiar ocasión",
   "dayIs": "{day, select, today{Hoy es} other{Mañana es}}",
   "gettingOutfitReady": "Preparando tu conjunto…",
   "tryOnFailed": "Esta vez no pudimos vestirte. Tu foto está bien.",

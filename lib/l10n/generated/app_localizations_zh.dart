@@ -199,6 +199,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get change => '更改';
 
   @override
+  String get changeOccasion => '更改场合';
+
+  @override
   String dayIs(String day) {
     String _temp0 = intl.Intl.selectLogic(day, {
       'today': '今天是',

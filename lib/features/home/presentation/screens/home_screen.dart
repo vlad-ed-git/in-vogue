@@ -322,11 +322,14 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (state.shown.report case final report?)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: TextLink(
-                  label: l10n.change,
-                  onTap: () => _changeOccasion(context, report),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: InVogueSpace.s3),
+                child: Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: TextLink(
+                    label: l10n.changeOccasion,
+                    onTap: () => _changeOccasion(context, report),
+                  ),
                 ),
               ),
             if (outfit case OutfitShown(outfit: DayOutfit(:final outfit?)))

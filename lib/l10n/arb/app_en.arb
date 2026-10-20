@@ -228,6 +228,7 @@
     "description": "Occasion kicker, shown in capitals."
   },
   "change": "Change",
+  "changeOccasion": "Change occasion",
   "dayIs": "{day, select, today{Today is} other{Tomorrow is}}",
   "@dayIs": {
     "description": "Title of the occasion sheet.",

@@ -287,10 +287,12 @@ void main() {
     );
   });
 
-  testWidgets('puts Change below the photo, on the right', (tester) async {
+  testWidgets('puts Change occasion below the photo, on the right', (
+    tester,
+  ) async {
     await pumpHome(tester, _state(OutfitShown(_outfit)));
     final photo = tester.getRect(find.byType(PhotoStage));
-    final change = tester.getRect(findLink('Change'));
+    final change = tester.getRect(findLink('Change occasion'));
     expect(change.top, greaterThanOrEqualTo(photo.bottom));
     expect(change.right, closeTo(photo.right, 1));
   });

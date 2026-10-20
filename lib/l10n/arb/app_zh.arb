@@ -42,6 +42,7 @@
   "occasionGoingOutKicker": "外出",
   "occasionStayingInKicker": "宅家",
   "change": "更改",
+  "changeOccasion": "更改场合",
   "dayIs": "{day, select, today{今天是} other{明天是}}",
   "gettingOutfitReady": "正在准备你的穿搭…",
   "tryOnFailed": "这次没能为你换上穿搭。你的照片没有问题。",

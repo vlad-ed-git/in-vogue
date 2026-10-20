@@ -357,6 +357,12 @@ abstract class AppLocalizations {
   /// **'Change'**
   String get change;
 
+  /// No description provided for @changeOccasion.
+  ///
+  /// In en, this message translates to:
+  /// **'Change occasion'**
+  String get changeOccasion;
+
   /// Title of the occasion sheet.
   ///
   /// In en, this message translates to:

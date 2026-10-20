@@ -200,6 +200,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get change => 'Change';
 
   @override
+  String get changeOccasion => 'Change occasion';
+
+  @override
   String dayIs(String day) {
     String _temp0 = intl.Intl.selectLogic(day, {
       'today': 'Today is',
