@@ -38,11 +38,7 @@ void init(GetIt locator) {
       ),
     )
     ..registerFactory<SignInBloc>(
-      () => SignInBloc(
-        signIn: locator(),
-        restoreFromAccount: locator(),
-        saveSetupToAccount: locator(),
-      ),
+      () => SignInBloc(signIn: locator(), accountSync: locator()),
     )
     ..registerFactory<LogOutBloc>(() => LogOutBloc(logOut: locator()));
 }

@@ -9,6 +9,7 @@ import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/account/domain/services/account_sync.dart';
 import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
 import 'package:in_vogue/features/auth/domain/usecases/log_out.dart';
@@ -116,24 +117,22 @@ void main() {
     final profile = ProfileRepositoryImpl(
       ProfileLocalDataSourceImpl(profileStore),
     );
-    final saveSetup = MockSaveSetupToAccount();
-    when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
-    final restore = MockRestoreFromAccount();
-    when(restore(any)).thenAnswer((_) async => const Right(unit));
+    final sync = MockAccountSync();
+    when(sync.signedIn(any)).thenAnswer((_) async {});
+    when(sync.save(any)).thenAnswer((_) async => const Right(unit));
+    when(sync.nameRestored).thenAnswer((_) async {});
+    when(sync.faceRestored).thenAnswer((_) async {});
     locator = GetIt.asNewInstance()
+      ..registerSingleton<AccountSync>(sync)
       ..registerFactory<SignInBloc>(
-        () => SignInBloc(
-          signIn: SignIn(auth),
-          restoreFromAccount: restore,
-          saveSetupToAccount: saveSetup,
-        ),
+        () => SignInBloc(signIn: SignIn(auth), accountSync: sync),
       )
       ..registerFactory<ProfileBloc>(
         () => ProfileBloc(
           getProfileName: GetProfileName(profile),
           saveProfileName: SaveProfileName(profile),
           getCurrentAccount: GetCurrentAccount(auth),
-          saveSetupToAccount: saveSetup,
+          accountSync: sync,
         ),
       )
       ..registerFactory<DeleteAccountBloc>(() {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,20 +62,21 @@ void main() {
   group('ProfileBloc', () {
     late MockProfileRepository profile;
     late MockAuthRepository auth;
-    late MockSaveSetupToAccount saveSetup;
+    late MockAccountSync sync;
 
     ProfileBloc buildBloc() => ProfileBloc(
       getProfileName: GetProfileName(profile),
       saveProfileName: SaveProfileName(profile),
       getCurrentAccount: GetCurrentAccount(auth),
-      saveSetupToAccount: saveSetup,
+      accountSync: sync,
     );
 
     setUp(() {
       profile = MockProfileRepository();
       auth = MockAuthRepository();
-      saveSetup = MockSaveSetupToAccount();
-      when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
+      sync = MockAccountSync();
+      when(sync.nameRestored).thenAnswer((_) async {});
+      when(sync.save(any)).thenAnswer((_) async => const Right(unit));
       when(profile.name()).thenAnswer((_) async => const Right(null));
       when(
         auth.currentAccount(),
@@ -105,6 +108,39 @@ void main() {
       ],
     );
 
+    test("waits for the account's name before the provider's", () async {
+      final restored = Completer<void>();
+      when(sync.nameRestored).thenAnswer((_) => restored.future);
+      final bloc = buildBloc();
+      addTearDown(bloc.close);
+      bloc.add(const ProfileLoaded());
+      await pumpEventQueue();
+      expect(bloc.state.status, ProfileStatus.loading);
+      when(profile.name()).thenAnswer((_) async => const Right('May'));
+      restored.complete();
+      expect(
+        await bloc.stream.first,
+        const ProfileState(status: ProfileStatus.ready, name: 'May'),
+      );
+    });
+
+    test('keeps a name saved while it waited', () async {
+      final restored = Completer<void>();
+      when(sync.nameRestored).thenAnswer((_) => restored.future);
+      final bloc = buildBloc();
+      addTearDown(bloc.close);
+      bloc
+        ..add(const ProfileLoaded())
+        ..add(const ProfileNameSaved('Maya K'));
+      await bloc.stream.firstWhere((s) => s.status == ProfileStatus.saved);
+      restored.complete();
+      await pumpEventQueue();
+      expect(
+        bloc.state,
+        const ProfileState(status: ProfileStatus.saved, name: 'Maya K'),
+      );
+    });
+
     blocTest<ProfileBloc, ProfileState>(
       'starts empty when nobody shared a name',
       build: () {
@@ -124,15 +160,15 @@ void main() {
         const ProfileState(status: ProfileStatus.saving, name: ' Maya '),
         const ProfileState(status: ProfileStatus.saved, name: 'Maya'),
       ],
-      verify: (_) => verify(saveSetup('u')).called(1),
+      verify: (_) => verify(sync.save('u')).called(1),
     );
 
     blocTest<ProfileBloc, ProfileState>(
-      'moves on when the account cannot be saved',
+      'moves on without waiting for the account',
       build: () {
         when(
-          saveSetup(any),
-        ).thenAnswer((_) async => const Left(NetworkFailure()));
+          sync.save(any),
+        ).thenAnswer((_) => Completer<Either<Failure, Unit>>().future);
         return buildBloc();
       },
       seed: () => const ProfileState(status: ProfileStatus.ready),
@@ -161,7 +197,7 @@ void main() {
           failure: CacheFailure(),
         ),
       ],
-      verify: (_) => verifyNever(saveSetup(any)),
+      verify: (_) => verifyNever(sync.save(any)),
     );
 
     blocTest<ProfileBloc, ProfileState>(

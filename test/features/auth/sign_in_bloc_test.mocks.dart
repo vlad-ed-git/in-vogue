@@ -8,7 +8,7 @@ import 'dart:async' as _i4;
 
 import 'package:dartz/dartz.dart' as _i2;
 import 'package:in_vogue/core/domain/errors/failures.dart' as _i5;
-import 'package:in_vogue/features/account/domain/usecases/restore_from_account.dart'
+import 'package:in_vogue/features/account/domain/services/account_sync.dart'
     as _i8;
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart'
     as _i9;
@@ -116,23 +116,47 @@ class MockAuthRepository extends _i1.Mock implements _i3.AuthRepository {
           as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 }
 
-/// A class which mocks [RestoreFromAccount].
+/// A class which mocks [AccountSync].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockRestoreFromAccount extends _i1.Mock
-    implements _i8.RestoreFromAccount {
-  MockRestoreFromAccount() {
+class MockAccountSync extends _i1.Mock implements _i8.AccountSync {
+  MockAccountSync() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> call(String? accountId) =>
+  _i4.Future<void> get nameRestored =>
       (super.noSuchMethod(
-            Invocation.method(#call, [accountId]),
+            Invocation.getter(#nameRestored),
+            returnValue: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> get faceRestored =>
+      (super.noSuchMethod(
+            Invocation.getter(#faceRestored),
+            returnValue: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> signedIn(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#signedIn, [accountId]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> save(String? accountId) =>
+      (super.noSuchMethod(
+            Invocation.method(#save, [accountId]),
             returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
               _FakeEither_0<_i5.Failure, _i2.Unit>(
                 this,
-                Invocation.method(#call, [accountId]),
+                Invocation.method(#save, [accountId]),
               ),
             ),
           )

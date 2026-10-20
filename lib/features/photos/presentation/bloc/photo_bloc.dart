@@ -14,9 +14,14 @@ sealed class PhotoEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Shows the kept photo, if any.
+/// Shows the kept photo, if any, and once [after] is done, one brought back
+/// meanwhile.
 final class PhotoLoaded extends PhotoEvent {
-  const PhotoLoaded();
+  const PhotoLoaded({this.after});
+  final Future<void>? after;
+
+  @override
+  List<Object?> get props => [after];
 }
 
 /// Work on the photo; one at a time.
@@ -113,6 +118,15 @@ class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
   final GetKeptPhoto _getKeptPhoto;
 
   Future<void> _load(PhotoLoaded event, Emitter<PhotoState> emit) async {
+    await _show(emit);
+    if (event.after case final after?) {
+      await after;
+      // A photo the person chose, or is choosing, stays.
+      if (state.status == PhotoStatus.empty && !state.busy) await _show(emit);
+    }
+  }
+
+  Future<void> _show(Emitter<PhotoState> emit) async {
     final kept = await _getKeptPhoto(_role);
     kept.fold((failure) => emit(state._with(failure: failure)), (photo) {
       if (photo != null) {

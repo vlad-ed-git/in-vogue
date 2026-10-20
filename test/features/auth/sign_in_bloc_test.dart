@@ -4,7 +4,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
-import 'package:in_vogue/features/account/domain/usecases/restore_from_account.dart';
+import 'package:in_vogue/features/account/domain/services/account_sync.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
@@ -17,24 +17,17 @@ import 'sign_in_bloc_test.mocks.dart';
 
 const _maya = Account(id: 'uid-1', name: 'Maya');
 
-@GenerateMocks([AuthRepository, RestoreFromAccount, SaveSetupToAccount])
+@GenerateMocks([AuthRepository, AccountSync, SaveSetupToAccount])
 void main() {
   late MockAuthRepository auth;
-  late MockRestoreFromAccount restore;
-  late MockSaveSetupToAccount saveSetup;
-  SignInBloc buildBloc() => SignInBloc(
-    signIn: SignIn(auth),
-    restoreFromAccount: restore,
-    saveSetupToAccount: saveSetup,
-  );
+  late MockAccountSync sync;
+  SignInBloc buildBloc() => SignInBloc(signIn: SignIn(auth), accountSync: sync);
 
   setUp(() {
     auth = MockAuthRepository();
-    restore = MockRestoreFromAccount();
-    saveSetup = MockSaveSetupToAccount();
+    sync = MockAccountSync();
     when(auth.signIn(any)).thenAnswer((_) async => const Right(_maya));
-    when(restore(any)).thenAnswer((_) async => const Right(unit));
-    when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
+    when(sync.signedIn(any)).thenAnswer((_) async {});
   });
 
   test('starts ready to sign in', () {
@@ -55,60 +48,24 @@ void main() {
     verify: (_) => verify(auth.signIn(SignInMethod.apple)).called(1),
   );
 
-  test('brings back what the account keeps, then saves the setup', () async {
+  blocTest<SignInBloc, SignInState>(
+    'syncs the account in the background',
+    build: buildBloc,
+    act: (bloc) => bloc.add(const SignInRequested(SignInMethod.google)),
+    skip: 1,
+    expect: () => [
+      const SignInState(status: SignInStatus.signedIn, account: _maya),
+    ],
+    verify: (_) => verify(sync.signedIn('uid-1')).called(1),
+  );
+
+  test('moves on at once, without waiting for the account', () async {
+    when(sync.signedIn(any)).thenAnswer((_) => Completer<void>().future);
     final bloc = buildBloc();
     addTearDown(bloc.close);
     bloc.add(const SignInRequested(SignInMethod.google));
     await bloc.stream.firstWhere((s) => s.status == SignInStatus.signedIn);
-    verifyInOrder([restore('uid-1'), saveSetup('uid-1')]);
   });
-
-  blocTest<SignInBloc, SignInState>(
-    'signs in and saves even when the account cannot be read',
-    build: () {
-      when(restore(any)).thenAnswer((_) async => const Left(NetworkFailure()));
-      return buildBloc();
-    },
-    act: (bloc) => bloc.add(const SignInRequested(SignInMethod.apple)),
-    expect: () => [
-      const SignInState(
-        status: SignInStatus.signingIn,
-        method: SignInMethod.apple,
-      ),
-      const SignInState(status: SignInStatus.signedIn, account: _maya),
-    ],
-    verify: (_) => verify(saveSetup('uid-1')).called(1),
-  );
-
-  test('saves the setup on the account before it is signed in', () async {
-    final saved = Completer<Either<Failure, Unit>>();
-    when(saveSetup(any)).thenAnswer((_) => saved.future);
-    final bloc = buildBloc();
-    addTearDown(bloc.close);
-    bloc.add(const SignInRequested(SignInMethod.google));
-    await untilCalled(saveSetup('uid-1'));
-    expect(bloc.state.status, SignInStatus.signingIn);
-    saved.complete(const Right(unit));
-    await bloc.stream.firstWhere((s) => s.status == SignInStatus.signedIn);
-  });
-
-  blocTest<SignInBloc, SignInState>(
-    'signs in even when the setup cannot be saved',
-    build: () {
-      when(
-        saveSetup(any),
-      ).thenAnswer((_) async => const Left(NetworkFailure()));
-      return buildBloc();
-    },
-    act: (bloc) => bloc.add(const SignInRequested(SignInMethod.apple)),
-    expect: () => [
-      const SignInState(
-        status: SignInStatus.signingIn,
-        method: SignInMethod.apple,
-      ),
-      const SignInState(status: SignInStatus.signedIn, account: _maya),
-    ],
-  );
 
   blocTest<SignInBloc, SignInState>(
     'says why sign-in failed',
@@ -126,6 +83,7 @@ void main() {
       ),
       const SignInState(failure: SignInFailure(SignInProblem.failed)),
     ],
+    verify: (_) => verifyNever(sync.signedIn(any)),
   );
 
   blocTest<SignInBloc, SignInState>(
@@ -144,7 +102,7 @@ void main() {
       ),
       const SignInState(),
     ],
-    verify: (_) => verifyNever(saveSetup(any)),
+    verify: (_) => verifyNever(sync.signedIn(any)),
   );
 
   test('ignores more taps while it is signing in', () async {

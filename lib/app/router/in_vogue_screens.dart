@@ -8,6 +8,7 @@ import 'package:in_vogue/app/router/app_routes.dart';
 import 'package:in_vogue/app/router/app_screens.dart';
 import 'package:in_vogue/app/router/tab_shell.dart';
 import 'package:in_vogue/core/presentation/presentation.dart';
+import 'package:in_vogue/features/account/domain/services/account_sync.dart';
 import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/log_out_bloc.dart';
 import 'package:in_vogue/features/auth/presentation/bloc/sign_in_bloc.dart';
@@ -123,7 +124,7 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         BlocProvider(
           create: (_) =>
               locator<PhotoBloc>(param1: PhotoRole.face)
-                ..add(const PhotoLoaded()),
+                ..add(PhotoLoaded(after: locator<AccountSync>().faceRestored)),
         ),
       ],
       child: Builder(

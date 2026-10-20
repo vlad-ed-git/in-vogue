@@ -23,9 +23,12 @@ abstract interface class AccountRepository {
     AccountSetup setup,
   );
 
-  /// What the account [accountId] keeps for a phone to take back; null
-  /// before the account is saved.
+  /// The profile the account [accountId] keeps for a phone to take back, in
+  /// one fetch; null before the account is saved.
   Future<Either<Failure, SavedAccount?>> saved(String accountId);
+
+  /// Ids of the colourways the account [accountId] loves.
+  Future<Either<Failure, Set<String>>> favourites(String accountId);
 
   /// Downloads the account photo kept at [path]; the file it is in on the
   /// phone.

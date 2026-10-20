@@ -21,7 +21,7 @@ void init(GetIt locator) {
         getProfileName: locator(),
         saveProfileName: locator(),
         getCurrentAccount: locator(),
-        saveSetupToAccount: locator(),
+        accountSync: locator(),
       ),
     );
 }

@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
-import 'package:in_vogue/features/account/domain/usecases/restore_from_account.dart';
-import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
+import 'package:in_vogue/features/account/domain/services/account_sync.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/repositories/auth_repository.dart';
 import 'package:in_vogue/features/auth/domain/usecases/sign_in.dart';
@@ -45,21 +46,16 @@ class SignInState extends Equatable {
   List<Object?> get props => [status, method, account, failure];
 }
 
-/// One sign-in at a time; cancelling is not a failure. Before it is signed
-/// in, what the account keeps is brought back to the phone, then the
-/// phone's setup is saved on the account; neither failing stops sign-in.
+/// One sign-in at a time; cancelling is not a failure. Signed in, it moves
+/// on at once while the account syncs in the background.
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  SignInBloc({
-    required this._signIn,
-    required this._restoreFromAccount,
-    required this._saveSetupToAccount,
-  }) : super(const SignInState()) {
+  SignInBloc({required this._signIn, required this._accountSync})
+    : super(const SignInState()) {
     on<SignInRequested>(_request, transformer: droppable());
   }
 
   final SignIn _signIn;
-  final RestoreFromAccount _restoreFromAccount;
-  final SaveSetupToAccount _saveSetupToAccount;
+  final AccountSync _accountSync;
 
   Future<void> _request(
     SignInRequested event,
@@ -76,9 +72,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             : SignInState(failure: failure),
       );
     }
-    // The repositories log a failure; the try-on saves again first.
-    await _restoreFromAccount(account.id);
-    await _saveSetupToAccount(account.id);
+    unawaited(_accountSync.signedIn(account.id));
     emit(SignInState(status: SignInStatus.signedIn, account: account));
   }
 }

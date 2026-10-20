@@ -70,9 +70,12 @@ class AccountRepositoryImpl implements AccountRepository {
         return SavedAccount(
           name: AccountModel.nameFromJson(saved),
           face: AccountModel.photosFromJson(saved)[PhotoRole.face]?.path,
-          favourites: await _remote.wishlist(accountId),
         );
       });
+
+  @override
+  Future<Either<Failure, Set<String>>> favourites(String accountId) =>
+      _guard('favourites', () => _remote.wishlist(accountId));
 
   @override
   Future<Either<Failure, String>> downloadPhoto(String path) =>

@@ -5,10 +5,10 @@ import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/repositories/account_repository_impl.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
+import 'package:in_vogue/features/account/domain/services/account_sync.dart';
 import 'package:in_vogue/features/account/domain/usecases/delete_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/get_plan.dart';
-import 'package:in_vogue/features/account/domain/usecases/restore_from_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/account/presentation/bloc/delete_account_bloc.dart';
 import 'package:path/path.dart' as path;
@@ -31,15 +31,6 @@ void init(GetIt locator) {
         logMessages: locator(),
       ),
     )
-    ..registerLazySingleton<RestoreFromAccount>(
-      () => RestoreFromAccount(
-        account: locator(),
-        profile: locator(),
-        photos: locator(),
-        picks: locator(),
-        taste: locator(),
-      ),
-    )
     ..registerLazySingleton<SaveSetupToAccount>(
       () => SaveSetupToAccount(
         account: locator(),
@@ -48,6 +39,16 @@ void init(GetIt locator) {
         photos: locator(),
         picks: locator(),
         taste: locator(),
+      ),
+    )
+    ..registerLazySingleton<AccountSync>(
+      () => AccountSync(
+        account: locator(),
+        profile: locator(),
+        photos: locator(),
+        picks: locator(),
+        taste: locator(),
+        saveSetupToAccount: locator(),
       ),
     )
     ..registerLazySingleton<GetPlan>(() => GetPlan(locator()))

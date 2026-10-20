@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -117,6 +119,23 @@ void main() {
       ),
     );
     expect(find.text('Maya'), findsOneWidget);
+  });
+
+  testWidgets('keeps what the person typed when the name arrives', (
+    tester,
+  ) async {
+    final states = StreamController<ProfileState>();
+    addTearDown(states.close);
+    await pumpScreen(
+      tester,
+      state: const ProfileState(),
+      states: states.stream,
+    );
+    await tester.enterText(find.byType(EditableText), 'May');
+    states.add(const ProfileState(status: ProfileStatus.ready, name: 'Maya'));
+    await tester.pumpAndSettle();
+    expect(find.text('May'), findsOneWidget);
+    expect(find.text('Maya'), findsNothing);
   });
 
   testWidgets('opens the system picker for a face photo', (tester) async {

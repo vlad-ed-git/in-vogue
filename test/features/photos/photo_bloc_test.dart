@@ -71,6 +71,51 @@ void main() {
         ),
       ],
     );
+
+    blocTest<PhotoBloc, PhotoState>(
+      'shows a photo brought back after it opened',
+      build: () {
+        var reads = 0;
+        when(repository.kept(PhotoRole.body)).thenAnswer(
+          (_) async => reads++ == 0 ? const Right(null) : const Right(_kept),
+        );
+        return buildBloc();
+      },
+      act: (bloc) async {
+        final back = Completer<void>();
+        bloc.add(PhotoLoaded(after: back.future));
+        await pumpEventQueue();
+        expect(bloc.state, const PhotoState());
+        back.complete();
+      },
+      expect: () => [
+        const PhotoState(
+          status: PhotoStatus.chosen,
+          path: '/app/body-1.jpg',
+          isKept: true,
+        ),
+      ],
+    );
+
+    blocTest<PhotoBloc, PhotoState>(
+      'keeps the photo the person chose over one brought back later',
+      build: () {
+        var reads = 0;
+        when(repository.kept(PhotoRole.body)).thenAnswer(
+          (_) async => reads++ == 0 ? const Right(null) : const Right(_kept),
+        );
+        return buildBloc();
+      },
+      act: (bloc) async {
+        final back = Completer<void>();
+        bloc
+          ..add(PhotoLoaded(after: back.future))
+          ..add(const PhotoChooseRequested());
+        await pumpEventQueue();
+        back.complete();
+      },
+      expect: () => [const PhotoState(busy: true), _chosen],
+    );
   });
 
   group('choosing', () {

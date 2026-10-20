@@ -264,6 +264,21 @@ class MockAccountRepository extends _i1.Mock implements _i6.AccountRepository {
           as _i4.Future<_i2.Either<_i7.Failure, _i10.SavedAccount?>>);
 
   @override
+  _i4.Future<_i2.Either<_i7.Failure, Set<String>>> favourites(
+    String? accountId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#favourites, [accountId]),
+            returnValue: _i4.Future<_i2.Either<_i7.Failure, Set<String>>>.value(
+              _FakeEither_0<_i7.Failure, Set<String>>(
+                this,
+                Invocation.method(#favourites, [accountId]),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i7.Failure, Set<String>>>);
+
+  @override
   _i4.Future<_i2.Either<_i7.Failure, String>> downloadPhoto(String? path) =>
       (super.noSuchMethod(
             Invocation.method(#downloadPhoto, [path]),

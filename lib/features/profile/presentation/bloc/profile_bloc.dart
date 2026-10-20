@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
-import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
+import 'package:in_vogue/features/account/domain/services/account_sync.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
 import 'package:in_vogue/features/profile/domain/usecases/get_profile_name.dart';
 import 'package:in_vogue/features/profile/domain/usecases/save_profile_name.dart';
@@ -15,7 +17,8 @@ sealed class ProfileEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Fills in the saved name, or the one the sign-in provider shared.
+/// Fills in the saved name, the account's once sign-in brings it back, or
+/// the one the sign-in provider shared.
 final class ProfileLoaded extends ProfileEvent {
   const ProfileLoaded();
 }
@@ -47,14 +50,13 @@ class ProfileState extends Equatable {
 }
 
 /// The name In Vogue uses for the person. A saved name, and the face photo,
-/// are saved on the signed-in account too; a failed account save does not
-/// stop the person.
+/// are saved on the signed-in account too, in the background.
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({
     required this._getProfileName,
     required this._saveProfileName,
     required this._getCurrentAccount,
-    required this._saveSetupToAccount,
+    required this._accountSync,
   }) : super(const ProfileState()) {
     on<ProfileLoaded>(_load);
     on<ProfileNameSaved>(_save, transformer: droppable());
@@ -63,17 +65,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final GetProfileName _getProfileName;
   final SaveProfileName _saveProfileName;
   final GetCurrentAccount _getCurrentAccount;
-  final SaveSetupToAccount _saveSetupToAccount;
+  final AccountSync _accountSync;
 
   Future<void> _load(ProfileLoaded event, Emitter<ProfileState> emit) async {
-    final saved = (await _getProfileName(
-      const NoParams(),
-    )).getOrElse(() => null);
+    var saved = (await _getProfileName(const NoParams())).getOrElse(() => null);
+    if (saved == null) {
+      await _accountSync.nameRestored;
+      saved = (await _getProfileName(const NoParams())).getOrElse(() => null);
+    }
     final shared = saved == null
         ? (await _getCurrentAccount(
             const NoParams(),
           )).getOrElse(() => null)?.name
         : null;
+    // A name the person saved while it waited stays.
+    if (state.status != ProfileStatus.loading) return;
     emit(
       ProfileState(status: ProfileStatus.ready, name: saved ?? shared ?? ''),
     );
@@ -97,7 +103,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       const NoParams(),
     )).getOrElse(() => null);
     // The repository logs a failed save; the try-on saves again first.
-    if (account != null) await _saveSetupToAccount(account.id);
+    if (account != null) unawaited(_accountSync.save(account.id));
     emit(ProfileState(status: ProfileStatus.saved, name: name));
   }
 }

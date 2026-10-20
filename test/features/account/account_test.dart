@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -15,8 +16,8 @@ import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
 import 'package:in_vogue/features/account/domain/entities/account_setup.dart';
 import 'package:in_vogue/features/account/domain/entities/saved_account.dart';
 import 'package:in_vogue/features/account/domain/repositories/account_repository.dart';
+import 'package:in_vogue/features/account/domain/services/account_sync.dart';
 import 'package:in_vogue/features/account/domain/usecases/ensure_account.dart';
-import 'package:in_vogue/features/account/domain/usecases/restore_from_account.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/auth/domain/entities/account.dart';
 import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
@@ -528,7 +529,7 @@ void main() {
       verifyNever(remote.writeAccount(any, any, created: anyNamed('created')));
     });
 
-    test('reads what a returning person can take back', () async {
+    test('reads what a returning person can take back in one fetch', () async {
       expect(
         await repository.saved('uid-1'),
         const Right<Failure, SavedAccount?>(null),
@@ -541,16 +542,21 @@ void main() {
           },
         },
       );
-      when(remote.wishlist(any)).thenAnswer((_) async => {'everlane:c'});
       expect(
         await repository.saved('uid-1'),
         const Right<Failure, SavedAccount?>(
-          SavedAccount(
-            name: 'Maya',
-            face: 'users/uid-1/photos/face-2.png',
-            favourites: {'everlane:c'},
-          ),
+          SavedAccount(name: 'Maya', face: 'users/uid-1/photos/face-2.png'),
         ),
+      );
+      verify(remote.readAccount('uid-1')).called(2);
+      verifyNever(remote.wishlist(any));
+    });
+
+    test("reads the account's favourites", () async {
+      when(remote.wishlist(any)).thenAnswer((_) async => {'everlane:c'});
+      expect(
+        (await repository.favourites('uid-1')).getOrElse(() => const {}),
+        {'everlane:c'},
       );
     });
 
@@ -732,14 +738,24 @@ void main() {
     });
   });
 
-  group('RestoreFromAccount', () {
+  group('AccountSync', () {
     late MockAccountRepository account;
     late MockProfileRepository profile;
     late MockPhotoRepository photos;
     late MockPicksRepository picks;
     late MemoryTaste taste;
-    late RestoreFromAccount restore;
+    late MockSaveSetupToAccount saveSetup;
+    late AccountSync sync;
     const favourites = {'everlane:c', 'everlane:d'};
+
+    AccountSync syncWith(ProfileRepository names) => AccountSync(
+      account: account,
+      profile: names,
+      photos: photos,
+      picks: picks,
+      taste: taste,
+      saveSetupToAccount: saveSetup,
+    );
 
     setUp(() {
       taste = MemoryTaste();
@@ -747,22 +763,16 @@ void main() {
       profile = MockProfileRepository();
       photos = MockPhotoRepository();
       picks = MockPicksRepository();
-      restore = RestoreFromAccount(
-        account: account,
-        profile: profile,
-        photos: photos,
-        picks: picks,
-        taste: taste,
-      );
+      saveSetup = MockSaveSetupToAccount();
+      sync = syncWith(profile);
       when(account.saved('uid-1')).thenAnswer(
         (_) async => const Right(
-          SavedAccount(
-            name: 'Maya',
-            face: 'users/uid-1/photos/face-2.png',
-            favourites: favourites,
-          ),
+          SavedAccount(name: 'Maya', face: 'users/uid-1/photos/face-2.png'),
         ),
       );
+      when(
+        account.favourites('uid-1'),
+      ).thenAnswer((_) async => const Right(favourites));
       when(
         account.downloadPhoto(any),
       ).thenAnswer((_) async => const Right('/downloads/face-2.png'));
@@ -784,86 +794,87 @@ void main() {
       when(
         picks.markSynced(any, any),
       ).thenAnswer((_) async => const Right(unit));
+      when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
     });
 
-    test(
-      "brings back a returning person's name, face photo and favourites",
-      () async {
-        expect(await restore('uid-1'), const Right<Failure, Unit>(unit));
-        verify(profile.saveName('Maya')).called(1);
-        verifyInOrder([
-          account.downloadPhoto('users/uid-1/photos/face-2.png'),
-          photos.keep('/downloads/face-2.png', PhotoRole.face),
-        ]);
-        verify(picks.addPicks(favourites)).called(1);
+    test("brings back a returning person's name, face photo and favourites, "
+        'then saves the setup', () async {
+      await sync.signedIn('uid-1');
+      verify(account.saved('uid-1')).called(1);
+      verifyInOrder([
+        profile.saveName('Maya'),
+        account.downloadPhoto('users/uid-1/photos/face-2.png'),
+        photos.keep('/downloads/face-2.png', PhotoRole.face),
+        picks.addPicks(favourites),
         // The favourites are on the account, as are the picks saved before.
-        verify(
-          picks.markSynced('uid-1', {'everlane:a', ...favourites}),
-        ).called(1);
-      },
-    );
+        picks.markSynced('uid-1', {'everlane:a', ...favourites}),
+        saveSetup('uid-1'),
+      ]);
+    });
+
+    test('has the name back before the face photo downloads', () async {
+      final download = Completer<Either<Failure, String>>();
+      when(account.downloadPhoto(any)).thenAnswer((_) => download.future);
+      final synced = sync.signedIn('uid-1');
+      await sync.nameRestored;
+      verify(profile.saveName('Maya')).called(1);
+      verifyNever(photos.keep(any, any));
+      download.complete(const Right('/downloads/face-2.png'));
+      await sync.faceRestored;
+      verify(photos.keep('/downloads/face-2.png', PhotoRole.face)).called(1);
+      await synced;
+    });
+
+    test('has nothing to wait for before anyone signs in', () async {
+      await expectLater(sync.nameRestored, completes);
+      await expectLater(sync.faceRestored, completes);
+    });
 
     test('keeps the name and face photo already on the phone', () async {
       when(profile.name()).thenAnswer((_) async => const Right('May'));
       when(
         photos.kept(PhotoRole.face),
       ).thenAnswer((_) async => const Right(_face));
-      await restore('uid-1');
+      await sync.signedIn('uid-1');
       verifyNever(profile.saveName(any));
       verifyNever(account.downloadPhoto(any));
       verifyNever(photos.keep(any, any));
       verify(picks.addPicks(favourites)).called(1);
     });
 
-    test('changes nothing for a new account', () async {
+    test(
+      'keeps a face photo the person chose while the account’s downloaded',
+      () async {
+        var reads = 0;
+        when(photos.kept(PhotoRole.face)).thenAnswer(
+          (_) async => reads++ == 0 ? const Right(null) : const Right(_face),
+        );
+        await sync.signedIn('uid-1');
+        verify(account.downloadPhoto(any)).called(1);
+        verifyNever(photos.keep(any, any));
+      },
+    );
+
+    test('changes nothing for a new account, and saves its setup', () async {
       when(account.saved(any)).thenAnswer((_) async => const Right(null));
-      expect(await restore('uid-1'), const Right<Failure, Unit>(unit));
+      await sync.signedIn('uid-1');
       verifyNever(profile.saveName(any));
       verifyNever(photos.keep(any, any));
+      verifyNever(account.favourites(any));
       verifyNever(picks.addPicks(any));
-    });
-
-    test('says when the account cannot be read, changing nothing', () async {
-      when(
-        account.saved(any),
-      ).thenAnswer((_) async => const Left(NetworkFailure()));
-      expect(
-        await restore('uid-1'),
-        const Left<Failure, Unit>(NetworkFailure()),
-      );
-      verifyNever(profile.saveName(any));
-      verifyNever(picks.addPicks(any));
+      verify(saveSetup('uid-1')).called(1);
     });
 
     test(
-      "About you fills in the account's name ahead of the provider's",
+      'changes nothing when the account cannot be read, and still saves',
       () async {
-        final names = ProfileRepositoryImpl(
-          ProfileLocalDataSourceImpl(MemoryStore()),
-        );
-        final auth = MockAuthRepository();
-        when(auth.currentAccount()).thenAnswer(
-          (_) async => const Right(Account(id: 'uid-1', name: 'Maya Apple')),
-        );
-        await RestoreFromAccount(
-          account: account,
-          profile: names,
-          photos: photos,
-          picks: picks,
-          taste: MemoryTaste(),
-        )('uid-1');
-        final aboutYou = ProfileBloc(
-          getProfileName: GetProfileName(names),
-          saveProfileName: SaveProfileName(names),
-          getCurrentAccount: GetCurrentAccount(auth),
-          saveSetupToAccount: MockSaveSetupToAccount(),
-        );
-        addTearDown(aboutYou.close);
-        aboutYou.add(const ProfileLoaded());
-        expect(
-          await aboutYou.stream.first,
-          const ProfileState(status: ProfileStatus.ready, name: 'Maya'),
-        );
+        when(
+          account.saved(any),
+        ).thenAnswer((_) async => const Left(NetworkFailure()));
+        await sync.signedIn('uid-1');
+        verifyNever(profile.saveName(any));
+        verifyNever(picks.addPicks(any));
+        verify(saveSetup('uid-1')).called(1);
       },
     );
 
@@ -873,12 +884,13 @@ void main() {
         when(
           account.downloadPhoto(any),
         ).thenAnswer((_) async => const Left(NetworkFailure()));
-        expect(await restore('uid-1'), const Right<Failure, Unit>(unit));
+        await sync.signedIn('uid-1');
         verifyNever(photos.keep(any, any));
         verify(profile.saveName('Maya')).called(1);
         verify(picks.addPicks(favourites)).called(1);
       },
     );
+
     test('brings back the taste learnt on other phones', () async {
       taste.accounts['uid-1'] = [
         TasteSignal(
@@ -888,8 +900,54 @@ void main() {
           outfitId: 'o7',
         ),
       ];
-      await restore('uid-1');
+      await sync.signedIn('uid-1');
       expect(taste.phone.single.id, 'loved-o7');
+    });
+
+    test('saves after the sync under way, one at a time', () async {
+      final read = Completer<Either<Failure, SavedAccount?>>();
+      when(account.saved(any)).thenAnswer((_) => read.future);
+      final synced = sync.signedIn('uid-1');
+      final saved = sync.save('uid-1');
+      await pumpEventQueue();
+      verifyNever(saveSetup(any));
+      read.complete(const Right(null));
+      expect(await saved, const Right<Failure, Unit>(unit));
+      await synced;
+      verify(saveSetup('uid-1')).called(2);
+    });
+
+    test("About you fills in the account's name ahead of the provider's, once "
+        'it is fetched', () async {
+      final read = Completer<Either<Failure, SavedAccount?>>();
+      when(account.saved(any)).thenAnswer((_) => read.future);
+      final names = ProfileRepositoryImpl(
+        ProfileLocalDataSourceImpl(MemoryStore()),
+      );
+      final auth = MockAuthRepository();
+      when(auth.currentAccount()).thenAnswer(
+        (_) async => const Right(Account(id: 'uid-1', name: 'Maya Apple')),
+      );
+      sync = syncWith(names);
+      final synced = sync.signedIn('uid-1');
+      final aboutYou = ProfileBloc(
+        getProfileName: GetProfileName(names),
+        saveProfileName: SaveProfileName(names),
+        getCurrentAccount: GetCurrentAccount(auth),
+        accountSync: sync,
+      );
+      addTearDown(aboutYou.close);
+      aboutYou.add(const ProfileLoaded());
+      await pumpEventQueue();
+      expect(aboutYou.state.status, ProfileStatus.loading);
+      read.complete(
+        const Right(SavedAccount(name: 'Maya', face: 'users/uid-1/f.png')),
+      );
+      expect(
+        await aboutYou.stream.first,
+        const ProfileState(status: ProfileStatus.ready, name: 'Maya'),
+      );
+      await synced;
     });
   });
 
