@@ -5,16 +5,15 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.Layout
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
-import android.text.style.RelativeSizeSpan
-import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetLaunchIntent
@@ -24,6 +23,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.ceil
 import org.json.JSONObject
 
 /**
@@ -104,13 +104,7 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
           if (shown.kicker.isEmpty()) View.GONE else View.VISIBLE,
       )
       if (size != Size.SMALL) setTextViewText(R.id.widget_date, shown.dateLine)
-      val numeral = numeral(day.temperature)
-      setTextViewText(R.id.widget_numeral, numeral)
-      setTextViewTextSize(
-          R.id.widget_numeral,
-          TypedValue.COMPLEX_UNIT_DIP,
-          numeralSize(context, numeral, size, width),
-      )
+      setImageViewBitmap(R.id.widget_numeral, numeral(context, day.temperature, size, width))
       setImageViewResource(R.id.widget_glyph, glyph(day.glyph))
       setTextViewText(R.id.widget_condition, day.condition)
       if (size == Size.LARGE) setTextViewText(R.id.widget_feels, day.feelsLike)
@@ -193,50 +187,83 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
       }
 
   /**
-   * The numeral's size in dp: its size class's, or smaller so [numeral] fits on one line in the
-   * room the slab of a widget [width] dp wide leaves it.
+   * The temperature as a picture at its size class's size, or smaller so it fits on one line in
+   * the room the slab of a widget [width] dp wide leaves it. Not text: the launcher draws a
+   * widget's text in the phone's font, wider than ours, so a numeral TextView sized here still
+   * showed "20°" as "2" (October 27). The ImageView shrinks the picture further when the widget is
+   * narrower or shorter than its options say.
    */
-  private fun numeralSize(context: Context, numeral: CharSequence, size: Size, width: Int): Float {
-    // The slab less its padding, plus the numeral's -5 dp start margin.
+  private fun numeral(context: Context, temperature: Int, size: Size, width: Int): Bitmap {
+    val density = context.resources.displayMetrics.density
+    // The slab less its padding.
     val room =
         when (size) {
-          Size.SMALL -> width - 25f
+          Size.SMALL -> width - 30f
           // The condition keeps the rest of the row.
-          Size.MEDIUM -> (width * 206f / 338f - 25f) * 0.72f
-          Size.LARGE -> width * 154f / 338f - 11f
+          Size.MEDIUM -> (width * 206f / 338f - 30f) * 0.72f
+          Size.LARGE -> width * 154f / 338f - 16f
         }
-    if (width == 0 || room <= 0f) return size.numeral
-    val wide = measured(context, numeral, size.numeral) ?: estimated(numeral, size.numeral)
-    // A little to spare for the view's own rounding.
-    val fits = room * 0.96f
-    return if (wide <= fits) size.numeral else size.numeral * fits / wide
+    val full = Numeral(context, temperature, size.numeral * density)
+    val wide = full.bounds.width() / density
+    if (width == 0 || room <= 0f || wide <= room) return full.picture()
+    return Numeral(context, temperature, full.textSize * room / wide).picture()
   }
 
-  /** How wide [numeral] is at [textSize] in the widget's numeral type; null below Android 8. */
-  private fun measured(context: Context, numeral: CharSequence, textSize: Float): Float? {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return null
-    return runCatching {
-          val paint =
-              TextPaint().apply {
-                setTypeface(context.resources.getFont(R.font.sofia_sans_extra_condensed))
-                setFontVariationSettings("'wght' 300")
-                letterSpacing = -0.025f
-                this.textSize = textSize
-              }
-          Layout.getDesiredWidth(numeral, paint)
-        }
-        .getOrNull()
-  }
+  /**
+   * The temperature in the numeral's type, [textSize] px: light and tight, its degree sign at 86%.
+   * Around the start of the baseline, [bounds] runs from the figures' first ink, so they line up
+   * with the words above, to their end, and over the spec's line height: 0.74 of the size, the
+   * font's own trimmed evenly, as the app's widget preview sets it.
+   */
+  private class Numeral(private val context: Context, temperature: Int, val textSize: Float) {
+    private val figures = "$temperature"
+    private val figurePaint = paint(textSize)
+    private val degreePaint = paint(textSize * 0.86f)
+    private val degreeX = figurePaint.measureText(figures)
 
-  /** Below Android 8 the widget draws in the system font: its figures are wider than ours. */
-  private fun estimated(numeral: CharSequence, textSize: Float): Float =
-      textSize * (0.56f * (numeral.length - 1) + 0.4f)
+    val bounds: RectF = run {
+      val font = figurePaint.fontMetrics
+      val trim = (font.descent - font.ascent - 0.74f * textSize) / 2
+      val ink = Rect().also { figurePaint.getTextBounds(figures, 0, figures.length, it) }
+      RectF(
+          ink.left.toFloat(),
+          minOf(font.ascent + trim, ink.top.toFloat()),
+          degreeX + degreePaint.measureText(DEGREE),
+          maxOf(font.descent - trim, ink.bottom.toFloat()),
+      )
+    }
 
-  /** The temperature with its degree sign at 86%. */
-  private fun numeral(temperature: Int): CharSequence =
-      SpannableString("$temperature°").apply {
-        setSpan(RelativeSizeSpan(0.86f), length - 1, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    fun picture(): Bitmap {
+      val picture =
+          Bitmap.createBitmap(
+              context.resources.displayMetrics,
+              ceil(bounds.width()).toInt(),
+              ceil(bounds.height()).toInt(),
+              Bitmap.Config.ARGB_8888,
+          )
+      Canvas(picture).apply {
+        translate(-bounds.left, -bounds.top)
+        drawText(figures, 0f, 0f, figurePaint)
+        drawText(DEGREE, degreeX, 0f, degreePaint)
       }
+      return picture
+    }
+
+    /** Sofia Sans Extra Condensed at weight 300, 2.5% tight, in Rose. */
+    private fun paint(size: Float): Paint =
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+          color = context.getColor(R.color.widget_rose)
+          letterSpacing = -0.025f
+          this.textSize = size
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            setTypeface(context.resources.getFont(R.font.sofia_sans_extra_condensed))
+            setFontVariationSettings("'wght' 300")
+          } else {
+            // Font resources and weights need Android 8.
+            setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL))
+          }
+        }
+  }
 
   /** The picture at [path], at most about [side] pixels on its long side; null when missing. */
   private fun decode(path: String?, side: Int): Bitmap? {
@@ -290,6 +317,7 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
   private companion object {
     /** Where the app keeps the widget's content (HomeWidgetDataSourceImpl.contentKey). */
     const val CONTENT_KEY = "in_vogue_widget"
+    const val DEGREE = "°"
     const val OPAQUE = 255
 
     /** The waiting photo at 28%. */

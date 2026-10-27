@@ -23,14 +23,6 @@
         <item name="android:ellipsize">end</item>
     </style>
 
-    <!-- The temperature, light and tight; its size comes from the provider. -->
-    <style name="WidgetNumeral" parent="WidgetText">
-        <item name="android:fontFamily">@font/sofia_sans_extra_condensed</item>
-        <item name="android:fontVariationSettings">\'wght\' 300</item>
-        <item name="android:letterSpacing">-0.025</item>
-        <item name="android:maxLines">1</item>
-    </style>
-
     <!-- The condition sentence; its size comes from the layout. -->
     <style name="WidgetCondition" parent="WidgetText">
         <item name="android:fontVariationSettings">\'wght\' 600</item>

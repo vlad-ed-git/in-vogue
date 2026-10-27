@@ -65,16 +65,27 @@ void main() {
     }
   });
 
-  test('the numeral is sized to fit the widget\'s width on one line, so '
-      '"26°" never shows as "2"', () {
+  test('the numeral is a picture in its own font, which shrinks to the room '
+      'the widget gives it, so "20°" never shows as "2"', () {
+    // The launcher draws a widget's text in the phone's font, wider than ours.
+    expect(provider, contains('R.font.sofia_sans_extra_condensed'));
+    expect(provider, contains('setImageViewBitmap(R.id.widget_numeral'));
+    expect(provider, isNot(contains('setTextViewTextSize')));
     expect(provider, contains('OPTION_APPWIDGET_MIN_WIDTH'));
-    expect(provider, contains('Layout.getDesiredWidth'));
-    expect(provider, contains('numeralSize(context, numeral, size, width)'));
-    final styles = File('$_res/values/widget_styles.xml').readAsStringSync();
-    final numeral = RegExp(
-      r'<style name="WidgetNumeral"[^>]*>([\s\S]*?)</style>',
-    ).firstMatch(styles)!.group(1)!;
-    expect(numeral, contains('<item name="android:maxLines">1</item>'));
+    for (final size in ['small', 'medium', 'large']) {
+      final layout = File(
+        '$_res/layout/in_vogue_widget_$size.xml',
+      ).readAsStringSync();
+      final numeral = RegExp(
+        r'<ImageView\s+android:id="@\+id/widget_numeral"[^>]*>',
+      ).firstMatch(layout)?.group(0);
+      expect(numeral, isNotNull, reason: size);
+      expect(numeral, contains('android:layout_width="wrap_content"'));
+      expect(numeral, contains('android:layout_height="wrap_content"'));
+      expect(numeral, contains('android:adjustViewBounds="true"'));
+      // A parent clips what a negative margin pushes outside it.
+      expect(numeral, isNot(contains('android:layout_marginStart="-')));
+    }
   });
 
   test("the widget sets its type in the app's fonts", () {

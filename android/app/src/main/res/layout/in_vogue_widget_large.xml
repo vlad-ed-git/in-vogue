@@ -33,16 +33,24 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/widget_date"
             android:layout_alignParentBottom="true"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/widget_numeral"
-                style="@style/WidgetNumeral"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="-5dp"
-                android:textSize="150dp" />
+            <!-- The numeral, a picture, shrinks to the room the words below leave it. -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/widget_numeral"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:adjustViewBounds="true"
+                    android:importantForAccessibility="no" />
+            </FrameLayout>
 
             <ImageView
                 android:id="@+id/widget_glyph"

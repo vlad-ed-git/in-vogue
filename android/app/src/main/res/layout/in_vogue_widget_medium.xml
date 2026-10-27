@@ -43,20 +43,21 @@
             android:layout_marginEnd="8dp"
             android:layout_toStartOf="@id/widget_glyph" />
 
+        <!-- The numeral, a picture, shrinks to the room below the date. -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/widget_date"
             android:layout_alignParentBottom="true"
             android:gravity="bottom"
             android:orientation="horizontal">
 
-            <TextView
+            <ImageView
                 android:id="@+id/widget_numeral"
-                style="@style/WidgetNumeral"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="-5dp"
-                android:textSize="118dp" />
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no" />
 
             <TextView
                 android:id="@+id/widget_condition"
