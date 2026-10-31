@@ -2,7 +2,7 @@
 
 In Vogue is a Flutter weather app for Android and iPhone. Each day it shows the person, head to toe, in a real outfit from a partner catalog (Everlane today) picked for the day's weather and occasion, with the clothing colours that suit them, read from a selfie, a link to buy each piece and a home-screen widget. For now it is for women aged 16 and older (owner, October 26, 2026).
 
-- **Read [README.md](README.md)** for the system design, architecture, data model and APIs. Area details are in the skills (below).
+- **Read [README.md](README.md)** for the overview, stack, setup, commands and troubleshooting. The architecture, data model, APIs and other area details are in the skills (below).
 - **Focus now (owner, October 18):** an MVP for testers on the development flavor (`com.invogue.app.dev`, Firebase `in-vogue-dev`). Production waits.
 - **Stack:** Flutter 3.44.4, Dart 3.12.2, BLoC, GetIt, dartz, Equatable, Firebase (Auth, Firestore, Storage), Hive, SQLite, YouCam, Open-Meteo, `home_widget` and `workmanager`, a Kotlin Android widget and a SwiftUI iPhone widget.
 - **Workspace** (`weather-dot-me/`, not a git repo): `in-vogue/` is this app and the only repository. `design-spec/` is the design specification (read-only). `resources/` holds the catalog, the knowledge base and their Python tools. `app certs and profiles/` is the owner's.
@@ -21,7 +21,23 @@ Run from `in-vogue/` through an interactive zsh, because `flutterN` is a shell a
 | Test (about a minute) | `zsh -ic 'flutterN test'`; one file: `zsh -ic 'flutterN test test/features/outfits/make_outfit_test.dart'` |
 | Type-check the iPhone widget (no build) | `xcrun swiftc -typecheck -parse-as-library -sdk "$(xcrun --sdk iphoneos --show-sdk-path)" -target arm64-apple-ios17.0 "ios/In Vogue Widget/"*.swift` |
 
-The other commands (data exports, widget glyphs, Firebase rules and native files, the development YouCam key, launcher icons) are in README's [Commands](README.md#commands).
+Other commands, run from `in-vogue/` unless noted:
+
+| Task | Command |
+| --- | --- |
+| Export the bundled collection | `python3 scripts/export_catalog.py` |
+| The recommender's test fixtures | `python3 scripts/export_catalog_fixture.py` after a catalog rebuild; `python3 scripts/fetch_weather_year.py` for the year of weather |
+| Widget glyphs for both platforms | `python3 scripts/generate_widget_glyphs.py` |
+| Launcher icons | `scripts/generate_app_icons.sh` |
+| Native Firebase files | `scripts/configure_firebase.sh development` (or `production`) |
+| The development YouCam key | `python3 scripts/write_development_key.py` |
+| Check the Firestore rules on the emulator (Java 21) | `JAVA_HOME=<java 21> firebase emulators:exec --only firestore --project demo-in-vogue "python3 scripts/check_firestore_rules.py"` |
+| Check the Storage rules on the emulator (Java 21) | `JAVA_HOME=<java 21> firebase emulators:exec --only storage --project demo-in-vogue "python3 scripts/check_storage_rules.py"` |
+| Build the curated catalog (from `../resources`, outside this repo) | `python3 tools/catalog/build_outfit_catalog.py` |
+| Upload it to development (from `../resources`; a dry run without `--apply`; needs `firebase-admin`) | `python3 tools/catalog/upload_outfit_catalog.py --key ../in-vogue/secrets/<service-account>.json --apply --prune` |
+| Deploy the rules to development | `GOOGLE_APPLICATION_CREDENTIALS=secrets/<service-account>.json firebase deploy --only firestore:rules,storage --project in-vogue-dev --non-interactive` |
+| Release builds into `release/` | `scripts/build_release.sh [development\|production]` |
+| The device startup test | `zsh -ic 'flutterN test integration_test/startup_test.dart --flavor development -d <device-id>'` |
 
 A task is done only when analyze says "No issues found!" and every test passes.
 
@@ -55,7 +71,7 @@ A task is done only when analyze says "No issues found!" and every test passes.
 2. Read only what the task needs. Plan what's wrong today, the design, the tests and the build order.
 3. Write the test first, then the code, then run the checks (the `verifying-changes` skill).
 4. Review the change, then commit in small groups with scoped subjects, such as `feat(outfits): …`, `fix(account): …`, `test(…)`, `chore(…)` or `docs: …`. The subjects alone should tell the story.
-5. Update the docs in the same task: tick Open work, record owner decisions (rules here, how things work in README) with the date, and update any skill whose facts changed.
+5. Update the docs in the same task: tick Open work, record owner decisions (rules here, how things work in the matching skill; README keeps only the overview, setup, commands and troubleshooting) with the date, and update any skill whose facts changed.
 
 The owner commits too: read before you edit, and never overwrite their work. When CocoaPods rewrites `ios/Runner.xcodeproj/project.pbxproj`, keep the version Xcode saved.
 
@@ -87,7 +103,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - Never save or cache an error or failure, anywhere: not in Firestore, on the phone or in memory. Caches keep results only; a failure is shown and the next try asks again (owner, October 20).
 - A day whose outfit the catalog no longer has gets another one from the recommender (owner, October 20).
 
-**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · enforcing App Check · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5). Loading the catalog from Firebase was on it until October 19: outfits now come from a curated catalog in Firestore (owner, October 19; the design is `../docs/recommender-design.md`, outside the repository).
+**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · App Check (never enforced, so removed; owner, October 31) · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5). Loading the catalog from Firebase was on it until October 19: outfits now come from a curated catalog in Firestore (owner, October 19; the design is `../docs/recommender-design.md`, outside the repository).
 
 ## Security
 
@@ -96,11 +112,11 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 ## Open work
 
-*Pending* means nothing blocks it. *Blocked* names who it waits on. Details are in README's [Roadmap](README.md#roadmap); the production release has its own [checklist](README.md#production-checklist).
+*Pending* means nothing blocks it. *Blocked* names who it waits on. The [roadmap](#roadmap) and the production release's [checklist](#production-checklist) close this section.
 
 **Next, in this order** (from the owner's device test, October 18):
 
-1. [x] **Animated loading everywhere.** Done October 18. The owner picked the running rule from three options: a 2-point bar runs along whatever is working, at every wait in the app. This overrides the spec's still Rose placeholders (`design-spec/guide/04-photography.md`, `06-motion.md`). How it works is in README's [Design system](README.md#design-system).
+1. [x] **Animated loading everywhere.** Done October 18. The owner picked the running rule from three options: a 2-point bar runs along whatever is working, at every wait in the app. This overrides the spec's still Rose placeholders (`design-spec/guide/04-photography.md`, `06-motion.md`). How it works is in the `building-ui` skill.
 2. [x] **The widget's temperature on narrow widgets.** Done October 18, and again for Android on October 27 (`fix/widget_numeral_picture`, waiting for the owner's build). The launcher draws a widget's text in the phone's font, not Sofia Sans, so the October 18 sizing still showed "20°" as "2". On Android the numeral is now a picture in its own font that only shrinks to fit the room each size gives it. On iPhone, it shrinks to a quarter of its size before it would wrap.
 3. [x] **Makeup doesn't work on the owner's phone.** Fixed October 18; it needs the owner's YouCam run to confirm. The `errors` collection was empty (failed YouCam tasks were never logged), and neither development account had a colour profile, so the skin analysis had never succeeded. It refused the face photo's angle (`error_face_angle_rightward`) at the strict `high` level. Then, because the app didn't know the analyzer's seven angle codes, it said "Your photo is fine."
    - The analysis now runs at `low` strictness, since the app trusts the photo (owner to confirm).
@@ -140,6 +156,27 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - [ ] Keep the catalog fresh. *Pending; ask first, because a rebuild reshuffles outfits.*
 - [ ] Run each skill's evals and record them below. *Pending; ask first, because it uses subagents.*
 - [ ] Push to `origin`. *Blocked on the owner's go-ahead.*
+
+### Roadmap
+
+- Plan ahead: choose a future date and an occasion, and In Vogue dresses you for that day's forecast once the forecast reaches it.
+- Move the YouCam key into a Firebase Cloud Function: the key in Secret Manager, callable functions for the four keyed calls (create an upload, start a task, check it, delete it) that answer only signed-in people and only for `cloth-v4` and `skin-tone-analysis`, and the app calling them from both flavors. Production builds can then make outfits too.
+
+### Production checklist
+
+The production flavor (`com.invogue.app`, Firebase `in-vogue`) needs these before release:
+
+- [ ] Check that the Firestore `(default)` database and Storage exist in `in-vogue` (Storage needs the Blaze plan).
+- [ ] Deploy `firestore.rules` and `storage.rules` to `in-vogue`.
+- [ ] Turn on the Apple and Google providers in Firebase Auth for `in-vogue`.
+- [ ] Create the Android release key and `android/key.properties`, add its SHA-1 and SHA-256 to the `in-vogue` Android app, then refresh the native files with `scripts/configure_firebase.sh production`.
+- [ ] iOS: Sign in with Apple for `com.invogue.app`, distribution signing and an App Store Connect record.
+- [ ] The YouCam key from the Cloud Function above.
+- [ ] Keep the YouCam account funded.
+- [ ] A privacy policy, the App Store privacy details and Google Play's data-safety form.
+- [ ] The iPhone widget for production: entitlements for the app and the extension with `group.com.invogue.app`, `HomeWidgetDataSourceImpl.appGroupOf(production)`, and the extension's version and build number matching the app's.
+- [ ] Build the production flavor and check sign-in, the first outfit, Mirror's colours and Delete account on a device.
+- [ ] Sign the release builds and upload them to the stores.
 
 ## Skills
 

@@ -7,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/widgets.dart';
-import 'package:in_vogue/core/config/app_check.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
@@ -86,7 +85,6 @@ Future<void> refreshWidgetInBackground(AppEnvironment environment) async {
         production.DefaultFirebaseOptions.currentPlatform,
     },
   );
-  await activateAppCheck();
   final user = await FirebaseAuth.instance.authStateChanges().first;
   final support = await getApplicationSupportDirectory();
   final folder = path.join(support.path, 'in_vogue', environment.name);

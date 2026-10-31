@@ -5,6 +5,9 @@ analyzer:
     - lib/l10n/generated/**
     - lib/firebase_options_*.dart
     - '**/*.mocks.dart'
+    - build/**
+    - android/**
+    - ios/**
   language:
     strict-casts: true
     strict-inference: true
