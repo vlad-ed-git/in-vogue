@@ -1,6 +1,6 @@
 # AGENTS.md
 
-In Vogue is a Flutter weather app for Android and iPhone. Each day it shows the person, head to toe, in a real outfit from a partner catalog (Everlane today) picked for the day's weather and occasion, with the clothing colours that suit them, read from a selfie, a link to buy each piece and a home-screen widget.
+In Vogue is a Flutter weather app for Android and iPhone. Each day it shows the person, head to toe, in a real outfit from a partner catalog (Everlane today) picked for the day's weather and occasion, with the clothing colours that suit them, read from a selfie, a link to buy each piece and a home-screen widget. For now it is for women aged 16 and older (owner, October 26, 2026).
 
 - **Read [README.md](README.md)** for the system design, architecture, data model and APIs. Area details are in the skills (below).
 - **Focus now (owner, October 18):** an MVP for testers on the development flavor (`com.invogue.app.dev`, Firebase `in-vogue-dev`). Production waits.
@@ -87,7 +87,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - Never save or cache an error or failure, anywhere: not in Firestore, on the phone or in memory. Caches keep results only; a failure is shown and the next try asks again (owner, October 20).
 - A day whose outfit the catalog no longer has gets another one from the recommender (owner, October 20).
 
-**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · enforcing App Check · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5). Loading the catalog from Firebase was on it until October 19: outfits now come from a curated catalog in Firestore (owner, October 19; [docs/recommender-design.md](docs/recommender-design.md)).
+**Not building** (owner decisions): servers, webhooks or schedulers · a units cap or kill switch · a guest outfit · photo detection · the camera · dark mode · partner credits · enforcing App Check · AI chat, social features, calendar or trip planning, quizzes, skin-health reports, hair changes, in-app checkout or endless feeds. Wardrobe uploads were on this list until October 18; they're now planned (Next, item 5). Loading the catalog from Firebase was on it until October 19: outfits now come from a curated catalog in Firestore (owner, October 19; the design is `../docs/recommender-design.md`, outside the repository).
 
 ## Security
 
@@ -101,7 +101,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 **Next, in this order** (from the owner's device test, October 18):
 
 1. [x] **Animated loading everywhere.** Done October 18. The owner picked the running rule from three options: a 2-point bar runs along whatever is working, at every wait in the app. This overrides the spec's still Rose placeholders (`design-spec/guide/04-photography.md`, `06-motion.md`). How it works is in README's [Design system](README.md#design-system).
-2. [x] **The widget's temperature on narrow widgets.** Done October 18; the owner's build checks it. On Android, the numeral is sized to the widget's width, measured in its own font. On iPhone, it shrinks to a quarter of its size before it would wrap.
+2. [x] **The widget's temperature on narrow widgets.** Done October 18, and again for Android on October 27 (`fix/widget_numeral_picture`, waiting for the owner's build). The launcher draws a widget's text in the phone's font, not Sofia Sans, so the October 18 sizing still showed "20°" as "2". On Android the numeral is now a picture in its own font that only shrinks to fit the room each size gives it. On iPhone, it shrinks to a quarter of its size before it would wrap.
 3. [x] **Makeup doesn't work on the owner's phone.** Fixed October 18; it needs the owner's YouCam run to confirm. The `errors` collection was empty (failed YouCam tasks were never logged), and neither development account had a colour profile, so the skin analysis had never succeeded. It refused the face photo's angle (`error_face_angle_rightward`) at the strict `high` level. Then, because the app didn't know the analyzer's seven angle codes, it said "Your photo is fine."
    - The analysis now runs at `low` strictness, since the app trusts the photo (owner to confirm).
    - Every photo error says what to change (`PhotoAdvice`), for the colour reading and try-on alike.
@@ -125,7 +125,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 **Also open:**
 
-- [ ] **Recommender v2** (owner, October 19). Built October 19 on stacked branches, not merged: the catalog in the app (`feat/catalog_v2`), the recommender (`feat/stylist_engine`), Home's days on it with the old system and its `in-vogue-dev` records gone (`feat/stylist_on_home`), the taste model (`feat/stylist_signals`) and the wardrobe on Home (`feat/wardrobe_on_home`), as [docs/recommender-design.md](docs/recommender-design.md#13-delivery-plan) plans. *Blocked on the owner's device run and merge go-ahead.*
+- [ ] **Recommender v2** (owner, October 19). Built October 19 on stacked branches, not merged: the catalog in the app (`feat/catalog_v2`), the recommender (`feat/stylist_engine`), Home's days on it with the old system and its `in-vogue-dev` records gone (`feat/stylist_on_home`), the taste model (`feat/stylist_signals`) and the wardrobe on Home (`feat/wardrobe_on_home`), as the design's delivery plan (§13 of `../docs/recommender-design.md`, outside the repository) plans. *Blocked on the owner's device run and merge go-ahead.*
 - [ ] Build and check both home-screen widgets on phones. *Owner.*
 - [ ] The first real YouCam run, and the device run of the October 17 work. *Owner.*
 - [ ] Open a sample of Everlane product links. *Owner.*

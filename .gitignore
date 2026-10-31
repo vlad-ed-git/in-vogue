@@ -35,3 +35,6 @@ assets/development/*
 
 # Release builds from scripts/build_release.sh
 /release/
+
+# Working docs live in ../docs, outside the repository.
+/docs/
