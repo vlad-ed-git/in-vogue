@@ -42,11 +42,11 @@ Core dependencies are `flutter_bloc` for state, `get_it` for dependency injectio
 
 ## Install and run
 
-Run from the repository root. Commands use the `flutterN` shell alias for your Flutter SDK; define it in `~/.zshrc` if needed. Setup also requires the Firebase and FlutterFire CLIs, access to `in-vogue-dev`, and a YouCam API key.
+Run from the repository root. Commands use the `flutter` shell alias for your Flutter SDK; define it in `~/.zshrc` if needed. Setup also requires the Firebase and FlutterFire CLIs, access to `in-vogue-dev`, and a YouCam API key.
 
 ```sh
-zsh -ic 'flutterN pub get'
-zsh -ic 'flutterN gen-l10n'
+zsh -ic 'flutter pub get'
+zsh -ic 'flutter gen-l10n'
 firebase login
 scripts/configure_firebase.sh development
 ```
@@ -55,7 +55,7 @@ Save your YouCam API key in `secrets/youcam_api.txt`, then run:
 
 ```sh
 python3 scripts/write_development_key.py
-zsh -ic 'flutterN run --flavor development -t lib/main_development.dart'
+zsh -ic 'flutter run --flavor development -t lib/main_development.dart'
 ```
 
 The key and generated native Firebase configuration files are git-ignored. Development uses app ID `com.invogue.app.dev` and Firebase project `in-vogue-dev`. On iOS, open `ios/Runner.xcworkspace` when working in Xcode.
@@ -63,8 +63,8 @@ The key and generated native Firebase configuration files are git-ignored. Devel
 ## Checks
 
 ```sh
-zsh -ic 'flutterN analyze'
-zsh -ic 'flutterN test'
+zsh -ic 'flutter analyze'
+zsh -ic 'flutter test'
 ```
 
 Tests use fakes and mocks; they do not call live YouCam or Firebase services.
