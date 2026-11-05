@@ -4,7 +4,7 @@ In Vogue is a Flutter weather app for Android and iPhone. Each day it shows the 
 
 - **Read [README.md](README.md)** for the system design, architecture, data model and APIs. Area details are in the skills (below).
 - **Focus now (owner, October 18):** an MVP for testers on the development flavor (`com.invogue.app.dev`, Firebase `in-vogue-dev`). Production waits.
-- **Stack:** Flutter 3.44.4, Dart 3.12.2, BLoC, GetIt, dartz, Equatable, Firebase (Auth, Firestore, Storage), Hive, SQLite, YouCam, Open-Meteo, `home_widget` and `workmanager`, a Kotlin Android widget and a SwiftUI iPhone widget.
+- **Stack:** Flutter 3.47.8, Dart 3.13.7 (security patch minimums, November 6, 2026), BLoC, GetIt, dartz, Equatable, Firebase (Auth, Firestore, Storage), Hive, SQLite, YouCam, Open-Meteo, `home_widget` and `workmanager`, a Kotlin Android widget and a SwiftUI iPhone widget.
 - **Workspace** (`weather-dot-me/`, not a git repo): `in-vogue/` is this app and the only repository. `design-spec/` is the design specification (read-only). `resources/` holds the catalog, the knowledge base and their Python tools. `app certs and profiles/` is the owner's.
 
 ## Commands
