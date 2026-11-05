@@ -64,6 +64,11 @@ The key and generated native Firebase configuration files are git-ignored. Devel
 
 ## Checks
 
+Launcher icons and the iOS launch images use the artwork in
+`../design-spec/assets/logo/`. Regenerate them with `scripts/generate_app_icons.sh`.
+The iOS launch screen displays the logo centered on white at 168 points, with
+1x, 2x and 3x assets (updated November 6, 2026).
+
 ```sh
 zsh -ic 'flutterN analyze'
 zsh -ic 'flutterN test'
