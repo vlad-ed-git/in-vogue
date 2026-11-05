@@ -31,7 +31,7 @@ The shared API client is in `lib/core/data/you_cam/`. Development builds bundle 
 
 | Tool | Version |
 | --- | --- |
-| Flutter / Dart | Local toolchain: Flutter 3.47.7 / Dart 3.13.5; declared Dart requirement: `^3.12.2` |
+| Flutter / Dart | Flutter 3.47.8 or later / Dart `^3.13.7` (security patch minimums) |
 | Xcode / CocoaPods (iOS) | 26.3 / 1.16.2 |
 | Java (Android) | 17 |
 | Python (setup scripts) | 3 |
@@ -40,13 +40,15 @@ Install the Android SDK for Android development, or Xcode on macOS for iOS. Supp
 
 Core dependencies are `flutter_bloc` for state, `get_it` for dependency injection, `go_router` for navigation, Firebase Authentication/Firestore/Storage, Hive and SQLite for local data, `dio` for HTTP, and `home_widget`/`workmanager` for widgets and background updates. Version constraints are in [pubspec.yaml](pubspec.yaml); exact resolved versions are in [pubspec.lock](pubspec.lock).
 
+Security update (November 6, 2026): version `0.1.1+2` requires `cloud_firestore` 7.1.0 or later and FirebaseFirestore 12.19.3 through CocoaPods, following [Firebase's eMudhra remediation guide](https://firebase.google.com/support/guides/compromised-emudhra-intermediate-ca). Rebuild and distribute both mobile apps with the patched dependencies and toolchain, then prompt users to update; existing installations remain affected until updated.
+
 ## Install and run
 
-Run from the repository root. Commands use the `flutter` shell alias for your Flutter SDK; define it in `~/.zshrc` if needed. Setup also requires the Firebase and FlutterFire CLIs, access to `in-vogue-dev`, and a YouCam API key.
+Run from the repository root. Commands use the `flutterN` shell alias for your Flutter SDK; define it in `~/.zshrc` if needed. Setup also requires the Firebase and FlutterFire CLIs, access to `in-vogue-dev`, and a YouCam API key.
 
 ```sh
-zsh -ic 'flutter pub get'
-zsh -ic 'flutter gen-l10n'
+zsh -ic 'flutterN pub get'
+zsh -ic 'flutterN gen-l10n'
 firebase login
 scripts/configure_firebase.sh development
 ```
@@ -55,7 +57,7 @@ Save your YouCam API key in `secrets/youcam_api.txt`, then run:
 
 ```sh
 python3 scripts/write_development_key.py
-zsh -ic 'flutter run --flavor development -t lib/main_development.dart'
+zsh -ic 'flutterN run --flavor development -t lib/main_development.dart'
 ```
 
 The key and generated native Firebase configuration files are git-ignored. Development uses app ID `com.invogue.app.dev` and Firebase project `in-vogue-dev`. On iOS, open `ios/Runner.xcworkspace` when working in Xcode.
@@ -63,8 +65,8 @@ The key and generated native Firebase configuration files are git-ignored. Devel
 ## Checks
 
 ```sh
-zsh -ic 'flutter analyze'
-zsh -ic 'flutter test'
+zsh -ic 'flutterN analyze'
+zsh -ic 'flutterN test'
 ```
 
 Tests use fakes and mocks; they do not call live YouCam or Firebase services.
