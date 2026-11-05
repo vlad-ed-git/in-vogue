@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -990,11 +991,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String undertoneAbout(String undertone) {
     String _temp0 = intl.Intl.selectLogic(undertone, {
-      'warm':
-          'Warm: your skin leans golden, so warm, earthy and golden colours glow on you.',
+      'warm': 'Warm: your skin leans golden, so warm, earthy and golden colours glow on you.',
       'cool': 'Cool: your skin leans pink, so cool, crisp colours suit you.',
-      'other':
-          'Neutral: your skin sits between golden and pink, so you can wear both; your hair tips the balance.',
+      'other': 'Neutral: your skin sits between golden and pink, so you can wear both; your hair tips the balance.',
     });
     return '$_temp0';
   }
@@ -1002,11 +1001,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String depthAbout(String depth) {
     String _temp0 = intl.Intl.selectLogic(depth, {
-      'light':
-          'Light: your skin and hair are light, so lighter, softer colours keep you in focus.',
+      'light': 'Light: your skin and hair are light, so lighter, softer colours keep you in focus.',
       'deep': 'Deep: your colouring is deep, so rich, deep colours suit you.',
-      'other':
-          'Medium: your colouring sits in the middle, so mid-depth colours suit you best.',
+      'other': 'Medium: your colouring sits in the middle, so mid-depth colours suit you best.',
     });
     return '$_temp0';
   }
@@ -1014,11 +1011,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String contrastAbout(String contrast) {
     String _temp0 = intl.Intl.selectLogic(contrast, {
-      'high':
-          'High: your hair stands out against your skin, so bold pairings suit you.',
+      'high': 'High: your hair stands out against your skin, so bold pairings suit you.',
       'low': 'Low: your features blend softly, so tone-on-tone looks suit you.',
-      'other':
-          'Medium: your features contrast gently, so medium contrast works best.',
+      'other': 'Medium: your features contrast gently, so medium contrast works best.',
     });
     return '$_temp0';
   }

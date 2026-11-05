@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generates the iOS and Android launcher icons from the logo artwork.
+# Generates the iOS launch images and iOS/Android launcher icons from the logo artwork.
 #
 # Usage: scripts/generate_app_icons.sh [logo-dir]
 #   logo-dir defaults to ../design-spec/assets/logo and must contain
@@ -75,6 +75,14 @@ entries+=("    { \"appearances\" : [ { \"appearance\" : \"luminosity\", \"value\
   echo '}'
 } >"$ios/Contents.json"
 
+# iOS launch screen: a centered 168-point logo on white at every scale.
+launch="$root/ios/Runner/Assets.xcassets/LaunchImage.imageset"
+for scale in 1 2 3; do
+  suffix="@${scale}x"
+  [[ "$scale" == 1 ]] && suffix=''
+  resize "$icon" "$((168 * scale))" "$launch/LaunchImage${suffix}.png" opaque
+done
+
 # Android: legacy square icons, plus adaptive foreground and monochrome
 # layers (108 dp) over a white background.
 res="$root/android/app/src/main/res"
@@ -99,4 +107,4 @@ cat >"$res/mipmap-anydpi-v26/ic_launcher.xml" <<'XML'
 </adaptive-icon>
 XML
 
-echo "Generated icons from $logo"
+echo "Generated icons and iOS launch images from $logo"

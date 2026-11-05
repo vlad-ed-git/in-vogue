@@ -1,5 +1,13 @@
 # Launch Screen Assets
 
-You can customize the launch screen with your own desired assets by replacing the image files in this directory.
+The launch screen shows the In Vogue logo centered on white at 168 × 168 points.
+The 1x, 2x and 3x PNGs are 168, 336 and 504 pixels square, respectively.
 
-You can also do it by opening your Flutter project's Xcode project with `open ios/Runner.xcworkspace`, selecting `Runner/Assets.xcassets` in the Project Navigator and dropping in the desired images.
+Regenerate them alongside the launcher icons from the repository root:
+
+```sh
+scripts/generate_app_icons.sh
+```
+
+The source is `../design-spec/assets/logo/app-icon.png`, the same artwork used
+for the iOS and Android launcher icons.
