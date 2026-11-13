@@ -197,6 +197,8 @@ void main() {
 
     Future<void> pumpSettings(
       WidgetTester tester, {
+      Stream<SettingsState> settingStates = const Stream.empty(),
+      ValueChanged<ForecastDay>? onDefaultDayChanged,
       Stream<PhotoState> bodyStates = const Stream.empty(),
       PhotoState faceState = const PhotoState(),
       Stream<PhotoState> faceStates = const Stream.empty(),
@@ -221,7 +223,7 @@ void main() {
       final preferences = _MockPreferencesBloc();
       whenListen(
         settings,
-        const Stream<SettingsState>.empty(),
+        settingStates,
         initialState: const SettingsState(
           account: _maya,
           plan: AccountPlan.pro,
@@ -283,6 +285,7 @@ void main() {
             BlocProvider<SkinAnalysisBloc>.value(value: analysis),
           ],
           child: SettingsScreen(
+            onDefaultDayChanged: onDefaultDayChanged,
             onLoggedOut: () {},
             onAccountDeleted: () {},
             bodyPhoto: () => body,
@@ -298,6 +301,21 @@ void main() {
       );
       await tester.pump();
     }
+
+    testWidgets(
+      'publishes a saved default-day change while Settings stays open',
+      (tester) async {
+        final changes = <ForecastDay>[];
+        await pumpSettings(
+          tester,
+          settingStates: Stream.value(
+            const SettingsState(defaultDay: ForecastDay.today),
+          ),
+          onDefaultDayChanged: changes.add,
+        );
+        expect(changes, [ForecastDay.today]);
+      },
+    );
 
     testWidgets('lists what can change, in the spec’s order', (tester) async {
       await pumpSettings(tester);

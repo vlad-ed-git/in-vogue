@@ -22,6 +22,8 @@ abstract final class WidgetRefreshContextModel {
     'language': context.language.languageCode,
     'preferred': context.preferred.name,
     'bodyPhoto': context.bodyPhoto,
+    'accountId': context.accountId,
+    'bodyPhotoRevision': context.bodyPhotoRevision,
     'occasions': {
       for (final MapEntry(key: date, value: occasion)
           in context.occasions.entries)
@@ -57,6 +59,8 @@ abstract final class WidgetRefreshContextModel {
           language: SupportedLanguages.fromLanguageCode(language),
           preferred: day,
           bodyPhoto: fields['bodyPhoto'] as String?,
+          accountId: fields['accountId'] as String?,
+          bodyPhotoRevision: fields['bodyPhotoRevision'] as int?,
           occasions: {
             for (final MapEntry(key: date, value: occasion)
                 in occasions.entries)

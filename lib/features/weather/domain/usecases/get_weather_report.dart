@@ -14,6 +14,7 @@ class WeatherReportParams extends Equatable {
   const WeatherReportParams({
     required this.location,
     this.day,
+    this.date,
     this.occasion,
     this.chosen = const {},
   });
@@ -23,6 +24,9 @@ class WeatherReportParams extends Equatable {
   /// The day shown at the place's local time when null.
   final ForecastDay? day;
 
+  /// An explicit local date, at midnight UTC, for preparing future widgets.
+  final DateTime? date;
+
   /// When null, the occasion in [chosen] for the day's date, else the
   /// date's default.
   final Occasion? occasion;
@@ -31,7 +35,7 @@ class WeatherReportParams extends Equatable {
   final Map<DateTime, Occasion> chosen;
 
   @override
-  List<Object?> get props => [location, day, occasion, chosen];
+  List<Object?> get props => [location, day, date, occasion, chosen];
 }
 
 class GetWeatherReport implements UseCase<WeatherReport, WeatherReportParams> {
@@ -48,7 +52,7 @@ class GetWeatherReport implements UseCase<WeatherReport, WeatherReportParams> {
       final now = clock.now();
       final local = forecast.localTime(now);
       final day = params.day ?? ForecastDay.shownAt(local);
-      final date = day.dateFrom(local);
+      final date = params.date ?? day.dateFrom(local);
       final occasion =
           params.occasion ?? params.chosen[date] ?? Occasion.defaultFor(date);
       final weather = DayWeatherRules.summarize(

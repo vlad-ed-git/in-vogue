@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:clock/clock.dart';
@@ -6,7 +7,10 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:in_vogue/app/background_outfits.dart';
+import 'package:in_vogue/app/widget_background_task.dart';
 import 'package:in_vogue/core/config/app_check.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
@@ -15,14 +19,17 @@ import 'package:in_vogue/features/catalog/data/data_sources/outfit_catalog_local
 import 'package:in_vogue/features/catalog/data/data_sources/outfit_catalog_remote_data_source.dart';
 import 'package:in_vogue/features/catalog/data/repositories/outfit_catalog_repository_impl.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/widget_refresh_scheduler.dart';
+import 'package:in_vogue/features/home_widget/data/repositories/home_widget_repository_impl.dart';
 import 'package:in_vogue/features/home_widget/di/init.dart' as home_widget_di;
+import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_context.dart';
 import 'package:in_vogue/features/home_widget/domain/services/refresh_widget.dart';
+import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.dart';
 import 'package:in_vogue/features/home_widget/presentation/widget_content_text.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/repositories/day_repository_impl.dart';
-import 'package:in_vogue/features/weather/data/data_sources/uncached_weather_local_data_source.dart';
+import 'package:in_vogue/features/weather/data/data_sources/memory_weather_local_data_source.dart';
 import 'package:in_vogue/features/weather/data/data_sources/weather_remote_data_source.dart';
 import 'package:in_vogue/features/weather/data/repositories/weather_repository_impl.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
@@ -34,49 +41,71 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:workmanager/workmanager.dart';
 
-/// The widget's morning refresh, run in the background by WorkManager on
-/// Android and by background app refresh on iPhone. A refresh that fails keeps what the widget shows; the next
-/// morning tries again.
+/// Entry point for weather refresh and daily outfit preparation.
 @pragma('vm:entry-point')
 void widgetRefreshDispatcher() {
-  Workmanager().executeTask((task, input) async {
-    final environment =
-        AppEnvironment.values
-            .asNameMap()[input?[WorkmanagerWidgetRefreshScheduler
-            .environmentInput]];
-    if (environment == null) return true;
-    try {
-      await refreshWidgetInBackground(environment);
-    } on Object catch (error, stack) {
-      LogMessagesImpl().logError(
-        callerClass: 'widgetRefreshDispatcher',
-        callerMethod: 'executeTask',
-        error: error,
-        stackTrace: stack,
+  var stopped = false;
+  Workmanager().executeTask(
+    (task, input) async {
+      WidgetsFlutterBinding.ensureInitialized();
+      DartPluginRegistrant.ensureInitialized();
+      return runWidgetBackgroundTask(
+        task: task,
+        input: input,
+        nativeFlavor: appFlavor,
+        isIOS: Platform.isIOS,
+        log: LogMessagesImpl(),
+        refresh: (environment, prepare) => refreshWidgetInBackground(
+          environment,
+          prepareOutfits: prepare,
+          isStopped: () => stopped,
+        ),
       );
-    }
-    return true;
-  });
+    },
+    onTaskStopped: (_, _) async {
+      stopped = true;
+    },
+  );
 }
 
-/// Redraws the widget with today's and tomorrow's weather again and the
-/// pictures already made for them, for the account signed in on this phone.
-/// It never calls YouCam.
-Future<void> refreshWidgetInBackground(AppEnvironment environment) async {
-  DartPluginRegistrant.ensureInitialized();
-  WidgetsFlutterBinding.ensureInitialized();
+/// Runs from persisted context and the phone's authenticated account.
+Future<bool> refreshWidgetInBackground(
+  AppEnvironment environment, {
+  bool prepareOutfits = true,
+  bool Function()? isStopped,
+}) async {
   final log = LogMessagesImpl();
-  final widget = home_widget_di.platformHomeWidgetRepository(
+  final scheduler = WorkmanagerWidgetRefreshScheduler(
+    widgetRefreshDispatcher,
+    environment: environment.name,
+  );
+  WidgetRefreshContext? expectedContext;
+  late final HomeWidgetRepositoryImpl? widget;
+  Future<bool> stillCurrent() async =>
+      !(isStopped?.call() ?? false) &&
+      expectedContext != null &&
+      FirebaseAuth.instance.currentUser?.uid == expectedContext.accountId &&
+      (await widget!.savedRefresh())?.context == expectedContext;
+  widget = home_widget_di.platformHomeWidgetRepository(
+    canPublish: stillCurrent,
     environment: environment,
-    scheduler: WorkmanagerWidgetRefreshScheduler(
-      widgetRefreshDispatcher,
-      environment: environment.name,
-    ),
+    scheduler: scheduler,
     logMessages: log,
   );
-  if (widget == null) return;
+  if (widget == null) return true;
   final saved = await widget.savedRefresh();
-  if (saved == null) return;
+  if (saved == null ||
+      saved.environment != environment.name ||
+      saved.context.accountId == null) {
+    return true;
+  }
+  expectedContext = saved.context;
+  // A processing task is one-off; rearm before any network work can fail.
+  if (prepareOutfits) {
+    await scheduler.scheduleOutfits(
+      WorkmanagerWidgetRefreshScheduler.retryDelay,
+    );
+  }
   await initializeDateFormatting();
   await Firebase.initializeApp(
     options: switch (environment) {
@@ -88,19 +117,27 @@ Future<void> refreshWidgetInBackground(AppEnvironment environment) async {
   );
   await activateAppCheck();
   final user = await FirebaseAuth.instance.authStateChanges().first;
+  if (user == null || user.uid != saved.context.accountId) {
+    if ((await widget.savedRefresh())?.context == saved.context) {
+      await widget.clear();
+    }
+    return true;
+  }
+  final deadline = clock.now().add(const Duration(minutes: 7));
+  Future<bool> canContinue() async =>
+      clock.now().isBefore(deadline) && await stillCurrent();
   final support = await getApplicationSupportDirectory();
   final folder = path.join(support.path, 'in_vogue', environment.name);
-  final weather = WeatherRepositoryImpl(
-    remoteDataSource: WeatherRemoteDataSourceImpl(
-      Dio(
-        BaseOptions(
-          baseUrl: WeatherRemoteDataSourceImpl.baseUrl,
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 15),
-        ),
-      ),
+  final weatherClient = Dio(
+    BaseOptions(
+      baseUrl: WeatherRemoteDataSourceImpl.baseUrl,
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 15),
     ),
-    localDataSource: const UncachedWeatherLocalDataSource(),
+  );
+  final weather = WeatherRepositoryImpl(
+    remoteDataSource: WeatherRemoteDataSourceImpl(weatherClient),
+    localDataSource: MemoryWeatherLocalDataSource(),
     logMessages: log,
   );
   final days = DayRepositoryImpl(
@@ -117,26 +154,58 @@ Future<void> refreshWidgetInBackground(AppEnvironment environment) async {
   final catalog = OutfitCatalogRepositoryImpl(
     remote: OutfitCatalogRemoteDataSourceImpl(FirebaseFirestore.instance),
     local: OutfitCatalogLocalDataSourceImpl(
-      path.join(folder, 'catalog', 'outfits.json'),
+      path.join(folder, 'catalog', 'background-outfits.json'),
     ),
     logMessages: log,
   );
   final context = saved.context;
   final l10n = lookupAppLocalizations(Locale(context.language.languageCode));
-  await RefreshWidget(
-    getWeatherReport: GetWeatherReport(weather),
-    days: days,
-    catalog: catalog,
-    widget: widget,
-    accountId: user?.uid,
-    describe: (widgetDays, context) => WidgetContentText.of(
-      days: widgetDays,
-      preferred: context.preferred,
-      countryCode: context.place.countryCode,
-      bodyPhoto: context.bodyPhoto,
-      l10n: l10n,
-      language: context.language,
-      now: clock.now(),
-    ),
-  )(context);
+  BackgroundOutfits? outfits;
+  try {
+    final complete = await RefreshWidget(
+      makeOutfit: prepareOutfits
+          ? (params) async* {
+              outfits ??= await BackgroundOutfits.open(
+                environment: environment,
+                context: context,
+                folder: folder,
+                firestore: FirebaseFirestore.instance,
+                days: days,
+                catalog: catalog,
+                log: log,
+                canContinue: canContinue,
+              );
+              yield* outfits!.make(params);
+            }
+          : null,
+      loadOutfits: prepareOutfits,
+      lookAhead: true,
+      stillCurrent: stillCurrent,
+      getWeatherReport: GetWeatherReport(weather),
+      days: days,
+      catalog: catalog,
+      widget: widget,
+      accountId: user.uid,
+      describe: (widgetDays, context) => WidgetContentText.of(
+        days: widgetDays,
+        preferred: context.preferred,
+        countryCode: context.place.countryCode,
+        bodyPhoto: context.bodyPhoto,
+        l10n: l10n,
+        language: context.language,
+        now: clock.now(),
+      ),
+    )(context);
+    if (prepareOutfits && await stillCurrent()) {
+      await scheduler.scheduleOutfits(
+        complete
+            ? WidgetSchedule.refreshEvery
+            : WorkmanagerWidgetRefreshScheduler.retryDelay,
+      );
+    }
+    return complete;
+  } finally {
+    outfits?.close();
+    weatherClient.close(force: true);
+  }
 }

@@ -38,6 +38,7 @@ HomeWidgetRepositoryImpl? platformHomeWidgetRepository({
   required AppEnvironment environment,
   required WidgetRefreshScheduler scheduler,
   required LogMessages logMessages,
+  Future<bool> Function()? canPublish,
 }) {
   final HomeWidgetDataSource dataSource;
   final WidgetPictureDataSource pictures;
@@ -58,6 +59,7 @@ HomeWidgetRepositoryImpl? platformHomeWidgetRepository({
       return null;
   }
   return HomeWidgetRepositoryImpl(
+    canPublish: canPublish,
     dataSource: dataSource,
     pictures: pictures,
     scheduler: scheduler,

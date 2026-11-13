@@ -76,6 +76,8 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 
 ## Product rules: never break these
 
+- **Widget-first background preparation** (owner, November 13, 2026): after complete onboarding and sign-in, generate daily YouCam outfits and refresh weather without reopening the app. The widget always uses the saved default (tomorrow, or today), including mornings. This supersedes the October 18 rule forbidding background YouCam calls. No servers or Cloud Functions. Prepare a third day to cover delayed refreshes; never mislabel stale content.
+
 - The app is In Vogue. No clothing prices anywhere; the only price is Go Pro's ($7.99 a month or $59.99 a year).
 - Photos are chosen from Photos or Gallery, never taken: no camera, and never the words "take a photo". Trust the photo: no checks beyond the size and format rules.
 - YouCam: nothing before sign-in, and no units cap, counter or quota, ever. Everything runs in the app, with no servers or Cloud Functions (a YouCam proxy is to be reconsidered before release).

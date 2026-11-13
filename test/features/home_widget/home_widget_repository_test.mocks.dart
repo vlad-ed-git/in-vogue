@@ -39,72 +39,56 @@ class MockHomeWidgetDataSource extends _i1.Mock
   }
 
   @override
-  _i3.Future<void> save(String? key, String? value) =>
-      (super.noSuchMethod(
-            Invocation.method(#save, [key, value]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> save(String? key, String? value) => (super.noSuchMethod(
+    Invocation.method(#save, [key, value]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<String?> read(String? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#read, [key]),
-            returnValue: _i3.Future<String?>.value(),
-          )
-          as _i3.Future<String?>);
+  _i3.Future<String?> read(String? key) => (super.noSuchMethod(
+    Invocation.method(#read, [key]),
+    returnValue: _i3.Future<String?>.value(),
+  ) as _i3.Future<String?>);
 
   @override
-  _i3.Future<void> update() =>
-      (super.noSuchMethod(
-            Invocation.method(#update, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> update() => (super.noSuchMethod(
+    Invocation.method(#update, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<void> schedule(List<DateTime>? times) =>
-      (super.noSuchMethod(
-            Invocation.method(#schedule, [times]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> schedule(List<DateTime>? times) => (super.noSuchMethod(
+    Invocation.method(#schedule, [times]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<bool> canPin() =>
-      (super.noSuchMethod(
-            Invocation.method(#canPin, []),
-            returnValue: _i3.Future<bool>.value(false),
-          )
-          as _i3.Future<bool>);
+  _i3.Future<bool> canPin() => (super.noSuchMethod(
+    Invocation.method(#canPin, []),
+    returnValue: _i3.Future<bool>.value(false),
+  ) as _i3.Future<bool>);
 
   @override
-  _i3.Future<void> pin() =>
-      (super.noSuchMethod(
-            Invocation.method(#pin, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> pin() => (super.noSuchMethod(
+    Invocation.method(#pin, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 
   @override
-  _i3.Future<Uri?> launchedWith() =>
-      (super.noSuchMethod(
-            Invocation.method(#launchedWith, []),
-            returnValue: _i3.Future<Uri?>.value(),
-          )
-          as _i3.Future<Uri?>);
+  _i3.Future<Uri?> launchedWith() => (super.noSuchMethod(
+    Invocation.method(#launchedWith, []),
+    returnValue: _i3.Future<Uri?>.value(),
+  ) as _i3.Future<Uri?>);
 
   @override
-  _i3.Stream<Uri?> clicks() =>
-      (super.noSuchMethod(
-            Invocation.method(#clicks, []),
-            returnValue: _i3.Stream<Uri?>.empty(),
-          )
-          as _i3.Stream<Uri?>);
+  _i3.Stream<Uri?> clicks() => (super.noSuchMethod(
+    Invocation.method(#clicks, []),
+    returnValue: _i3.Stream<Uri?>.empty(),
+  ) as _i3.Stream<Uri?>);
 }
 
 /// A class which mocks [WidgetPictureDataSource].
@@ -119,21 +103,16 @@ class MockWidgetPictureDataSource extends _i1.Mock
   @override
   _i3.Future<Map<String, String>> share(Set<String>? paths) =>
       (super.noSuchMethod(
-            Invocation.method(#share, [paths]),
-            returnValue: _i3.Future<Map<String, String>>.value(
-              <String, String>{},
-            ),
-          )
-          as _i3.Future<Map<String, String>>);
+        Invocation.method(#share, [paths]),
+        returnValue: _i3.Future<Map<String, String>>.value(<String, String>{}),
+      ) as _i3.Future<Map<String, String>>);
 
   @override
-  _i3.Future<void> clear() =>
-      (super.noSuchMethod(
-            Invocation.method(#clear, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> clear() => (super.noSuchMethod(
+    Invocation.method(#clear, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 }
 
 /// A class which mocks [WidgetRefreshScheduler].
@@ -146,11 +125,16 @@ class MockWidgetRefreshScheduler extends _i1.Mock
   }
 
   @override
-  _i3.Future<void> schedule(Duration? delay) =>
-      (super.noSuchMethod(
-            Invocation.method(#schedule, [delay]),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
+  _i3.Future<void> schedule(Duration? delay) => (super.noSuchMethod(
+    Invocation.method(#schedule, [delay]),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> cancel() => (super.noSuchMethod(
+    Invocation.method(#cancel, []),
+    returnValue: _i3.Future<void>.value(),
+    returnValueForMissingStub: _i3.Future<void>.value(),
+  ) as _i3.Future<void>);
 }

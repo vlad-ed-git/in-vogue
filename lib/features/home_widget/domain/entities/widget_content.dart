@@ -61,6 +61,22 @@ class WidgetSnapshot extends Equatable {
   final String spokenToday;
   final String spokenTomorrow;
 
+  WidgetSnapshot withPicture(String picture) => WidgetSnapshot(
+    date: date,
+    occasion: occasion,
+    today: today,
+    tomorrow: tomorrow,
+    dateLine: dateLine,
+    temperature: temperature,
+    condition: condition,
+    feelsLike: feelsLike,
+    glyph: glyph,
+    picture: picture,
+    gettingReady: gettingReady,
+    spokenToday: spokenToday,
+    spokenTomorrow: spokenTomorrow,
+  );
+
   @override
   List<Object?> get props => [
     date,
@@ -90,12 +106,34 @@ class WidgetContent extends Equatable {
 
   final List<WidgetSnapshot> days;
 
-  /// The day Home opens on: tomorrow with the morning rule, or always today.
+  /// The day selected in Settings, respected at every hour.
   final ForecastDay preferred;
 
   /// Such as "Saved Sun 18 Oct at 9:12 pm": the date line when the widget
   /// has no snapshot for the day it should show.
   final String savedLine;
+
+  /// Keeps ready pictures and future dates during partial or foreground updates.
+  WidgetContent keeping(WidgetContent? previous, {required DateTime today}) {
+    final known = {
+      for (final day in previous?.days ?? <WidgetSnapshot>[])
+        if (!day.date.isBefore(today)) day.date: day,
+    };
+    for (final day in days) {
+      final old = known[day.date];
+      known[day.date] =
+          day.picture == null &&
+              old?.occasion == day.occasion &&
+              old?.picture != null
+          ? day.withPicture(old!.picture!)
+          : day;
+    }
+    return WidgetContent(
+      days: known.values.toList()..sort((a, b) => a.date.compareTo(b.date)),
+      preferred: preferred,
+      savedLine: savedLine,
+    );
+  }
 
   @override
   List<Object?> get props => [days, preferred, savedLine];

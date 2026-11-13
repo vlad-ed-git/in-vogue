@@ -40,6 +40,11 @@ final class TryOnFailed extends TryOnUpdate {
   List<Object?> get props => [failure];
 }
 
+/// The worker stopped with its successful task IDs kept for the next run.
+final class TryOnPaused extends TryOnUpdate {
+  const TryOnPaused();
+}
+
 /// Another phone is making the day's outfit; its record shows how far.
 final class TryOnElsewhere extends TryOnUpdate {
   const TryOnElsewhere(this.day);

@@ -147,8 +147,7 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
   private fun shown(content: Content, now: Calendar): Shown? {
     val today = key(now)
     val tomorrow = key((now.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, 1) })
-    val hour = now.get(Calendar.HOUR_OF_DAY)
-    val target = if (content.preferred == "today" || hour in 6..8) today else tomorrow
+    val target = if (content.preferred == "today") today else tomorrow
     content.days.firstOrNull { it.date == target }?.let { day ->
       val isToday = day.date == today
       return Shown(

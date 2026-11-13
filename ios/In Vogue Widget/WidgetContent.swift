@@ -26,15 +26,11 @@ struct WidgetContent: Decodable {
     return try? JSONDecoder().decode(WidgetContent.self, from: data)
   }
 
-  /// The day to show at `now`: always today when the person chose it, else
-  /// today from 06:00 to 08:59 and tomorrow otherwise, as Home's
-  /// ForecastDay.shownAt in the app. Without that day, the newest one, with
-  /// the time it was saved instead of its date.
+  /// The preferred day, or the newest saved snapshot labelled with its age.
   func shown(at now: Date, calendar: Calendar = .widget) -> ShownDay? {
     let today = calendar.key(of: now)
     let tomorrow = calendar.key(of: calendar.date(byAdding: .day, value: 1, to: now) ?? now)
-    let hour = calendar.component(.hour, from: now)
-    let target = preferred == "today" || (6..<9).contains(hour) ? today : tomorrow
+    let target = preferred == "today" ? today : tomorrow
     if let day = days.first(where: { $0.date == target }) {
       let isToday = day.date == today
       return ShownDay(
@@ -95,19 +91,15 @@ extension Calendar {
     return String(format: "%04ld-%02ld-%02ld", day.year ?? 0, day.month ?? 0, day.day ?? 0)
   }
 
-  /// The next six times after `now` when the day shown can change: 06:00,
-  /// 09:00 and midnight, as WidgetSchedule.changesAfter in the app.
+  /// The next six midnights, matching WidgetSchedule.changesAfter.
   func changes(after now: Date) -> [Date] {
     let start = startOfDay(for: now)
     var changes: [Date] = []
-    for offset in 0...2 {
-      guard let day = date(byAdding: .day, value: offset, to: start) else { continue }
-      for hour in [0, 6, 9] {
-        if let change = date(bySettingHour: hour, minute: 0, second: 0, of: day), change > now {
-          changes.append(change)
-        }
+    for offset in 1...6 {
+      if let change = date(byAdding: .day, value: offset, to: start) {
+        changes.append(change)
       }
     }
-    return Array(changes.prefix(6))
+    return changes
   }
 }
