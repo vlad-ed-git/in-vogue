@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:clock/clock.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:path/path.dart' as p;
 
@@ -41,18 +42,23 @@ class AppGroupWidgetPictureDataSource implements WidgetPictureDataSource {
   final Future<String?> Function() _container;
 
   static const folder = 'widget';
+  static const publishGrace = Duration(minutes: 2);
 
   @override
   Future<Map<String, String>> share(Set<String> paths) => _guard(() async {
     final container = await _container();
     if (container == null) return const {};
-    final directory = await Directory(
-      p.join(container, folder),
-    ).create(recursive: true);
+    final directory = await Directory(p.join(container, folder))
+        .create(recursive: true);
     final shared = <String, String>{};
     for (final path in paths) {
       final picture = File(path);
       if (!await picture.exists()) continue;
+      if (p.isWithin(directory.path, path)) {
+        await picture.setLastModified(clock.now());
+        shared[path] = path;
+        continue;
+      }
       final modified = (await picture.lastModified()).millisecondsSinceEpoch;
       final copy = p.join(
         directory.path,
@@ -60,14 +66,29 @@ class AppGroupWidgetPictureDataSource implements WidgetPictureDataSource {
       );
       if (!await File(copy).exists()) {
         // Copied aside first, so the widget never reads half a picture.
-        await picture.copy('$copy.part');
-        await File('$copy.part').rename(copy);
+        final staging = await directory.createTemp('.publishing-');
+        try {
+          final temporary = await picture.copy(p.join(staging.path, 'picture'));
+          await temporary.rename(copy);
+        } finally {
+          if (staging.existsSync()) await staging.delete(recursive: true);
+        }
       }
+      await File(copy).setLastModified(clock.now());
       shared[path] = copy;
     }
     final kept = shared.values.toSet();
     await for (final entry in directory.list()) {
-      if (entry is File && !kept.contains(entry.path)) await entry.delete();
+      if (entry is File && !kept.contains(entry.path)) {
+        try {
+          if (clock.now().difference(await entry.lastModified()) >=
+              publishGrace) {
+            await entry.delete();
+          }
+        } on FileSystemException {
+          // Another engine may have removed the same unused copy.
+        }
+      }
     }
     return shared;
   });

@@ -1,20 +1,14 @@
-/// When the widget's day changes.
+/// Background refresh cadence and widget date changes.
 abstract final class WidgetSchedule {
-  /// How long from [time] until the next background refresh, at 05:30, so
-  /// the 06:00 change shows fresh weather.
-  static Duration untilRefresh(DateTime time) {
-    var next = DateTime(time.year, time.month, time.day, 5, 30);
-    if (!next.isAfter(time)) {
-      next = DateTime(time.year, time.month, time.day + 1, 5, 30);
-    }
-    return next.difference(time);
-  }
+  static const refreshEvery = Duration(hours: 6);
+  static const firstRefresh = Duration(minutes: 15);
 
-  /// The next six local times after [time] when the day shown can change:
-  /// 06:00, 09:00 and midnight.
+  /// A prompt first run, with room for foreground preparation to finish.
+  static Duration untilRefresh(DateTime time) => firstRefresh;
+
+  /// The next six local midnights, accounting for daylight saving changes.
   static List<DateTime> changesAfter(DateTime time) => [
-    for (var day = 0; day <= 2; day++)
-      for (final hour in const [0, 6, 9])
-        DateTime(time.year, time.month, time.day + day, hour),
-  ].where((change) => change.isAfter(time)).take(6).toList();
+    for (var day = 1; day <= 6; day++)
+      DateTime(time.year, time.month, time.day + day),
+  ];
 }

@@ -2,30 +2,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.dart';
 
 void main() {
-  test('refreshes in the background at 05:30, before the morning change', () {
-    expect(
-      WidgetSchedule.untilRefresh(DateTime(2026, 10, 18, 5)),
-      const Duration(minutes: 30),
-    );
+  test('starts shortly after onboarding and refreshes throughout the day', () {
     expect(
       WidgetSchedule.untilRefresh(DateTime(2026, 10, 18, 7)),
-      const Duration(hours: 22, minutes: 30),
+      const Duration(minutes: 15),
     );
+    expect(WidgetSchedule.refreshEvery, const Duration(hours: 6));
   });
 
-  test('changes at 06:00, 09:00 and midnight, two days ahead', () {
+  test('redraws at six local midnights even without a network refresh', () {
     expect(WidgetSchedule.changesAfter(DateTime(2026, 10, 18, 7, 30)), [
-      DateTime(2026, 10, 18, 9),
-      DateTime(2026, 10, 19),
-      DateTime(2026, 10, 19, 6),
-      DateTime(2026, 10, 19, 9),
-      DateTime(2026, 10, 20),
-      DateTime(2026, 10, 20, 6),
+      for (var day = 19; day <= 24; day++) DateTime(2026, 10, day),
     ]);
     expect(
-      WidgetSchedule.changesAfter(DateTime(2026, 10, 18, 6)).first,
-      DateTime(2026, 10, 18, 9),
-      reason: 'a change at this very time is already shown',
+      WidgetSchedule.changesAfter(DateTime(2026, 12, 31)).first,
+      DateTime(2027),
     );
   });
 }

@@ -71,7 +71,9 @@ void main() {
       logMessages: LogMessagesImpl(),
     );
     when(scheduler.schedule(any)).thenAnswer((_) async {});
+    when(scheduler.cancel()).thenAnswer((_) async {});
     when(widget.save(any, any)).thenAnswer((_) async {});
+    when(widget.read(any)).thenAnswer((_) async => null);
     when(widget.update()).thenAnswer((_) async {});
     when(widget.schedule(any)).thenAnswer((_) async {});
     when(widget.canPin()).thenAnswer((_) async => true);
@@ -158,9 +160,8 @@ void main() {
   );
 
   test('a publish that fails does not stop the next', () async {
-    when(
-      pictures.share(any),
-    ).thenThrow(CacheException(Exception(), StackTrace.current));
+    when(pictures.share(any))
+        .thenThrow(CacheException(Exception(), StackTrace.current));
     final failed = await withClock(
       Clock.fixed(now),
       () => repository.publish(_content),
@@ -177,9 +178,9 @@ void main() {
     when(pictures.share(any)).thenAnswer((_) async => {});
     await repository.publish(_content);
     final saved =
-        verify(
-              widget.save(HomeWidgetDataSourceImpl.contentKey, captureAny),
-            ).captured.single
+        verify(widget.save(HomeWidgetDataSourceImpl.contentKey, captureAny))
+                .captured
+                .single
             as String;
     final days = (jsonDecode(saved) as Map<String, Object?>)['days']! as List;
     expect((days.single as Map)['waitingPhoto'], isNull);
@@ -205,9 +206,9 @@ void main() {
         () => repository.publish(_content, refresh: refresh),
       );
       final saved =
-          verify(
-                widget.save(HomeWidgetDataSourceImpl.refreshKey, captureAny),
-              ).captured.single
+          verify(widget.save(HomeWidgetDataSourceImpl.refreshKey, captureAny))
+                  .captured
+                  .single
               as String;
       expect(jsonDecode(saved), {
         'version': 1,
@@ -219,13 +220,14 @@ void main() {
         'language': 'es',
         'preferred': 'today',
         'bodyPhoto': '/photos/body-1.jpg',
+        'accountId': null,
+        'bodyPhotoRevision': null,
         'occasions': {'2026-10-19': 'goingOut'},
       });
       verify(scheduler.schedule(WidgetSchedule.untilRefresh(now))).called(1);
 
-      when(
-        widget.read(HomeWidgetDataSourceImpl.refreshKey),
-      ).thenAnswer((_) async => saved);
+      when(widget.read(HomeWidgetDataSourceImpl.refreshKey))
+          .thenAnswer((_) async => saved);
       final read = await repository.savedRefresh();
       expect(read?.environment, 'development');
       expect(read?.context, refresh);
@@ -243,9 +245,8 @@ void main() {
   });
 
   test('says when the widget cannot be written', () async {
-    when(
-      widget.save(any, any),
-    ).thenThrow(CacheException(Exception('no widget'), StackTrace.current));
+    when(widget.save(any, any))
+        .thenThrow(CacheException(Exception('no widget'), StackTrace.current));
     expect(
       await repository.publish(_content),
       const Left<Failure, Unit>(CacheFailure()),
@@ -281,5 +282,94 @@ void main() {
     when(widget.canPin()).thenAnswer((_) async => false);
     expect(await repository.requestPin(), isFalse);
     verifyNever(widget.pin());
+  });
+
+  test('schedules even when sharing the widget picture fails', () async {
+    when(pictures.share(any))
+        .thenThrow(CacheException(Exception(), StackTrace.current));
+    await repository.publish(
+      _content,
+      refresh: const WidgetRefreshContext(
+        place: UserLocation(latitude: 1, longitude: 1),
+        language: SupportedLanguages.english,
+        preferred: ForecastDay.today,
+      ),
+    );
+    verify(widget.save(HomeWidgetDataSourceImpl.refreshKey, any)).called(1);
+    verify(scheduler.schedule(any)).called(1);
+  });
+
+  test(
+    'logout removes the refresh context and cancels background work',
+    () async {
+      await repository.clear();
+      verify(widget.save(HomeWidgetDataSourceImpl.refreshKey, null)).called(1);
+    },
+  );
+  test(
+    'partial updates retain a prepared picture and the next midnight snapshot',
+    () async {
+      final future = WidgetSnapshot(
+        date: DateTime.utc(2026, 10, 20),
+        occasion: Occasion.work,
+        today: 'Today',
+        tomorrow: 'Tomorrow',
+        dateLine: 'Tue 20 Oct',
+        temperature: 55,
+        condition: 'Clear',
+        feelsLike: '55°',
+        glyph: 'sun',
+        gettingReady: 'Getting ready',
+        spokenToday: 'Today',
+        spokenTomorrow: 'Tomorrow',
+        picture: '/ready-future.jpg',
+      );
+      final previous = WidgetContent(
+        days: [_snapshot.withPicture('/ready.jpg'), future],
+        preferred: ForecastDay.tomorrow,
+        savedLine: 'Saved',
+      );
+      final merged = _content.keeping(
+        previous,
+        today: DateTime.utc(2026, 10, 18),
+      );
+      expect(merged.days.map((day) => day.picture), [
+        '/ready.jpg',
+        '/ready-future.jpg',
+      ]);
+      expect(merged.days.first.temperature, _snapshot.temperature);
+      expect(merged.days.first.waitingPhoto, isNull);
+    },
+  );
+
+  test(
+    'an expired background session cannot publish after sharing finishes',
+    () async {
+      var current = true;
+      repository = HomeWidgetRepositoryImpl(
+        dataSource: widget,
+        pictures: pictures,
+        scheduler: scheduler,
+        environment: 'development',
+        logMessages: LogMessagesImpl(),
+        canPublish: () async => current,
+      );
+      when(pictures.share(any)).thenAnswer((_) async {
+        current = false;
+        return {};
+      });
+      await repository.publish(_content);
+      verifyNever(widget.save(HomeWidgetDataSourceImpl.contentKey, any));
+      verifyNever(widget.update());
+    },
+  );
+  test('a scheduler cancellation failure does not leave private widget content visible', () async {
+    when(scheduler.cancel())
+        .thenThrow(CacheException(Exception(), StackTrace.current));
+    expect((await repository.clear()).isLeft(), isTrue);
+    verify(widget.save(HomeWidgetDataSourceImpl.refreshKey, null)).called(1);
+    verify(widget.save(HomeWidgetDataSourceImpl.contentKey, null)).called(1);
+    verify(widget.update()).called(1);
+    verify(pictures.clear()).called(1);
   });
 }

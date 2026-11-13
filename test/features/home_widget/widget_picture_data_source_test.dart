@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:clock/clock.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/persistence/cache_exception.dart';
 import 'package:in_vogue/features/home_widget/data/data_sources/widget_picture_data_source.dart';
@@ -58,9 +59,12 @@ void main() {
     final second = (await pictures.share({outfit.path}))[outfit.path]!;
     expect(second, isNot(first));
     expect(File(second).readAsStringSync(), 'second');
-    expect(File(first).existsSync(), isFalse);
+    expect(File(first).existsSync(), isTrue);
 
-    await pictures.share(<String>{});
+    await withClock(
+      Clock.fixed(DateTime.now().add(const Duration(minutes: 3))),
+      () => pictures.share(<String>{}),
+    );
     expect(shared().listSync(), isEmpty);
   });
 
@@ -97,6 +101,30 @@ void main() {
         await const InPlaceWidgetPictureDataSource().share({'/app/body.png'}),
         {'/app/body.png': '/app/body.png'},
       );
+    },
+  );
+  test(
+    'retained shared pictures keep their path across worker publishes',
+    () async {
+      final body = picture('photos/body.png', 'body');
+      final copy = (await pictures.share({body.path}))[body.path]!;
+      expect(await pictures.share({copy}), {copy: copy});
+    },
+  );
+
+  test(
+    "overlapping engines cannot delete each other's just-published copies",
+    () async {
+      final one = picture('one.jpg', 'one');
+      final two = picture('two.jpg', 'two');
+      final other = AppGroupWidgetPictureDataSource(() async => group.path);
+      final results = await Future.wait([
+        pictures.share({one.path}),
+        other.share({two.path}),
+      ]);
+      for (final result in results) {
+        expect(File(result.values.single).existsSync(), isTrue);
+      }
     },
   );
 }

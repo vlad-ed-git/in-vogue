@@ -73,6 +73,8 @@ class _HomeWidgetSyncState extends State<HomeWidgetSync> {
             language: context.language,
             preferred: state.preferred,
             bodyPhoto: state.photo,
+            accountId: state.accountId,
+            bodyPhotoRevision: state.photoRevision,
             occasions: {
               for (final day in state.days.values)
                 if (day.report?.weather case final weather?)
@@ -116,6 +118,8 @@ class _HomeWidgetSyncState extends State<HomeWidgetSync> {
             before.status != after.status ||
             before.days != after.days ||
             before.photo != after.photo ||
+            before.accountId != after.accountId ||
+            before.photoRevision != after.photoRevision ||
             before.place != after.place ||
             before.preferred != after.preferred,
         listener: (context, state) {

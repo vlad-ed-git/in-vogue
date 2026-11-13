@@ -12,21 +12,33 @@ class WidgetRefreshContext extends Equatable {
     required this.language,
     required this.preferred,
     this.bodyPhoto,
+    this.accountId,
+    this.bodyPhotoRevision,
     this.occasions = const {},
   });
 
   final UserLocation place;
   final SupportedLanguages language;
 
-  /// The day Home opens on: tomorrow with the morning rule, or always today.
+  /// The widget's saved default day, respected at every hour.
   final ForecastDay preferred;
 
   /// Shown faded while a day has no outfit.
   final String? bodyPhoto;
+  final String? accountId;
+  final int? bodyPhotoRevision;
 
   /// Occasions set for dates, midnight UTC, so each day keeps its own.
   final Map<DateTime, Occasion> occasions;
 
   @override
-  List<Object?> get props => [place, language, preferred, bodyPhoto, occasions];
+  List<Object?> get props => [
+    place,
+    language,
+    preferred,
+    bodyPhoto,
+    occasions,
+    accountId,
+    bodyPhotoRevision,
+  ];
 }

@@ -1,7 +1,7 @@
 name: in_vogue
 description: Personal outfits for tomorrow's weather.
 publish_to: none
-version: 0.1.1+2
+version: 0.1.2+3
 
 environment:
   sdk: ^3.13.7

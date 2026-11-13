@@ -97,21 +97,23 @@ void main() {
 
   MakeOutfit makeOutfit({
     String device = 'phone-a',
+    Future<bool> Function()? canContinue,
     Duration passTimeLimit = const Duration(minutes: 4),
   }) => MakeOutfit(
+    canContinue: canContinue,
     catalog: outfits,
     recommend: RecommendOutfit(outfits),
     colours: colours,
     days: days,
     tryOn: tryOn,
     jobs: jobs,
-    photos: photos,
-    saveSetupToAccount: saveSetup,
+    loadBodyPhoto: () => photos.kept(PhotoRole.body),
+    saveSetupToAccount: saveSetup.call,
     installId: InstallId(device),
     checkEvery: Duration.zero,
     passTimeLimit: passTimeLimit,
     taste: taste,
-    recordSignal: recordSignalInto(taste, accountId: 'uid-1'),
+    recordSignal: recordSignalInto(taste, accountId: 'uid-1').call,
   );
 
   // The fake's transactions write without waiting: let the writes land.
@@ -146,6 +148,55 @@ void main() {
 
   TryOnJob? keptJob() =>
       TryOnJobLocalDataSourceImpl(store).jobs()[_params().key];
+
+  test(
+    'pauses before spending units when its background session ended',
+    () async {
+      final updates = await make(
+        maker: makeOutfit(canContinue: () async => false),
+      );
+      expect(updates, [const TryOnPaused()]);
+      expect(await record(), isNull);
+      expect(keptJob(), isNull);
+    },
+  );
+
+  test(
+    'a paused worker resumes its saved YouCam task without starting it twice',
+    () async {
+      var allowed = true;
+      tryOn.onStart = (_) async {
+        allowed = false;
+      };
+      final paused = await make(
+        maker: makeOutfit(canContinue: () async => allowed),
+      );
+      expect(paused.last, const TryOnPaused());
+      expect(tryOn.starts, hasLength(1));
+      expect(keptJob()?.tasks, ['task-1']);
+      tryOn.onStart = null;
+      final resumed = await make();
+      expect(resumed.last, isA<TryOnDone>());
+      expect(tryOn.starts, hasLength(3));
+      expect(tryOn.uploads, hasLength(1));
+    },
+  );
+
+  test(
+    'an unexpected error ends the stream and permits a later retry',
+    () async {
+      tryOn.onStart = (_) async =>
+          throw StateError('unexpected service failure');
+      final maker = makeOutfit();
+      expect(
+        (await make(maker: maker)).last,
+        const TryOnFailed(ServerFailure()),
+      );
+      expect(maker.isMaking(_params()), isFalse);
+      tryOn.onStart = null;
+      expect((await make(maker: maker)).last, isA<TryOnDone>());
+    },
+  );
 
   setUp(() async {
     taste = MemoryTaste();

@@ -1,3 +1,4 @@
+import 'package:in_vogue/core/domain/entities/forecast_day.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_content.dart';
 import 'package:in_vogue/features/home_widget/domain/entities/widget_tap.dart';
@@ -6,6 +7,43 @@ import 'package:in_vogue/features/outfits/domain/entities/try_on_job.dart';
 /// The widget's content as the native widget reads it.
 abstract final class WidgetContentModel {
   static const version = 1;
+
+  /// Reads successful snapshots retained across foreground and background runs.
+  static WidgetContent? fromJson(Object? json) {
+    if (json is! Map<String, Object?>) return null;
+    try {
+      return WidgetContent(
+        preferred: ForecastDay.values.byName(json['preferred'] as String),
+        savedLine: json['savedLine'] as String,
+        days: [
+          for (final day
+              in (json['days'] as List<Object?>).cast<Map<String, Object?>>())
+            WidgetSnapshot(
+              date: DateTime.parse('${day['date']}T00:00:00Z'),
+              occasion: Occasion.values.byName(day['occasion'] as String),
+              today: day['today'] as String,
+              tomorrow: day['tomorrow'] as String,
+              dateLine: day['dateLine'] as String,
+              temperature: day['temperature'] as int,
+              condition: day['condition'] as String,
+              feelsLike: day['feelsLike'] as String,
+              glyph: day['glyph'] as String,
+              picture: day['picture'] as String?,
+              waitingPhoto: day['waitingPhoto'] as String?,
+              gettingReady: day['gettingReady'] as String,
+              spokenToday: day['spokenToday'] as String,
+              spokenTomorrow: day['spokenTomorrow'] as String,
+            ),
+        ],
+      );
+    } on FormatException {
+      return null;
+    } on ArgumentError {
+      return null;
+    } on TypeError {
+      return null;
+    }
+  }
 
   /// [picturePath] tells where the widget reads each picture, null when it
   /// has no copy.

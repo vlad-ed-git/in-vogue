@@ -10,6 +10,9 @@ import 'package:in_vogue/features/home_widget/di/init.dart';
 class _Scheduler implements WidgetRefreshScheduler {
   @override
   Future<void> schedule(Duration delay) async {}
+
+  @override
+  Future<void> cancel() async {}
 }
 
 void main() {

@@ -30,12 +30,15 @@ void main() {
     expect(manifest, contains('android.permission.RECEIVE_BOOT_COMPLETED'));
   });
 
-  test('the provider reads what the app keeps and picks the day as Home '
-      'does', () {
-    expect(provider, contains('"${HomeWidgetDataSourceImpl.contentKey}"'));
-    expect(provider, contains('hour in 6..8'));
-    expect(provider, contains('"today"'));
-  });
+  test(
+    'the provider reads what the app keeps and always respects the default day',
+    () {
+      expect(provider, contains('"${HomeWidgetDataSourceImpl.contentKey}"'));
+      expect(provider, isNot(contains('hour in 6..8')));
+      expect(provider, contains('content.preferred == "today"'));
+      expect(provider, contains('"today"'));
+    },
+  );
 
   test('the widget opens large, resizes down to small, and redraws only '
       'when asked', () {
@@ -73,9 +76,8 @@ void main() {
     expect(provider, isNot(contains('setTextViewTextSize')));
     expect(provider, contains('OPTION_APPWIDGET_MIN_WIDTH'));
     for (final size in ['small', 'medium', 'large']) {
-      final layout = File(
-        '$_res/layout/in_vogue_widget_$size.xml',
-      ).readAsStringSync();
+      final layout = File('$_res/layout/in_vogue_widget_$size.xml')
+          .readAsStringSync();
       final numeral = RegExp(
         r'<ImageView\s+android:id="@\+id/widget_numeral"[^>]*>',
       ).firstMatch(layout)?.group(0);

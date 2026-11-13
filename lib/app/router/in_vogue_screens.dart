@@ -208,6 +208,10 @@ AppScreens inVogueScreens(GetIt locator) => AppScreens(
         },
         child: Builder(
           builder: (context) => SettingsScreen(
+            onDefaultDayChanged: (day) =>
+                context.read<HomeBloc>().add(HomePreferredDayChanged(day)),
+            onSetupChanged: () =>
+                context.read<HomeBloc>().add(const HomeStarted()),
             onLoggedOut: () => context.read<SetupBloc>().add(
               const SetupStepReached(SetupStep.signIn),
             ),

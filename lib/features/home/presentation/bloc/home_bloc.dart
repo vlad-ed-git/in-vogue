@@ -41,6 +41,15 @@ final class HomeStarted extends HomeEvent {
   const HomeStarted();
 }
 
+/// The saved default changed while Settings is open.
+final class HomePreferredDayChanged extends HomeEvent {
+  const HomePreferredDayChanged(this.day);
+  final ForecastDay day;
+
+  @override
+  List<Object?> get props => [day];
+}
+
 /// The person switched to [day].
 final class HomeDaySelected extends HomeEvent {
   const HomeDaySelected(this.day);
@@ -149,6 +158,8 @@ class HomeState extends Equatable {
     this.status = HomeStatus.loading,
     this.place,
     this.photo,
+    this.accountId,
+    this.photoRevision,
     this.selected = ForecastDay.tomorrow,
     this.preferred = ForecastDay.tomorrow,
     this.days = const {},
@@ -160,6 +171,8 @@ class HomeState extends Equatable {
 
   /// The body photo, shown faded while there is no outfit.
   final String? photo;
+  final String? accountId;
+  final int? photoRevision;
 
   /// The day on screen.
   final ForecastDay selected;
@@ -199,9 +212,23 @@ class HomeState extends Equatable {
     status: status,
     place: place,
     photo: photo,
+    accountId: accountId,
+    photoRevision: photoRevision,
     selected: selected,
     preferred: preferred,
     days: {...days, day: value},
+    wardrobe: wardrobe,
+  );
+
+  HomeState withPreferred(ForecastDay day) => HomeState(
+    status: status,
+    place: place,
+    photo: photo,
+    accountId: accountId,
+    photoRevision: photoRevision,
+    selected: selected,
+    preferred: day,
+    days: days,
     wardrobe: wardrobe,
   );
 
@@ -209,6 +236,8 @@ class HomeState extends Equatable {
     status: status,
     place: place,
     photo: photo,
+    accountId: accountId,
+    photoRevision: photoRevision,
     selected: day,
     preferred: preferred,
     days: days,
@@ -219,6 +248,8 @@ class HomeState extends Equatable {
     status: status,
     place: place,
     photo: photo,
+    accountId: accountId,
+    photoRevision: photoRevision,
     selected: selected,
     preferred: preferred,
     days: days,
@@ -230,6 +261,8 @@ class HomeState extends Equatable {
     status,
     place,
     photo,
+    accountId,
+    photoRevision,
     selected,
     preferred,
     days,
@@ -256,6 +289,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     required this._getOccasions,
     required this._setOccasion,
   }) : super(const HomeState()) {
+    on<HomePreferredDayChanged>(
+      (event, emit) => emit(state.withPreferred(event.day)),
+    );
     on<HomeStarted>(_start, transformer: restartable());
     on<HomeDaySelected>(_select);
     on<HomeOccasionChanged>(_changeOccasion, transformer: sequential());
@@ -286,23 +322,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   String? _accountId;
 
   Future<void> _start(HomeStarted event, Emitter<HomeState> emit) async {
-    final account = (await _getCurrentAccount(
-      const NoParams(),
-    )).fold<Account?>((_) => null, (account) => account);
-    final place = (await _getSavedLocation(
-      const NoParams(),
-    )).fold<UserLocation?>((_) => null, (place) => place);
+    final account = (await _getCurrentAccount(const NoParams()))
+        .fold<Account?>((_) => null, (account) => account);
+    final place = (await _getSavedLocation(const NoParams()))
+        .fold<UserLocation?>((_) => null, (place) => place);
     if (account == null || place == null) {
       return emit(const HomeState(status: HomeStatus.failed));
     }
     if (_accountId != account.id) add(_WardrobeFollowed(account.id));
     _accountId = account.id;
-    final photo = (await _getKeptPhoto(
-      PhotoRole.body,
-    )).fold<UserPhoto?>((_) => null, (photo) => photo);
-    final preferred = (await _getDefaultDay(
-      const NoParams(),
-    )).getOrElse(() => ForecastDay.tomorrow);
+    final photo = (await _getKeptPhoto(PhotoRole.body))
+        .fold<UserPhoto?>((_) => null, (photo) => photo);
+    final preferred = (await _getDefaultDay(const NoParams()))
+        .getOrElse(() => ForecastDay.tomorrow);
     // Each date keeps the occasion chosen for it, or the one on screen;
     // which day comes first is only known once the forecast says what time
     // it is there.
@@ -333,6 +365,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       status: HomeStatus.ready,
       place: place,
       photo: photo?.path,
+      accountId: account.id,
+      photoRevision: photo?.revision,
       selected: firstLoad ? shownDay : state.selected,
       preferred: preferred,
       days: state.days,
@@ -403,6 +437,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               ),
               TryOnDone(:final outfit) => OutfitShown(outfit),
               TryOnFailed(:final failure) => OutfitFailed(failure),
+              TryOnPaused() => const OutfitLooking(),
               TryOnElsewhere(:final day) => OutfitMaking(
                 piece: day.piece,
                 pieces: day.pieces,
@@ -423,9 +458,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       onListen: () {
         for (final MapEntry(key: day, value: params) in days.entries) {
           subscriptions.add(
-            _followDay(
-              params,
-            ).listen((update) => merged.add((day, params, update))),
+            _followDay(params)
+                .listen((update) => merged.add((day, params, update))),
           );
         }
       },

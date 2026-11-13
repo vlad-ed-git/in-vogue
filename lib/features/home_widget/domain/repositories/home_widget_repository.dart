@@ -9,7 +9,7 @@ abstract interface class HomeWidgetRepository {
   Future<bool> requestPin();
 
   /// Keeps [content] for the widget and redraws it. With [refresh], also
-  /// keeps what the morning refresh needs and has it run once a day.
+  /// keeps what background refresh needs and registers periodic work.
   Future<Either<Failure, Unit>> publish(
     WidgetContent content, {
     WidgetRefreshContext? refresh,

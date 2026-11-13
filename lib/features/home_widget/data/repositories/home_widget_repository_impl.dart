@@ -18,8 +18,7 @@ import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.da
 
 /// The home-screen widget on Android and iPhone: it shows the content kept
 /// for it, with the day's pictures where it can read them, and picks its day
-/// itself. It changes at each turn of the day and is refreshed each morning
-/// in the background.
+/// itself. It changes at midnight and refreshes in the background.
 class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
   HomeWidgetRepositoryImpl({
     required HomeWidgetDataSource dataSource,
@@ -27,9 +26,11 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
     required this._scheduler,
     required this._environment,
     required LogMessages logMessages,
+    this.canPublish,
   }) : _widget = dataSource,
        _logger = logMessages;
 
+  final Future<bool> Function()? canPublish;
   final HomeWidgetDataSource _widget;
   final WidgetPictureDataSource _pictures;
   final WidgetRefreshScheduler _scheduler;
@@ -70,9 +71,45 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
     WidgetContent content, {
     WidgetRefreshContext? refresh,
   }) => _guard('publish', () async {
+    if (canPublish != null && !await canPublish!()) return;
+    final now = clock.now();
+    final previousRefresh = await savedRefresh();
+    final samePerson =
+        refresh == null ||
+        (previousRefresh?.context.accountId == refresh.accountId &&
+            previousRefresh?.context.bodyPhoto == refresh.bodyPhoto &&
+            previousRefresh?.context.bodyPhotoRevision ==
+                refresh.bodyPhotoRevision &&
+            previousRefresh?.context.place == refresh.place &&
+            previousRefresh?.context.language == refresh.language);
+    WidgetContent? previous;
+    if (samePerson) {
+      final json = await _widget.read(HomeWidgetDataSourceImpl.contentKey);
+      if (json != null) {
+        try {
+          previous = WidgetContentModel.fromJson(jsonDecode(json));
+        } on FormatException {
+          // An unreadable snapshot is replaced by the current results.
+        }
+      }
+    }
+    content = content.keeping(
+      previous,
+      today: DateTime.utc(now.year, now.month, now.day),
+    );
+    if (refresh != null) {
+      await _widget.save(
+        HomeWidgetDataSourceImpl.refreshKey,
+        jsonEncode(
+          WidgetRefreshContextModel.toJson(refresh, environment: _environment),
+        ),
+      );
+      await _scheduler.schedule(WidgetSchedule.untilRefresh(now));
+    }
     final shared = await _pictures.share({
       for (final day in content.days) ...[?day.picture, ?day.waitingPhoto],
     });
+    if (canPublish != null && !await canPublish!()) return;
     await _widget.save(
       HomeWidgetDataSourceImpl.contentKey,
       jsonEncode(
@@ -80,16 +117,7 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
       ),
     );
     await _widget.update();
-    final now = clock.now();
     await _widget.schedule(WidgetSchedule.changesAfter(now));
-    if (refresh == null) return;
-    await _widget.save(
-      HomeWidgetDataSourceImpl.refreshKey,
-      jsonEncode(
-        WidgetRefreshContextModel.toJson(refresh, environment: _environment),
-      ),
-    );
-    await _scheduler.schedule(WidgetSchedule.untilRefresh(now));
   });
 
   /// What the morning refresh needs and the flavor that kept it; null
@@ -110,11 +138,30 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> clear() => _guard('clear', () async {
-    await _widget.save(HomeWidgetDataSourceImpl.contentKey, null);
-    await _widget.update();
-    await _pictures.clear();
-  });
+  Future<Either<Failure, Unit>> clear() {
+    final cleared = _publishing.then((_) => _clear());
+    _publishing = cleared.then<void>((_) {}, onError: (Object _) {});
+    return cleared;
+  }
+
+  Future<Either<Failure, Unit>> _clear() async {
+    var failed = false;
+    for (final action in <Future<void> Function()>[
+      () => _widget.save(HomeWidgetDataSourceImpl.refreshKey, null),
+      _scheduler.cancel,
+      () => _widget.save(HomeWidgetDataSourceImpl.contentKey, null),
+      _widget.update,
+      _pictures.clear,
+    ]) {
+      try {
+        await action();
+      } on CacheException catch (error) {
+        failed = true;
+        _log('clear', error);
+      }
+    }
+    return failed ? const Left(CacheFailure()) : const Right(unit);
+  }
 
   @override
   Stream<WidgetTap> taps() async* {

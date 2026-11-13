@@ -19,9 +19,8 @@ void main() {
 
   setUp(() {
     repository = MockWeatherRepository();
-    when(
-      repository.forecastFor(any),
-    ).thenAnswer((_) async => Right(forecastWith({})));
+    when(repository.forecastFor(any))
+        .thenAnswer((_) async => Right(forecastWith({})));
   });
 
   /// The report at [localTime] in the forecast's place, four hours behind UTC.
@@ -44,6 +43,27 @@ void main() {
     );
     return result.getOrElse(() => throw StateError('$result'));
   }
+
+  test(
+    'prepares the date beyond tomorrow from the three-day forecast',
+    () async {
+      final date = DateTime.utc(2026, 10, 17);
+      final result = await withClock(
+        Clock.fixed(DateTime.utc(2026, 10, 15, 20)),
+        () => GetWeatherReport(repository)(
+          WeatherReportParams(
+            location: _place,
+            day: ForecastDay.tomorrow,
+            date: date,
+            chosen: {date: Occasion.goingOut},
+          ),
+        ),
+      );
+      final report = result.getOrElse(() => throw StateError('$result'));
+      expect(report.weather.date, date);
+      expect(report.weather.occasion, Occasion.goingOut);
+    },
+  );
 
   test('reports tomorrow by default, for its default occasion', () async {
     final report = await reportAt(DateTime.utc(2026, 10, 15, 15, 30));
@@ -109,9 +129,8 @@ void main() {
   });
 
   test('passes on a failure to get the forecast', () async {
-    when(
-      repository.forecastFor(any),
-    ).thenAnswer((_) async => const Left(NetworkFailure()));
+    when(repository.forecastFor(any))
+        .thenAnswer((_) async => const Left(NetworkFailure()));
     final useCase = GetWeatherReport(repository);
     expect(
       await useCase(const WeatherReportParams(location: _place)),

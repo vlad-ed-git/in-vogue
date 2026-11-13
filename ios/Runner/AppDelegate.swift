@@ -8,15 +8,16 @@ import workmanager_apple
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // The widget's morning refresh (WorkmanagerWidgetRefreshScheduler.task) runs
-    // in a background engine with the app's plugins, about daily: iOS picks the
-    // time, and each update of the widget from the app asks for the next 05:30.
+    WorkmanagerPlugin.registerLaunchHandlers()
     WorkmanagerPlugin.setPluginRegistrantCallback { registry in
       GeneratedPluginRegistrant.register(with: registry)
     }
     WorkmanagerPlugin.registerPeriodicTask(
       withIdentifier: "in_vogue_widget_refresh",
-      earliestBeginInSeconds: NSNumber(value: 24 * 60 * 60)
+      earliestBeginInSeconds: NSNumber(value: 6 * 60 * 60)
+    )
+    WorkmanagerPlugin.registerBGProcessingTask(
+      withIdentifier: "in_vogue_outfit_prepare"
     )
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

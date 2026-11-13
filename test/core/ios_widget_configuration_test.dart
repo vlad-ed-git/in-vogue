@@ -38,20 +38,22 @@ void main() {
     }
   });
 
-  test('the widget picks the day as Home does, and changes at the same '
-      'hours', () {
-    expect(swift, contains('(6..<9).contains(hour)'));
-    expect(swift, contains('"today"'));
-    expect(swift, contains('[0, 6, 9]'));
-  });
+  test(
+    'the widget respects the default day all day and rolls over at midnight',
+    () {
+      expect(swift, isNot(contains('(6..<9).contains(hour)')));
+      expect(swift, contains('preferred == "today" ? today : tomorrow'));
+      expect(swift, contains('"today"'));
+      expect(swift, contains('for offset in 1...6'));
+    },
+  );
 
   test('it comes Small, Medium and Large, from iOS 17', () {
     for (final family in ['.systemSmall', '.systemMedium', '.systemLarge']) {
       expect(swift, contains(family));
     }
-    final project = File(
-      'ios/Runner.xcodeproj/project.pbxproj',
-    ).readAsStringSync();
+    final project = File('ios/Runner.xcodeproj/project.pbxproj')
+        .readAsStringSync();
     expect(
       'IPHONEOS_DEPLOYMENT_TARGET = 17.0;'.allMatches(project),
       hasLength(6),
@@ -62,9 +64,8 @@ void main() {
     for (final glyph in WeatherGlyphType.values) {
       final name = 'widget_glyph_${glyph.specName.replaceAll('-', '_')}';
       expect(
-        File(
-          '$_extension/Assets.xcassets/$name.imageset/$name.svg',
-        ).readAsStringSync(),
+        File('$_extension/Assets.xcassets/$name.imageset/$name.svg')
+            .readAsStringSync(),
         contains(weatherStillPaths[glyph.specName]),
         reason: glyph.specName,
       );
@@ -100,9 +101,9 @@ void main() {
   });
 
   test('the numeral stays on one line and shrinks to fit any width', () {
-    final numeral = RegExp(
-      r'struct Numeral: View \{[\s\S]*?\n\}',
-    ).firstMatch(swift)!.group(0)!;
+    final numeral = RegExp(r'struct Numeral: View \{[\s\S]*?\n\}')
+        .firstMatch(swift)!
+        .group(0)!;
     expect(numeral, contains('.lineLimit(1)'));
     expect(numeral, contains('.minimumScaleFactor(0.25)'));
   });
@@ -125,4 +126,17 @@ void main() {
       expect(swift, contains('"$postScriptName"'));
     }
   });
+
+  test(
+    'outfit generation has a processing task registered before launch ends',
+    () {
+      final info = File('ios/Runner/Info.plist').readAsStringSync();
+      final delegate = File('ios/Runner/AppDelegate.swift').readAsStringSync();
+      expect(info, contains('<string>in_vogue_outfit_prepare</string>'));
+      expect(info, contains('<string>processing</string>'));
+      expect(delegate, contains('registerBGProcessingTask('));
+      expect(delegate, contains('withIdentifier: "in_vogue_outfit_prepare"'));
+      expect(delegate, contains('WorkmanagerPlugin.registerLaunchHandlers()'));
+    },
+  );
 }

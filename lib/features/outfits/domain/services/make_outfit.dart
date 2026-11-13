@@ -7,8 +7,8 @@ import 'package:equatable/equatable.dart';
 import 'package:in_vogue/core/domain/entities/install_id.dart';
 import 'package:in_vogue/core/domain/entities/occasion.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
+import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/domain/utils/latest_updates.dart';
-import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
 import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/catalog/domain/repositories/outfit_catalog_repository.dart';
 import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
@@ -21,16 +21,13 @@ import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_job_repository.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/try_on_repository.dart';
-import 'package:in_vogue/features/photos/domain/entities/photo_role.dart';
 import 'package:in_vogue/features/photos/domain/entities/user_photo.dart';
-import 'package:in_vogue/features/photos/domain/repositories/photo_repository.dart';
 import 'package:in_vogue/features/stylist/domain/entities/recommendation.dart';
 import 'package:in_vogue/features/stylist/domain/entities/taste_signal.dart';
 import 'package:in_vogue/features/stylist/domain/repositories/taste_repository.dart';
 import 'package:in_vogue/features/stylist/domain/services/outfit_scorer.dart';
 import 'package:in_vogue/features/stylist/domain/services/taste_model.dart';
 import 'package:in_vogue/features/stylist/domain/usecases/recommend_outfit.dart';
-import 'package:in_vogue/features/stylist/domain/usecases/record_signal.dart';
 import 'package:in_vogue/features/weather/domain/entities/day_bands.dart';
 
 class MakeOutfitParams extends Equatable {
@@ -83,9 +80,11 @@ class MakeOutfit {
     required this._days,
     required this._tryOn,
     required this._jobs,
-    required this._photos,
+    required this._loadBodyPhoto,
     required this._saveSetupToAccount,
     required InstallId installId,
+    this._canContinue,
+    this._logMessages,
     this._checkEvery = const Duration(seconds: 5),
     this._passTimeLimit = const Duration(minutes: 4),
   }) : _device = installId.value;
@@ -94,12 +93,14 @@ class MakeOutfit {
   final RecommendOutfit _recommend;
   final ColourProfileRepository _colours;
   final TasteRepository _taste;
-  final RecordSignal _recordSignal;
+  final Future<Either<Failure, Unit>> Function(TasteSignal) _recordSignal;
   final DayRepository _days;
   final TryOnRepository _tryOn;
   final TryOnJobRepository _jobs;
-  final PhotoRepository _photos;
-  final SaveSetupToAccount _saveSetupToAccount;
+  final Future<Either<Failure, UserPhoto?>> Function() _loadBodyPhoto;
+  final Future<bool> Function()? _canContinue;
+  final LogMessages? _logMessages;
+  final Future<Either<Failure, Unit>> Function(String) _saveSetupToAccount;
   final String _device;
   final Duration _checkEvery;
   final Duration _passTimeLimit;
@@ -125,7 +126,7 @@ class MakeOutfit {
     final making = _making.putIfAbsent(params.key, () {
       final making = LatestUpdates<TryOnUpdate>();
       unawaited(
-        _make(params, making.add).then((last) {
+        _run(params, making.add).then((last) {
           _making.remove(params.key);
           making
             ..add(last)
@@ -140,6 +141,32 @@ class MakeOutfit {
   /// Whether this phone is making [params]'s outfit now.
   bool isMaking(MakeOutfitParams params) => _making.containsKey(params.key);
 
+  Future<void> _continue() async {
+    if (_canContinue != null && !await _canContinue()) {
+      throw const _PauseMaking();
+    }
+  }
+
+  Future<TryOnUpdate> _run(
+    MakeOutfitParams params,
+    void Function(TryOnUpdate) report,
+  ) async {
+    try {
+      await _continue();
+      return await _make(params, report);
+    } on _PauseMaking {
+      return const TryOnPaused();
+    } on Object catch (error, stack) {
+      _logMessages?.logError(
+        callerClass: 'MakeOutfit',
+        callerMethod: 'make',
+        error: error,
+        stackTrace: stack,
+      );
+      return const TryOnFailed(ServerFailure());
+    }
+  }
+
   Future<TryOnUpdate> _make(
     MakeOutfitParams params,
     void Function(TryOnUpdate update) report,
@@ -148,9 +175,10 @@ class MakeOutfit {
     if (!_tryOn.available) {
       return const TryOnFailed(TryOnFailure(TryOnProblem.unavailable));
     }
-    final body = (await _photos.kept(
-      PhotoRole.body,
-    )).fold<UserPhoto?>((_) => null, (photo) => photo);
+    final body = (await _loadBodyPhoto()).fold<UserPhoto?>(
+      (_) => null,
+      (photo) => photo,
+    );
     if (body == null) {
       return const TryOnFailed(TryOnFailure(TryOnProblem.photo));
     }
@@ -160,6 +188,7 @@ class MakeOutfit {
     // Pieces whose photo the try-on refused in this making; never kept.
     final refusedPieces = <String>{};
     for (var tried = 1; ; tried++) {
+      await _continue();
       final claimed = await _oneAtATime(
         () => _claim(
           params,
@@ -200,9 +229,11 @@ class MakeOutfit {
         report,
         refusedPieces,
       );
-      if (made case TryOnFailed(
-        failure: TryOnFailure(problem: TryOnProblem.reference),
-      ) when tried < outfitAttempts) {
+      if (made
+          case TryOnFailed(
+            failure: TryOnFailure(problem: TryOnProblem.reference),
+          )
+          when tried < outfitAttempts) {
         replaced = day;
         continue;
       }
@@ -231,7 +262,9 @@ class MakeOutfit {
       return _reused(params, day, outfit, path);
     }
 
-    var job = await _resumable(params, day, body);
+    final resumed = await _resumable(params, day, body);
+    if (resumed case Left(value: final failure)) return TryOnFailed(failure);
+    var job = resumed.getOrElse(() => null);
     if (job == null) {
       job = TryOnJob(
         accountId: params.accountId,
@@ -248,6 +281,7 @@ class MakeOutfit {
     String? pictureUrl;
     final passes = outfit.passes;
     for (var index = 0; index < passes.length; index++) {
+      await _continue();
       report(TryOnProgress(piece: index + 1, pieces: passes.length));
       final still = await _days.progress(
         params.accountId,
@@ -264,12 +298,14 @@ class MakeOutfit {
       } else {
         String? fileId;
         if (pictureUrl == null) {
+          await _continue();
           final uploaded = await _tryOn.upload(body.path);
           if (uploaded case Left(value: final failure)) {
             return TryOnFailed(failure);
           }
           fileId = uploaded.getOrElse(() => throw StateError('uploaded'));
         }
+        await _continue();
         final started = await _tryOn.start(
           passes[index],
           fileId: fileId,
@@ -280,7 +316,8 @@ class MakeOutfit {
         }
         task = started.getOrElse(() => throw StateError('started'));
         job = job.started(task, clock.now());
-        await _jobs.save(job);
+        final saved = await _jobs.save(job);
+        if (saved case Left(value: final failure)) return TryOnFailed(failure);
       }
       final finished = await _finish(task);
       if (finished case Left(value: final failure)) {
@@ -298,8 +335,10 @@ class MakeOutfit {
       pictureUrl = finished.getOrElse(() => throw StateError('finished'));
     }
 
+    await _continue();
     final picture = await _tryOn.download(pictureUrl!);
     if (picture case Left(value: final failure)) return TryOnFailed(failure);
+    await _continue();
     final kept = await _days.finish(
       params.accountId,
       day,
@@ -514,9 +553,8 @@ class MakeOutfit {
 
   /// The person's colour season, from a clear reading only.
   Future<ColourSeason?> _season(String accountId) async {
-    final colours = (await _colours.latest(
-      accountId,
-    )).fold((_) => null, (colours) => colours);
+    final colours = (await _colours.latest(accountId))
+        .fold((_) => null, (colours) => colours);
     if (colours == null) return null;
     final reading = SeasonRules.readingOf(colours);
     return reading.clear ? reading.season : null;
@@ -546,23 +584,23 @@ class MakeOutfit {
   /// The kept job of [params] when it can go on: for the day's outfit and
   /// the same body photo, with its pictures still downloadable. Any other
   /// is dropped.
-  Future<TryOnJob?> _resumable(
+  Future<Either<Failure, TryOnJob?>> _resumable(
     MakeOutfitParams params,
     Day day,
     UserPhoto body,
   ) async {
-    final job = (await _jobs.job(
-      params.key,
-    )).fold<TryOnJob?>((_) => null, (job) => job);
-    if (job == null) return null;
+    final result = await _jobs.job(params.key);
+    if (result case Left(value: final failure)) return Left(failure);
+    final job = result.getOrElse(() => null);
+    if (job == null) return const Right(null);
     final fresh = clock.now().difference(job.updatedAt) < pictureLifetime;
     if (fresh &&
         job.outfitId == day.outfitId &&
         job.photoRevision == body.revision) {
-      return job;
+      return Right(job);
     }
-    await _jobs.clear(job.key);
-    return null;
+    final cleared = await _jobs.clear(job.key);
+    return cleared.map((_) => null);
   }
 
   /// Waits for [task]; its picture's URL. A [TryOnFailure] when the task
@@ -570,6 +608,7 @@ class MakeOutfit {
   Future<Either<Failure, String>> _finish(String task) async {
     final deadline = clock.now().add(_passTimeLimit);
     while (true) {
+      await _continue();
       final checked = await _tryOn.check(task);
       if (checked case Left(value: final failure)) return Left(failure);
       switch (checked.getOrElse(() => const TryOnRunning())) {
@@ -585,4 +624,8 @@ class MakeOutfit {
       }
     }
   }
+}
+
+class _PauseMaking implements Exception {
+  const _PauseMaking();
 }

@@ -30,6 +30,8 @@ class SettingsScreen extends StatelessWidget {
     required this.onAccountDeleted,
     required this.bodyPhoto,
     required this.onAddWidget,
+    this.onDefaultDayChanged,
+    this.onSetupChanged,
     super.key,
   });
 
@@ -44,10 +46,18 @@ class SettingsScreen extends StatelessWidget {
 
   /// Asks the launcher to place the widget; false when it can't.
   final Future<bool> Function() onAddWidget;
+  final ValueChanged<ForecastDay>? onDefaultDayChanged;
+  final VoidCallback? onSetupChanged;
 
   @override
   Widget build(BuildContext context) => MultiBlocListener(
     listeners: [
+      BlocListener<SettingsBloc, SettingsState>(
+        listenWhen: (previous, current) =>
+            previous.defaultDay != current.defaultDay,
+        listener: (context, state) =>
+            onDefaultDayChanged?.call(state.defaultDay),
+      ),
       BlocListener<LogOutBloc, LogOutState>(
         listenWhen: (previous, current) => previous != current,
         listener: (context, state) {
@@ -81,6 +91,7 @@ class SettingsScreen extends StatelessWidget {
         listener: (context, state) {
           if (state.status == LocationStatus.located) {
             context.read<SettingsBloc>().add(const SettingsSetupChanged());
+            onSetupChanged?.call();
           }
           if (state.failure != null) _fail(context, state.failure!);
         },
@@ -101,7 +112,7 @@ class SettingsScreen extends StatelessWidget {
                   const _ProfileRow(),
                   BlocProvider(
                     create: (_) => bodyPhoto()..add(const PhotoLoaded()),
-                    child: const _PhotoRow(PhotoRole.body),
+                    child: _PhotoRow(PhotoRole.body, onChanged: onSetupChanged),
                   ),
                   const _PhotoRow(PhotoRole.face),
                   const _MembershipRow(),
@@ -275,7 +286,8 @@ class _NameSheetState extends State<_NameSheet> {
 /// A face photo replacing another offers to redo the skin analysis, which
 /// otherwise keeps the colours already read.
 class _PhotoRow extends StatefulWidget {
-  const _PhotoRow(this.role);
+  const _PhotoRow(this.role, {this.onChanged});
+  final VoidCallback? onChanged;
 
   final PhotoRole role;
 
@@ -319,6 +331,7 @@ class _PhotoRowState extends State<_PhotoRow> {
         }
         if (state.status == PhotoStatus.confirmed) {
           context.read<SettingsBloc>().add(const SettingsSetupChanged());
+          widget.onChanged?.call();
           if (state.converted) context.showSnack(message: l10n.photoConverted);
           if (face && _kept != null && _kept != state.path) {
             unawaited(_offerRedo());

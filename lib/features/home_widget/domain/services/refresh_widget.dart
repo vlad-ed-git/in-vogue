@@ -5,18 +5,20 @@ import 'package:in_vogue/features/home_widget/domain/entities/widget_refresh_con
 import 'package:in_vogue/features/home_widget/domain/repositories/home_widget_repository.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day.dart';
 import 'package:in_vogue/features/outfits/domain/entities/day_outfit.dart';
+import 'package:in_vogue/features/outfits/domain/entities/try_on_update.dart';
 import 'package:in_vogue/features/outfits/domain/repositories/day_repository.dart';
+import 'package:in_vogue/features/outfits/domain/services/make_outfit.dart';
 import 'package:in_vogue/features/weather/domain/entities/weather_report.dart';
 import 'package:in_vogue/features/weather/domain/usecases/get_weather_report.dart';
 
 /// Turns the widget's days into the content it shows, in the person's
 /// language.
-typedef DescribeWidget =
-    WidgetContent Function(List<WidgetDay> days, WidgetRefreshContext context);
+typedef DescribeWidget = WidgetContent Function(
+  List<WidgetDay> days,
+  WidgetRefreshContext context,
+);
 
-/// The morning refresh: today's and tomorrow's weather again, each day in
-/// its own occasion, with the picture of a day already made, on another
-/// phone too, fetched when the phone lacks it. It never makes an outfit.
+/// Refreshes both days and optionally prepares their missing outfits.
 class RefreshWidget {
   RefreshWidget({
     required this._getWeatherReport,
@@ -25,6 +27,10 @@ class RefreshWidget {
     required this._widget,
     required this._accountId,
     required this._describe,
+    this._makeOutfit,
+    this._stillCurrent,
+    this.lookAhead = false,
+    this.loadOutfits = true,
   });
 
   final GetWeatherReport _getWeatherReport;
@@ -33,10 +39,18 @@ class RefreshWidget {
   final HomeWidgetRepository _widget;
   final String? _accountId;
   final DescribeWidget _describe;
+  final bool lookAhead;
+  final bool loadOutfits;
+  final Stream<TryOnUpdate> Function(MakeOutfitParams)? _makeOutfit;
+  final Future<bool> Function()? _stillCurrent;
+
+  Future<bool> _current() async => await _stillCurrent?.call() ?? true;
 
   /// Redraws the widget; without any weather it keeps what it shows.
-  Future<void> call(WidgetRefreshContext context) async {
+  Future<bool> call(WidgetRefreshContext context) async {
+    if (!await _current()) return true;
     final days = <WidgetDay>[];
+    var complete = true;
     for (final day in ForecastDay.values) {
       final report = (await _getWeatherReport(
         WeatherReportParams(
@@ -45,11 +59,78 @@ class RefreshWidget {
           chosen: context.occasions,
         ),
       )).fold<WeatherReport?>((_) => null, (report) => report);
-      if (report == null) continue;
-      days.add((report: report, outfit: await _made(report)));
+      if (report == null) {
+        complete = false;
+        continue;
+      }
+      days.add((
+        report: report,
+        outfit: loadOutfits ? await _made(report) : null,
+      ));
     }
-    if (days.isEmpty) return;
-    await _widget.publish(_describe(days, context));
+    if (lookAhead && days.isNotEmpty) {
+      final first = days.first.report;
+      final date = first.weather.date.add(
+        Duration(days: first.day == ForecastDay.today ? 2 : 1),
+      );
+      final next = (await _getWeatherReport(
+        WeatherReportParams(
+          location: context.place,
+          day: ForecastDay.tomorrow,
+          date: date,
+          chosen: context.occasions,
+        ),
+      )).fold<WeatherReport?>((_) => null, (report) => report);
+      if (next != null) {
+        days.add((
+          report: next,
+          outfit: loadOutfits ? await _made(next) : null,
+        ));
+      } else {
+        complete = false;
+      }
+    }
+    if (days.isEmpty) return false;
+    if (!await _current()) return true;
+    if ((await _widget.publish(_describe(days, context))).isLeft()) {
+      complete = false;
+    }
+    final make = _makeOutfit;
+    final account = _accountId;
+    if (make == null || account == null) return complete;
+    final order = [for (var i = 0; i < days.length; i++) i];
+    final preferred = days.indexWhere(
+      (day) => day.report.day == context.preferred,
+    );
+    if (preferred > 0) {
+      order
+        ..remove(preferred)
+        ..insert(0, preferred);
+    }
+    for (final index in order) {
+      if (!await _current()) return true;
+      final day = days[index];
+      if (day.outfit != null) continue;
+      final result = await make(
+        MakeOutfitParams(
+          accountId: account,
+          date: day.report.weather.date,
+          occasion: day.report.weather.occasion,
+          bands: day.report.bands,
+        ),
+      ).last;
+      if (result case TryOnDone(:final outfit)) {
+        days[index] = (report: day.report, outfit: outfit);
+        if (!await _current()) return true;
+        if ((await _widget.publish(_describe(days, context))).isLeft()) {
+          complete = false;
+        }
+      } else {
+        complete = false;
+        if (result is TryOnPaused) break;
+      }
+    }
+    return complete;
   }
 
   /// The outfit of [report]'s day once made, its picture on the phone.
