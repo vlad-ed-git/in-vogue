@@ -27,6 +27,9 @@ class _FakeRemote implements OutfitCatalogRemoteDataSource {
   int serverVersion = 2;
   List<Map<String, Object?>> documents = [];
   Exception? failure;
+
+  /// What fetching outfits alone throws, while set.
+  Exception? fetchFailure;
   int versions = 0, samples = 0, wholes = 0;
 
   Future<T> _answer<T>(T value) async {
@@ -43,6 +46,7 @@ class _FakeRemote implements OutfitCatalogRemoteDataSource {
   @override
   Future<List<Map<String, Object?>>> sample() {
     samples++;
+    if (fetchFailure case final failure?) throw failure;
     return _answer([
       for (final doc in documents)
         if (doc['sample'] == true) doc,
@@ -52,6 +56,7 @@ class _FakeRemote implements OutfitCatalogRemoteDataSource {
   @override
   Future<List<Map<String, Object?>>> outfits() {
     wholes++;
+    if (fetchFailure case final failure?) throw failure;
     return _answer(documents);
   }
 }
@@ -281,6 +286,16 @@ void main() {
         expect(ids(await catalog.sample()), ['o2', 'o3']);
       },
     );
+
+    test('a refused fetch of a newer catalog uses the copy kept, and is '
+        'reported', () async {
+      await repository().outfits();
+      remote
+        ..serverVersion = 3
+        ..fetchFailure = ServerException('permission-denied', StackTrace.empty);
+      expect(ids(await repository().outfits()), ['o1', 'o2', 'o3']);
+      expect(log.errors, isNotEmpty);
+    });
 
     test('a refused read is a server failure, and is reported', () async {
       remote.failure = ServerException('permission-denied', StackTrace.empty);

@@ -92,7 +92,9 @@ class OutfitCatalogRepositoryImpl implements OutfitCatalogRepository {
           : const Left(NetworkFailure());
     } on ServerException catch (error) {
       _log('fetch', error.cause, error.stackTrace);
-      return const Left(ServerFailure());
+      return kept != null && (kept.whole || !whole)
+          ? Right(kept.outfits)
+          : const Left(ServerFailure());
     }
   }
 
