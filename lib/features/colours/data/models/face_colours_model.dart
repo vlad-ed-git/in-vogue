@@ -6,6 +6,16 @@ import 'package:in_vogue/features/colours/domain/entities/face_colours.dart';
 abstract final class FaceColoursModel {
   static final _hex = RegExp(r'^#[0-9a-fA-F]{6}$');
 
+  /// The colours older builds kept as a reading when an analysis's colours
+  /// couldn't be read.
+  static const _standIn = FaceColours(
+    skin: '#C69C82',
+    eyebrow: '#4A3628',
+    lip: '#B5726E',
+    hair: '#4A3628',
+    clear: false,
+  );
+
   /// The colours in an analysis's [results]; null when they can't be read.
   /// The analysis refuses photos it can't read, so a success that reports
   /// no face quality is clear.
@@ -71,23 +81,27 @@ abstract final class FaceColoursModel {
     'clear': colours.clear,
   };
 
-  /// Null when [json] is not readable colours.
-  static FaceColours? fromJson(Map<String, Object?> json) => switch (json) {
-    {
-      'skin': final String skin,
-      'eyebrow': final String eyebrow,
-      'lip': final String lip,
-      'hair': final String hair,
-      'clear': final bool clear,
-    } =>
-      FaceColours(
-        skin: skin,
-        eyebrow: eyebrow,
-        lip: lip,
-        hair: hair,
-        eye: json['eye'] is String ? json['eye']! as String : null,
-        clear: clear,
-      ),
-    _ => null,
-  };
+  /// Null when [json] is not readable colours, or is the stand-in older
+  /// builds kept for colours they couldn't read.
+  static FaceColours? fromJson(Map<String, Object?> json) {
+    final colours = switch (json) {
+      {
+        'skin': final String skin,
+        'eyebrow': final String eyebrow,
+        'lip': final String lip,
+        'hair': final String hair,
+        'clear': final bool clear,
+      } =>
+        FaceColours(
+          skin: skin,
+          eyebrow: eyebrow,
+          lip: lip,
+          hair: hair,
+          eye: json['eye'] is String ? json['eye']! as String : null,
+          clear: clear,
+        ),
+      _ => null,
+    };
+    return colours == _standIn ? null : colours;
+  }
 }

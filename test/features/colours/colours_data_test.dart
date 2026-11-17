@@ -89,6 +89,29 @@ void main() {
       expect(FaceColoursModel.outline(null), 'Null');
     });
 
+    test('drops the stand-in that older builds kept for unread colours', () {
+      expect(
+        FaceColoursModel.fromJson({
+          'skin': '#C69C82',
+          'eyebrow': '#4A3628',
+          'lip': '#B5726E',
+          'hair': '#4A3628',
+          'clear': false,
+        }),
+        isNull,
+      );
+      expect(
+        FaceColoursModel.fromJson({
+          'skin': '#C69C82',
+          'eyebrow': '#4A3628',
+          'lip': '#B5726E',
+          'hair': '#4A3628',
+          'clear': true,
+        }),
+        isNotNull,
+      );
+    });
+
     test('keeps the colours on the account as they are, eyes or none', () {
       expect(
         FaceColoursModel.fromJson(FaceColoursModel.toJson(_colours)),
