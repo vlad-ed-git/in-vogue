@@ -49,10 +49,10 @@ class GetWeatherReport implements UseCase<WeatherReport, WeatherReportParams> {
   ) async {
     final result = await _repository.forecastFor(params.location);
     return result.flatMap((forecast) {
+      // The phone's clock: the person's time, wherever the place is.
       final now = clock.now();
-      final local = forecast.localTime(now);
-      final day = params.day ?? ForecastDay.shownAt(local);
-      final date = params.date ?? day.dateFrom(local);
+      final day = params.day ?? ForecastDay.shownAt(now);
+      final date = params.date ?? day.dateFrom(now);
       final occasion =
           params.occasion ?? params.chosen[date] ?? Occasion.defaultFor(date);
       final weather = DayWeatherRules.summarize(

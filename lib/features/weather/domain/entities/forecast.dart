@@ -18,9 +18,6 @@ class Forecast extends Equatable {
   /// When the forecast was fetched, in UTC.
   final DateTime fetchedAt;
 
-  /// The place's wall-clock time at the instant [now], held in UTC.
-  DateTime localTime(DateTime now) => now.toUtc().add(utcOffset);
-
   @override
   List<Object?> get props => [hours, utcOffset, fetchedAt];
 }

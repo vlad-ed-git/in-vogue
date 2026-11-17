@@ -86,6 +86,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
 - Clothes only: no shoes, bags or accessories, and people keep their own shoes. Never hair changes.
 - Outfits come from the whole collection. Loved outfits add weight; never-suggested outfits come first, then the one suggested longest ago.
 - English unless the person picks another language; never follow the phone's.
+- Time is the phone's clock, throughout: Home and the widget take today and its date from it, wherever the saved place is (owner, November 17).
 - Never save or cache an error or failure, anywhere: not in Firestore, on the phone or in memory. Caches keep results only; a failure is shown and the next try asks again (owner, October 20).
 - A day whose outfit the catalog no longer has gets another one from the recommender (owner, October 20).
 

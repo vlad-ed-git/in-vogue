@@ -23,15 +23,15 @@ void main() {
         .thenAnswer((_) async => Right(forecastWith({})));
   });
 
-  /// The report at [localTime] in the forecast's place, four hours behind UTC.
+  /// The report when the phone's clock reads [time].
   Future<WeatherReport> reportAt(
-    DateTime localTime, {
+    DateTime time, {
     ForecastDay? day,
     Occasion? occasion,
     Map<DateTime, Occasion> chosen = const {},
   }) async {
     final result = await withClock(
-      Clock.fixed(localTime.add(const Duration(hours: 4))),
+      Clock.fixed(time),
       () => GetWeatherReport(repository)(
         WeatherReportParams(
           location: _place,
@@ -109,11 +109,20 @@ void main() {
   });
 
   test('marks a forecast an hour old or more as saved', () async {
-    final report = await reportAt(DateTime.utc(2026, 10, 15, 15));
+    final report = await reportAt(forecastFetchedAt);
     expect(report.fetchedAt, forecastFetchedAt);
     expect(report.isSaved, isFalse);
-    final later = await reportAt(DateTime.utc(2026, 10, 15, 16));
+    final later = await reportAt(
+      forecastFetchedAt.add(const Duration(hours: 1)),
+    );
     expect(later.isSaved, isTrue);
+  });
+
+  test("takes the day from the phone's clock, wherever the place is", () async {
+    // 07:30 on the phone, 03:30 at the place, four hours behind.
+    final report = await reportAt(DateTime.utc(2026, 10, 16, 7, 30));
+    expect(report.day, ForecastDay.today);
+    expect(report.weather.date, DateTime.utc(2026, 10, 16));
   });
 
   test('fails when the forecast does not reach the day', () async {
