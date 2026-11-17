@@ -149,7 +149,9 @@ Future<bool> refreshWidgetInBackground(
   // No account this engine can see, or another one: skips this run and
   // keeps the schedule.
   if (user == null || user.uid != saved.context.accountId) return true;
-  final deadline = clock.now().add(const Duration(minutes: 7));
+  final deadline = clock.now().add(
+    Platform.isIOS ? iPhoneOutfitTime : androidOutfitTime,
+  );
   Future<bool> canContinue() async =>
       clock.now().isBefore(deadline) && await stillCurrent();
   final weatherClient = Dio(

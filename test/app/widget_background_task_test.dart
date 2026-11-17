@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/app/widget_background_task.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
@@ -62,6 +64,43 @@ void main() {
       );
     },
   );
+
+  testWidgets('iPhone\'s short refresh stops at its time limit', (
+    tester,
+  ) async {
+    bool? done;
+    unawaited(
+      run(
+        isIOS: true,
+        refresh: (_, _) => Completer<bool>().future,
+      ).then((result) => done = result),
+    );
+    await tester.pump(iPhoneRefreshTimeLimit - const Duration(seconds: 1));
+    expect(done, isNull);
+    await tester.pump(const Duration(seconds: 1));
+    expect(done, isFalse);
+  });
+
+  testWidgets('outfit preparation has no such limit, on either platform', (
+    tester,
+  ) async {
+    final done = <bool>[];
+    for (final (task, isIOS) in [
+      (WorkmanagerWidgetRefreshScheduler.outfitTask, true),
+      (WorkmanagerWidgetRefreshScheduler.task, false),
+    ]) {
+      unawaited(
+        run(
+          task: task,
+          isIOS: isIOS,
+          refresh: (_, _) =>
+              Future.delayed(const Duration(minutes: 3), () => true),
+        ).then(done.add),
+      );
+    }
+    await tester.pump(const Duration(minutes: 3));
+    expect(done, [true, true]);
+  });
 
   test(
     'unknown tasks and mismatched flavors never run Firebase or YouCam',
