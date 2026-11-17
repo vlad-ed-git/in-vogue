@@ -11,6 +11,7 @@ import 'package:in_vogue/features/stylist/domain/repositories/taste_repository.d
 
 /// Signals on the phone in Hive, and on the account in Firestore. Both
 /// only grow, and a signal is known by its id, so phones merge by union.
+/// The phone remembers which the account has, and sends only the others.
 class TasteRepositoryImpl implements TasteRepository {
   TasteRepositoryImpl({
     required this._local,
@@ -52,23 +53,36 @@ class TasteRepositoryImpl implements TasteRepository {
           for (final signal in saved)
             if (known.add(signal.id)) signal,
         ];
-        if (added.isEmpty) return unit;
-        await _local.save([
-          for (final signal in [...kept, ...added])
-            TasteSignalModel.toJson(signal),
-        ]);
+        if (added.isNotEmpty) {
+          await _local.save([
+            for (final signal in [...kept, ...added])
+              TasteSignalModel.toJson(signal),
+          ]);
+        }
+        await _local.saveSynced({
+          ..._local.synced(),
+          for (final signal in saved) signal.id,
+        });
         return unit;
       });
 
   @override
   Future<Either<Failure, Unit>> save(String accountId) =>
       _guard('save', () async {
-        final kept = _read(_local.signals());
-        if (kept.isNotEmpty) {
-          await _remote.add(accountId, [
-            for (final signal in kept) TasteSignalModel.toJson(signal),
-          ]);
-        }
+        final synced = _local.synced();
+        final unsent = [
+          for (final signal in _read(_local.signals()))
+            if (!synced.contains(signal.id)) signal,
+        ];
+        if (unsent.isEmpty) return unit;
+        await _remote.add(accountId, [
+          for (final signal in unsent) TasteSignalModel.toJson(signal),
+        ]);
+        // Read again: a restore may have added some meanwhile.
+        await _local.saveSynced({
+          ..._local.synced(),
+          for (final signal in unsent) signal.id,
+        });
         return unit;
       });
 

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
+import 'package:in_vogue/core/network/network_exceptions.dart';
 import 'package:in_vogue/features/catalog/domain/entities/catalog_outfit.dart';
 import 'package:in_vogue/features/stylist/data/data_sources/taste_local_data_source.dart';
 import 'package:in_vogue/features/stylist/data/data_sources/taste_remote_data_source.dart';
@@ -29,6 +30,29 @@ TasteSignal _signal(
   outfitId: outfit,
   families: families,
 );
+
+/// The account's signals, keeping what each save sent.
+class _RecordingRemote implements TasteRemoteDataSource {
+  _RecordingRemote(this._remote);
+  final TasteRemoteDataSource _remote;
+  final sent = <List<String>>[];
+
+  /// Whether the next save fails.
+  var offline = false;
+
+  @override
+  Future<List<Object?>> signals(String accountId) => _remote.signals(accountId);
+
+  @override
+  Future<void> add(String accountId, List<Map<String, Object?>> signals) {
+    if (offline) {
+      offline = false;
+      throw NetworkException(Exception('offline'), StackTrace.empty);
+    }
+    sent.add([for (final signal in signals) signal['id']! as String]);
+    return _remote.add(accountId, signals);
+  }
+}
 
 void main() {
   final catalog = catalogFixture;
@@ -221,6 +245,36 @@ void main() {
       await taste.keep(_signal('b', TasteSignalKind.loved, outfit: 'o2'));
       await restoring;
       expect(await ids(taste), ['b', 'a']);
+    });
+
+    test('a save sends only what the account doesn’t have yet', () async {
+      final remote = _RecordingRemote(TasteRemoteDataSourceImpl(firestore));
+      TasteRepositoryImpl phoneWith(MemoryStore store) => TasteRepositoryImpl(
+        local: TasteLocalDataSourceImpl(store),
+        remote: remote,
+        logMessages: LogMessagesImpl(),
+      );
+      final other = phoneWith(MemoryStore());
+      await other.keep(_signal('a', TasteSignalKind.picked, outfit: 'o1'));
+      await other.save('uid-1');
+      final taste = phoneWith(phone);
+      await taste.restore('uid-1');
+      await taste.keep(_signal('b', TasteSignalKind.loved, outfit: 'o2'));
+      remote.offline = true;
+      await taste.save('uid-1');
+      await taste.save('uid-1');
+      await taste.keep(_signal('c', TasteSignalKind.kept, outfit: 'o3'));
+      await taste.save('uid-1');
+      await taste.save('uid-1');
+      expect(remote.sent, [
+        ['a'],
+        ['b'],
+        ['c'],
+      ]);
+      await taste.clear();
+      await taste.keep(_signal('c', TasteSignalKind.kept, outfit: 'o3'));
+      await taste.save('uid-1');
+      expect(remote.sent.last, ['c']);
     });
 
     test(
