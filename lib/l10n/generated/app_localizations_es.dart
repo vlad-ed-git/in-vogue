@@ -453,6 +453,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get shopThisOutfit => 'Compra este conjunto';
 
   @override
+  String get shopLinkFailed => 'No pudimos abrir la página de esta prenda.';
+
+  @override
   String get aboutThisOutfit => 'Sobre este conjunto';
 
   @override

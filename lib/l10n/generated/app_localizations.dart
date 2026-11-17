@@ -771,6 +771,12 @@ abstract class AppLocalizations {
   /// **'Shop this outfit'**
   String get shopThisOutfit;
 
+  /// Shown when a piece's page at the partner cannot be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t open this piece’s page.'**
+  String get shopLinkFailed;
+
   /// Heading above the sentence on why the outfit suits the day.
   ///
   /// In en, this message translates to:

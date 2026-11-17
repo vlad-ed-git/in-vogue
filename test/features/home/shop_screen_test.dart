@@ -62,7 +62,11 @@ void main() {
     images = [];
   });
 
-  Future<void> pumpShop(WidgetTester tester, ShopState state) async {
+  Future<void> pumpShop(
+    WidgetTester tester,
+    ShopState state, {
+    bool opens = true,
+  }) async {
     final bloc = _MockShopBloc();
     whenListen(bloc, const Stream<ShopState>.empty(), initialState: state);
     await pumpInVogue(
@@ -73,7 +77,7 @@ void main() {
           onBack: () {},
           openLink: (link) async {
             opened.add(link);
-            return true;
+            return opens;
           },
           imageFor: (url) {
             images.add(url);
@@ -118,6 +122,17 @@ void main() {
     );
     await tester.tap(find.text('Buy at Everlane').last);
     expect(opened, [Uri.parse('https://www.everlane.com/products/jeans')]);
+  });
+
+  testWidgets('says when a piece’s page cannot be opened', (tester) async {
+    await pumpShop(
+      tester,
+      ShopState(status: ShopStatus.ready, brand: 'Everlane', pieces: _pieces),
+      opens: false,
+    );
+    await tester.tap(find.text('Buy at Everlane').last);
+    await tester.pump();
+    expect(find.text('We couldn’t open this piece’s page.'), findsOneWidget);
   });
 
   testWidgets('never shows a price', (tester) async {

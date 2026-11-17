@@ -450,6 +450,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopThisOutfit => 'Shop this outfit';
 
   @override
+  String get shopLinkFailed => 'We couldn’t open this piece’s page.';
+
+  @override
   String get aboutThisOutfit => 'About this outfit';
 
   @override

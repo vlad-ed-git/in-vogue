@@ -111,6 +111,7 @@
   "tryOnUnavailable": "Los conjuntos aún no están disponibles en esta versión.",
   "shop": "Comprar",
   "shopThisOutfit": "Compra este conjunto",
+  "shopLinkFailed": "No pudimos abrir la página de esta prenda.",
   "aboutThisOutfit": "Sobre este conjunto",
   "tryOnPiece": "Prenda {piece} de {pieces}",
   "outfitPhotoSpoken": "Tú, de pies a cabeza, con tu conjunto. {about}",

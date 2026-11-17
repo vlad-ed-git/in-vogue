@@ -448,6 +448,10 @@
   "@shopThisOutfit": {
     "description": "Title of the page listing the outfit's pieces."
   },
+  "shopLinkFailed": "We couldn’t open this piece’s page.",
+  "@shopLinkFailed": {
+    "description": "Shown when a piece's page at the partner cannot be opened."
+  },
   "aboutThisOutfit": "About this outfit",
   "@aboutThisOutfit": {
     "description": "Heading above the sentence on why the outfit suits the day."

@@ -34,6 +34,18 @@ class ShopScreen extends StatelessWidget {
   static ImageProvider networkImage(String url) =>
       CachedNetworkImageProvider(url);
 
+  /// Opens a piece's page at [url], saying so when it cannot.
+  Future<void> _buy(BuildContext context, String url) async {
+    final opened = await openLink(Uri.parse(url))
+        .catchError((Object _) => false);
+    if (!opened && context.mounted) {
+      context.showSnack(
+        message: context.translated.shopLinkFailed,
+        isError: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.translated;
@@ -71,9 +83,7 @@ class ShopScreen extends StatelessWidget {
                       material: item.colourway.material,
                       onBuy: () {
                         context.read<ShopBloc>().add(const ShopBought());
-                        unawaited(
-                          openLink(Uri.parse(item.colourway.productUrl)),
-                        );
+                        unawaited(_buy(context, item.colourway.productUrl));
                       },
                     ),
                   const SizedBox(height: InVogueSpace.s10),

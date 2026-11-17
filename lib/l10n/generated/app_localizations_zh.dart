@@ -431,6 +431,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shopThisOutfit => '选购这套穿搭';
 
   @override
+  String get shopLinkFailed => '无法打开这件单品的页面。';
+
+  @override
   String get aboutThisOutfit => '关于这套穿搭';
 
   @override

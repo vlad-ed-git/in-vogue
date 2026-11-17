@@ -111,6 +111,7 @@
   "tryOnUnavailable": "此版本暂不提供穿搭。",
   "shop": "选购",
   "shopThisOutfit": "选购这套穿搭",
+  "shopLinkFailed": "无法打开这件单品的页面。",
   "aboutThisOutfit": "关于这套穿搭",
   "tryOnPiece": "第 {piece} 件，共 {pieces} 件",
   "outfitPhotoSpoken": "你从头到脚穿着这套穿搭。{about}",
