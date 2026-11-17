@@ -72,7 +72,8 @@ class ShopBloc extends Bloc<ShopEvent, ShopState> {
     final now = clock.now();
     await _recordSignal(
       TasteSignal(
-        id: 'bought-$outfitId-${now.microsecondsSinceEpoch}',
+        // One a day for each outfit, however often Buy is tapped.
+        id: 'bought-$outfitId-${now.toIso8601String().substring(0, 10)}',
         kind: TasteSignalKind.bought,
         at: now,
         outfitId: outfitId,

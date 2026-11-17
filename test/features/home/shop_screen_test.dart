@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:clock/clock.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -134,18 +135,25 @@ void main() {
   });
 
   group('ShopBloc', () {
-    test('a Buy tap teaches the taste model the outfit was liked', () async {
-      final taste = MemoryTaste();
-      final bloc = ShopBloc(
-        getOutfitShop: GetOutfitShop(_Catalog()),
-        recordSignal: recordSignalInto(taste),
-      )..add(ShopOutfitRequested(outfit('o7')));
-      await Future<void>.delayed(Duration.zero);
-      bloc.add(const ShopBought());
-      await Future<void>.delayed(Duration.zero);
-      expect(taste.phone.single.kind, TasteSignalKind.bought);
-      expect(taste.phone.single.outfitId, 'o7');
-      await bloc.close();
+    test('a Buy tap teaches the taste model the outfit was liked, once a '
+        'day', () async {
+      var now = DateTime(2026, 10, 19, 9);
+      await withClock(Clock(() => now), () async {
+        final taste = MemoryTaste();
+        final bloc = ShopBloc(
+          getOutfitShop: GetOutfitShop(_Catalog()),
+          recordSignal: recordSignalInto(taste),
+        )..add(ShopOutfitRequested(outfit('o7')));
+        await Future<void>.delayed(Duration.zero);
+        bloc.add(const ShopBought());
+        await Future<void>.delayed(Duration.zero);
+        now = now.add(const Duration(hours: 1));
+        bloc.add(const ShopBought());
+        await Future<void>.delayed(Duration.zero);
+        expect(taste.phone.single.kind, TasteSignalKind.bought);
+        expect(taste.phone.single.outfitId, 'o7');
+        await bloc.close();
+      });
     });
 
     blocTest<ShopBloc, ShopState>(
