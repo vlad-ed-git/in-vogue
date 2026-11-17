@@ -56,6 +56,10 @@ class HomeWidgetBloc extends Bloc<HomeWidgetEvent, HomeWidgetState> {
   final PublishWidget _publishWidget;
   final WatchWidgetTaps _watchWidgetTaps;
 
+  /// The content and refresh context last published, the saved line aside:
+  /// it changes every minute. Null before the first and after a failure.
+  (WidgetContent, WidgetRefreshContext?)? _published;
+
   Future<void> _start(HomeWidgetStarted event, Emitter<HomeWidgetState> emit) =>
       emit.forEach(
         _watchWidgetTaps(),
@@ -66,7 +70,21 @@ class HomeWidgetBloc extends Bloc<HomeWidgetEvent, HomeWidgetState> {
     HomeWidgetContentChanged event,
     Emitter<HomeWidgetState> emit,
   ) async {
+    final publication = (
+      WidgetContent(
+        days: event.content.days,
+        preferred: event.content.preferred,
+        savedLine: '',
+      ),
+      event.refresh,
+    );
+    if (publication == _published) return;
+    _published = publication;
     // A widget that cannot be written keeps what it showed.
-    await _publishWidget((content: event.content, refresh: event.refresh));
+    final published = await _publishWidget((
+      content: event.content,
+      refresh: event.refresh,
+    ));
+    if (published.isLeft() && _published == publication) _published = null;
   }
 }
