@@ -426,8 +426,12 @@ class MakeOutfit {
       var suggested = const <String, DateTime?>{};
       if (known == null || replacing != null) {
         if (known == null) {
+          // A save that fails is logged where it fails and never stops the
+          // day; an account that is gone does.
           final saved = await _saveSetupToAccount(params.accountId);
-          if (saved case Left(value: final failure)) return Left(failure);
+          if (saved case Left(value: final SignInFailure failure)) {
+            return Left(failure);
+          }
         }
         final chosen = await _choose(params, refused);
         if (chosen case Left(value: final failure)) return Left(failure);

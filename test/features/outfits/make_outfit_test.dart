@@ -663,9 +663,19 @@ void main() {
     },
   );
 
-  test('makes no try-on when the setup cannot be saved', () async {
+  test('makes the day even when the setup cannot be saved', () async {
     when(saveSetup(any)).thenAnswer((_) async => const Left(NetworkFailure()));
-    expect(await make(), [const TryOnFailed(NetworkFailure())]);
+    expect((await make()).last, isA<TryOnDone>());
+    expect(tryOn.uploads, ['/support/photos/body-1.jpg']);
+  });
+
+  test('makes no try-on for an account that is gone', () async {
+    when(
+      saveSetup(any),
+    ).thenAnswer((_) async => const Left(SignInFailure(SignInProblem.failed)));
+    expect(await make(), [
+      const TryOnFailed(SignInFailure(SignInProblem.failed)),
+    ]);
     expect(tryOn.uploads, isEmpty);
     expect(await record(), isNull);
   });
