@@ -59,6 +59,7 @@ class WardrobeRepositoryImpl implements WardrobeRepository {
   }) async {
     final id = _remote.newId(accountId);
     String? kept;
+    String? uploaded;
     try {
       kept = await _photos.keep(accountId, id, photo);
       final (path, url) = await _remote.uploadPhoto(
@@ -67,6 +68,7 @@ class WardrobeRepositoryImpl implements WardrobeRepository {
         file: kept,
         contentType: photoContentType(kept),
       );
+      uploaded = path;
       final createdAt = clock.now();
       await _remote.save(
         accountId,
@@ -89,8 +91,9 @@ class WardrobeRepositoryImpl implements WardrobeRepository {
       );
     } on Exception catch (error, stack) {
       _log('add', error, stack);
-      // Nothing stays half-added on the phone.
+      // Nothing stays half-added, on the phone or the account.
       if (kept != null) await _forgetPhoto(accountId, id);
+      if (uploaded != null) await _forgetUpload(uploaded);
       return Left(_failureOf(error));
     }
   }
@@ -116,6 +119,14 @@ class WardrobeRepositoryImpl implements WardrobeRepository {
       await _photos.forget(accountId);
     } on CacheException catch (error) {
       _log('forgetPhotos', error.cause, error.stackTrace);
+    }
+  }
+
+  Future<void> _forgetUpload(String path) async {
+    try {
+      await _remote.deletePhoto(path);
+    } on Exception catch (error, stack) {
+      _log('add', error, stack);
     }
   }
 

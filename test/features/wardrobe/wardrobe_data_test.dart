@@ -30,6 +30,8 @@ class _Remote implements WardrobeRemoteDataSource {
   final uploads = <String, String>{};
   final _changes = StreamController<void>.broadcast();
   Object? failUploadWith;
+  Object? failSaveWith;
+  final deletedPhotos = <String>[];
   var _ids = 0;
 
   @override
@@ -76,6 +78,7 @@ class _Remote implements WardrobeRemoteDataSource {
     String id,
     Map<String, Object?> json,
   ) async {
+    if (failSaveWith case final Object error) throw error;
     records[id] = json;
     _changes.add(null);
   }
@@ -85,6 +88,9 @@ class _Remote implements WardrobeRemoteDataSource {
     records.remove(id);
     _changes.add(null);
   }
+
+  @override
+  Future<void> deletePhoto(String path) async => deletedPhotos.add(path);
 }
 
 void main() {
@@ -204,6 +210,22 @@ void main() {
       );
       expect(remote.records, isEmpty);
     });
+
+    test(
+      'leaves no photo on the account when its record cannot be saved',
+      () async {
+        remote.failSaveWith = ServerException(Exception(), StackTrace.current);
+        expect(
+          await repository.add('uid-1', photo: chosen, details: _details),
+          const Left<Failure, WardrobeOutfit>(ServerFailure()),
+        );
+        expect(remote.deletedPhotos, ['users/uid-1/wardrobe/outfit-1.jpg']);
+        expect(
+          Directory(p.join(folder.path, 'wardrobe', 'uid-1')).listSync(),
+          isEmpty,
+        );
+      },
+    );
 
     test('shows the outfits newest first, with the photo on the phone when '
         'it is there', () async {

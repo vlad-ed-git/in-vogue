@@ -29,6 +29,9 @@ abstract interface class WardrobeRemoteDataSource {
 
   /// Deletes [id]'s record and its photo.
   Future<void> delete(String accountId, String id);
+
+  /// Deletes the photo at the Storage [path]; one already gone is fine.
+  Future<void> deletePhoto(String path);
 }
 
 class WardrobeRemoteDataSourceImpl implements WardrobeRemoteDataSource {
@@ -90,15 +93,20 @@ class WardrobeRemoteDataSourceImpl implements WardrobeRemoteDataSource {
   Future<void> delete(String accountId, String id) => _guard(() async {
     final record = await _outfits(accountId).doc(id).get();
     final photo = WardrobeOutfitModel.photoPathOf(record.data() ?? const {});
-    if (photo != null) {
-      try {
-        await _storage.ref(photo).delete();
-      } on FirebaseException catch (error) {
-        if (error.code != 'object-not-found') rethrow;
-      }
-    }
+    if (photo != null) await _deletePhoto(photo);
     await _outfits(accountId).doc(id).delete();
   });
+
+  @override
+  Future<void> deletePhoto(String path) => _guard(() => _deletePhoto(path));
+
+  Future<void> _deletePhoto(String path) async {
+    try {
+      await _storage.ref(path).delete();
+    } on FirebaseException catch (error) {
+      if (error.code != 'object-not-found') rethrow;
+    }
+  }
 
   static Exception _translate(FirebaseException error, StackTrace stack) =>
       _offline.contains(error.code)
