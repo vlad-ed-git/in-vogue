@@ -267,6 +267,19 @@ class MockAccountRepository extends _i1.Mock implements _i8.AccountRepository {
             ),
           )
           as _i4.Future<_i2.Either<_i5.Failure, String>>);
+
+  @override
+  _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> forgetDownloads() =>
+      (super.noSuchMethod(
+            Invocation.method(#forgetDownloads, []),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>.value(
+              _FakeEither_0<_i5.Failure, _i2.Unit>(
+                this,
+                Invocation.method(#forgetDownloads, []),
+              ),
+            ),
+          )
+          as _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>>);
 }
 
 /// A class which mocks [PhotoRepository].

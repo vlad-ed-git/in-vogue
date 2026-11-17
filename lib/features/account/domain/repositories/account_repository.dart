@@ -33,4 +33,7 @@ abstract interface class AccountRepository {
   /// Downloads the account photo kept at [path]; the file it is in on the
   /// phone.
   Future<Either<Failure, String>> downloadPhoto(String path);
+
+  /// Deletes the photos downloaded from the account.
+  Future<Either<Failure, Unit>> forgetDownloads();
 }

@@ -69,6 +69,7 @@ class DeleteAccount implements UseCase<Unit, NoParams> {
     // The phone's copies; one that cannot be removed does not undo the rest.
     await _photos.forget(PhotoRole.body);
     await _photos.forget(PhotoRole.face);
+    await _account.forgetDownloads();
     await _picks.clear();
     await _profile.clearName();
     await _location.forget();

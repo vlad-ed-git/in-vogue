@@ -66,6 +66,8 @@ class AccountSync {
             if (await _photos.kept(PhotoRole.face) case Right(value: null)) {
               await _photos.keep(file, PhotoRole.face);
             }
+            // The photos keep their own copy.
+            await _account.forgetDownloads();
           }
         }
       }

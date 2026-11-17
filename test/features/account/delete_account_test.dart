@@ -88,6 +88,7 @@ void main() {
     when(account.delete(any)).thenAnswer((_) async => _done);
     when(auth.deleteUser()).thenAnswer((_) async => _done);
     when(photos.forget(any)).thenAnswer((_) async => _done);
+    when(account.forgetDownloads()).thenAnswer((_) async => _done);
     when(picks.clear()).thenAnswer((_) async => _done);
     when(profile.clearName()).thenAnswer((_) async => _done);
     when(location.forget()).thenAnswer((_) async => _done);
@@ -100,6 +101,7 @@ void main() {
 
   void verifyPhoneKept() {
     verifyNever(photos.forget(any));
+    verifyNever(account.forgetDownloads());
     verifyNever(picks.clear());
     verifyNever(profile.clearName());
     verifyNever(location.forget());
@@ -120,6 +122,7 @@ void main() {
         auth.deleteUser(),
         photos.forget(PhotoRole.body),
         photos.forget(PhotoRole.face),
+        account.forgetDownloads(),
         picks.clear(),
         profile.clearName(),
         location.forget(),

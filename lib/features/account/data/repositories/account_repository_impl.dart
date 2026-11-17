@@ -91,6 +91,14 @@ class AccountRepositoryImpl implements AccountRepository {
         return file.path;
       });
 
+  @override
+  Future<Either<Failure, Unit>> forgetDownloads() =>
+      _guard('forgetDownloads', () async {
+        final downloads = Directory(_downloads);
+        if (downloads.existsSync()) await downloads.delete(recursive: true);
+        return unit;
+      });
+
   Future<Set<String>> _save(String accountId, AccountSetup setup) async {
     final saved = await _remote.readAccount(accountId);
     final savedPhotos = AccountModel.photosFromJson(saved);

@@ -223,7 +223,9 @@ void main() {
         picks: const {'everlane:a', 'everlane:b'},
       );
       final downloads = Directory.systemTemp.createTempSync('downloads');
-      addTearDown(() => downloads.deleteSync(recursive: true));
+      addTearDown(() {
+        if (downloads.existsSync()) downloads.deleteSync(recursive: true);
+      });
       remote = MockAccountRemoteDataSource();
       repository = AccountRepositoryImpl(
         remoteDataSource: remote,
@@ -578,6 +580,25 @@ void main() {
       );
     });
 
+    test('forgets the photos it downloaded', () async {
+      when(
+        remote.downloadPhoto(any),
+      ).thenAnswer((_) async => utf8.encode('face two'));
+      final downloaded = (await repository.downloadPhoto(
+        'users/uid-1/photos/face-2.png',
+      )).getOrElse(() => throw StateError('downloaded'));
+      expect(File(downloaded).existsSync(), isTrue);
+      expect(
+        await repository.forgetDownloads(),
+        const Right<Failure, Unit>(unit),
+      );
+      expect(File(downloaded).existsSync(), isFalse);
+      expect(
+        await repository.forgetDownloads(),
+        const Right<Failure, Unit>(unit),
+      );
+    });
+
     test('knows whether the account has been saved', () async {
       expect(
         await repository.exists('uid-1'),
@@ -810,6 +831,9 @@ void main() {
       ).thenAnswer((_) async => const Right(null));
       when(photos.keep(any, any)).thenAnswer((_) async => const Right(_face));
       when(
+        account.forgetDownloads(),
+      ).thenAnswer((_) async => const Right(unit));
+      when(
         picks.addPicks(any),
       ).thenAnswer((_) async => const Right({'everlane:a', ...favourites}));
       when(
@@ -829,6 +853,8 @@ void main() {
         profile.saveName('Maya'),
         account.downloadPhoto('users/uid-1/photos/face-2.png'),
         photos.keep('/downloads/face-2.png', PhotoRole.face),
+        // The photos keep their own copy.
+        account.forgetDownloads(),
         picks.addPicks(favourites),
         // The favourites are on the account, as are the picks saved before.
         picks.markSynced('uid-1', {'everlane:a', ...favourites}),
