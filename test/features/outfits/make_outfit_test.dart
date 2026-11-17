@@ -192,7 +192,6 @@ void main() {
         (await make(maker: maker)).last,
         const TryOnFailed(ServerFailure()),
       );
-      expect(maker.isMaking(_params()), isFalse);
       tryOn.onStart = null;
       expect((await make(maker: maker)).last, isA<TryOnDone>());
     },
@@ -734,7 +733,6 @@ void main() {
       final (a, b) = await withClock(Clock(() => time), () async {
         final first = maker(_params()).toList();
         await pumpEventQueue();
-        expect(maker.isMaking(_params()), isTrue);
         final second = maker(_params()).toList();
         gate.complete();
         return (await first, await second);
@@ -743,7 +741,6 @@ void main() {
       expect(b.first, const TryOnProgress(piece: 1, pieces: 3));
       expect(b.last, a.last);
       expect(tryOn.uploads, hasLength(1));
-      expect(maker.isMaking(_params()), isFalse);
     },
   );
 }

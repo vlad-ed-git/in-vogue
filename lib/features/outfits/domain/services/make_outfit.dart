@@ -138,9 +138,6 @@ class MakeOutfit {
     return making.watch();
   }
 
-  /// Whether this phone is making [params]'s outfit now.
-  bool isMaking(MakeOutfitParams params) => _making.containsKey(params.key);
-
   Future<void> _continue() async {
     if (_canContinue != null && !await _canContinue()) {
       throw const _PauseMaking();
