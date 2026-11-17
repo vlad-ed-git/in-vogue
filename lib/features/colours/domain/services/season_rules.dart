@@ -11,10 +11,12 @@ import 'package:in_vogue/features/colours/domain/services/colour_space.dart';
 ///
 /// - Undertone: the skin's CIELAB hue angle; between the two thresholds it
 ///   is neutral, and the hair says which way it leans.
-/// - Depth: the mean lightness of skin and hair; deep skin by ITA° (Chardon
+/// - Depth: the mean lightness of skin and brows; deep skin by ITA° (Chardon
 ///   1991) is always deep.
-/// - Contrast: the lightness gap between the skin and the darker of the
-///   brows and hair.
+/// - Contrast: the lightness gap between the skin and the brows.
+///
+/// Lightness comes from the brows, which the analysis samples, rather than
+/// the hair, which it gives as one of seven set colours, black as #000000.
 abstract final class SeasonRules {
   /// Colours used when there are none to trust.
   static const neutralColours = FaceColours(
@@ -39,9 +41,9 @@ abstract final class SeasonRules {
   static const warmHairChroma = 12.0;
   static const coolHairChroma = 6.0;
 
-  /// Mean lightness of skin and hair from which colouring is light, and
+  /// Mean lightness of skin and brows from which colouring is light, and
   /// below which it is deep.
-  static const lightFrom = 62.0;
+  static const lightFrom = 56.0;
   static const deepBelow = 36.0;
 
   /// ITA° below which skin is deep, whatever the hair.
@@ -52,7 +54,7 @@ abstract final class SeasonRules {
   static const highContrastFrom = 45.0;
 
   /// Mean lightness from which warm, medium colouring is spring.
-  static const springFrom = 58.0;
+  static const springFrom = 54.0;
 
   /// The reading of [colours]; unreadable colours read as [neutralColours].
   static ColourReading readingOf(FaceColours colours) {
@@ -62,13 +64,13 @@ abstract final class SeasonRules {
     if (skin == null || hair == null || brow == null) {
       return readingOf(neutralColours);
     }
-    final mean = (skin.l + hair.l) / 2;
+    final mean = (skin.l + brow.l) / 2;
     final depth = _itaOf(skin) < deepSkinBelow || mean < deepBelow
         ? Depth.deep
         : mean >= lightFrom
         ? Depth.light
         : Depth.medium;
-    final gap = skin.l - math.min(brow.l, hair.l);
+    final gap = skin.l - brow.l;
     final contrast = gap >= highContrastFrom
         ? Contrast.high
         : gap >= mediumContrastFrom
