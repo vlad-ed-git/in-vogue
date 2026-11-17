@@ -27,7 +27,15 @@ void main() {
       ),
       disableAnimations: disableAnimations,
     );
-    await tester.tap(find.byType(ShiftSwitcher));
+    // The detector around the switcher takes the tap.
+    await tester.tap(
+      find
+          .ancestor(
+            of: find.byType(ShiftSwitcher),
+            matching: find.byType(GestureDetector),
+          )
+          .first,
+    );
     await tester.pump();
   }
 
