@@ -184,6 +184,17 @@ void main() {
       expect(state.data()!['version'], 1);
     });
 
+    test('a signal kept while the account’s are read stays', () async {
+      final other = repository(MemoryStore());
+      await other.keep(_signal('a', TasteSignalKind.picked, outfit: 'o1'));
+      await other.save('uid-1');
+      final taste = repository();
+      final restoring = taste.restore('uid-1');
+      await taste.keep(_signal('b', TasteSignalKind.loved, outfit: 'o2'));
+      await restoring;
+      expect(await ids(taste), ['b', 'a']);
+    });
+
     test(
       'log out forgets the phone’s copy; the account keeps its own',
       () async {

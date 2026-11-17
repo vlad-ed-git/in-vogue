@@ -44,10 +44,12 @@ class TasteRepositoryImpl implements TasteRepository {
   @override
   Future<Either<Failure, Unit>> restore(String accountId) =>
       _guard('restore', () async {
+        final saved = _read(await _remote.signals(accountId));
+        // Read after the account, so a signal kept meanwhile stays.
         final kept = _read(_local.signals());
         final known = {for (final signal in kept) signal.id};
         final added = [
-          for (final signal in _read(await _remote.signals(accountId)))
+          for (final signal in saved)
             if (known.add(signal.id)) signal,
         ];
         if (added.isEmpty) return unit;
