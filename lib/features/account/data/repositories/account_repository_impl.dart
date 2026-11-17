@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:dartz/dartz.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
+import 'package:in_vogue/core/persistence/cache_exception.dart';
+import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/models/account_model.dart';
 import 'package:in_vogue/features/account/domain/entities/account_plan.dart';
@@ -20,12 +21,14 @@ class AccountRepositoryImpl implements AccountRepository {
   AccountRepositoryImpl({
     required AccountRemoteDataSource remoteDataSource,
     required String downloadsDirectory,
+    required this._fingerprints,
     required LogMessages logMessages,
   }) : _remote = remoteDataSource,
        _downloads = downloadsDirectory,
        _logger = logMessages;
 
   final AccountRemoteDataSource _remote;
+  final PhotoFingerprints _fingerprints;
 
   /// Where downloaded photos are written on the phone.
   final String _downloads;
@@ -105,7 +108,7 @@ class AccountRepositoryImpl implements AccountRepository {
     final photos = <PhotoRole, AccountPhoto>{};
     final replaced = <String>[];
     for (final photo in [setup.body, setup.face].nonNulls) {
-      final sha256 = await _fingerprint(photo.path);
+      final sha256 = await _fingerprints.of(photo.path);
       final previous = savedPhotos[photo.role];
       if (previous != null && previous.sha256 == sha256) {
         // The account holds this very photo, wherever it keeps it.
@@ -162,9 +165,6 @@ class AccountRepositoryImpl implements AccountRepository {
     return wishlist.union(add).difference(remove);
   }
 
-  static Future<String> _fingerprint(String path) async =>
-      sha256.convert(await File(path).readAsBytes()).toString();
-
   Future<Either<Failure, T>> _guard<T>(
     String method,
     Future<T> Function() call, {
@@ -183,6 +183,9 @@ class AccountRepositoryImpl implements AccountRepository {
       return const Left(ServerFailure());
     } on FileSystemException catch (error, stack) {
       _log(method, error, stack);
+      return const Left(CacheFailure());
+    } on CacheException catch (error) {
+      _log(method, error.cause, error.stackTrace);
       return const Left(CacheFailure());
     }
   }

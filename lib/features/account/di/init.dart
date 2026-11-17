@@ -28,6 +28,7 @@ void init(GetIt locator) {
           locator<AppDirectory>().path,
           'downloads',
         ),
+        fingerprints: locator(),
         logMessages: locator(),
       ),
     )

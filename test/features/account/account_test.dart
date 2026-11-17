@@ -9,6 +9,7 @@ import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
 import 'package:in_vogue/core/domain/errors/failures.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/core/network/network_exceptions.dart';
+import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/features/account/data/data_sources/account_remote_data_source.dart';
 import 'package:in_vogue/features/account/data/models/account_model.dart';
 import 'package:in_vogue/features/account/data/repositories/account_repository_impl.dart';
@@ -192,6 +193,7 @@ void main() {
   group('AccountRepositoryImpl', () {
     late MockAccountRemoteDataSource remote;
     late AccountRepositoryImpl repository;
+    late List<String> reads;
     late UserPhoto body;
     late UserPhoto face;
     late AccountSetup setup;
@@ -227,9 +229,16 @@ void main() {
         if (downloads.existsSync()) downloads.deleteSync(recursive: true);
       });
       remote = MockAccountRemoteDataSource();
+      reads = [];
       repository = AccountRepositoryImpl(
         remoteDataSource: remote,
         downloadsDirectory: downloads.path,
+        fingerprints: PhotoFingerprints(
+          read: (path) {
+            reads.add(path);
+            return File(path).readAsBytes();
+          },
+        ),
         logMessages: LogMessagesImpl(),
       );
       when(remote.readAccount(any)).thenAnswer((_) async => null);
@@ -512,6 +521,12 @@ void main() {
         )).getOrElse(() => {'not saved'}),
         isEmpty,
       );
+    });
+
+    test('reads each photo once, however often the setup is saved', () async {
+      await repository.save('uid-1', setup);
+      await repository.save('uid-1', setup);
+      expect(reads, [body.path, face.path]);
     });
 
     test('says when a photo cannot be read on the phone', () async {
