@@ -37,6 +37,10 @@ class AccountRepositoryImpl implements AccountRepository {
   /// How long deleting an account may take before it counts as offline.
   static const deleteTimeLimit = Duration(minutes: 1);
 
+  /// How long saving the setup may take before it counts as offline: it
+  /// may upload two photos.
+  static const saveTimeLimit = Duration(minutes: 2);
+
   @override
   Future<Either<Failure, bool>> exists(String accountId) => _guard(
     'exists',
@@ -60,7 +64,7 @@ class AccountRepositoryImpl implements AccountRepository {
   Future<Either<Failure, Set<String>>> save(
     String accountId,
     AccountSetup setup,
-  ) => _guard('save', () => _save(accountId, setup));
+  ) => _guard('save', () => _save(accountId, setup), limit: saveTimeLimit);
 
   @override
   Future<Either<Failure, SavedAccount?>> saved(String accountId) =>

@@ -590,6 +590,31 @@ void main() {
       );
     });
 
+    testWidgets('gives a save, which may upload two photos, longer than '
+        'other calls', (tester) async {
+      when(
+        remote.writeAccount(any, any, created: anyNamed('created')),
+      ).thenAnswer((_) => Future<void>.delayed(const Duration(seconds: 45)));
+      when(remote.wishlist(any)).thenAnswer(
+        (_) => Future.delayed(const Duration(seconds: 45), () => {}),
+      );
+      Either<Failure, Set<String>>? saved;
+      Either<Failure, Set<String>>? favourites;
+      unawaited(
+        repository
+            .save('uid-1', const AccountSetup(name: 'Maya'))
+            .then((result) => saved = result),
+      );
+      unawaited(
+        repository.favourites('uid-2').then((result) => favourites = result),
+      );
+      await tester.pump(const Duration(seconds: 45));
+      expect(favourites, const Left<Failure, Set<String>>(NetworkFailure()));
+      expect(saved, isNull);
+      await tester.pump(const Duration(seconds: 45));
+      expect(saved?.isRight(), isTrue);
+    });
+
     test('says when it is offline or the server refuses', () async {
       when(
         remote.readAccount(any),
