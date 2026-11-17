@@ -1572,7 +1572,7 @@ abstract class AppLocalizations {
   /// What the contrast means for the person.
   ///
   /// In en, this message translates to:
-  /// **'{contrast, select, high{High: your hair stands out against your skin, so bold pairings suit you.} low{Low: your features blend softly, so tone-on-tone looks suit you.} other{Medium: your features contrast gently, so medium contrast works best.}}'**
+  /// **'{contrast, select, high{High: your hair or eyes stand out against your skin, so bold pairings suit you.} low{Low: your features blend softly, so tone-on-tone looks suit you.} other{Medium: your features contrast gently, so medium contrast works best.}}'**
   String contrastAbout(String contrast);
 
   /// No description provided for @analysisNote.

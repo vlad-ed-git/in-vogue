@@ -113,6 +113,7 @@ The owner commits too: read before you edit, and never overwrite their work. Whe
    - Mirror shows the colour season and why, then the palette in round swatches, then My Wardrobe. No face photo on the page: it belongs in Settings. Without one, Mirror asks for a selfie.
    - Setup and Settings say the face photo is for the skin tone and colour analysis. Never mention makeup.
    - The season is In Vogue's own hardcoded suggestion from YouCam's sampled colours (`SeasonRules`); YouCam gives no season or undertone.
+   - The season and palette come from the skin, hair and, when the analysis gives them, eye colours; never the brows or lips (owner, November 17).
    - The skin analysis runs once per person, and its result is kept. A new face photo doesn't change who they are, so it keeps the colours; Settings offers "Redo skin analysis" when the face photo is replaced, and only that reads them again.
 5. [x] **My Wardrobe.** Done October 18, below the season on Mirror (`lib/features/wardrobe`). Owner decisions, October 18:
    - A person adds a photo of an outfit they own, chosen from Photos or Gallery, with its name, its colours (one or more), the weather it suits (feels-like bands and rain) and its occasions.

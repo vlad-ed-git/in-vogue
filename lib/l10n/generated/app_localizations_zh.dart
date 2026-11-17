@@ -966,7 +966,7 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String contrastAbout(String contrast) {
     String _temp0 = intl.Intl.selectLogic(contrast, {
-      'high': '高：你的发色与肤色对比鲜明，所以大胆的搭配最适合你。',
+      'high': '高：你的发色或眸色与肤色对比鲜明，所以大胆的搭配最适合你。',
       'low': '低：你的五官色彩柔和融合，所以同色系搭配最适合你。',
       'other': '中等：你的五官对比柔和，所以中等对比效果最好。',
     });

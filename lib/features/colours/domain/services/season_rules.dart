@@ -4,17 +4,18 @@ import 'package:in_vogue/features/colours/domain/entities/colour_reading.dart';
 import 'package:in_vogue/features/colours/domain/entities/face_colours.dart';
 import 'package:in_vogue/features/colours/domain/services/colour_space.dart';
 
-/// In Vogue's own colour analysis: turns a face's sampled colours into one
-/// of the twelve seasons by undertone, depth and contrast, each with a
-/// hardcoded palette. YouCam samples the colours; the season is ours, a
-/// suggestion, never YouCam's claim.
+/// In Vogue's own colour analysis: turns the skin, hair and, when the
+/// analysis gives them, eye colours into one of the twelve seasons by
+/// undertone, depth and contrast, each with a hardcoded palette. YouCam
+/// samples the colours; the season is ours, a suggestion, never YouCam's
+/// claim. The brows and lips play no part.
 ///
 /// - Undertone: the skin's CIELAB hue angle; between the two thresholds it
 ///   is neutral, and the hair says which way it leans.
 /// - Depth: the mean lightness of skin and hair; deep skin by ITA° (Chardon
 ///   1991) is always deep.
 /// - Contrast: the lightness gap between the skin and the darker of the
-///   brows and hair.
+///   hair and eyes.
 abstract final class SeasonRules {
   /// Colours used when there are none to trust.
   static const neutralColours = FaceColours(
@@ -39,10 +40,16 @@ abstract final class SeasonRules {
   static const warmHairChroma = 12.0;
   static const coolHairChroma = 6.0;
 
+  /// The lightness, in CIELAB L*, real hair runs between. The analysis
+  /// gives hair as one of seven set colours, with black (#000000) and
+  /// blonde (#FAF0BE) beyond either end.
+  static const darkestHair = 15.0;
+  static const lightestHair = 70.0;
+
   /// Mean lightness of skin and hair from which colouring is light, and
   /// below which it is deep.
   static const lightFrom = 62.0;
-  static const deepBelow = 36.0;
+  static const deepBelow = 32.0;
 
   /// ITA° below which skin is deep, whatever the hair.
   static const deepSkinBelow = 12.0;
@@ -58,17 +65,19 @@ abstract final class SeasonRules {
   static ColourReading readingOf(FaceColours colours) {
     final skin = _lab(colours.skin);
     final hair = _lab(colours.hair);
-    final brow = _lab(colours.eyebrow);
-    if (skin == null || hair == null || brow == null) {
-      return readingOf(neutralColours);
-    }
-    final mean = (skin.l + hair.l) / 2;
+    if (skin == null || hair == null) return readingOf(neutralColours);
+    final hairLightness = hair.l.clamp(darkestHair, lightestHair);
+    final eyeLightness = switch (colours.eye) {
+      final eye? => _lab(eye)?.l,
+      null => null,
+    };
+    final mean = (skin.l + hairLightness) / 2;
     final depth = _itaOf(skin) < deepSkinBelow || mean < deepBelow
         ? Depth.deep
         : mean >= lightFrom
         ? Depth.light
         : Depth.medium;
-    final gap = skin.l - math.min(brow.l, hair.l);
+    final gap = skin.l - math.min(hairLightness, eyeLightness ?? hairLightness);
     final contrast = gap >= highContrastFrom
         ? Contrast.high
         : gap >= mediumContrastFrom

@@ -1014,7 +1014,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String contrastAbout(String contrast) {
     String _temp0 = intl.Intl.selectLogic(contrast, {
-      'high': 'Alto: tu pelo destaca sobre tu piel, así que te favorecen las combinaciones atrevidas.',
+      'high': 'Alto: tu pelo o tus ojos destacan sobre tu piel, así que te favorecen las combinaciones atrevidas.',
       'low': 'Bajo: tus rasgos se funden con suavidad, así que te favorecen los looks tono sobre tono.',
       'other': 'Medio: tus rasgos contrastan con suavidad, así que el contraste medio funciona mejor.',
     });

@@ -34,7 +34,7 @@ _MockWardrobeBloc _wardrobe() {
   return bloc;
 }
 
-/// Golden blonde hair on peachy fair skin: Light Spring.
+/// Golden blonde hair on peachy fair skin: Light Spring, low contrast.
 const _colours = FaceColours(
   skin: '#F3D3B5',
   eyebrow: '#A07850',
@@ -102,7 +102,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.text('Warm undertone · light colouring · medium contrast'),
+      find.text('Warm undertone · light colouring · low contrast'),
       findsOneWidget,
     );
     final palette = SeasonRules.readingOf(_colours).palette;
@@ -188,7 +188,8 @@ void main() {
           'on you.',
       'Light: your skin and hair are light, so lighter, softer colours keep '
           'you in focus.',
-      'Medium: your features contrast gently, so medium contrast works best.',
+      'High: your hair or eyes stand out against your skin, so bold pairings '
+          'suit you.',
     ]) {
       await tester.ensureVisible(find.text(about));
       expect(find.text(about), findsOneWidget);
