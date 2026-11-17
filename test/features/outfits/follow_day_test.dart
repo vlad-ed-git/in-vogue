@@ -132,6 +132,34 @@ void main() {
     verify(makeOutfit(_params)).called(1);
   });
 
+  testWidgets("takes over another phone's making when its lease runs out, "
+      'even when the day does not change again', (tester) async {
+    subscription = follow(_params).listen(updates.add);
+    await tester.pump();
+    days.days.add(
+      Right(
+        Day(
+          date: DateTime.utc(2026, 10, 18),
+          occasion: Occasion.work,
+          outfitId: 'o2',
+          status: DayStatus.making,
+          device: 'phone-b',
+          piece: 1,
+          pieces: 2,
+          updatedAt: clock.now().subtract(
+            DayRules.lease - const Duration(minutes: 1),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(updates, [const TryOnProgress(piece: 1, pieces: 2)]);
+    verifyNever(makeOutfit(any));
+
+    await tester.pump(const Duration(minutes: 1));
+    verify(makeOutfit(_params)).called(1);
+  });
+
   test("goes on with this phone's making when it stopped", () async {
     await start();
     await watched(_day('phone-a'));

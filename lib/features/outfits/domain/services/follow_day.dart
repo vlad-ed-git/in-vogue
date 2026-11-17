@@ -39,6 +39,7 @@ class FollowDay {
     StreamSubscription<TryOnUpdate>? making;
     StreamSubscription<Object?>? watching;
     StreamSubscription<void>? retrying;
+    Timer? leaseEnds;
     var failedHere = false;
     var done = false;
 
@@ -58,6 +59,7 @@ class FollowDay {
     }
 
     Future<void> follow(Day? day) async {
+      leaseEnds?.cancel();
       if (day == null) {
         if (!failedHere) make();
         return;
@@ -73,6 +75,13 @@ class FollowDay {
           if (!failedHere) make();
         case DayStatus.making:
           emit(TryOnProgress(piece: day.piece, pieces: day.pieces));
+          // Taken over once stale, even if the day doesn't change again.
+          if (day.updatedAt case final updatedAt?) {
+            leaseEnds = Timer(
+              updatedAt.add(DayRules.lease).difference(clock.now()),
+              () => follow(day),
+            );
+          }
       }
     }
 
@@ -98,6 +107,7 @@ class FollowDay {
             .listen(null);
       }
       ..onCancel = () async {
+        leaseEnds?.cancel();
         if (_retries[params.key] == retries) _retries.remove(params.key);
         await Future.wait([
           ?watching?.cancel(),
