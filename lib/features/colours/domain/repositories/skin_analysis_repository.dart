@@ -24,7 +24,8 @@ final class AnalysisDone extends AnalysisTask {
   List<Object?> get props => [colours];
 }
 
-/// Failed; the service charges nothing for it.
+/// Failed, which the service charges nothing for, or finished without
+/// colours that can be read.
 final class AnalysisFailed extends AnalysisTask {
   const AnalysisFailed(this.problem, {this.advice});
   final AnalysisProblem problem;

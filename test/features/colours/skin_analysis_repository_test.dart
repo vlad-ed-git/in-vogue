@@ -131,6 +131,24 @@ void main() {
     );
   });
 
+  test('fails a finished analysis without readable colours, logging only '
+      'their keys', () async {
+    when(remote.task(YouCamTool.skinTone, 'task-1')).thenAnswer(
+      (_) async => const YouCamTaskSucceeded({
+        'color': {'skin_color': '#e8c4ae', 'lip_color': '#C98276'},
+      }),
+    );
+    expect(
+      await service.check('task-1'),
+      const Right<Failure, AnalysisTask>(
+        AnalysisFailed(AnalysisProblem.failed),
+      ),
+    );
+    expect(log.errors, [
+      allOf(contains('{color: {skin_color, lip_color}}'), isNot(contains('#'))),
+    ]);
+  });
+
   test('logs a failed task with its code and keeps what to change', () async {
     when(remote.task(YouCamTool.skinTone, 'task-1')).thenAnswer(
       (_) async => const YouCamTaskFailed(
@@ -161,9 +179,8 @@ void main() {
       await quiet.start('file-1'),
       const Left<Failure, String>(AnalysisFailure(AnalysisProblem.noCredit)),
     );
-    when(
-      remote.task(YouCamTool.skinTone, 'task-1'),
-    ).thenThrow(NetworkException(Exception(), StackTrace.current));
+    when(remote.task(YouCamTool.skinTone, 'task-1'))
+        .thenThrow(NetworkException(Exception(), StackTrace.current));
     expect(
       await quiet.check('task-1'),
       const Left<Failure, AnalysisTask>(NetworkFailure()),

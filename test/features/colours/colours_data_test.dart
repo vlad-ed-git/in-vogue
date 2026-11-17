@@ -9,7 +9,6 @@ import 'package:in_vogue/features/colours/data/models/face_colours_model.dart';
 import 'package:in_vogue/features/colours/data/repositories/analysis_job_repository_impl.dart';
 import 'package:in_vogue/features/colours/data/repositories/colour_profile_repository_impl.dart';
 import 'package:in_vogue/features/colours/domain/entities/face_colours.dart';
-import 'package:in_vogue/features/colours/domain/services/season_rules.dart';
 
 import '../../helpers/memory_store.dart';
 
@@ -46,7 +45,7 @@ void main() {
         ..._analysis,
         'face_quality': {..._analysis['face_quality']!, 'lighting': 'too_dark'},
       };
-      expect(FaceColoursModel.fromAnalysis(dim).clear, isFalse);
+      expect(FaceColoursModel.fromAnalysis(dim)?.clear, isFalse);
     });
 
     test('trusts the colours of a success that reports no face quality', () {
@@ -56,19 +55,38 @@ void main() {
       );
     });
 
-    test('counts results without readable colours as an unclear photo', () {
+    test('reads no colours from results without readable ones', () {
       expect(
         FaceColoursModel.fromAnalysis({
           'face_quality': _analysis['face_quality'],
         }),
-        SeasonRules.neutralColours,
+        isNull,
       );
       expect(
         FaceColoursModel.fromAnalysis({
           'color': {..._analysis['color']!, 'skin_color': 'tan'},
         }),
-        SeasonRules.neutralColours,
+        isNull,
       );
+    });
+
+    test('outlines results by their keys alone, never their colours', () {
+      expect(
+        FaceColoursModel.outline({
+          'face_quality': {'has_face': true},
+          'color': {'skin_color': '#E8C4AE', 'lip_color': '#C98276'},
+        }),
+        '{face_quality: {has_face}, color: {skin_color, lip_color}}',
+      );
+      expect(
+        FaceColoursModel.outline([
+          {
+            'color': {'skin_color': '#E8C4AE'},
+          },
+        ]),
+        '[{color: {skin_color}}]',
+      );
+      expect(FaceColoursModel.outline(null), 'Null');
     });
 
     test('keeps the colours on the account as they are, eyes or none', () {

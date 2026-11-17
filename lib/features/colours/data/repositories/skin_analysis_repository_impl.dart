@@ -56,9 +56,7 @@ class SkinAnalysisRepositoryImpl implements SkinAnalysisRepository {
   Future<Either<Failure, AnalysisTask>> check(String taskId) => _guard(
     'check',
     () async => switch (await _remote.task(YouCamTool.skinTone, taskId)) {
-      YouCamTaskSucceeded(:final results) => AnalysisDone(
-        FaceColoursModel.fromAnalysis(results),
-      ),
+      YouCamTaskSucceeded(:final results) => _done(results),
       final YouCamTaskFailed failed => _failed(failed),
       YouCamTaskRunning() => const AnalysisRunning(),
     },
@@ -68,6 +66,22 @@ class SkinAnalysisRepositoryImpl implements SkinAnalysisRepository {
   Future<void> discard(String taskId) async {
     // Only tidies up: YouCam deletes tasks after about 30 days anyway.
     await _guard('discard', () => _remote.deleteTask(taskId));
+  }
+
+  /// A finished analysis: done with its colours, or failed, and logged by
+  /// the results' keys, when they can't be read.
+  AnalysisTask _done(Object? results) {
+    if (FaceColoursModel.fromAnalysis(results) case final colours?) {
+      return AnalysisDone(colours);
+    }
+    _logger.logError(
+      callerClass: 'SkinAnalysisRepositoryImpl',
+      callerMethod: 'check',
+      error: YouCamTaskError(
+        'unreadable_colours ${FaceColoursModel.outline(results)}',
+      ),
+    );
+    return const AnalysisFailed(AnalysisProblem.failed);
   }
 
   /// [failed] as an analysis task, logged with YouCam's code.

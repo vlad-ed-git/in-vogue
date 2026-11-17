@@ -1,5 +1,4 @@
 import 'package:in_vogue/features/colours/domain/entities/face_colours.dart';
-import 'package:in_vogue/features/colours/domain/services/season_rules.dart';
 
 /// The face's colours as the skin-tone analysis reports them
 /// (`data.results`: `face_quality` and `color`) and as the account keeps
@@ -7,19 +6,20 @@ import 'package:in_vogue/features/colours/domain/services/season_rules.dart';
 abstract final class FaceColoursModel {
   static final _hex = RegExp(r'^#[0-9a-fA-F]{6}$');
 
-  /// The colours in an analysis's [results]. Results without readable
-  /// colours count as an unclear photo: neutral colours, not clear. The
-  /// analysis refuses photos it can't read, so a success that reports no
-  /// face quality is clear.
-  static FaceColours fromAnalysis(Object? results) {
-    if (results case {
-      'color': {
-        'skin_color': final String skin,
-        'eyebrow_color': final String eyebrow,
-        'lip_color': final String lip,
-        'hair_color': final String hair,
-      },
-    } when [skin, eyebrow, lip, hair].every(_hex.hasMatch)) {
+  /// The colours in an analysis's [results]; null when they can't be read.
+  /// The analysis refuses photos it can't read, so a success that reports
+  /// no face quality is clear.
+  static FaceColours? fromAnalysis(Object? results) {
+    if (results
+        case {
+          'color': {
+            'skin_color': final String skin,
+            'eyebrow_color': final String eyebrow,
+            'lip_color': final String lip,
+            'hair_color': final String hair,
+          },
+        }
+        when [skin, eyebrow, lip, hair].every(_hex.hasMatch)) {
       final quality = switch (results) {
         {'face_quality': final Map<String, Object?> quality} => quality,
         _ => null,
@@ -45,8 +45,22 @@ abstract final class FaceColoursModel {
                 ].every((check) => quality[check] == 'good'),
       );
     }
-    return SeasonRules.neutralColours;
+    return null;
   }
+
+  /// [results] by their keys alone, to log results that can't be read: the
+  /// values, colours included, are left out.
+  static String outline(Object? results) => switch (results) {
+    final Map<Object?, Object?> fields =>
+      '{${fields.entries.map(_outlineField).join(', ')}}',
+    final List<Object?> items => '[${items.map(outline).join(', ')}]',
+    _ => '${results.runtimeType}',
+  };
+
+  static String _outlineField(MapEntry<Object?, Object?> field) =>
+      field.value is Map || field.value is List
+      ? '${field.key}: ${outline(field.value)}'
+      : '${field.key}';
 
   static Map<String, Object?> toJson(FaceColours colours) => {
     'skin': colours.skin,
