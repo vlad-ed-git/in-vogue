@@ -7,13 +7,18 @@ import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:in_vogue/app/background_log_messages.dart';
 import 'package:in_vogue/app/background_outfits.dart';
 import 'package:in_vogue/app/widget_background_task.dart';
 import 'package:in_vogue/core/config/app_check.dart';
 import 'package:in_vogue/core/config/app_environment.dart';
-import 'package:in_vogue/core/data/errors/log_messages_impl.dart';
+import 'package:in_vogue/core/data/errors/error_report_remote_data_source.dart';
+import 'package:in_vogue/core/data/errors/error_reports.dart';
+import 'package:in_vogue/core/persistence/directory_key_value_store.dart';
+import 'package:in_vogue/core/persistence/install_id_store.dart';
 import 'package:in_vogue/core/persistence/photo_fingerprints.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/outfit_catalog_local_data_source.dart';
 import 'package:in_vogue/features/catalog/data/data_sources/outfit_catalog_remote_data_source.dart';
@@ -37,6 +42,7 @@ import 'package:in_vogue/firebase_options_development.dart' as development;
 import 'package:in_vogue/firebase_options_production.dart' as production;
 import 'package:in_vogue/l10n/generated/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:workmanager/workmanager.dart';
@@ -49,14 +55,16 @@ void widgetRefreshDispatcher() {
     (task, input) async {
       WidgetsFlutterBinding.ensureInitialized();
       DartPluginRegistrant.ensureInitialized();
+      final log = BackgroundLogMessages();
       return runWidgetBackgroundTask(
         task: task,
         input: input,
         nativeFlavor: appFlavor,
         isIOS: Platform.isIOS,
-        log: LogMessagesImpl(),
+        log: log,
         refresh: (environment, prepare) => refreshWidgetInBackground(
           environment,
+          log: log,
           prepareOutfits: prepare,
           isStopped: () => stopped,
         ),
@@ -71,10 +79,10 @@ void widgetRefreshDispatcher() {
 /// Runs from persisted context and the phone's authenticated account.
 Future<bool> refreshWidgetInBackground(
   AppEnvironment environment, {
+  required BackgroundLogMessages log,
   bool prepareOutfits = true,
   bool Function()? isStopped,
 }) async {
-  final log = LogMessagesImpl();
   final scheduler = WorkmanagerWidgetRefreshScheduler(
     widgetRefreshDispatcher,
     environment: environment.name,
@@ -115,6 +123,27 @@ Future<bool> refreshWidgetInBackground(
         production.DefaultFirebaseOptions.currentPlatform,
     },
   );
+  final support = await getApplicationSupportDirectory();
+  final folder = path.join(support.path, 'in_vogue', environment.name);
+  final package = await PackageInfo.fromPlatform();
+  log.reports = ErrorReports(
+    remote: ErrorReportRemoteDataSourceImpl(FirebaseFirestore.instance),
+    accounts: FirebaseAuth.instance.authStateChanges().map((user) => user?.uid),
+    origin: ErrorReportOrigin(
+      flavor: environment.name,
+      platform: Platform.operatingSystem,
+      version: '${package.version}+${package.buildNumber}',
+      build: kReleaseMode
+          ? 'release'
+          : kProfileMode
+          ? 'profile'
+          : 'debug',
+      // The app's id is in its Hive box, which the background never opens.
+      install: (await InstallIdStore.read(
+        DirectoryKeyValueStore(path.join(folder, 'background')),
+      )).value,
+    ),
+  );
   await activateAppCheck();
   final user = await FirebaseAuth.instance.authStateChanges().first;
   // No account this engine can see, or another one: skips this run and
@@ -123,8 +152,6 @@ Future<bool> refreshWidgetInBackground(
   final deadline = clock.now().add(const Duration(minutes: 7));
   Future<bool> canContinue() async =>
       clock.now().isBefore(deadline) && await stillCurrent();
-  final support = await getApplicationSupportDirectory();
-  final folder = path.join(support.path, 'in_vogue', environment.name);
   final weatherClient = Dio(
     BaseOptions(
       baseUrl: WeatherRemoteDataSourceImpl.baseUrl,
