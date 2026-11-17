@@ -117,12 +117,9 @@ Future<bool> refreshWidgetInBackground(
   );
   await activateAppCheck();
   final user = await FirebaseAuth.instance.authStateChanges().first;
-  if (user == null || user.uid != saved.context.accountId) {
-    if ((await widget.savedRefresh())?.context == saved.context) {
-      await widget.clear();
-    }
-    return true;
-  }
+  // No account this engine can see, or another one: skips this run and
+  // keeps the schedule.
+  if (user == null || user.uid != saved.context.accountId) return true;
   final deadline = clock.now().add(const Duration(minutes: 7));
   Future<bool> canContinue() async =>
       clock.now().isBefore(deadline) && await stillCurrent();
