@@ -337,6 +337,19 @@ void main() {
     expect(suggestion?['times'], 1);
   });
 
+  test('chooses with the taste the account keeps from the background and '
+      'other phones', () async {
+    final elsewhere = TasteSignal(
+      id: 'loved-o9',
+      kind: TasteSignalKind.loved,
+      at: DateTime.utc(2026, 10, 16),
+      outfitId: 'o9',
+    );
+    taste.accounts['uid-1'] = [elsewhere];
+    expect((await make()).last, isA<TryOnDone>());
+    expect(taste.phone, contains(elsewhere));
+  });
+
   test('keeps the day’s outfit as a signal for the taste model', () async {
     await make();
     expect(taste.phone.single.id, 'kept-2026-10-17_work');

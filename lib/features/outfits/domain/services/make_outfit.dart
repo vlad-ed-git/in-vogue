@@ -526,7 +526,10 @@ class MakeOutfit {
             ),
       ],
     );
-    // The person's taste, drawn the same on every phone for this day.
+    // The person's taste, drawn the same on every phone for this day: with
+    // the signals other phones and the background saved on the account,
+    // when it can be reached.
+    await _taste.restore(params.accountId);
     final features = TasteFeatures(outfits);
     final weights = TasteModel.learn(
       (await _taste.signals()).getOrElse(() => const []),
