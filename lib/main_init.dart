@@ -13,7 +13,6 @@ import 'package:in_vogue/core/data/errors/error_report_remote_data_source.dart';
 import 'package:in_vogue/core/data/errors/error_reports.dart';
 import 'package:in_vogue/core/di/init.dart' as core_di;
 import 'package:in_vogue/core/domain/entities/supported_languages.dart';
-import 'package:in_vogue/core/domain/errors/log_messages.dart';
 import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/core/persistence/hive_key_value_store.dart';
@@ -136,7 +135,6 @@ abstract final class MainInit {
       settings_di.init(locator);
       final language = await locator<GetLanguage>()(const NoParams());
       final setupStep = await locator<GetSetupStep>()(const NoParams());
-      _registerErrorHandlers(locator<LogMessages>());
       // Read before runApp to avoid a flash of the wrong language or screen.
       return (
         language: language.fold(
@@ -149,26 +147,5 @@ abstract final class MainInit {
       await locator.reset();
       rethrow;
     }
-  }
-
-  static void _registerErrorHandlers(LogMessages logger) {
-    FlutterError.onError = (details) {
-      logger.logError(
-        callerClass: 'FlutterError',
-        callerMethod: details.library ?? 'unknown',
-        error: details.exception,
-        stackTrace: details.stack,
-      );
-      if (kDebugMode) FlutterError.presentError(details);
-    };
-    PlatformDispatcher.instance.onError = (error, stack) {
-      logger.logError(
-        callerClass: 'PlatformDispatcher',
-        callerMethod: 'onError',
-        error: error,
-        stackTrace: stack,
-      );
-      return true;
-    };
   }
 }
