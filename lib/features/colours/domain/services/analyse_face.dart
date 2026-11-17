@@ -38,6 +38,10 @@ class AnalyseFace {
   /// How long a reading may run before it counts as failed.
   static const _taskTimeLimit = Duration(minutes: 2);
 
+  /// Readings under way, by account and face photo revision: a reading
+  /// asked for again before it ends shares it, so it is paid for once.
+  final _reading = <String, Future<Either<Failure, FaceColours>>>{};
+
   /// [accountId]'s colours: the reading kept on the account, or, when
   /// there is none or the person asks to [redo] it, the kept face photo's.
   Future<Either<Failure, FaceColours>> call(
@@ -51,9 +55,8 @@ class AnalyseFace {
         return Right(colours);
       }
     }
-    final face = (await _photos.kept(
-      PhotoRole.face,
-    )).fold<UserPhoto?>((_) => null, (photo) => photo);
+    final face = (await _photos.kept(PhotoRole.face))
+        .fold<UserPhoto?>((_) => null, (photo) => photo);
     if (face == null) {
       return const Left(AnalysisFailure(AnalysisProblem.photo));
     }
@@ -68,9 +71,21 @@ class AnalyseFace {
     if (!_service.available) {
       return const Left(AnalysisFailure(AnalysisProblem.unavailable));
     }
+    final key = '$accountId/${face.revision}';
+    return _reading[key] ??= _read(accountId, face, key).whenComplete(() {
+      _reading.remove(key);
+    });
+  }
+
+  /// Reads [face]'s colours on the service and keeps them as
+  /// [accountId]'s reading; [key] names the task kept while it runs.
+  Future<Either<Failure, FaceColours>> _read(
+    String accountId,
+    UserPhoto face,
+    String key,
+  ) async {
     // So the face photo is on the account; a failed save never blocks.
     await _saveSetupToAccount(accountId);
-    final key = '$accountId/${face.revision}';
     var task = await _jobs.task(key);
     if (task == null) {
       final uploaded = await _service.uploadFace(face.path);

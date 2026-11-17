@@ -135,9 +135,8 @@ void main() {
     saveSetup = MockSaveSetupToAccount();
     profiles = _Profiles();
     jobs = _Jobs();
-    when(
-      photos.kept(PhotoRole.face),
-    ).thenAnswer((_) async => const Right(_face));
+    when(photos.kept(PhotoRole.face))
+        .thenAnswer((_) async => const Right(_face));
     when(saveSetup(any)).thenAnswer((_) async => const Right(unit));
   });
 
@@ -228,6 +227,26 @@ void main() {
     );
   });
 
+  test('two readings of one photo at once share one paid analysis', () async {
+    final service = _Service([
+      const AnalysisRunning(),
+      const AnalysisDone(_colours),
+    ]);
+    final analyseFace = analyse(service);
+    expect(
+      await Future.wait([
+        analyseFace('uid-1'),
+        analyseFace('uid-1', redo: true),
+      ]),
+      [
+        const Right<Failure, FaceColours>(_colours),
+        const Right<Failure, FaceColours>(_colours),
+      ],
+    );
+    expect(service.uploads, hasLength(1));
+    expect(service.starts, hasLength(1));
+  });
+
   test('picks up a reading cut short instead of paying for another', () async {
     jobs.tasks['uid-1/2'] = 'task-7';
     final service = _Service([const AnalysisDone(_colours)]);
@@ -287,9 +306,8 @@ void main() {
   });
 
   test('needs a face photo', () async {
-    when(
-      photos.kept(PhotoRole.face),
-    ).thenAnswer((_) async => const Right(null));
+    when(photos.kept(PhotoRole.face))
+        .thenAnswer((_) async => const Right(null));
     final service = _Service([]);
     expect(
       await analyse(service)('uid-1'),
