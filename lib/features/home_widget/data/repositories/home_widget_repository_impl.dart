@@ -55,6 +55,10 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
   /// pictures into the same folder at once.
   Future<void> _publishing = Future.value();
 
+  /// The refresh context background work was last scheduled for in this
+  /// run; null before the first and after a clear.
+  WidgetRefreshContext? _scheduled;
+
   @override
   Future<Either<Failure, Unit>> publish(
     WidgetContent content, {
@@ -104,7 +108,10 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
           WidgetRefreshContextModel.toJson(refresh, environment: _environment),
         ),
       );
-      await _scheduler.schedule(WidgetSchedule.untilRefresh(now));
+      if (refresh != _scheduled) {
+        await _scheduler.schedule(WidgetSchedule.untilRefresh(now));
+        _scheduled = refresh;
+      }
     }
     final shared = await _pictures.share({
       for (final day in content.days) ...[?day.picture, ?day.waitingPhoto],
@@ -145,6 +152,7 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
   }
 
   Future<Either<Failure, Unit>> _clear() async {
+    _scheduled = null;
     var failed = false;
     for (final action in <Future<void> Function()>[
       () => _widget.save(HomeWidgetDataSourceImpl.refreshKey, null),

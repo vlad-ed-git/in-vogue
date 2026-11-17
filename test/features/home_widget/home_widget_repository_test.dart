@@ -299,6 +299,33 @@ void main() {
     verify(scheduler.schedule(any)).called(1);
   });
 
+  test('schedules background work once a run, and again only when the '
+      'refresh context changes or after a clear', () async {
+    const refresh = WidgetRefreshContext(
+      place: UserLocation(latitude: 1, longitude: 1),
+      language: SupportedLanguages.english,
+      preferred: ForecastDay.today,
+    );
+    await repository.publish(_content, refresh: refresh);
+    await repository.publish(_content, refresh: refresh);
+    await repository.publish(_content);
+    verify(scheduler.schedule(any)).called(1);
+
+    await repository.publish(
+      _content,
+      refresh: const WidgetRefreshContext(
+        place: UserLocation(latitude: 1, longitude: 1),
+        language: SupportedLanguages.english,
+        preferred: ForecastDay.tomorrow,
+      ),
+    );
+    verify(scheduler.schedule(any)).called(1);
+
+    await repository.clear();
+    await repository.publish(_content, refresh: refresh);
+    verify(scheduler.schedule(any)).called(1);
+  });
+
   test(
     'logout removes the refresh context and cancels background work',
     () async {
