@@ -3,10 +3,7 @@ import 'package:in_vogue/features/home_widget/domain/services/widget_schedule.da
 
 void main() {
   test('starts shortly after onboarding and refreshes throughout the day', () {
-    expect(
-      WidgetSchedule.untilRefresh(DateTime(2026, 10, 18, 7)),
-      const Duration(minutes: 15),
-    );
+    expect(WidgetSchedule.firstRefresh, const Duration(minutes: 15));
     expect(WidgetSchedule.refreshEvery, const Duration(hours: 6));
   });
 

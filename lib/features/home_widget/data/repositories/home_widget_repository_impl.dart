@@ -109,7 +109,7 @@ class HomeWidgetRepositoryImpl implements HomeWidgetRepository {
         ),
       );
       if (refresh != _scheduled) {
-        await _scheduler.schedule(WidgetSchedule.untilRefresh(now));
+        await _scheduler.schedule(WidgetSchedule.firstRefresh);
         _scheduled = refresh;
       }
     }

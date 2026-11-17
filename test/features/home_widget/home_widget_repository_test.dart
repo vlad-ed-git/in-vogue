@@ -224,7 +224,7 @@ void main() {
         'bodyPhotoRevision': null,
         'occasions': {'2026-10-19': 'goingOut'},
       });
-      verify(scheduler.schedule(WidgetSchedule.untilRefresh(now))).called(1);
+      verify(scheduler.schedule(WidgetSchedule.firstRefresh)).called(1);
 
       when(widget.read(HomeWidgetDataSourceImpl.refreshKey))
           .thenAnswer((_) async => saved);
