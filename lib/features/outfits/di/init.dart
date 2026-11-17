@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:in_vogue/core/data/you_cam/you_cam_remote_data_source.dart';
+import 'package:in_vogue/core/domain/usecases/use_case.dart';
 import 'package:in_vogue/core/persistence/app_directory.dart';
 import 'package:in_vogue/features/account/domain/usecases/save_setup_to_account.dart';
+import 'package:in_vogue/features/auth/domain/usecases/get_current_account.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/day_remote_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_local_data_source.dart';
 import 'package:in_vogue/features/outfits/data/data_sources/outfit_picture_remote_data_source.dart';
@@ -77,6 +79,10 @@ void init(GetIt locator) {
         loadBodyPhoto: () => locator<PhotoRepository>().kept(PhotoRole.body),
         saveSetupToAccount: locator<SaveSetupToAccount>().call,
         installId: locator(),
+        // Pauses, keeping its progress, once nobody is signed in.
+        canContinue: () async =>
+            (await locator<GetCurrentAccount>()(const NoParams()))
+                .fold((_) => false, (account) => account != null),
       ),
     )
     ..registerLazySingleton<FollowDay>(
