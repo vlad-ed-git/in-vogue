@@ -3,9 +3,9 @@ import UIKit
 import WidgetKit
 
 /// The home-screen widget: the day's weather on a Rouge slab beside the
-/// person in the day's outfit. The app keeps today's and tomorrow's days and
-/// reloads the widget whenever they change; the widget picks the day itself,
-/// as Home does, and changes at 06:00, 09:00 and midnight.
+/// person in the day's outfit. The app keeps the coming days and reloads the
+/// widget whenever they change; the widget shows the day the person chose,
+/// today or tomorrow, and changes at midnight.
 struct InVogueWidget: Widget {
   /// HomeWidgetDataSourceImpl.iOSKind in the app.
   let kind = "InVogueWidget"

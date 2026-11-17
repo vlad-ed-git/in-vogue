@@ -29,8 +29,8 @@ import org.json.JSONObject
 /**
  * The home-screen widget: the day's weather on a Rouge slab beside the person in the day's outfit.
  *
- * The app keeps today's and tomorrow's days, their words already in the person's language; the
- * widget picks the day itself, as Home does, and is redrawn at 06:00, 09:00 and midnight.
+ * The app keeps the coming days, their words already in the person's language; the widget shows
+ * the day the person chose, today or tomorrow, and is redrawn at midnight.
  */
 class InVogueWidgetProvider : HomeWidgetProvider() {
 
@@ -140,8 +140,7 @@ class InVogueWidgetProvider : HomeWidgetProvider() {
   }
 
   /**
-   * The day to show at [now]: always today when the person chose it, else today from 06:00 to
-   * 08:59 and tomorrow otherwise, as Home's ForecastDay.shownAt in the app. Without that day, the
+   * The day to show at [now]: the day the person chose, today or tomorrow. Without that day, the
    * newest one, with the time it was saved instead of its date.
    */
   private fun shown(content: Content, now: Calendar): Shown? {

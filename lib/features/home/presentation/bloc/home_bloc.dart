@@ -73,7 +73,6 @@ final class HomeRetried extends HomeEvent {
   const HomeRetried();
 }
 
-/// Follows the outfits of [days].
 /// Follows the person's own outfits, for each day's pick.
 final class _WardrobeFollowed extends HomeEvent {
   const _WardrobeFollowed(this.accountId);
@@ -83,6 +82,7 @@ final class _WardrobeFollowed extends HomeEvent {
   List<Object?> get props => [accountId];
 }
 
+/// Follows the outfits of [days].
 final class _DaysFollowed extends HomeEvent {
   const _DaysFollowed(this.days);
   final Map<ForecastDay, MakeOutfitParams> days;
