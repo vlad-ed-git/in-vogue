@@ -154,14 +154,31 @@ class TasteModel {
   ], List<double>.filled(TasteFeatures.size, 0));
 
   /// What [signals] teach, the outfits' features read from [features] and
-  /// [catalog]; a signal about an outfit the catalog lacks is left out.
+  /// [catalog]; a signal about an outfit the catalog lacks is left out. Of
+  /// an outfit's hearts (picked, loved or unloved), only the latest counts:
+  /// the heart as it was left, however often it was tapped.
   factory TasteModel.learn(
     Iterable<TasteSignal> signals, {
     required TasteFeatures features,
     required Map<String, CatalogOutfit> catalog,
   }) {
     final model = TasteModel.prior();
+    final hearts = <String, TasteSignal>{};
     for (final signal in signals) {
+      if (signal.outfitId case final outfitId?
+          when _hearts.contains(signal.kind)) {
+        if (hearts[outfitId] case final known?
+            when signal.at.isBefore(known.at)) {
+          continue;
+        }
+        hearts[outfitId] = signal;
+      }
+    }
+    for (final signal in signals) {
+      if (_hearts.contains(signal.kind) &&
+          hearts[signal.outfitId]?.id != signal.id) {
+        continue;
+      }
       final outfit = catalog[signal.outfitId];
       final x = signal.kind == TasteSignalKind.wardrobe
           ? features.ofColours(signal.families)
@@ -172,6 +189,13 @@ class TasteModel {
     }
     return model;
   }
+
+  /// The kinds that say how an outfit's heart was left.
+  static const _hearts = {
+    TasteSignalKind.picked,
+    TasteSignalKind.loved,
+    TasteSignalKind.unloved,
+  };
 
   /// The prior's spread of each weight.
   static const priorScale = 0.5;

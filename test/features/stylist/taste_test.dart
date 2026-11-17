@@ -104,6 +104,34 @@ void main() {
       expect(liking(unloved, dresses), lessThan(liking(unloved, others)));
     });
 
+    test('a heart toggled again and again counts once, as it was left', () {
+      final outfit = catalog.first.id;
+      TasteSignal heart(String id, TasteSignalKind kind, int minute) =>
+          TasteSignal(
+            id: id,
+            kind: kind,
+            at: DateTime.utc(2026, 10, 19, 9, minute),
+            outfitId: outfit,
+          );
+      List<double> learnt(List<TasteSignal> signals) =>
+          TasteModel.learn(signals, features: features, catalog: byId).mean();
+      expect(
+        learnt([
+          heart('a', TasteSignalKind.loved, 3),
+          heart('b', TasteSignalKind.unloved, 1),
+          heart('c', TasteSignalKind.loved, 2),
+        ]),
+        learnt([heart('a', TasteSignalKind.loved, 3)]),
+      );
+      expect(
+        learnt([
+          heart('a', TasteSignalKind.picked, 1),
+          heart('b', TasteSignalKind.unloved, 2),
+        ]),
+        learnt([heart('b', TasteSignalKind.unloved, 2)]),
+      );
+    });
+
     test('a wardrobe of navy lifts navy outfits; unknown outfits teach '
         'nothing', () {
       final weights = TasteModel.learn(
